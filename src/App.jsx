@@ -24,28 +24,28 @@ class App extends GenericApp {
 
         (async () => {
             this.translations = {
-                'en': (await import('@iobroker/adapter-react-v5/i18n/en.json')).default,
-                'de': (await import('@iobroker/adapter-react-v5/i18n/de.json')).default,
-                'ru': (await import('@iobroker/adapter-react-v5/i18n/ru.json')).default,
-                'pt': (await import('@iobroker/adapter-react-v5/i18n/pt.json')).default,
-                'nl': (await import('@iobroker/adapter-react-v5/i18n/nl.json')).default,
-                'fr': (await import('@iobroker/adapter-react-v5/i18n/fr.json')).default,
-                'it': (await import('@iobroker/adapter-react-v5/i18n/it.json')).default,
-                'es': (await import('@iobroker/adapter-react-v5/i18n/es.json')).default,
-                'pl': (await import('@iobroker/adapter-react-v5/i18n/pl.json')).default,
+                en: (await import('@iobroker/adapter-react-v5/i18n/en.json')).default,
+                de: (await import('@iobroker/adapter-react-v5/i18n/de.json')).default,
+                ru: (await import('@iobroker/adapter-react-v5/i18n/ru.json')).default,
+                pt: (await import('@iobroker/adapter-react-v5/i18n/pt.json')).default,
+                nl: (await import('@iobroker/adapter-react-v5/i18n/nl.json')).default,
+                fr: (await import('@iobroker/adapter-react-v5/i18n/fr.json')).default,
+                it: (await import('@iobroker/adapter-react-v5/i18n/it.json')).default,
+                es: (await import('@iobroker/adapter-react-v5/i18n/es.json')).default,
+                pl: (await import('@iobroker/adapter-react-v5/i18n/pl.json')).default,
                 'zh-cn': (await import('@iobroker/adapter-react-v5/i18n/zh-cn.json')).default,
             };
 
             const translations = {
-                'en': (await import('./i18n/en.json')).default,
-                'de': (await import('./i18n/de.json')).default,
-                'ru': (await import('./i18n/ru.json')).default,
-                'pt': (await import('./i18n/pt.json')).default,
-                'nl': (await import('./i18n/nl.json')).default,
-                'fr': (await import('./i18n/fr.json')).default,
-                'it': (await import('./i18n/it.json')).default,
-                'es': (await import('./i18n/es.json')).default,
-                'pl': (await import('./i18n/pl.json')).default,
+                en: (await import('./i18n/en.json')).default,
+                de: (await import('./i18n/de.json')).default,
+                ru: (await import('./i18n/ru.json')).default,
+                pt: (await import('./i18n/pt.json')).default,
+                nl: (await import('./i18n/nl.json')).default,
+                fr: (await import('./i18n/fr.json')).default,
+                it: (await import('./i18n/it.json')).default,
+                es: (await import('./i18n/es.json')).default,
+                pl: (await import('./i18n/pl.json')).default,
                 'zh-cn': (await import('./i18n/zh-cn.json')).default,
             };
             // merge together
@@ -56,7 +56,6 @@ class App extends GenericApp {
             I18n.setTranslations(this.translations);
         })();
         I18n.setLanguage((navigator.language || navigator.userLanguage || 'en').substring(0, 2).toLowerCase());
-        
     }
 
     componentDidMount() {
@@ -75,7 +74,19 @@ class App extends GenericApp {
         return <StyledEngineProvider injectFirst>
             <ThemeProvider theme={this.state.theme}>
                 <div className={this.props.classes.app}>
-                    <Thermostat socket={this.socket} />
+                    <Thermostat
+                        socket={this.socket}
+                        style={{
+                            width: 600,
+                            height: 600,
+                        }}
+                        data={{
+                            name: '11',
+                            'oid-mode': 'javascript.0.mode',
+                            'oid-temp': 'javascript.0.temperatureSet',
+                            'oid-temp-state': 'javascript.0.temperatureActual',
+                        }}
+                    />
                 </div>
             </ThemeProvider>
         </StyledEngineProvider>;

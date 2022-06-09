@@ -1,15 +1,13 @@
-import React from "react";
+import React from 'react';
 
 class visRxWidget extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { ...props };
+    }
 
-    state = {
-        style: {
-            width: 200,
-            height: 200,
-        },
-        data: {
-            button_name: '11'
-        }
+    componentDidMount() {
+
     }
 
     renderWidgetBody() {
@@ -19,7 +17,6 @@ class visRxWidget extends React.Component {
     render() {
         return this.renderWidgetBody();
     }
-
 }
 
 export default visRxWidget;

@@ -8,18 +8,19 @@ export default defineConfig({
         federation({
             filename: 'customWidgets.js',
             exposes: {
-                './MaterialDemo': './src/MaterialDemo.jsx',
+                './MaterialDemo': './src/Thermostat.jsx',
             },
             shared: {
-                'react': {},
+                react: {},
                 '@mui/material': {},
+                '@mui/icons-material': {},
                 'react-dom': {},
                 'prop-types': {},
                 './src/visRxWidget.jsx': {
                     packageName: 'visRxWidget',
-                }
-            }
-        })
+                },
+            },
+        }),
     ],
     build: {
         target: 'esnext',
@@ -32,6 +33,6 @@ export default defineConfig({
         //     minifyInternalExports: false
         //   }
         // },
-        sourcemap: true // 'inline'
-    }
-})
+        sourcemap: true, // 'inline'
+    },
+});
