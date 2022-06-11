@@ -4,7 +4,7 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import withStyles from '@mui/styles/withStyles';
 
 import GenericApp from '@iobroker/adapter-react-v5/GenericApp';
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import i18n from '@iobroker/adapter-react-v5/i18n';
 import Loader from '@iobroker/adapter-react-v5/Components/Loader';
 
 import Thermostat from './Thermostat';
@@ -53,9 +53,9 @@ class App extends GenericApp {
 
             console.log(this.translations);
             // init translations
-            I18n.setTranslations(this.translations);
+            i18n.setTranslations(this.translations);
         })();
-        I18n.setLanguage((navigator.language || navigator.userLanguage || 'en').substring(0, 2).toLowerCase());
+        i18n.setLanguage((navigator.language || navigator.userLanguage || 'en').substring(0, 2).toLowerCase());
     }
 
     componentDidMount() {
@@ -83,6 +83,7 @@ class App extends GenericApp {
                         data={{
                             name: '11',
                             'oid-mode': 'javascript.0.mode',
+                            'oid-power': 'javascript.0.power',
                             'oid-temp': 'javascript.0.temperatureSet',
                             'oid-temp-state': 'javascript.0.temperatureActual',
                         }}
