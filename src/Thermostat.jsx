@@ -14,6 +14,7 @@ import HouseboatIcon from '@mui/icons-material/Houseboat';
 
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import AirIcon from '@mui/icons-material/Air';
 
 import {
     MoreVert as MoreVertIcon,
@@ -29,7 +30,7 @@ const Buttons = {
     COOL: AcUnitIcon,
     DRY: DryIcon,
     ECO: ParkIcon,
-    FAN_ONLY: ThermostatAutoIcon,
+    FAN_ONLY: AirIcon,
     HEAT: WbSunnyIcon,
     OFF: PowerSettingsNewIcon,
 };
