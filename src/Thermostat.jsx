@@ -1,6 +1,7 @@
 import React from 'react';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
-
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 import {
     Button, Card, CardContent, CardHeader, Dialog, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Slider, Tab, Tabs, TextField, Tooltip,
 } from '@mui/material';
@@ -18,6 +19,7 @@ import {
     MoreVert as MoreVertIcon,
 } from '@mui/icons-material';
 import { i18n } from '@iobroker/adapter-react-v5';
+import theme from './theme';
 import VisRxWidget from './visRxWidget';
 import ObjectChart from './ObjectChart';
 
@@ -33,7 +35,9 @@ const Buttons = {
     OFF: PowerSettingsNewIcon,
 };
 
-class Thermostat extends VisRxWidget {
+let themeName = Utils.getThemeName();
+
+class Thermostat extends window.visRxWidget {
     constructor(props) {
         super(props);
         this.state.showDialog = false;
@@ -222,6 +226,44 @@ class Thermostat extends VisRxWidget {
             </Dialog>
         </div>;
     }
+}
+
+class Thermostat2 extends React.Component {
+    static getWidgetInfo() {
+        return {
+            id: 'tplMaterialDemo',
+            visSet: 'material-widgets',
+            visName: 'Demo',
+            visAttrs: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
+            visPrev: 'widgets/material-widgets/img/prev_switch.png',
+        };
+    }
+
+    getWidgetInfo() {
+        return Thermostat.getWidgetInfo();
+    }
+
+    render() {
+        return <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme(themeName)}>
+                <Card><Button>aa</Button></Card>
+            </ThemeProvider>
+        </StyledEngineProvider>;
+    }
+}
+
+const Thermostat3 = (props) => {
+    return <Card><Button>aa</Button></Card>;
+}
+
+Thermostat3.getWidgetInfo = () =>{
+    return {
+        id: 'tplMaterialDemo',
+        visSet: 'material-widgets',
+        visName: 'Demo',
+        visAttrs: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
+        visPrev: 'widgets/material-widgets/img/prev_switch.png',
+    };
 }
 
 export default Thermostat;

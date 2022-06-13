@@ -1,6 +1,7 @@
 const path = require('path');
 
 const { ModuleFederationPlugin } = require('webpack').container;
+const deps = require("./package.json").devDependencies;
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -8,16 +9,20 @@ module.exports = {
         extensions: ['.js', '.jsx'],
     },
     entry: './src/main.jsx',
+    devServer: {
+        contentBase: path.join(__dirname, "dist"),
+        port: 4173
+      },
     mode: 'development',
-    target: 'es2020',
-    devtool: false,
-    experiments: {
-        outputModule: true,
-    },
+    // target: 'web',
+    // devtool: false,
+    // experiments: {
+    //     outputModule: true,
+    // },
     output: {
         // libraryTarget: 'var',
-        libraryExport: 'main',
-        publicPath: 'http://localhost:3000/',
+        // libraryExport: 'main',
+        publicPath: 'auto',
     },
     optimization: {
     // minimize: true,
@@ -46,24 +51,30 @@ module.exports = {
     plugins: [
         new ModuleFederationPlugin({
             name: 'MaterialDemo',
-            library: { type: 'module' },
+            // library: { type: 'module' },
+            library: { type: "var", name: "MaterialDemo" },
             filename: 'customWidgets.js',
             exposes: {
                 './MaterialDemo': './src/Thermostat.jsx',
             },
-            shared: {
-                react: {},
-                '@mui/material': {},
-                '@mui/icons-material': {},
-                'react-dom': {},
-                'prop-types': {},
-                '@iobroker/adapter-react-v5': {},
-                '@mui/styles': {},
-                'react-ace': {},
-                './src/visRxWidget.jsx': {
-                    packageName: 'visRxWidget',
-                },
-            },
+            shared: 
+                [
+                    'react', 'react-dom', '@mui/material', '@mui/styles', '@mui/icons-material', 'prop-types','@iobroker/adapter-react-v5', 'react-ace'
+                ]
+                // react: {singleton: true,
+                //     requiredVersion: deps.react},
+                // 'react-dom': {singleton: true,
+                //     requiredVersion: deps.react['react-dom']},
+                // '@mui/material': {singleton: true},
+                // '@mui/icons-material': {singleton: true},
+                // 'prop-types': {singleton: true},
+                // '@iobroker/adapter-react-v5': {singleton: true},
+                // '@mui/styles': {singleton: true},
+                // 'react-ace': {singleton: true},
+                // './src/visRxWidget.jsx': {
+                //     packageName: 'visRxWidget',
+                // },
+            
         }),
     ],
     devServer: {
