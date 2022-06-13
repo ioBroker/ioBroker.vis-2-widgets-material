@@ -26,7 +26,7 @@ export default defineConfig({
                 './MaterialDemo': './src/Thermostat.jsx',
             },
             shared: {
-                react: {singleton: true, import: true, eager: true},
+                react: {},
                 '@mui/material': {},
                 '@mui/icons-material': {},
                 'react-dom': {},
