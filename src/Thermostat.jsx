@@ -11,9 +11,11 @@ import ForestIcon from '@mui/icons-material/Forest';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import DryIcon from '@mui/icons-material/Dry';
 import ParkIcon from '@mui/icons-material/Park';
+import HouseboatIcon from '@mui/icons-material/Houseboat';
 
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import AirIcon from '@mui/icons-material/Air';
 
 import {
     MoreVert as MoreVertIcon,
@@ -26,11 +28,11 @@ import ObjectChart from './ObjectChart';
 const Buttons = {
     AUTO: ThermostatAutoIcon,
     MANUAL: PanToolIcon,
-    VACATION: ForestIcon,
+    VACATION: HouseboatIcon,
     COOL: AcUnitIcon,
     DRY: DryIcon,
     ECO: ParkIcon,
-    FAN_ONLY: ThermostatAutoIcon,
+    FAN_ONLY: AirIcon,
     HEAT: WbSunnyIcon,
     OFF: PowerSettingsNewIcon,
 };
