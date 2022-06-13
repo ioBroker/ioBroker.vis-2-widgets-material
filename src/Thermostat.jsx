@@ -10,6 +10,7 @@ import ForestIcon from '@mui/icons-material/Forest';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import DryIcon from '@mui/icons-material/Dry';
 import ParkIcon from '@mui/icons-material/Park';
+import HouseboatIcon from '@mui/icons-material/Houseboat';
 
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
@@ -24,7 +25,7 @@ import ObjectChart from './ObjectChart';
 const Buttons = {
     AUTO: ThermostatAutoIcon,
     MANUAL: PanToolIcon,
-    VACATION: ForestIcon,
+    VACATION: HouseboatIcon,
     COOL: AcUnitIcon,
     DRY: DryIcon,
     ECO: ParkIcon,
@@ -57,27 +58,27 @@ class Thermostat extends VisRxWidget {
 
     async componentDidMount() {
         super.componentDidMount();
-        if (this.props.data['oid-mode']) {
-            const modeVal = await this.props.socket.getState(this.props.data['oid-mode']);
+        if (this.state.data['oid-mode']) {
+            const modeVal = await this.props.socket.getState(this.state.data['oid-mode']);
             this.setState({ mode: modeVal.val });
-            const mode = await this.props.socket.getObject(this.props.data['oid-mode']);
+            const mode = await this.props.socket.getObject(this.state.data['oid-mode']);
             this.setState({ modes: mode.common.states });
         }
-        if (this.props.data['oid-power']) {
-            const powerVal = await this.props.socket.getState(this.props.data['oid-power']);
+        if (this.state.data['oid-power']) {
+            const powerVal = await this.props.socket.getState(this.state.data['oid-power']);
             this.setState({ power: powerVal.val });
         }
-        if (this.props.data['oid-temp']) {
-            const temp = await this.props.socket.getState(this.props.data['oid-temp']);
+        if (this.state.data['oid-temp']) {
+            const temp = await this.props.socket.getState(this.state.data['oid-temp']);
             this.setState({ temp: temp.val });
-            const tempObject = await this.props.socket.getObject(this.props.data['oid-temp']);
+            const tempObject = await this.props.socket.getObject(this.state.data['oid-temp']);
             this.setState({ min: tempObject.common.min, max: tempObject.common.max, tempObject });
         }
-        if (this.props.data['oid-temp-state']) {
-            const tempStateObject = await this.props.socket.getObject(this.props.data['oid-temp-state']);
+        if (this.state.data['oid-temp-state']) {
+            const tempStateObject = await this.props.socket.getObject(this.state.data['oid-temp-state']);
             this.setState({ tempStateObject });
             this.getSubscribeState(
-                this.props.data['oid-temp-state'],
+                this.state.data['oid-temp-state'],
                 tempState => this.setState({ tempState: tempState.val }),
             );
         }
@@ -116,7 +117,7 @@ class Thermostat extends VisRxWidget {
                             value: this.state.temp || null,
                             onChange: value => {
                                 this.setState({ temp: Math.round(value) });
-                                this.props.socket.setState(this.props.data['oid-temp'], Math.round(value));
+                                this.props.socket.setState(this.state.data['oid-temp'], Math.round(value));
                             },
                         }}
                     >
@@ -138,7 +139,7 @@ class Thermostat extends VisRxWidget {
                                 color={this.state.mode === parseInt(modeIndex) ? 'primary' : 'default'}
                                 onClick={e => {
                                     this.setState({ mode: parseInt(modeIndex) });
-                                    this.props.socket.setState(this.props.data['oid-mode'], parseInt(modeIndex));
+                                    this.props.socket.setState(this.state.data['oid-mode'], parseInt(modeIndex));
                                 }}
                             >
                                 <Tooltip title={i18n.t(mode)}>
@@ -146,12 +147,12 @@ class Thermostat extends VisRxWidget {
                                 </Tooltip>
                             </IconButton>;
                         }) : null}
-                        {this.props.data['oid-power'] &&
+                        {this.state.data['oid-power'] &&
                         <IconButton
                             color={this.state.power ? 'primary' : 'default'}
                             onClick={e => {
                                 this.setState({ power: !this.state.power });
-                                this.props.socket.setState(this.props.data['oid-power'], !this.state.power);
+                                this.props.socket.setState(this.state.data['oid-power'], !this.state.power);
                             }}
                         >
                             <Tooltip title={i18n.t('Power')}>
@@ -179,7 +180,7 @@ class Thermostat extends VisRxWidget {
                             value={this.state.temp || null}
                             onChange={e => {
                                 this.setState({ temp: Math.round(e.target.value) });
-                                this.props.socket.setState(this.props.data['oid-temp'], Math.round(e.target.value));
+                                this.props.socket.setState(this.state.data['oid-temp'], Math.round(e.target.value));
                             }}
                             variant="standard"
                             type="number"
@@ -195,7 +196,7 @@ class Thermostat extends VisRxWidget {
                                 value={this.state.mode}
                                 onChange={e => {
                                     this.setState({ mode: parseInt(e.target.value) });
-                                    this.props.socket.setState(this.props.data['oid-mode'], parseInt(e.target.value));
+                                    this.props.socket.setState(this.state.data['oid-mode'], parseInt(e.target.value));
                                 }}
                             >
                                 {this.state.modes ? Object.keys(this.state.modes).map(modeIndex => {
