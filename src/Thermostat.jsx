@@ -39,7 +39,7 @@ const Buttons = {
 
 let themeName = Utils.getThemeName();
 
-class Thermostat extends window.visRxWidget {
+class Thermostat extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
         super(props);
         this.state.showDialog = false;
@@ -228,44 +228,6 @@ class Thermostat extends window.visRxWidget {
             </Dialog>
         </div>;
     }
-}
-
-class Thermostat2 extends React.Component {
-    static getWidgetInfo() {
-        return {
-            id: 'tplMaterialDemo',
-            visSet: 'material-widgets',
-            visName: 'Demo',
-            visAttrs: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
-            visPrev: 'widgets/material-widgets/img/prev_switch.png',
-        };
-    }
-
-    getWidgetInfo() {
-        return Thermostat.getWidgetInfo();
-    }
-
-    render() {
-        return <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme(themeName)}>
-                <Card><Button>aa</Button></Card>
-            </ThemeProvider>
-        </StyledEngineProvider>;
-    }
-}
-
-const Thermostat3 = (props) => {
-    return <Card><Button>aa</Button></Card>;
-}
-
-Thermostat3.getWidgetInfo = () =>{
-    return {
-        id: 'tplMaterialDemo',
-        visSet: 'material-widgets',
-        visName: 'Demo',
-        visAttrs: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
-        visPrev: 'widgets/material-widgets/img/prev_switch.png',
-    };
 }
 
 export default Thermostat;
