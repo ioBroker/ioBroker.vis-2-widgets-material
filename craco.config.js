@@ -17,12 +17,12 @@ module.exports = {
                 React: 'react',
             }),
             new ModuleFederationPlugin({
-                name: 'MaterialDemo',
+                name: 'Thermostat',
                 // library: { type: 'module' },
                 // library: { type: 'var', name: 'MaterialDemo' },
-                filename: 'remoteEntry.js',
+                filename: 'customWidgets.js',
                 exposes: {
-                    './MaterialDemo': './src/Thermostat',
+                    './Thermostat': './src/Thermostat',
                 },
                 shared:
                     [

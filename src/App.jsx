@@ -24,29 +24,29 @@ class App extends GenericApp {
 
         (async () => {
             this.translations = {
-                en: (await import('@iobroker/adapter-react-v5/i18n/en.json')).default,
-                de: (await import('@iobroker/adapter-react-v5/i18n/de.json')).default,
-                ru: (await import('@iobroker/adapter-react-v5/i18n/ru.json')).default,
-                pt: (await import('@iobroker/adapter-react-v5/i18n/pt.json')).default,
-                nl: (await import('@iobroker/adapter-react-v5/i18n/nl.json')).default,
-                fr: (await import('@iobroker/adapter-react-v5/i18n/fr.json')).default,
-                it: (await import('@iobroker/adapter-react-v5/i18n/it.json')).default,
-                es: (await import('@iobroker/adapter-react-v5/i18n/es.json')).default,
-                pl: (await import('@iobroker/adapter-react-v5/i18n/pl.json')).default,
-                'zh-cn': (await import('@iobroker/adapter-react-v5/i18n/zh-cn.json')).default,
+                en: require('@iobroker/adapter-react-v5/i18n/en.json'),
+                de: require('@iobroker/adapter-react-v5/i18n/de.json'),
+                ru: require('@iobroker/adapter-react-v5/i18n/ru.json'),
+                pt: require('@iobroker/adapter-react-v5/i18n/pt.json'),
+                nl: require('@iobroker/adapter-react-v5/i18n/nl.json'),
+                fr: require('@iobroker/adapter-react-v5/i18n/fr.json'),
+                it: require('@iobroker/adapter-react-v5/i18n/it.json'),
+                es: require('@iobroker/adapter-react-v5/i18n/es.json'),
+                pl: require('@iobroker/adapter-react-v5/i18n/pl.json'),
+                'zh-cn': require('@iobroker/adapter-react-v5/i18n/zh-cn.json'),
             };
 
             const translations = {
-                en: (await import('./i18n/en.json')).default,
-                de: (await import('./i18n/de.json')).default,
-                ru: (await import('./i18n/ru.json')).default,
-                pt: (await import('./i18n/pt.json')).default,
-                nl: (await import('./i18n/nl.json')).default,
-                fr: (await import('./i18n/fr.json')).default,
-                it: (await import('./i18n/it.json')).default,
-                es: (await import('./i18n/es.json')).default,
-                pl: (await import('./i18n/pl.json')).default,
-                'zh-cn': (await import('./i18n/zh-cn.json')).default,
+                en: require('./i18n/en.json'),
+                de: require('./i18n/de.json'),
+                ru: require('./i18n/ru.json'),
+                pt: require('./i18n/pt.json'),
+                nl: require('./i18n/nl.json'),
+                fr: require('./i18n/fr.json'),
+                it: require('./i18n/it.json'),
+                es: require('./i18n/es.json'),
+                pl: require('./i18n/pl.json'),
+                'zh-cn': require('./i18n/zh-cn.json'),
             };
             // merge together
             Object.keys(translations).forEach(lang => this.translations[lang] = Object.assign(this.translations[lang], translations[lang]));
