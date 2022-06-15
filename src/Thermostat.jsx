@@ -1,13 +1,11 @@
 import React from 'react';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
-import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
+import { i18n } from '@iobroker/adapter-react-v5';
 import {
-    Button, Card, CardContent, CardHeader, Dialog, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Slider, Tab, Tabs, TextField, Tooltip,
+    Card, CardContent, CardHeader, Dialog, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Tab, Tabs, TextField, Tooltip,
 } from '@mui/material';
 import ThermostatAutoIcon from '@mui/icons-material/ThermostatAuto';
 import PanToolIcon from '@mui/icons-material/PanTool';
-import ForestIcon from '@mui/icons-material/Forest';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import DryIcon from '@mui/icons-material/Dry';
 import ParkIcon from '@mui/icons-material/Park';
@@ -20,8 +18,7 @@ import AirIcon from '@mui/icons-material/Air';
 import {
     MoreVert as MoreVertIcon,
 } from '@mui/icons-material';
-import { i18n } from '@iobroker/adapter-react-v5';
-import theme from './theme';
+
 import VisRxWidget from './visRxWidget';
 import ObjectChart from './ObjectChart';
 
@@ -37,8 +34,6 @@ const Buttons = {
     OFF: PowerSettingsNewIcon,
 };
 
-let themeName = Utils.getThemeName();
-
 class Thermostat extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
         super(props);
@@ -52,6 +47,27 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
             visSet: 'material-widgets',
             visName: 'Demo',
             visAttrs: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
+            visAttrsNew: [
+                {
+                    name: 'name',
+                },
+                {
+                    name: 'oid-mode',
+                    type: 'id',
+                },
+                {
+                    name: 'oid-temp',
+                    type: 'id',
+                },
+                {
+                    name: 'oid-temp-state',
+                    type: 'id',
+                },
+                {
+                    name: 'oid-power',
+                    type: 'id',
+                },
+            ],
             visPrev: 'widgets/material-widgets/img/prev_switch.png',
         };
     }

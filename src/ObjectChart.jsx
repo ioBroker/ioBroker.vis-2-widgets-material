@@ -6,15 +6,17 @@ import clsx from 'clsx';
 
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, TimePicker, DatePicker } from '@mui/x-date-pickers';
-import Paper from '@mui/material/Paper';
-import LinearProgress from '@mui/material/LinearProgress';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Toolbar from '@mui/material/Toolbar';
-import Fab from '@mui/material/Fab';
-import TextField from '@mui/material/TextField';
+import {
+    Paper,
+    LinearProgress,
+    InputLabel,
+    MenuItem,
+    FormControl,
+    Select,
+    Toolbar,
+    Fab,
+    TextField,
+} from '@mui/material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 

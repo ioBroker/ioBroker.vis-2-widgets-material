@@ -1,3 +1,15 @@
+const makeShared = pkgs => {
+    const result = {};
+    pkgs.forEach(
+        packageName => {
+            result[packageName] = {
+                requiredVersion: '*',
+            };
+        },
+    );
+    return result;
+};
+
 module.exports = {
     name: 'Thermostat',
     // library: { type: 'module' },
@@ -7,9 +19,9 @@ module.exports = {
         './Thermostat': './src/Thermostat',
     },
     shared:
-        [
+        makeShared([
             'react', 'react-dom', '@mui/material', '@mui/styles', '@mui/icons-material', 'prop-types', '@iobroker/adapter-react-v5', 'react-ace',
-        ],
+        ]),
     // shared: {
     // react: {singleton: true,
     //     eager: true,
