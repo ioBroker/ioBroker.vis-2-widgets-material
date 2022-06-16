@@ -7,7 +7,11 @@ const cracoModuleFederation = require('craco-module-federation');
 console.log('craco');
 
 module.exports = {
-    plugins: [{ plugin: CracoEsbuildPlugin }, { plugin: cracoModuleFederation }],
+    plugins: [{ plugin: CracoEsbuildPlugin },
+        {
+            plugin: cracoModuleFederation,
+            options: { useNamedChunkIds:true }, // THIS LINE IS OPTIONAL
+        }],
     webpack: {
         output: {
             publicPath: 'auto',

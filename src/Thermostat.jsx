@@ -43,30 +43,34 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
 
     static getWidgetInfo() {
         return {
-            id: 'tplMaterialDemo',
+            id: 'tplMaterialThermostat',
             visSet: 'material-widgets',
-            visName: 'Demo',
-            visAttrs: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
-            visAttrsNew: [
-                {
-                    name: 'name',
-                },
-                {
-                    name: 'oid-mode',
-                    type: 'id',
-                },
-                {
-                    name: 'oid-temp',
-                    type: 'id',
-                },
-                {
-                    name: 'oid-temp-state',
-                    type: 'id',
-                },
-                {
-                    name: 'oid-power',
-                    type: 'id',
-                },
+            visName: 'Thermostat',
+            visAttrs_: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
+            visAttrs: [{
+                name: 'common',
+                fields: [
+                    {
+                        name: 'name',
+                    },
+                    {
+                        name: 'oid-mode',
+                        type: 'id',
+                    },
+                    {
+                        name: 'oid-temp',
+                        type: 'id',
+                    },
+                    {
+                        name: 'oid-temp-state',
+                        type: 'id',
+                    },
+                    {
+                        name: 'oid-power',
+                        type: 'id',
+                    },
+                ],
+            },
             ],
             visPrev: 'widgets/material-widgets/img/prev_switch.png',
         };
