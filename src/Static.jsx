@@ -34,7 +34,7 @@ const Buttons = {
     OFF: PowerSettingsNewIcon,
 };
 
-class Thermostat extends (window.visRxWidget || VisRxWidget) {
+class Static extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
         super(props);
         this.state.showDialog = false;
@@ -43,9 +43,9 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
 
     static getWidgetInfo() {
         return {
-            id: 'tplMaterialThermostat',
+            id: 'tplMaterialStatic',
             visSet: 'material-widgets',
-            visName: 'Thermostat',
+            visName: 'Static',
             visAttrs_: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
             visAttrs: [{
                 name: 'common',
@@ -81,28 +81,23 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
         this.props.socket.subscribeState(id, (resultId, result) => cb(result));
     };
 
-    async propertiesUpdate() {
+    async componentDidMount() {
+        super.componentDidMount();
         if (this.state.data['oid-mode']) {
             const modeVal = await this.props.socket.getState(this.state.data['oid-mode']);
             this.setState({ mode: modeVal.val });
             const mode = await this.props.socket.getObject(this.state.data['oid-mode']);
             this.setState({ modes: mode.common.states });
-        } else {
-            this.setState({ mode: null, modes: null });
         }
         if (this.state.data['oid-power']) {
             const powerVal = await this.props.socket.getState(this.state.data['oid-power']);
             this.setState({ power: powerVal.val });
-        } else {
-            this.setState({ power: null });
         }
         if (this.state.data['oid-temp']) {
             const temp = await this.props.socket.getState(this.state.data['oid-temp']);
             this.setState({ temp: temp.val });
             const tempObject = await this.props.socket.getObject(this.state.data['oid-temp']);
             this.setState({ min: tempObject.common.min, max: tempObject.common.max, tempObject });
-        } else {
-            this.setState({ tempObject: null, min: null, max: null });
         }
         if (this.state.data['oid-temp-state']) {
             const tempStateObject = await this.props.socket.getObject(this.state.data['oid-temp-state']);
@@ -111,32 +106,12 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                 this.state.data['oid-temp-state'],
                 tempState => this.setState({ tempState: tempState.val }),
             );
-        } else {
-            this.props.socket.unsubscribeState(this.state.data['oid-temp-state']);
-            this.setState({ tempState: null });
-        }
-    }
-
-    componentDidMount() {
-        super.componentDidMount();
-        this.propertiesUpdate();
-    }
-
-    onPropertiesUpdated() {
-        super.onPropertiesUpdated();
-        this.propertiesUpdate();
-    }
-
-    componentWillUnmount() {
-        super.componentWillUnmount();
-        if (this.state.data['oid-temp-state']) {
-            this.props.socket.unsubscribeState(this.state.data['oid-temp-state']);
         }
     }
 
     // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
-        return Thermostat.getWidgetInfo();
+        return Static.getWidgetInfo();
     }
 
     renderWidgetBody(props) {
@@ -275,4 +250,4 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
     }
 }
 
-export default Thermostat;
+export default Static;

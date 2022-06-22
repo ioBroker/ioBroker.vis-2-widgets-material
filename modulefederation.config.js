@@ -18,6 +18,10 @@ module.exports = {
     filename: 'customWidgets.js',
     exposes: {
         './Thermostat': './src/Thermostat',
+        './Actual': './src/Actual',
+        './Static': './src/Static',
+        './Switches': './src/Switches',
+        './Weather': './src/Weather',
     },
     shared:
         makeShared([

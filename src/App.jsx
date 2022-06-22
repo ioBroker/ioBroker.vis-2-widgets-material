@@ -8,12 +8,18 @@ import i18n from '@iobroker/adapter-react-v5/i18n';
 import Loader from '@iobroker/adapter-react-v5/Components/Loader';
 
 import Thermostat from './Thermostat';
+import Actual from './Actual';
+import Switches from './Switches';
+import Static from './Static';
+import Weather from './Weather';
 
 const styles = theme => ({
     app: {
         backgroundColor: theme.palette.background.default,
         color: theme.palette.text.primary,
         height: '100%',
+        width: '100%',
+        overflow: 'auto',
     },
 });
 
@@ -74,20 +80,92 @@ class App extends GenericApp {
         return <StyledEngineProvider injectFirst>
             <ThemeProvider theme={this.state.theme}>
                 <div className={this.props.classes.app}>
-                    <Thermostat
-                        socket={this.socket}
-                        style={{
-                            width: 600,
-                            height: 600,
-                        }}
-                        data={{
-                            name: '11',
-                            'oid-mode': 'javascript.0.mode',
-                            'oid-power': 'javascript.0.power',
-                            'oid-temp': 'javascript.0.temperatureSet',
-                            'oid-temp-state': 'javascript.0.temperatureActual',
-                        }}
-                    />
+                    <div>
+Switches:
+                        <Switches
+                            socket={this.socket}
+                            style={{
+                                width: 600,
+                                height: 600,
+                            }}
+                            data={{
+                                name: '11',
+                                count: 2,
+                                type: 'buttons',
+                                allSwitch: true,
+                                oid1: 'javascript.0.power',
+                                oid2: 'javascript.0.folder1.power2',
+                            }}
+                        />
+                    </div>
+                    <div>
+Thermostat:
+                        <Thermostat
+                            socket={this.socket}
+                            style={{
+                                width: 600,
+                                height: 600,
+                            }}
+                            data={{
+                                name: '11',
+                                'oid-mode': 'javascript.0.mode',
+                                'oid-power': 'javascript.0.power',
+                                'oid-temp': 'javascript.0.temperatureSet',
+                                'oid-temp-state': 'javascript.0.temperatureActual',
+                            }}
+                        />
+                    </div>
+                    <div>
+Actual:
+                        <Actual
+                            socket={this.socket}
+                            style={{
+                                width: 600,
+                                height: 600,
+                            }}
+                            data={{
+                                name: '11',
+                                'oid-mode': 'javascript.0.mode',
+                                'oid-power': 'javascript.0.power',
+                                'oid-temp': 'javascript.0.temperatureSet',
+                                'oid-temp-state': 'javascript.0.temperatureActual',
+                            }}
+                        />
+                    </div>
+                    <div>
+Static:
+                        <Static
+                            socket={this.socket}
+                            style={{
+                                width: 600,
+                                height: 600,
+                            }}
+                            data={{
+                                name: '11',
+                                'oid-mode': 'javascript.0.mode',
+                                'oid-power': 'javascript.0.power',
+                                'oid-temp': 'javascript.0.temperatureSet',
+                                'oid-temp-state': 'javascript.0.temperatureActual',
+                            }}
+                        />
+                    </div>
+                    <div>
+Weather:
+                        <Weather
+                            socket={this.socket}
+                            style={{
+                                width: 600,
+                                height: 600,
+                            }}
+                            data={{
+                                name: '11',
+                                'oid-mode': 'javascript.0.mode',
+                                'oid-power': 'javascript.0.power',
+                                'oid-temp': 'javascript.0.temperatureSet',
+                                'oid-temp-state': 'javascript.0.temperatureActual',
+                            }}
+                        />
+                    </div>
                 </div>
             </ThemeProvider>
         </StyledEngineProvider>;
