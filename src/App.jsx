@@ -81,6 +81,39 @@ class App extends GenericApp {
             <ThemeProvider theme={this.state.theme}>
                 <div className={this.props.classes.app}>
                     <div>
+Weather:
+                        <Weather
+                            socket={this.socket}
+                            style={{
+                                width: 600,
+                                height: 600,
+                            }}
+                            data={{
+                                name: '11',
+                                'oid-mode': 'javascript.0.mode',
+                                'oid-power': 'javascript.0.power',
+                                'oid-temp': 'javascript.0.temperatureSet',
+                                'oid-temp-state': 'javascript.0.temperatureActual',
+                            }}
+                        />
+                    </div>
+                    <div>
+Static:
+                        <Static
+                            socket={this.socket}
+                            style={{
+                                width: 600,
+                                height: 600,
+                            }}
+                            data={{
+                                name: '11',
+                                count: 2,
+                                oid1: 'javascript.0.humidityActual',
+                                oid2: 'javascript.0.folder1.power2',
+                            }}
+                        />
+                    </div>
+                    <div>
 Switches:
                         <Switches
                             socket={this.socket}
@@ -125,44 +158,8 @@ Actual:
                             }}
                             data={{
                                 name: '11',
-                                'oid-mode': 'javascript.0.mode',
-                                'oid-power': 'javascript.0.power',
-                                'oid-temp': 'javascript.0.temperatureSet',
-                                'oid-temp-state': 'javascript.0.temperatureActual',
-                            }}
-                        />
-                    </div>
-                    <div>
-Static:
-                        <Static
-                            socket={this.socket}
-                            style={{
-                                width: 600,
-                                height: 600,
-                            }}
-                            data={{
-                                name: '11',
-                                'oid-mode': 'javascript.0.mode',
-                                'oid-power': 'javascript.0.power',
-                                'oid-temp': 'javascript.0.temperatureSet',
-                                'oid-temp-state': 'javascript.0.temperatureActual',
-                            }}
-                        />
-                    </div>
-                    <div>
-Weather:
-                        <Weather
-                            socket={this.socket}
-                            style={{
-                                width: 600,
-                                height: 600,
-                            }}
-                            data={{
-                                name: '11',
-                                'oid-mode': 'javascript.0.mode',
-                                'oid-power': 'javascript.0.power',
-                                'oid-temp': 'javascript.0.temperatureSet',
-                                'oid-temp-state': 'javascript.0.temperatureActual',
+                                temperature: 'javascript.0.temperatureActual',
+                                humidity: 'javascript.0.humidityActual',
                             }}
                         />
                     </div>

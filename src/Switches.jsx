@@ -86,8 +86,11 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         const objects = {};
         for (let i = 1; i <= this.state.data.count; i++) {
             if (this.state.data[`oid${i}`]) {
-                states[i] = (await this.props.socket.getState(this.state.data[`oid${i}`])).val;
                 const object = await this.props.socket.getObject(this.state.data[`oid${i}`]);
+                if (!object) {
+                    continue;
+                }
+                states[i] = (await this.props.socket.getState(this.state.data[`oid${i}`]))?.val;
                 const idArray = this.state.data[`oid${i}`].split('.');
                 if (!object?.common.icon) {
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));

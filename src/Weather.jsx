@@ -1,46 +1,12 @@
 import React from 'react';
-import { CircularSliderWithChildren } from 'react-circular-slider-svg';
-import { i18n } from '@iobroker/adapter-react-v5';
 import {
-    Card, CardContent, CardHeader, Dialog, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Tab, Tabs, TextField, Tooltip,
+    Card, CardContent,
 } from '@mui/material';
-import ThermostatAutoIcon from '@mui/icons-material/ThermostatAuto';
-import PanToolIcon from '@mui/icons-material/PanTool';
-import AcUnitIcon from '@mui/icons-material/AcUnit';
-import DryIcon from '@mui/icons-material/Dry';
-import ParkIcon from '@mui/icons-material/Park';
-import HouseboatIcon from '@mui/icons-material/Houseboat';
-
-import WbSunnyIcon from '@mui/icons-material/WbSunny';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import AirIcon from '@mui/icons-material/Air';
-
-import {
-    MoreVert as MoreVertIcon,
-} from '@mui/icons-material';
 
 import VisRxWidget from './visRxWidget';
-import ObjectChart from './ObjectChart';
-
-const Buttons = {
-    AUTO: ThermostatAutoIcon,
-    MANUAL: PanToolIcon,
-    VACATION: HouseboatIcon,
-    COOL: AcUnitIcon,
-    DRY: DryIcon,
-    ECO: ParkIcon,
-    FAN_ONLY: AirIcon,
-    HEAT: WbSunnyIcon,
-    OFF: PowerSettingsNewIcon,
-};
+import WeatherComponent from './react-weather/Weather';
 
 class Weather extends (window.visRxWidget || VisRxWidget) {
-    constructor(props) {
-        super(props);
-        this.state.showDialog = false;
-        this.state.dialogTab = 0;
-    }
-
     static getWidgetInfo() {
         return {
             id: 'tplMaterialWeather',
@@ -121,131 +87,26 @@ class Weather extends (window.visRxWidget || VisRxWidget) {
             <Card
                 style={{ width: this.state.style?.width, height: this.state.style?.height }}
             >
-                <CardHeader
-                    title={this.state.data.name}
-                    action={
-                        <IconButton onClick={() => this.setState({ showDialog: true })}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
-                />
-                <CardContent style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-                >
-                    <CircularSliderWithChildren
-                        minValue={this.state.min}
-                        maxValue={this.state.max}
-                        handle1={{
-                            value: this.state.temp || null,
-                            onChange: value => {
-                                this.setState({ temp: Math.round(value) });
-                                this.props.socket.setState(this.state.data['oid-temp'], Math.round(value));
+                <CardContent>
+                    <WeatherComponent
+                        socket={this.props.socket}
+                        data={{
+                            current: {
+                                temperature: 'openweathermap.0.forecast.current.temperature',
+                                humidity: 'openweathermap.0.forecast.current.humidity',
+                                state: 'openweathermap.0.forecast.current.state',
+                                icon: 'openweathermap.0.forecast.current.icon',
                             },
+                            days: [0, 1, 2, 3, 4, 5].map(day => ({
+                                temperatureMin: `openweathermap.0.forecast.day${day}.temperatureMin`,
+                                temperatureMax: `openweathermap.0.forecast.day${day}.temperatureMax`,
+                                state: `openweathermap.0.forecast.day${day}.state`,
+                                icon: `openweathermap.0.forecast.day${day}.icon`,
+                            })),
                         }}
-                    >
-                        <h2>
-                            {this.state.tempState}
-                            {this.state.tempStateObject?.common.unit}
-                        </h2>
-                        <div>
-                            {this.state.temp}
-                            {this.state.tempObject?.common.unit}
-                        </div>
-                    </CircularSliderWithChildren>
-                    <div>
-                        {this.state.modes ? Object.keys(this.state.modes).map(modeIndex => {
-                            const mode = this.state.modes[modeIndex];
-                            const ModeButton = Buttons[mode];
-                            return <IconButton
-                                key={modeIndex}
-                                color={this.state.mode === parseInt(modeIndex) ? 'primary' : 'default'}
-                                onClick={e => {
-                                    this.setState({ mode: parseInt(modeIndex) });
-                                    this.props.socket.setState(this.state.data['oid-mode'], parseInt(modeIndex));
-                                }}
-                            >
-                                <Tooltip title={i18n.t(mode)}>
-                                    <ModeButton />
-                                </Tooltip>
-                            </IconButton>;
-                        }) : null}
-                        {this.state.data['oid-power'] &&
-                        <IconButton
-                            color={this.state.power ? 'primary' : 'default'}
-                            onClick={e => {
-                                this.setState({ power: !this.state.power });
-                                this.props.socket.setState(this.state.data['oid-power'], !this.state.power);
-                            }}
-                        >
-                            <Tooltip title={i18n.t('Power')}>
-                                <PowerSettingsNewIcon />
-                            </Tooltip>
-                        </IconButton>}
-                    </div>
+                    />
                 </CardContent>
             </Card>
-            <Dialog
-                sx={{ '& .MuiDialog-paper': { height: '100%' } }}
-                fullWidth
-                open={!!this.state.showDialog}
-                onClose={() => this.setState({ showDialog: false })}
-            >
-                <DialogTitle>{this.state.data.name}</DialogTitle>
-                <DialogContent>
-                    <Tabs value={this.state.dialogTab} onChange={(e, value) => this.setState({ dialogTab: value })}>
-                        <Tab label={i18n.t('Properties')} value={0} />
-                        <Tab label={i18n.t('History')} value={1} />
-                    </Tabs>
-                    {this.state.dialogTab === 0 && <div>
-                        <TextField
-                            fullWidth
-                            value={this.state.temp || null}
-                            onChange={e => {
-                                this.setState({ temp: Math.round(e.target.value) });
-                                this.props.socket.setState(this.state.data['oid-temp'], Math.round(e.target.value));
-                            }}
-                            variant="standard"
-                            type="number"
-                            inputProps={{
-                                min: this.state.min,
-                                max: this.state.max,
-                            }}
-                            label={i18n.t('Temperature')}
-                        />
-                        <FormControl fullWidth variant="standard">
-                            <InputLabel>{i18n.t('Mode')}</InputLabel>
-                            <Select
-                                value={this.state.mode}
-                                onChange={e => {
-                                    this.setState({ mode: parseInt(e.target.value) });
-                                    this.props.socket.setState(this.state.data['oid-mode'], parseInt(e.target.value));
-                                }}
-                            >
-                                {this.state.modes ? Object.keys(this.state.modes).map(modeIndex => {
-                                    const mode = this.state.modes[modeIndex];
-                                    return <MenuItem key={modeIndex} value={modeIndex}>{i18n.t(mode)}</MenuItem>;
-                                }) : null}
-                            </Select>
-                        </FormControl>
-                    </div>}
-                    {this.state.dialogTab === 1 && <div style={{ height: 'calc(100% - 64px)' }}>
-                        <ObjectChart
-                            t={i18n.t}
-                            lang={i18n.lang}
-                            socket={this.props.socket}
-                            obj={this.state.tempStateObject}
-                            themeType={this.props.themeType}
-                            defaultHistory="history.0"
-                            noToolbar
-                            dateFormat=""
-                            customsInstances={[]}
-                        />
-                    </div>}
-                </DialogContent>
-            </Dialog>
         </div>;
     }
 }
