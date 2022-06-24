@@ -76,11 +76,6 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
         };
     }
 
-    getSubscribeState = (id, cb) => {
-        this.props.socket.getState(id).then(result => cb(result));
-        this.props.socket.subscribeState(id, (resultId, result) => cb(result));
-    };
-
     async propertiesUpdate() {
         if (this.state.data['oid-mode']) {
             const modeVal = await this.props.socket.getState(this.state.data['oid-mode']);
@@ -107,12 +102,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
         if (this.state.data['oid-temp-state']) {
             const tempStateObject = await this.props.socket.getObject(this.state.data['oid-temp-state']);
             this.setState({ tempStateObject });
-            this.getSubscribeState(
-                this.state.data['oid-temp-state'],
-                tempState => this.setState({ tempState: tempState.val }),
-            );
         } else {
-            this.props.socket.unsubscribeState(this.state.data['oid-temp-state']);
             this.setState({ tempState: null });
         }
     }
@@ -127,13 +117,6 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
         this.propertiesUpdate();
     }
 
-    componentWillUnmount() {
-        super.componentWillUnmount();
-        if (this.state.data['oid-temp-state']) {
-            this.props.socket.unsubscribeState(this.state.data['oid-temp-state']);
-        }
-    }
-
     // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Thermostat.getWidgetInfo();
@@ -142,9 +125,9 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        return <div style={{ textAlign: 'center' }}>
+        return <>
             <Card
-                style={{ width: this.state.style?.width, height: this.state.style?.height }}
+                style={{ width: '100%', height: '100%' }}
             >
                 <CardHeader
                     title={this.state.data.name}
@@ -172,7 +155,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                         }}
                     >
                         <h2>
-                            {this.state.tempState}
+                            {this.state.values[`${this.state.data['oid-temp-state']}.val`]}
                             {this.state.tempStateObject?.common.unit}
                         </h2>
                         <div>
@@ -271,7 +254,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                     </div>}
                 </DialogContent>
             </Dialog>
-        </div>;
+        </>;
     }
 }
 

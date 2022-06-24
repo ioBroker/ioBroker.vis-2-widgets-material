@@ -24,6 +24,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         super(props);
         this.state.showDialog = false;
         this.state.dialogTab = 0;
+        this.onStateChanged = this.onStateChanged.bind(this);
     }
 
     static getWidgetInfo() {
@@ -39,11 +40,11 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                         name: 'name',
                     },
                     {
-                        name: 'temperature',
+                        name: 'oid-temperature',
                         type: 'id',
                     },
                     {
-                        name: 'humidity',
+                        name: 'oid-humidity',
                         type: 'id',
                     },
                 ],
@@ -53,19 +54,15 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         };
     }
 
-    getSubscribeState = (id, cb) => {
-        this.props.socket.getState(id).then(result => cb(result));
-        this.props.socket.subscribeState(id, (resultId, result) => cb(result));
-    };
-
-    async componentDidMount() {
-        super.componentDidMount();
+    onStateChanged(id, state, doNotApplyState) {
+        const result = super.onStateChanged(id, state, doNotApplyState);
 
         const now = new Date();
-        if (this.state.data.temperature) {
-            this.props.socket.getHistory(this.state.data.temperature, {
+
+        if (this.state.data['oid-temperature'] && id === this.state.data['oid-temperature']) {
+            this.props.socket.getHistory(this.state.data['oid-temperature'], {
                 instance:  'history.0',
-                start:     now.getTime() - 1000 * 60 * 60 * 24,
+                start:     now.getTime() - 1000 * 60 * 5,
                 end:       now.getTime(),
                 // step:      3600000, // hourly
                 limit:     1,
@@ -78,12 +75,12 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 .then(values => {
                     console.log(values);
                     this.setState({ temperatureChartValues: values });
-                });
+                }).catch(() => this.setState({ temperatureChartValues: null }));
         }
-        if (this.state.data.humidity) {
-            this.props.socket.getHistory(this.state.data.humidity, {
+        if (this.state.data['oid-humidity'] && id === this.state.data['oid-humidity']) {
+            this.props.socket.getHistory(this.state.data['oid-humidity'], {
                 instance:  'history.0',
-                start:     now.getTime() - 1000 * 60 * 60 * 24,
+                start:     now.getTime() - 1000 * 60 * 5,
                 end:       now.getTime(),
                 // step:      3600000, // hourly
                 limit:     1,
@@ -96,8 +93,10 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 .then(values => {
                     console.log(values);
                     this.setState({ humidityChartValues: values });
-                });
+                }).catch(() => this.setState({ temperatureChartValues: null }));
         }
+
+        return result;
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -106,6 +105,8 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
     }
 
     getOption(type) {
+        const now = new Date();
+
         return {
             color: ['#009C95', '#21ba45'],
             title : {
@@ -122,6 +123,8 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 {
                     type: 'time',
                     boundaryGap:false,
+                    // min:     now.getTime() - 1000 * 60 * 60 * 5,
+                    // max:       now.getTime(),
                 },
             ],
             yAxis : [
@@ -145,34 +148,32 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        return <div style={{ textAlign: 'center' }}>
-            <Card
-                style={{ width: this.state.style?.width, height: this.state.style?.height }}
-            >
-                {this.state.temperatureChartValues ?
-                    <ReactEchartsCore
-                        echarts={echarts}
-                        option={this.getOption('temperature')}
-                        notMerge
-                        lazyUpdate
-                        theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                        style={{ height: '200px', width: '100%' }}
-                        opts={{ renderer: 'svg' }}
-                    />
-                    : null}
-                {this.state.humidityChartValues ?
-                    <ReactEchartsCore
-                        echarts={echarts}
-                        option={this.getOption('humidity')}
-                        notMerge
-                        lazyUpdate
-                        theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                        style={{ height: '200px', width: '100%' }}
-                        opts={{ renderer: 'svg' }}
-                    />
-                    : null}
-            </Card>
-        </div>;
+        return <Card
+            style={{ width: '100%', height: '100%' }}
+        >
+            {this.state.values[`${this.state.data['oid-temperature']}.val`] && this.state.temperatureChartValues ?
+                <ReactEchartsCore
+                    echarts={echarts}
+                    option={this.getOption('temperature')}
+                    notMerge
+                    lazyUpdate
+                    theme={this.props.themeType === 'dark' ? 'dark' : ''}
+                    style={{ height: '200px', width: '100%' }}
+                    opts={{ renderer: 'svg' }}
+                />
+                : null}
+            {this.state.values[`${this.state.data['oid-humidity']}.val`] && this.state.humidityChartValues ?
+                <ReactEchartsCore
+                    echarts={echarts}
+                    option={this.getOption('humidity')}
+                    notMerge
+                    lazyUpdate
+                    theme={this.props.themeType === 'dark' ? 'dark' : ''}
+                    style={{ height: '200px', width: '100%' }}
+                    opts={{ renderer: 'svg' }}
+                />
+                : null}
+        </Card>;
     }
 }
 

@@ -9,7 +9,6 @@ import VisRxWidget from './visRxWidget';
 class Static extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
         super(props);
-        this.state.states = {};
         this.state.objects = {};
     }
 
@@ -63,13 +62,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
         };
     }
 
-    getSubscribeState = (id, cb) => {
-        this.props.socket.getState(id).then(result => cb(result));
-        this.props.socket.subscribeState(id, (resultId, result) => cb(result));
-    };
-
     async propertiesUpdate() {
-        const states = {};
         const objects = {};
         for (let i = 1; i <= this.state.data.count; i++) {
             if (this.state.data[`oid${i}`]) {
@@ -77,7 +70,6 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                 if (!object) {
                     continue;
                 }
-                states[i] = (await this.props.socket.getState(this.state.data[`oid${i}`]))?.val;
                 const idArray = this.state.data[`oid${i}`].split('.');
                 if (!object?.common.icon) {
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -93,7 +85,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                 objects[i] = object;
             }
         }
-        this.setState({ states, objects });
+        this.setState({ objects });
     }
 
     componentDidMount() {
@@ -113,7 +105,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
 
     getIcon(key) {
         let icon = '';
-        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.states[key];
+        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.data[`oid${key}`]}.val`];
         if (isEnabled) {
             if (this.state.data[`iconEnabled${key}`]) {
                 icon = `/files/${this.state.data[`iconEnabled${key}`]}`;
@@ -141,7 +133,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
     }
 
     getColor(key) {
-        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.states[key];
+        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.data[`oid${key}`]}.val`];
         return isEnabled ?
             this.state.data[`colorEnabled${key}`] || this.state.objects[key].common.color
             : this.state.data[`color${key}`] || this.state.objects[key].common.color;
@@ -149,7 +141,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
 
     getValue(key) {
         const object = this.state.objects[key];
-        const state = this.state.states[key];
+        const state = this.state.values[`${this.state.data[`oid${key}`]}.val`];
         if (object.common.states) {
             return object.common.states[state?.toString()];
         }
@@ -165,63 +157,61 @@ class Static extends (window.visRxWidget || VisRxWidget) {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        return <div style={{ textAlign: 'center' }}>
-            <Card
-                style={{ width: this.state.style?.width, height: this.state.style?.height }}
+        return <Card
+            style={{ width: '100%', height: '100%' }}
+        >
+            <CardContent style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
             >
-                <CardContent style={{
+
+                <div style={{
                     display: 'flex',
-                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    width: '100%',
                     alignItems: 'center',
                 }}
                 >
+                    <h2>{this.state.data.name}</h2>
+                </div>
+                {Object.keys(this.state.objects).map(key => {
+                    const icon = this.getIcon(key);
 
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        width: '100%',
-                        alignItems: 'center',
-                    }}
+                    return <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            alignItems: 'center',
+                        }}
+                        key={key}
                     >
-                        <h2>{this.state.data.name}</h2>
-                    </div>
-                    {Object.keys(this.state.objects).map(key => {
-                        const icon = this.getIcon(key);
-
-                        return <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                width: '100%',
+                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            <span style={{
+                                width: 40,
+                                height: 40,
+                                display: 'inline-flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
                             }}
-                            key={key}
-                        >
-                            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                <span style={{
-                                    width: 40,
-                                    height: 40,
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                                >
-                                    {icon}
-                                </span>
-                                <span style={{
-                                    color: this.getColor(key),
-                                }}
-                                >
-                                    {this.state.objects[key].common.name}
-                                </span>
+                            >
+                                {icon}
                             </span>
+                            <span style={{
+                                color: this.getColor(key),
+                            }}
+                            >
+                                {this.state.objects[key].common.name}
+                            </span>
+                        </span>
 
-                            {this.getValue(key)}
-                        </div>;
-                    })}
-                </CardContent>
-            </Card>
-        </div>;
+                        {this.getValue(key)}
+                    </div>;
+                })}
+            </CardContent>
+        </Card>;
     }
 }
 

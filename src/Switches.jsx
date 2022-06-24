@@ -76,11 +76,6 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         };
     }
 
-    getSubscribeState = (id, cb) => {
-        this.props.socket.getState(id).then(result => cb(result));
-        this.props.socket.subscribeState(id, (resultId, result) => cb(result));
-    };
-
     async propertiesUpdate() {
         const states = {};
         const objects = {};
@@ -170,119 +165,117 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
 
         const allSwitchValue = Object.keys(this.state.states).every(key => this.state.states[key]);
 
-        return <div style={{ textAlign: 'center' }}>
-            <Card
-                style={{ width: this.state.style?.width, height: this.state.style?.height }}
+        return <Card
+            style={{ width: '100%', height: '100%' }}
+        >
+            <CardContent style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
             >
-                <CardContent style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-                >
-                    {this.state.data.type === 'switches' ?
-                        <>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                width: '100%',
-                                alignItems: 'center',
-                            }}
+                {this.state.data.type === 'switches' ?
+                    <>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            alignItems: 'center',
+                        }}
+                        >
+                            <h2>{this.state.data.name}</h2>
+                            {this.state.data.allSwitch ? <Switch
+                                checked={allSwitchValue}
+                                onChange={e => {
+                                    const states = JSON.parse(JSON.stringify(this.state.states));
+                                    Object.keys(states).forEach(key => {
+                                        states[key] = !allSwitchValue;
+                                        this.props.socket.setState(this.state.data[`oid${key}`], !allSwitchValue);
+                                    });
+                                    this.setState({ states });
+                                }}
+                            /> : null}
+                        </div>
+                        {Object.keys(this.state.objects).map(key => {
+                            const icon = this.getIcon(key);
+
+                            return <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    alignItems: 'center',
+                                }}
+                                key={key}
                             >
-                                <h2>{this.state.data.name}</h2>
-                                {this.state.data.allSwitch ? <Switch
-                                    checked={allSwitchValue}
-                                    onChange={e => {
-                                        const states = JSON.parse(JSON.stringify(this.state.states));
-                                        Object.keys(states).forEach(key => {
-                                            states[key] = !allSwitchValue;
-                                            this.props.socket.setState(this.state.data[`oid${key}`], !allSwitchValue);
-                                        });
-                                        this.setState({ states });
-                                    }}
-                                /> : null}
-                            </div>
-                            {Object.keys(this.state.objects).map(key => {
-                                const icon = this.getIcon(key);
-
-                                return <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        width: '100%',
+                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                    <span style={{
+                                        width: 40,
+                                        height: 40,
+                                        display: 'inline-flex',
                                         alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}
-                                    key={key}
-                                >
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <span style={{
-                                            width: 40,
-                                            height: 40,
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}
-                                        >
-                                            {icon}
-                                        </span>
-                                        <span style={{
-                                            color: this.getColor(key),
-                                        }}
-                                        >
-                                            {this.state.objects[key].common.name}
-                                        </span>
-                                    </span>
-
-                                    <Switch
-                                        checked={this.state.states[key]}
-                                        onChange={e => this.changeSwitch(key)}
-                                    />
-                                </div>;
-                            })}
-                        </>
-                        :
-                        <div style={{ width: '100%' }}>
-                            <div>
-                                <h2>{this.state.data.name}</h2>
-                            </div>
-                            {Object.keys(this.state.objects).map(key => {
-                                const icon = this.getIcon(key);
-
-                                return <div
-                                    style={{
-                                        display: 'inline-block',
-                                        width: 80,
-                                        height: 80,
-                                        textAlign: 'center',
-                                    }}
-                                    key={key}
-                                >
-                                    <Button
-                                        onClick={e => this.changeSwitch(key)}
-                                        color={this.state.states[key] ? 'primary' : 'grey'}
-                                        style={{ display: 'inline-block' }}
                                     >
-                                        <div style={{
-                                            width: 40,
-                                            height: 40,
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                        }}
-                                        >
-                                            {icon}
-                                        </div>
-                                        <span>
-                                            {this.state.objects[key].common.name}
-                                        </span>
-                                    </Button>
-                                </div>;
-                            })}
-                        </div>}
-                </CardContent>
-            </Card>
-        </div>;
+                                        {icon}
+                                    </span>
+                                    <span style={{
+                                        color: this.getColor(key),
+                                    }}
+                                    >
+                                        {this.state.objects[key].common.name}
+                                    </span>
+                                </span>
+
+                                <Switch
+                                    checked={this.state.states[key]}
+                                    onChange={e => this.changeSwitch(key)}
+                                />
+                            </div>;
+                        })}
+                    </>
+                    :
+                    <div style={{ width: '100%' }}>
+                        <div>
+                            <h2>{this.state.data.name}</h2>
+                        </div>
+                        {Object.keys(this.state.objects).map(key => {
+                            const icon = this.getIcon(key);
+
+                            return <div
+                                style={{
+                                    display: 'inline-block',
+                                    width: 80,
+                                    height: 80,
+                                    textAlign: 'center',
+                                }}
+                                key={key}
+                            >
+                                <Button
+                                    onClick={e => this.changeSwitch(key)}
+                                    color={this.state.states[key] ? 'primary' : 'grey'}
+                                    style={{ display: 'inline-block' }}
+                                >
+                                    <div style={{
+                                        width: 40,
+                                        height: 40,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                    }}
+                                    >
+                                        {icon}
+                                    </div>
+                                    <span>
+                                        {this.state.objects[key].common.name}
+                                    </span>
+                                </Button>
+                            </div>;
+                        })}
+                    </div>}
+            </CardContent>
+        </Card>;
     }
 }
 

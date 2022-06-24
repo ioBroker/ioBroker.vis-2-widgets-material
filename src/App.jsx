@@ -158,8 +158,8 @@ Actual:
                             }}
                             data={{
                                 name: '11',
-                                temperature: 'javascript.0.temperatureActual',
-                                humidity: 'javascript.0.humidityActual',
+                                'oid-temperature': 'javascript.0.temperatureActual',
+                                'oid-humidity': 'javascript.0.humidityActual',
                             }}
                         />
                     </div>
