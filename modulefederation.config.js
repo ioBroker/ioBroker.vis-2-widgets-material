@@ -21,7 +21,6 @@ module.exports = {
         './Actual': './src/Actual',
         './Static': './src/Static',
         './Switches': './src/Switches',
-        './Weather': './src/Weather',
     },
     shared:
         makeShared([

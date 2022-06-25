@@ -11,7 +11,6 @@ import Thermostat from './Thermostat';
 import Actual from './Actual';
 import Switches from './Switches';
 import Static from './Static';
-import Weather from './Weather';
 
 const styles = theme => ({
     app: {
@@ -80,19 +79,6 @@ class App extends GenericApp {
         return <StyledEngineProvider injectFirst>
             <ThemeProvider theme={this.state.theme}>
                 <div className={this.props.classes.app}>
-                    <div>
-Weather:
-                        <Weather
-                            socket={this.socket}
-                            style={{
-                                width: 600,
-                                height: 600,
-                            }}
-                            data={{
-                                type: 'current',
-                            }}
-                        />
-                    </div>
                     <div>
 Static:
                         <Static
