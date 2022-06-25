@@ -89,11 +89,7 @@ Weather:
                                 height: 600,
                             }}
                             data={{
-                                name: '11',
-                                'oid-mode': 'javascript.0.mode',
-                                'oid-power': 'javascript.0.power',
-                                'oid-temp': 'javascript.0.temperatureSet',
-                                'oid-temp-state': 'javascript.0.temperatureActual',
+                                type: 'current',
                             }}
                         />
                     </div>

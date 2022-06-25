@@ -68,6 +68,8 @@ const Weather = ({
     doubleSize,
     socket,
     data,
+    hideCurrent,
+    hideDays,
 }) => {
     if (!data) {
         return;
@@ -144,7 +146,7 @@ const Weather = ({
         setIconNames(iconNames => (
             Array(arrLength).fill().map((_, i) => iconNames[i] || '')
         ));
-    }, [arrLength]);
+    }, [arrLength, hideCurrent, hideDays]);
 
     const getIndex = (idx, callBack) => (_, state) => callBack(state, idx);
 
@@ -200,9 +202,9 @@ const Weather = ({
         };
     }, [temperatureMinRefs]);
     return <div className={cls.whetherkWrapper}>
-        <div className={cls.wrapperBlock}>
+        <div className={cls.wrapperBlock} style={{ display: hideCurrent ? 'none' : undefined }}>
             <div className={cls.iconWrapper}>
-                <div className={clsx(cls.iconWhetherWrapper, !arrLength && cls.noteArrayIcon)}>
+                <div className={clsx(cls.iconWhetherWrapper, (!arrLength || hideDays) && cls.noteArrayIcon)}>
                     <IconAdapter className={cls.iconWhether} src={getIcon(iconName, true) || clearSky} />
                 </div>
                 <div className={cls.styleText}>{title}</div>
@@ -212,8 +214,8 @@ const Weather = ({
                 <div ref={humidity} className={cls.humidity}>-%</div>
             </div>
         </div>
-        {arrLength > 0 && <div className={cls.wrapperBottomBlock}>
-            {data.days.map((e, idx) => <div className={cls.wrapperBottomBlockCurrent}>
+        {arrLength > 0 && <div className={cls.wrapperBottomBlock} style={{ display: hideDays ? 'none' : undefined }}>
+            {data.days.map((e, idx) => <div className={cls.wrapperBottomBlockCurrent} key={idx}>
                 <div className={cls.date}>{I18n.t(getWeekDay(date, idx + 1))}</div>
                 <div><IconAdapter className={cls.iconWhetherMin} src={getIcon(iconNames[idx], true) || clearSky} /></div>
                 <div ref={temperatureMaxRefs[idx]} className={cls.temperature}>-°C</div>

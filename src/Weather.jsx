@@ -16,6 +16,12 @@ class Weather extends (window.visRxWidget || VisRxWidget) {
             visAttrs: [{
                 name: 'common',
                 fields: [
+                    {
+                        name: 'type',
+                        type: 'select',
+                        options: ['all', 'current', 'days'],
+                        default: 'all',
+                    },
                 ],
             },
             ],
@@ -51,6 +57,8 @@ class Weather extends (window.visRxWidget || VisRxWidget) {
                             icon: `openweathermap.0.forecast.day${day}.icon`,
                         })),
                     }}
+                    hideDays={this.state.data.type === 'current'}
+                    hideCurrent={this.state.data.type === 'days'}
                 />
             </CardContent>
         </Card>;
