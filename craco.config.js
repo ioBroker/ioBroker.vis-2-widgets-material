@@ -2,14 +2,14 @@ const CracoEsbuildPlugin = require('craco-esbuild');
 const { ProvidePlugin } = require('webpack');
 const cracoModuleFederation = require('craco-module-federation');
 
-console.log('craco');
-
 module.exports = {
-    plugins: [{ plugin: CracoEsbuildPlugin },
+    plugins: [
+        { plugin: CracoEsbuildPlugin },
         {
             plugin: cracoModuleFederation,
-            options: { useNamedChunkIds:true },
-        }],
+            options: { useNamedChunkIds: true },
+        }
+    ],
     devServer: {
         proxy: {
             '/files': 'http://localhost:8081',

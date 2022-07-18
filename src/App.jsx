@@ -1,7 +1,7 @@
 import React from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
-import withStyles from '@mui/styles/withStyles';
+import { withStyles } from '@mui/styles';
 
 import GenericApp from '@iobroker/adapter-react-v5/GenericApp';
 import i18n from '@iobroker/adapter-react-v5/i18n';
@@ -80,36 +80,34 @@ class App extends GenericApp {
             <ThemeProvider theme={this.state.theme}>
                 <div className={this.props.classes.app}>
                     <div>
-Static:
                         <Static
                             socket={this.socket}
                             style={{
-                                width: 600,
-                                height: 600,
+                                width: 400,
+                                height: 200,
                             }}
                             data={{
-                                name: '11',
+                                name: 'Static information',
                                 count: 2,
-                                oid1: 'javascript.0.humidityActual',
-                                oid2: 'javascript.0.folder1.power2',
+                                oid1: 'javascript.0.number1',
+                                oid2: 'javascript.0.numberWithStates',
                             }}
                         />
                     </div>
                     <div>
-Switches:
                         <Switches
                             socket={this.socket}
                             style={{
-                                width: 600,
-                                height: 600,
+                                width: 400,
+                                height: 200,
                             }}
                             data={{
-                                name: '11',
+                                name: 'Switches',
                                 count: 2,
-                                type: 'buttons',
+                                type: 'switches',
                                 allSwitch: true,
-                                oid1: 'javascript.0.power',
-                                oid2: 'javascript.0.folder1.power2',
+                                oid1: 'javascript.0.boolean',
+                                oid2: 'javascript.0.test',
                             }}
                         />
                     </div>

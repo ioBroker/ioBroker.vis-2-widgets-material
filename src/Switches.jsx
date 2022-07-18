@@ -1,12 +1,20 @@
 import React from 'react';
-import { i18n } from '@iobroker/adapter-react-v5';
+import { withStyles } from '@mui/styles';
 
 import {
     Button,
-    Card, CardContent, CardHeader, IconButton, Switch,
+    Card, CardContent, Switch,
 } from '@mui/material';
+
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+
 import VisRxWidget from './visRxWidget';
+
+const styles = theme => ({
+    intermediate: {
+        opacity: 0.2,
+    },
+});
 
 class Switches extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
@@ -119,7 +127,7 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         return Switches.getWidgetInfo();
     }
 
-    getIcon(key) {
+    getStateIcon(key) {
         let icon = '';
         if (this.state.states[key]) {
             if (this.state.data[`iconEnabled${key}`]) {
@@ -164,10 +172,12 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         super.renderWidgetBody(props);
 
         const allSwitchValue = Object.keys(this.state.states).every(key => this.state.states[key]);
+        const intermediate = !!Object.keys(this.state.states).find(key => this.state.states[key] !== allSwitchValue);
 
-        return <Card
-            style={{ width: '100%', height: '100%' }}
-        >
+        const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
+        const anyIcon = icons.find(icon => icon);
+
+        return <Card style={{ width: '100%', height: '100%', margin: 4 }}>
             <CardContent style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -183,10 +193,11 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                             alignItems: 'center',
                         }}
                         >
-                            <h2>{this.state.data.name}</h2>
+                            <div style={{ fontSize: 24, paddingTop: 0, paddingBottom: 4 }}>{this.state.data.name}</div>
                             {this.state.data.allSwitch ? <Switch
                                 checked={allSwitchValue}
-                                onChange={e => {
+                                className={intermediate ? this.props.classes.intermediate : ''}
+                                onChange={() => {
                                     const states = JSON.parse(JSON.stringify(this.state.states));
                                     Object.keys(states).forEach(key => {
                                         states[key] = !allSwitchValue;
@@ -196,9 +207,7 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                                 }}
                             /> : null}
                         </div>
-                        {Object.keys(this.state.objects).map(key => {
-                            const icon = this.getIcon(key);
-
+                        {Object.keys(this.state.objects).map((key, i) => {
                             return <div
                                 style={{
                                     display: 'flex',
@@ -209,7 +218,7 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                                 key={key}
                             >
                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                    <span style={{
+                                    {anyIcon ? <span style={{
                                         width: 40,
                                         height: 40,
                                         display: 'inline-flex',
@@ -217,31 +226,32 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                                         justifyContent: 'center',
                                     }}
                                     >
-                                        {icon}
-                                    </span>
-                                    <span style={{
-                                        color: this.getColor(key),
-                                    }}
-                                    >
+                                        {icons[i]}
+                                    </span> : null}
+                                    <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
                                         {this.state.objects[key].common.name}
                                     </span>
                                 </span>
 
                                 <Switch
                                     checked={this.state.states[key]}
-                                    onChange={e => this.changeSwitch(key)}
+                                    onChange={() => this.changeSwitch(key)}
                                 />
                             </div>;
                         })}
                     </>
                     :
                     <div style={{ width: '100%' }}>
-                        <div>
-                            <h2>{this.state.data.name}</h2>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            alignItems: 'center',
+                        }}
+                        >
+                            <div style={{ fontSize: 24, paddingTop: 0, paddingBottom: 4 }}>{this.state.data.name}</div>
                         </div>
-                        {Object.keys(this.state.objects).map(key => {
-                            const icon = this.getIcon(key);
-
+                        {Object.keys(this.state.objects).map((key, i) => {
                             return <div
                                 style={{
                                     display: 'inline-block',
@@ -252,11 +262,11 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                                 key={key}
                             >
                                 <Button
-                                    onClick={e => this.changeSwitch(key)}
+                                    onClick={() => this.changeSwitch(key)}
                                     color={this.state.states[key] ? 'primary' : 'grey'}
                                     style={{ display: 'inline-block' }}
                                 >
-                                    <div style={{
+                                    {anyIcon ? <span style={{
                                         width: 40,
                                         height: 40,
                                         display: 'inline-flex',
@@ -265,8 +275,8 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                                         justifyContent: 'center',
                                     }}
                                     >
-                                        {icon}
-                                    </div>
+                                        {icons[i]}
+                                    </span> : null}
                                     <span>
                                         {this.state.objects[key].common.name}
                                     </span>
@@ -279,4 +289,4 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
     }
 }
 
-export default Switches;
+export default withStyles(styles)(Switches);

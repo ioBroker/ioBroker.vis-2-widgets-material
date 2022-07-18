@@ -79,23 +79,23 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
     async propertiesUpdate() {
         if (this.state.data['oid-mode']) {
             const modeVal = await this.props.socket.getState(this.state.data['oid-mode']);
-            this.setState({ mode: modeVal.val });
+            this.setState({ mode: modeVal?.val });
             const mode = await this.props.socket.getObject(this.state.data['oid-mode']);
-            this.setState({ modes: mode.common.states });
+            this.setState({ modes: mode?.common?.states });
         } else {
             this.setState({ mode: null, modes: null });
         }
         if (this.state.data['oid-power']) {
             const powerVal = await this.props.socket.getState(this.state.data['oid-power']);
-            this.setState({ power: powerVal.val });
+            this.setState({ power: powerVal?.val });
         } else {
             this.setState({ power: null });
         }
         if (this.state.data['oid-temp']) {
             const temp = await this.props.socket.getState(this.state.data['oid-temp']);
-            this.setState({ temp: temp.val });
+            this.setState({ temp: temp?.val });
             const tempObject = await this.props.socket.getObject(this.state.data['oid-temp']);
-            this.setState({ min: tempObject.common.min, max: tempObject.common.max, tempObject });
+            this.setState({ min: tempObject?.common?.min, max: tempObject?.common?.max, tempObject });
         } else {
             this.setState({ tempObject: null, min: null, max: null });
         }
