@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Card,
 } from '@mui/material';
+import { withStyles } from '@mui/styles';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -12,12 +13,80 @@ import {
     TooltipComponent,
     TitleComponent,
     TimelineComponent,
+    LegendComponent
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
 
-import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
+import {
+    DeviceThermostat as ThermostatIcon,
+    Opacity as HumidityIcon,
+} from '@mui/icons-material';
 
-echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, SVGRenderer]);
+import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
+import { i18n as I18n } from '@iobroker/adapter-react-v5';
+
+echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
+
+const styles = theme => ({
+    root: {
+        width: 'calc(100% - 8px)',
+        height: 'calc(100% - 8px)',
+        margin: 4,
+    },
+    chart: {
+        height: 'calc(100% - 40px)',
+        width: '100%'
+    },
+    container: {
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+    },
+    mainName: {
+        fontSize: 24,
+        paddingTop: 0,
+        paddingBottom: 4
+    },
+    temperatureDiv: {
+        marginLeft: 4,
+        color: 'rgba(243,177,31)',
+        display: 'inline-block',
+        lineHeight: '24px',
+    },
+    temperatureValue: {
+        verticalAlign: 'middle',
+    },
+    temperatureUnit: {
+        paddingLeft: 5,
+        opacity: 0.6,
+        fontSize: 14,
+        verticalAlign: 'middle',
+    },
+    temperatureIcon: {
+        verticalAlign: 'middle',
+        fontSize: 20,
+    },
+    humidityDiv: {
+        color: 'rgba(77,134,255)',
+        display: 'inline-block',
+        float: 'right',
+        marginRight: 12,
+        lineHeight: '24px',
+    },
+    humidityValue: {
+        verticalAlign: 'middle',
+    },
+    humidityUnit: {
+        paddingLeft: 5,
+        opacity: 0.6,
+        fontSize: 14,
+        verticalAlign: 'middle',
+    },
+    humidityIcon: {
+        verticalAlign: 'middle',
+        fontSize: 20,
+    },
+});
 
 class Actual extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
@@ -25,6 +94,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         this.state.showDialog = false;
         this.state.dialogTab = 0;
         this.onStateChanged = this.onStateChanged.bind(this);
+        this.refContainer = React.createRef();
     }
 
     static getWidgetInfo() {
@@ -37,12 +107,24 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 fields: [
                     {
                         name: 'name',
+                        label: 'vis_2_widgets_material_name',
                     },
                     {
+                        name: 'timeInterval',
+                        label: 'vis_2_widgets_material_hours',
+                        type: 'slider',
+                        min: 0,
+                        max: 48,
+                        step: 1,
+                        default: 12,
+                    },
+                    {
+                        label: 'vis_2_widgets_material_temperature_oid',
                         name: 'oid-temperature',
                         type: 'id',
                     },
                     {
+                        label: 'vis_2_widgets_material_humidity_oid',
                         name: 'oid-humidity',
                         type: 'id',
                     },
@@ -52,49 +134,164 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         };
     }
 
-    onStateChanged(id, state, doNotApplyState) {
-        const result = super.onStateChanged(id, state, doNotApplyState);
+    async propertiesUpdate() {
+        const objects = {};
 
+        // try to find icons for all OIDs
+        if (this.state.data['oid-temperature']) {
+            // read object itself
+            const object = await this.props.socket.getObject(this.state.data['oid-temperature']);
+            if (!object) {
+                objects.temp = { common: {} };
+            } else {
+                object.common = object.common || {};
+                if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                    const idArray = this.state.data['oid-temperature'].split('.');
+
+                    // read channel
+                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        if (grandParentObject?.common?.icon) {
+                            object.common.icon = grandParentObject.common.icon;
+                        }
+                    } else {
+                        object.common.icon = parentObject.common.icon;
+                    }
+                }
+                objects.temp = object;
+            }
+        }
+        if (this.state.data['oid-humidity']) {
+            // read object itself
+            const object = await this.props.socket.getObject(this.state.data['oid-humidity']);
+            if (!object) {
+                objects.humidity = { common: {} };
+            } else {
+                object.common = object.common || {};
+                if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                    const idArray = this.state.data['oid-humidity'].split('.');
+
+                    // read channel
+                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        if (grandParentObject?.common?.icon) {
+                            object.common.icon = grandParentObject.common.icon;
+                        }
+                    } else {
+                        object.common.icon = parentObject.common.icon;
+                    }
+                }
+                objects.humidity = object;
+            }
+        }
+
+        this.setState({ objects });
+    }
+
+    convertData = (values, chart) => {
+        const data = [];
+        if (!values || !values.length) {
+            return data;
+        }
+        for (let i = 0; i < values.length; i++) {
+            if (values[i].val === true) {
+                values[i].val = 1;
+            } else if (values[i].val === false) {
+                values[i].val = 0;
+            }
+
+            data.push({ value: [values[i].ts, values[i].val] });
+        }
+        if (!chart.min) {
+            chart.min = values[0].ts;
+            chart.max = values[values.length - 1].ts;
+        }
+
+        return data;
+    }
+
+    readHistory = async id => {
+        const timeInterval = this.state.data.timeInterval || 12;
         const now = new Date();
+        now.setHours(now.getHours() - timeInterval);
+        now.setMinutes(0);
+        now.setSeconds(0);
+        now.setMilliseconds(0);
+        let start = now.getTime();
+        let end = Date.now();
 
-        if (this.state.data['oid-temperature'] && id === this.state.data['oid-temperature']) {
-            this.props.socket.getHistory(this.state.data['oid-temperature'], {
-                instance:  'history.0',
-                start:     now.getTime() - 1000 * 60 * 5,
-                end:       now.getTime(),
-                // step:      3600000, // hourly
-                limit:     1,
-                from:      false,
-                ack:       false,
-                q:         false,
-                addID:     false,
-                aggregate: 'none',
-            })
-                .then(values => {
-                    console.log(values);
-                    this.setState({ temperatureChartValues: values });
-                }).catch(() => this.setState({ temperatureChartValues: null }));
-        }
-        if (this.state.data['oid-humidity'] && id === this.state.data['oid-humidity']) {
-            this.props.socket.getHistory(this.state.data['oid-humidity'], {
-                instance:  'history.0',
-                start:     now.getTime() - 1000 * 60 * 5,
-                end:       now.getTime(),
-                // step:      3600000, // hourly
-                limit:     1,
-                from:      false,
-                ack:       false,
-                q:         false,
-                addID:     false,
-                aggregate: 'none',
-            })
-                .then(values => {
-                    console.log(values);
-                    this.setState({ humidityChartValues: values });
-                }).catch(() => this.setState({ temperatureChartValues: null }));
-        }
+        const options = {
+            instance: this.props.systemConfig?.common?.defaultHistory || 'history.0',
+            start,
+            end,
+            step: 1800000, // 30 minutes
+            from: false,
+            ack: false,
+            q: false,
+            addID: false,
+            aggregate: 'minmax',
+        };
 
-        return result;
+        let chart;
+        return this.props.socket.getHistory(id, options)
+            .then(_chart => {
+                chart = _chart;
+                return this.props.socket.getState(id);
+            })
+            .then(state => {
+                // sort
+                if (chart && chart[0] && chart[0].ts !== start) {
+                    chart.unshift({ ts: start, val: null });
+                }
+                if (chart) {
+                    chart.sort((a, b) => a.ts > b.ts ? 1 : (a.ts < b.ts ? -1 : 0)).filter(e => e.val !== null);
+                    state && state.val !== null && state.val !== undefined && chart.push({ts: Date.now(), val: state.val});
+
+                    const _chart = {};
+                    _chart.data = this.convertData(chart, _chart);
+                    console.log(_chart)
+                    this.setState({ ['chart-data-' + id]: _chart });
+                    // add current value
+                    /*this.echartsReact.current?.getEchartsInstance().setOption({
+                        series: [{data: this.chart.data}],
+                        xAxis: {
+                            min: this.chart.min,
+                            max: this.chart.max,
+                        }
+                    });*/
+                }
+            })
+            .catch(e =>
+                console.error('Cannot read history: ' + e)
+            );
+    }
+
+    async componentDidMount() {
+        super.componentDidMount();
+        await this.propertiesUpdate();
+
+        if (this.state.data['oid-temperature']) {
+            await this.readHistory(this.state.data['oid-temperature']);
+            this.tempTimer = setInterval(async () => {
+                await this.readHistory(this.state.data['oid-temperature']);
+                if (this.state.data['oid-humidity']) {
+                    await this.readHistory(this.state.data['oid-humidity']);
+                }
+            }, 60000); // every minute
+        }
+        if (this.state.data['oid-humidity']) {
+            await this.readHistory(this.state.data['oid-humidity']);
+            if (!this.tempTimer) {
+                this.tempTimer = setInterval(() => this.readHistory(this.state.data['oid-humidity']), 60000); // every minute
+            }
+        }
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.tempTimer);
+        super.componentWillUnmount();
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -102,73 +299,100 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         return Actual.getWidgetInfo();
     }
 
-    getOption(type) {
+    getOptions() {
+        const series = [];
+        if (this.state['chart-data-' + this.state.data['oid-temperature']]) {
+            series.push({
+                backgroundColor: 'rgba(243,177,31,0.14)',
+                color: 'rgba(243,177,31,0.65)',
+                type: 'line',
+                smooth: true,
+                showSymbol: false,
+                itemStyle: { normal: { areaStyle: { type: 'default' } } },
+                data: this.state['chart-data-' + this.state.data['oid-temperature']].data,
+                name: I18n.t('vis_2_widgets_material_temperature').replace('vis_2_widgets_material_', ''),
+            });
+        }
+        if (this.state['chart-data-' + this.state.data['oid-humidity']]) {
+            series.push({
+                backgroundColor: 'rgba(77,134,255,0.14)',
+                color: 'rgba(77,134,255,0.44)',
+                type: 'line',
+                smooth: true,
+                showSymbol: false,
+                itemStyle: { normal: { areaStyle: { type: 'default' } } },
+                data: this.state['chart-data-' + this.state.data['oid-humidity']].data,
+                name: I18n.t('vis_2_widgets_material_humidity').replace('vis_2_widgets_material_', ''),
+            });
+        }
+
         return {
-            color: ['#009C95', '#21ba45'],
-            title: {
-                text: type === 'temperature' ? 'Temperature' : 'Humidity',
-                textStyle: {
-                    fontFamily: 'lato',
-                },
+            animation: false,
+            grid: {
+                show: false,
+                left: 0,
+                top: 0,
+                right: 0,
+                bottom: 0,
             },
+            legend: undefined,
             tooltip: {
                 trigger: 'axis',
             },
             calculable : true,
-            xAxis: [
-                {
-                    type: 'time',
-                    boundaryGap:false,
-                    // min:     now.getTime() - 1000 * 60 * 60 * 5,
-                    // max:       now.getTime(),
-                },
-            ],
-            yAxis: [
-                {
-                    type : 'value',
-                },
-            ],
-            series: [
-                {
-                    backgroundColor: '#4D86FF',
-                    name: type === 'temperature' ? 'Temperature' : 'Humidity',
-                    type:'line',
-                    smooth: true,
-                    itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                    data: this.state[type === 'temperature' ? 'temperatureChartValues' : 'humidityChartValues'].map(value => [value.ts, value.val]),
-                },
-            ],
+            xAxis: {
+                show: false,
+                boundaryGap: false,
+                type: 'time',
+            },
+            yAxis: {
+                show: false,
+            },
+            series,
         };
+    }
+
+    componentDidUpdate() {
+        if (this.refContainer.current && this.state.containerHeight !== this.refContainer.current.clientHeight) {
+            this.setState({ containerHeight: this.refContainer.current.clientHeight });
+        }
     }
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        return <Card style={{ width: 'calc(100% - 8px)', height: 'calc(100% - 8px)', margin: 4 }}>
-            {this.state.values[`${this.state.data['oid-temperature']}.val`] && this.state.temperatureChartValues ?
-                <ReactEchartsCore
-                    echarts={echarts}
-                    option={this.getOption('temperature')}
-                    notMerge
-                    lazyUpdate
-                    theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                    style={{ height: 200, width: '100%' }}
-                    opts={{ renderer: 'svg' }}
-                />
-                : null}
-            {this.state.values[`${this.state.data['oid-humidity']}.val`] && this.state.humidityChartValues ?
-                <ReactEchartsCore
-                    echarts={echarts}
-                    option={this.getOption('humidity')}
-                    notMerge
-                    lazyUpdate
-                    theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                    style={{ height: 200, width: '100%' }}
-                    opts={{ renderer: 'svg' }}
-                />
-                : null}
+        return <Card className={this.props.classes.root}>
+            <div ref={this.refContainer} className={this.props.classes.container}>
+                <div className={this.props.classes.mainName}>{this.state.data.name}</div>
+                {this.state.objects && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
+                    <div className={this.props.classes.temperatureDiv}>
+                        <ThermostatIcon className={this.props.classes.temperatureIcon} />
+                        <span className={this.props.classes.temperatureValue}>{this.state.values[this.state.data['oid-temperature'] + '.val']}</span>
+                        <span className={this.props.classes.temperatureUnit}>{this.state.objects.temp.common.unit}</span>
+                    </div>
+                    : null}
+                {this.state.objects && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
+                    <div className={this.props.classes.humidityDiv}>
+                        <HumidityIcon className={this.props.classes.humidityIcon} />
+                        <span className={this.props.classes.humidityValue}>{this.state.values[this.state.data['oid-humidity'] + '.val']}</span>
+                        <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
+                    </div>
+                    : null}
+                {this.state.containerHeight && (this.state['chart-data-' + this.state.data['oid-temperature']] || this.state['chart-data-' + this.state.data['oid-humidity']]) ?
+                    <ReactEchartsCore
+                        className={this.props.classes.chart}
+                        echarts={echarts}
+                        option={this.getOptions()}
+                        notMerge
+                        lazyUpdate
+                        theme={this.props.themeType === 'dark' ? 'dark' : ''}
+                        style={{ height: this.state.containerHeight - 64, width: '100%' }}
+                        opts={{ renderer: 'svg' }}
+                    />
+                    : null}
+            </div>
         </Card>;
     }
 }
 
-export default Actual;
+export default withStyles(styles)(Actual);

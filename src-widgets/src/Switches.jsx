@@ -102,76 +102,90 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
             visSet: 'vis-2-widgets-material',
             visName: 'Switches',
             visAttrs_: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
-            visAttrs: [{
-                name: 'common',
-                fields: [
-                    {
-                        name: 'name',
-                    },
-                    {
-                        name: 'count',
-                        type: 'number',
-                        default: 2,
-                    },
-                    {
-                        name: 'type',
-                        type: 'select',
-                        options: ['switches', 'buttons'],
-                        default: 'switches',
-                    },
-                    {
-                        name: 'allSwitch',
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    {
-                        name: 'buttonsWidth',
-                        hidden: 'data.type !== "buttons"',
-                        type: 'slider',
-                        default: 120,
-                        min: 40,
-                        max: 300,
-                    },
-                    {
-                        name: 'buttonsHeight',
-                        hidden: 'data.type !== "buttons"',
-                        type: 'slider',
-                        default: 80,
-                        min: 40,
-                        max: 300,
-                    },
-                ],
-            }, {
-                name: 'switch',
-                indexFrom: 1,
-                indexTo: 'count',
-                fields: [
-                    {
-                        name: 'oid',
-                        type: 'id',
-                    },
-                    {
-                        name: 'icon',
-                        type: 'image',
-                    },
-                    {
-                        name: 'iconEnabled',
-                        type: 'image',
-                    },
-                    {
-                        name: 'color',
-                        type: 'color',
-                    },
-                    {
-                        name: 'colorEnabled',
-                        type: 'color',
-                    },
-                    {
-                        name: 'title',
-                        type: 'text',
-                    },
-                ],
-            },
+            visAttrs: [
+                {
+                    name: 'common',
+                    fields: [
+                        {
+                            name: 'name',
+                            label: 'vis_2_widgets_material_name',
+                        },
+                        {
+                            name: 'count',
+                            type: 'number',
+                            default: 2,
+                            label: 'vis_2_widgets_material_count',
+                        },
+                        {
+                            name: 'type',
+                            type: 'select',
+                            label: 'vis_2_widgets_material_type',
+                            options: ['switches', 'buttons'],
+                            default: 'switches',
+                        },
+                        {
+                            name: 'allSwitch',
+                            type: 'checkbox',
+                            default: true,
+                            label: 'vis_2_widgets_material_show_all_switch',
+                        },
+                        {
+                            label: 'vis_2_widgets_material_buttons_width',
+                            name: 'buttonsWidth',
+                            hidden: 'data.type !== "buttons"',
+                            type: 'slider',
+                            default: 120,
+                            min: 40,
+                            max: 300,
+                        },
+                        {
+                            label: 'vis_2_widgets_material_buttons_height',
+                            name: 'buttonsHeight',
+                            hidden: 'data.type !== "buttons"',
+                            type: 'slider',
+                            default: 80,
+                            min: 40,
+                            max: 300,
+                        },
+                    ],
+                },
+                {
+                    name: 'switch',
+                    indexFrom: 1,
+                    indexTo: 'count',
+                    fields: [
+                        {
+                            name: 'oid',
+                            type: 'id',
+                            label: 'vis_2_widgets_material_oid',
+                        },
+                        {
+                            name: 'icon',
+                            type: 'image',
+                            label: 'vis_2_widgets_material_icon',
+                        },
+                        {
+                            name: 'iconEnabled',
+                            type: 'image',
+                            label: 'vis_2_widgets_material_icon_active',
+                        },
+                        {
+                            name: 'color',
+                            type: 'color',
+                            label: 'vis_2_widgets_material_color',
+                        },
+                        {
+                            name: 'colorEnabled',
+                            type: 'color',
+                            label: 'vis_2_widgets_material_color_active',
+                        },
+                        {
+                            name: 'title',
+                            type: 'text',
+                            label: 'vis_2_widgets_material_title',
+                        },
+                    ],
+                }
             ],
             visPrev: 'widgets/material-widgets/img/prev_switch.png',
         };
@@ -464,7 +478,7 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                                 style={{
                                     width: this.state.data.buttonsWidth || undefined,
                                     height: this.state.data.buttonsHeight || undefined,
-                            }}
+                                }}
                             >
                                 <Button
                                     onClick={() => this.changeSwitch(index)}

@@ -1,10 +1,24 @@
 import React from 'react';
+import { withStyles } from '@mui/styles';
 
 import {
     Card, CardContent, Switch,
 } from '@mui/material';
 
 import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
+
+const styles = theme => ({
+    root: {
+        width: 'calc(100% - 8px)',
+        height: 'calc(100% - 8px)',
+        margin: 4,
+    },
+    mainName: {
+        fontSize: 24,
+        paddingTop: 0,
+        paddingBottom: 4
+    },
+});
 
 class Static extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
@@ -22,12 +36,14 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                     name: 'common',
                     fields: [
                         {
+                            label: 'vis_2_widgets_material_name',
                             name: 'name',
                         },
                         {
                             name: 'count',
                             type: 'number',
                             default: 2,
+                            label: 'vis_2_widgets_material_count',
                         },
                     ],
                 },
@@ -39,26 +55,32 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                         {
                             name: 'oid',
                             type: 'id',
+                            label: 'vis_2_widgets_material_oid',
                         },
                         {
                             name: 'icon',
                             type: 'image',
+                            label: 'vis_2_widgets_material_icon',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
+                            label: 'vis_2_widgets_material_icon_active',
                         },
                         {
                             name: 'color',
                             type: 'color',
+                            label: 'vis_2_widgets_material_color',
                         },
                         {
                             name: 'colorEnabled',
                             type: 'color',
+                            label: 'vis_2_widgets_material_color_active',
                         },
                         {
                             name: 'title',
                             type: 'text',
+                            label: 'vis_2_widgets_material_title',
                         },
                     ],
                 },
@@ -236,4 +258,4 @@ class Static extends (window.visRxWidget || VisRxWidget) {
     }
 }
 
-export default Static;
+export default withStyles(styles)(Static);

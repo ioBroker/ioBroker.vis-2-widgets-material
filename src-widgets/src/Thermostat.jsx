@@ -21,6 +21,7 @@ import { i18n as I18n } from '@iobroker/adapter-react-v5';
 import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
 
 import ObjectChart from './ObjectChart';
+import {withStyles} from "@mui/styles";
 
 const Buttons = {
     AUTO: ThermostatAutoIcon,
@@ -33,6 +34,15 @@ const Buttons = {
     HEAT: WbSunnyIcon,
     OFF: PowerSettingsNewIcon,
 };
+
+
+const styles = theme => ({
+    root: {
+        width: 'calc(100% - 8px)',
+        height: 'calc(100% - 8px)',
+        margin: 4,
+    },
+});
 
 class Thermostat extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
@@ -51,6 +61,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                 fields: [
                     {
                         name: 'name',
+                        label: 'vis_2_widgets_material_name',
                     },
                     {
                         name: 'oid-mode',
@@ -261,4 +272,4 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
     }
 }
 
-export default Thermostat;
+export default withStyles(styles)(Thermostat);

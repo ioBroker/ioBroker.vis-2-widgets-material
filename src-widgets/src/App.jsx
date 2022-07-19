@@ -38,11 +38,16 @@ class App extends WidgetDemoApp {
         };
         // init translations
         I18n.extendTranslations(translations);
+
+        this.socket.registerConnectionHandler(this.onConnectionChanged)
     }
 
-    componentDidMount() {
-        super.componentDidMount();
-    }
+    onConnectionChanged = isConnected => {
+        if (isConnected) {
+            this.socket.getSystemConfig()
+                .then(systemConfig => this.setState({ systemConfig }));
+        }
+    };
 
     renderWidget() {
         return <div className={this.props.classes.app}>
@@ -50,22 +55,25 @@ class App extends WidgetDemoApp {
                 socket={this.socket}
                 style={{
                     width: 400,
-                    height: 200,
+                    height: 160,
                 }}
+                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Static information',
                     count: 2,
                     oid1: 'javascript.0.number1',
                     oid2: 'javascript.0.numberWithStates',
-                    title1: 'Number 1',
+                    title1: 'Number',
+                    title2: 'States',
                 }}
             />
             <Switches
                 socket={this.socket}
                 style={{
                     width: 400,
-                    height: 260,
+                    height: 180,
                 }}
+                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Switches',
                     count: 5,
@@ -76,35 +84,38 @@ class App extends WidgetDemoApp {
                     oid1: 'javascript.0.boolean',
                     oid2: 'javascript.0.test',
                     oid3: 'javascript.0.boolean',
-                    oid4: 'javascript.0.test',
-                    oid5: 'javascript.0.numberWithStates',
+//                    oid4: 'javascript.0.test',
+ //                   oid5: 'javascript.0.numberWithStates',
                     title2: 'Dimmer',
                 }}
             />
-            <Thermostat
+            {/*<Thermostat
                 socket={this.socket}
                 style={{
                     width: 400,
-                    height: 300,
+                    height: 350,
                 }}
+                systemConfig={this.state.systemConfig}
                 data={{
-                    name: '11',
-                    'oid-mode': 'javascript.0.mode',
-                    'oid-power': 'javascript.0.power',
+                    name: 'Thermostat',
+                    'oid-mode': 'javascript.0.thermostat.mode',
+                    'oid-power': 'javascript.0.thermostat.power',
                     'oid-temp': 'javascript.0.temperatureSet',
-                    'oid-temp-state': 'javascript.0.temperatureActual',
+                    'oid-temp-state': 'javascript.0.thermostat.setPoint',
                 }}
-            />
+            />*/}
             <Actual
                 socket={this.socket}
                 style={{
                     width: 400,
                     height: 200,
                 }}
+                systemConfig={this.state.systemConfig}
                 data={{
-                    name: '11',
-                    'oid-temperature': 'javascript.0.temperatureActual',
-                    'oid-humidity': 'javascript.0.humidityActual',
+                    name: 'Actual temperature',
+                    timeInterval: 6,
+                    'oid-temperature': 'system.adapter.admin.0.memHeapTotal',
+                    'oid-humidity': 'system.adapter.admin.0.memHeapUsed',
                 }}
             />
         </div>;
