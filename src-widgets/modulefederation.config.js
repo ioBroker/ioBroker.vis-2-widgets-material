@@ -8,11 +8,12 @@ const makeShared = pkgs => {
             };
         },
     );
+
     return result;
 };
 
 module.exports = {
-    name: 'Thermostat',
+    name: 'vis2materialWidgets',
     filename: 'customWidgets.js',
     exposes: {
         './Thermostat': './src/Thermostat',
@@ -29,5 +30,6 @@ module.exports = {
             '@mui/icons-material',
             'prop-types',
             '@iobroker/adapter-react-v5',
+            '@iobroker/vis-widgets-react-dev',
         ]),
 };

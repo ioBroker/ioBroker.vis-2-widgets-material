@@ -4,7 +4,6 @@ import {
 } from '@mui/material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
-
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
 import {
@@ -15,7 +14,8 @@ import {
     TimelineComponent,
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
-import VisRxWidget from './visRxWidget';
+
+import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, SVGRenderer]);
 
@@ -29,10 +29,9 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
 
     static getWidgetInfo() {
         return {
-            id: 'tplMaterialActual',
-            visSet: 'material-widgets',
-            visName: 'Actual',
-            visAttrs_: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
+            id: 'tplMaterial2Actual',
+            visSet: 'vis-2-widgets-material',
+            visName: 'Actual temperature',
             visAttrs: [{
                 name: 'common',
                 fields: [
@@ -48,9 +47,8 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                         type: 'id',
                     },
                 ],
-            },
-            ],
-            visPrev: 'widgets/material-widgets/img/prev_switch.png',
+            }],
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_actual.png',
         };
     }
 
@@ -146,9 +144,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        return <Card
-            style={{ width: '100%', height: '100%' }}
-        >
+        return <Card style={{ width: 'calc(100% - 8px)', height: 'calc(100% - 8px)', margin: 4 }}>
             {this.state.values[`${this.state.data['oid-temperature']}.val`] && this.state.temperatureChartValues ?
                 <ReactEchartsCore
                     echarts={echarts}

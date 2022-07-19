@@ -212,6 +212,9 @@ gulp.task('widget-3-copy', () => Promise.all([
         `!${SRC}build/static/media/Windscreen.*.svg`,
         `!${SRC}build/static/media/Workshop.*.svg`,
         `!${SRC}build/static/media/Workspace.*.svg`,
+        `${SRC}build/static/js/vendors-node_modules_mui_material_utils_createSvgIcon_js.*.chunk.*`,
+        `${SRC}build/static/js/vendors-node_modules_echarts-for-react_lib_core_js-node_modules_echarts_core_js-*.chunk.*`,
+        `${SRC}build/static/js/vendors-node_modules_date-io_date-fns_*.*`,
     ]).pipe(gulp.dest(`widgets/${adapterName}/static`)),
     gulp.src([`${SRC}src/i18n/*.json`]).pipe(gulp.dest(`widgets/${adapterName}/i18n`)),
     new Promise(resolve =>

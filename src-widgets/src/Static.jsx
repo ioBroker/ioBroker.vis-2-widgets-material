@@ -4,9 +4,7 @@ import {
     Card, CardContent, Switch,
 } from '@mui/material';
 
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-
-import VisRxWidget from './visRxWidget';
+import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
 
 class Static extends (window.visRxWidget || VisRxWidget) {
     constructor(props) {
@@ -16,9 +14,9 @@ class Static extends (window.visRxWidget || VisRxWidget) {
 
     static getWidgetInfo() {
         return {
-            id: 'tplMaterialStatic',
-            visSet: 'material-widgets',
-            visName: 'Static',
+            id: 'tplMaterial2Static',
+            visSet: 'vis-2-widgets-material',
+            visName: 'Static information',
             visAttrs: [
                 {
                     name: 'common',
@@ -58,10 +56,14 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                             name: 'colorEnabled',
                             type: 'color',
                         },
+                        {
+                            name: 'title',
+                            type: 'text',
+                        },
                     ],
                 },
             ],
-            visPrev: 'widgets/vis-widget-thermostat/img/prev_static.png',
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_static.png',
         };
     }
 
@@ -74,10 +76,11 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                 // read object itself
                 const object = await this.props.socket.getObject(this.state.data[`oid${i}`]);
                 if (!object) {
+                    objects[i] = { common: {} };
                     continue;
                 }
                 object.common = object.common || {};
-                if (!object.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                if (!this.state.data[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.data[`oid${i}`].split('.');
 
                     // read channel
@@ -157,6 +160,9 @@ class Static extends (window.visRxWidget || VisRxWidget) {
     getValue(key) {
         const object = this.state.objects[key];
         const state = this.state.values[`${this.state.data[`oid${key}`]}.val`];
+        if (state === undefined) {
+            return '';
+        }
         if (object?.common?.states) {
             if (object.common.states[state?.toString()] !== undefined) {
                 return object.common.states[state.toString()];
@@ -179,7 +185,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
 
-        return <Card style={{ width: '100%', height: '100%', margin: 4 }}>
+        return <Card style={{ width: 'calc(100% - 8px)', height: 'calc(100% - 8px)', margin: 4 }}>
             <CardContent
                 style={{
                     display: 'flex',
@@ -218,7 +224,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                                 {icons[i]}
                             </span> : null}
                             <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                                {this.state.objects[key].common.name}
+                                {this.state.data['title' + key] || this.state.objects[key].common.name}
                             </span>
                         </span>
 
