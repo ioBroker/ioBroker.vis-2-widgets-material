@@ -1,5 +1,7 @@
 /node_modules
 /package-lock.json
-/dist
-/build
+/src-widgets/build
+/src-widgets/node_modules
+/src-widgets/package-lock.json
 /.idea
+/widgets

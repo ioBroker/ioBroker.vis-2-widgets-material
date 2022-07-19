@@ -1,0 +1,68 @@
+{
+  "common": {
+    "name": "vis-2-widgets-material",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "initial commit",
+        "de": "anfängliches Commit",
+        "ru": "начальная фиксация",
+        "pt": "commit inicial",
+        "nl": "initiële commit",
+        "fr": "validation initiale",
+        "it": "impegno iniziale",
+        "es": "Compromiso inicial",
+        "pl": "początkowe zatwierdzenie",
+        "zh-cn": "初始提交"
+      }
+    },
+    "title": "Vis 2 Widgets Material",
+    "titleLang": {
+      "en": "Vis 2 Widgets Material"
+    },
+    "desc": {
+      "en": "Vis 2 Widgets Material"
+    },
+    "authors": [
+      "bluefox <dogafox@gmail.com>"
+    ],
+    "keywords": [
+      "vis-2-widgets-material"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "icon": "vis-2-widgets-material.png",
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.vis-2-widgets-material/master/admin/vis-2-widgets-material.png",
+    "enabled": true,
+    "readme": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/blob/master/README.md",
+    "loglevel": "info",
+    "mode": "schedule",
+    "adminUI": {
+      "config": "none"
+    },
+    "onlyWWW": true,
+    "type": "visualization-widgets",
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "visWidgets": {
+      "vis2materialWidgets": {
+        "name": "vis2materialWidgets",
+        "url": "vis-2-widgets-material/customWidgets.js",
+        "components": [
+          "Thermostat",
+          "Actual",
+          "Static",
+          "Switches"
+        ]
+      }
+    },
+    "restartAdapters": [
+      "vis"
+    ]
+  },
+  "native": {
+
+  },
+  "objects": [],
+  "instanceObjects": []
+}

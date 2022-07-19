@@ -105,21 +105,19 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
     }
 
     getOption(type) {
-        const now = new Date();
-
         return {
             color: ['#009C95', '#21ba45'],
-            title : {
+            title: {
                 text: type === 'temperature' ? 'Temperature' : 'Humidity',
                 textStyle: {
                     fontFamily: 'lato',
                 },
             },
-            tooltip : {
+            tooltip: {
                 trigger: 'axis',
             },
             calculable : true,
-            xAxis : [
+            xAxis: [
                 {
                     type: 'time',
                     boundaryGap:false,
@@ -127,17 +125,17 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                     // max:       now.getTime(),
                 },
             ],
-            yAxis : [
+            yAxis: [
                 {
                     type : 'value',
                 },
             ],
-            series : [
+            series: [
                 {
                     backgroundColor: '#4D86FF',
                     name: type === 'temperature' ? 'Temperature' : 'Humidity',
                     type:'line',
-                    smooth:true,
+                    smooth: true,
                     itemStyle: { normal: { areaStyle: { type: 'default' } } },
                     data: this.state[type === 'temperature' ? 'temperatureChartValues' : 'humidityChartValues'].map(value => [value.ts, value.val]),
                 },
@@ -158,7 +156,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                     notMerge
                     lazyUpdate
                     theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                    style={{ height: '200px', width: '100%' }}
+                    style={{ height: 200, width: '100%' }}
                     opts={{ renderer: 'svg' }}
                 />
                 : null}
@@ -169,7 +167,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                     notMerge
                     lazyUpdate
                     theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                    style={{ height: '200px', width: '100%' }}
+                    style={{ height: 200, width: '100%' }}
                     opts={{ renderer: 'svg' }}
                 />
                 : null}

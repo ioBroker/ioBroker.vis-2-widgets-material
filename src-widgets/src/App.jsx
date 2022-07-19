@@ -104,7 +104,7 @@ class App extends GenericApp {
                             data={{
                                 name: 'Switches',
                                 count: 2,
-                                type: 'switches',
+                                type: 'buttons',
                                 allSwitch: true,
                                 oid1: 'javascript.0.boolean',
                                 oid2: 'javascript.0.test',
