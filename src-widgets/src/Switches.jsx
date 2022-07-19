@@ -28,6 +28,11 @@ const styles = theme => ({
         height: 'calc(100% - 8px)',
         margin: 4,
     },
+    mainName: {
+        fontSize: 24,
+        paddingTop: 0,
+        paddingBottom: 4
+    },
     intermediate: {
         opacity: 0.2,
     },
@@ -57,11 +62,6 @@ const styles = theme => ({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    mainName: {
-        fontSize: 24,
-        paddingTop: 0,
-        paddingBottom: 4
     },
     cardsHolder: {
         display: 'flex',
@@ -262,6 +262,23 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         } else {
             return !!values[this.state.objects[index]._id + '.val'];
         }
+    }
+
+    formatValue(value, round) {
+        if (typeof value === 'number') {
+            if (round === 0) {
+                value = Math.round(value);
+            } else {
+                value = Math.round(value * 100) / 100;
+            }
+            if (this.props.systemConfig?.common) {
+                if (this.props.systemConfig.common.isFloatComma) {
+                    value = value.toString().replace('.', ',');
+                }
+            }
+        }
+
+        return value === undefined || value === null ? '' : value.toString();
     }
 
     getStateIcon(index) {
@@ -469,6 +486,8 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                                 value = this.state.values[`${this.state.objects[index]._id}.val`];
                                 if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
                                     value = this.state.objects[index].common.states[value];
+                                } else {
+                                    value = this.formatValue(value);
                                 }
                             }
 

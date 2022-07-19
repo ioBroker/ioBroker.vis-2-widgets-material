@@ -89,21 +89,21 @@ class App extends WidgetDemoApp {
                     title2: 'Dimmer',
                 }}
             />
-            {/*<Thermostat
+            <Thermostat
                 socket={this.socket}
                 style={{
-                    width: 400,
-                    height: 350,
+                    width: 600,
+                    height: 650,
                 }}
                 systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Thermostat',
                     'oid-mode': 'javascript.0.thermostat.mode',
                     'oid-power': 'javascript.0.thermostat.power',
-                    'oid-temp': 'javascript.0.temperatureSet',
-                    'oid-temp-state': 'javascript.0.thermostat.setPoint',
+                    'oid-temp-set': 'javascript.0.thermostat.actual',
+                    'oid-temp-actual': 'javascript.0.thermostat.setPoint',
                 }}
-            />*/}
+            />
             <Actual
                 socket={this.socket}
                 style={{

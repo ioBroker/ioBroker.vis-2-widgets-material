@@ -198,7 +198,24 @@ class Static extends (window.visRxWidget || VisRxWidget) {
         if (object?.common?.type === 'number') {
             return `${state}${object.common.unit || ''}`;
         }
-        return state?.toString();
+        return this.formatValue(state);
+    }
+
+    formatValue(value, round) {
+        if (typeof value === 'number') {
+            if (round === 0) {
+                value = Math.round(value);
+            } else {
+                value = Math.round(value * 100) / 100;
+            }
+            if (this.props.systemConfig?.common) {
+                if (this.props.systemConfig.common.isFloatComma) {
+                    value = value.toString().replace('.', ',');
+                }
+            }
+        }
+
+        return value === undefined || value === null ? '' : value.toString();
     }
 
     renderWidgetBody(props) {

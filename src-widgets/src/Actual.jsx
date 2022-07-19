@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Card,
+    Card, CardHeader, IconButton,
 } from '@mui/material';
 import { withStyles } from '@mui/styles';
 
@@ -18,7 +18,7 @@ import {
 import { SVGRenderer } from 'echarts/renderers';
 
 import {
-    DeviceThermostat as ThermostatIcon,
+    DeviceThermostat as ThermostatIcon, MoreVert as MoreVertIcon,
     Opacity as HumidityIcon,
 } from '@mui/icons-material';
 
@@ -44,8 +44,10 @@ const styles = theme => ({
     },
     mainName: {
         fontSize: 24,
-        paddingTop: 0,
-        paddingBottom: 4
+        paddingTop: 16,
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingBottom: 4,
     },
     temperatureDiv: {
         marginLeft: 4,
@@ -251,16 +253,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
 
                     const _chart = {};
                     _chart.data = this.convertData(chart, _chart);
-                    console.log(_chart)
                     this.setState({ ['chart-data-' + id]: _chart });
-                    // add current value
-                    /*this.echartsReact.current?.getEchartsInstance().setOption({
-                        series: [{data: this.chart.data}],
-                        xAxis: {
-                            min: this.chart.min,
-                            max: this.chart.max,
-                        }
-                    });*/
                 }
             })
             .catch(e =>
@@ -358,6 +351,23 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         }
     }
 
+    formatValue(value, round) {
+        if (typeof value === 'number') {
+            if (round === 0) {
+                value = Math.round(value);
+            } else {
+                value = Math.round(value * 100) / 100;
+            }
+            if (this.props.systemConfig?.common) {
+                if (this.props.systemConfig.common.isFloatComma) {
+                    value = value.toString().replace('.', ',');
+                }
+            }
+        }
+
+        return value === undefined || value === null ? '' : value.toString();
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
@@ -367,14 +377,14 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 {this.state.objects && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
                     <div className={this.props.classes.temperatureDiv}>
                         <ThermostatIcon className={this.props.classes.temperatureIcon} />
-                        <span className={this.props.classes.temperatureValue}>{this.state.values[this.state.data['oid-temperature'] + '.val']}</span>
+                        <span className={this.props.classes.temperatureValue}>{this.formatValue(this.state.values[this.state.data['oid-temperature'] + '.val'])}</span>
                         <span className={this.props.classes.temperatureUnit}>{this.state.objects.temp.common.unit}</span>
                     </div>
                     : null}
                 {this.state.objects && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
                     <div className={this.props.classes.humidityDiv}>
                         <HumidityIcon className={this.props.classes.humidityIcon} />
-                        <span className={this.props.classes.humidityValue}>{this.state.values[this.state.data['oid-humidity'] + '.val']}</span>
+                        <span className={this.props.classes.humidityValue}>{this.formatValue(this.state.values[this.state.data['oid-humidity'] + '.val'], 0)}</span>
                         <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
                     </div>
                     : null}
@@ -386,7 +396,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                         notMerge
                         lazyUpdate
                         theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                        style={{ height: this.state.containerHeight - 64, width: '100%' }}
+                        style={{ height: this.state.containerHeight - 77, width: '100%' }}
                         opts={{ renderer: 'svg' }}
                     />
                     : null}

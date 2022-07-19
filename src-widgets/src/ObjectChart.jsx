@@ -94,7 +94,7 @@ const styles = theme => ({
         overflow: 'hidden',
     },
     chartWithToolbar: {
-        height: `calc(100% - ${theme.mixins.toolbar.minHeight + parseInt(theme.spacing(1), 10)}px)`,
+        height: `calc(100% - ${(theme?.mixins?.toolbar.minHeight || 48) + parseInt(theme && theme.spacing ? theme.spacing(1) : 8, 10)}px)`,
     },
     chartWithoutToolbar: {
         height: '100%',
@@ -110,10 +110,10 @@ const styles = theme => ({
         opacity: 0.5,
     },
     customRange: {
-        color: theme.palette.primary.main,
+        color: theme?.palette?.primary.main || '#00bcd4',
     },
     splitLineButtonIcon: {
-        marginRight: theme.spacing(1),
+        marginRight: theme && theme.spacing ? theme.spacing(1) : 8,
     },
     splitLineButton: {
         float: 'right',
@@ -125,20 +125,20 @@ const styles = theme => ({
     toolbarTime: {
         width: 100,
         marginTop: 9,
-        marginLeft: theme.spacing(1),
+        marginLeft: theme && theme.spacing ? theme.spacing(1) : 8,
     },
     toolbarDate: {
         width: 160,
         marginTop: 9,
     },
     toolbarTimeGrid: {
-        marginLeft: theme.spacing(1),
-        paddingLeft: theme.spacing(1),
-        paddingRight: theme.spacing(1),
-        paddingTop: theme.spacing(0.5),
-        paddingBottom: theme.spacing(0.5),
+        marginLeft: theme && theme.spacing ? theme.spacing(1) : 8,
+        paddingLeft: theme && theme.spacing ? theme.spacing(1) : 8,
+        paddingRight: theme && theme.spacing ? theme.spacing(1) : 8,
+        paddingTop: theme && theme.spacing ? theme.spacing(0.5) : 4,
+        paddingBottom: theme && theme.spacing ? theme.spacing(0.5) : 4,
         border: '1px dotted #AAAAAA',
-        borderRadius: theme.spacing(1),
+        borderRadius: theme && theme.spacing ? theme.spacing(1) : 8,
         display: 'flex',
     },
     buttonIcon: {
@@ -146,13 +146,13 @@ const styles = theme => ({
         height: 24,
     },
     echartsButton: {
-        marginRight: theme.spacing(1),
+        marginRight: theme && theme.spacing ? theme.spacing(1) : 8,
         height: 34,
         width: 34,
     },
     dateInput: {
         width: 140,
-        marginRight: theme.spacing(1),
+        marginRight: theme && theme.spacing ? theme.spacing(1) : 8,
     },
     timeInput: {
         width: 80,
