@@ -327,11 +327,14 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 top: 0,
                 right: 0,
                 bottom: 0,
+                /*tooltip: {
+                    show: false,
+                }*/
             },
             legend: undefined,
-            tooltip: {
-                trigger: 'axis',
-            },
+            /*tooltip: {
+                //trigger: 'axis',
+            },*/
             calculable : true,
             xAxis: {
                 show: false,

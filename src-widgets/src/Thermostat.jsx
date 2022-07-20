@@ -17,6 +17,7 @@ import {
     Park as ParkIcon,
     Houseboat as HouseboatIcon,
     MoreVert as MoreVertIcon,
+    Close as IconClose,
 } from '@mui/icons-material';
 
 import { i18n as I18n } from '@iobroker/adapter-react-v5';
@@ -203,11 +204,16 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
         }
         return <Dialog
             sx={{ '& .MuiDialog-paper': { height: '100%' } }}
+            maxWidth="lg"
             fullWidth
             open={true}
             onClose={() => this.setState({ showDialog: false })}
         >
-            <DialogTitle>{this.state.data.name}</DialogTitle>
+            <DialogTitle>
+                {this.state.data.name}
+
+                <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDialog: false })}><IconClose /></IconButton>
+            </DialogTitle>
             <DialogContent>
                 {/*<Tabs value={this.state.dialogTab} onChange={(e, value) => this.setState({ dialogTab: value })}>
                     <Tab label={I18n.t('Properties')} value={0} />
@@ -245,17 +251,18 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                         </Select>
                     </FormControl>
                 </div>*/}
-                {this.state.dialogTab === 1 && <div style={{ height: 'calc(100% - 64px)' }}>
+                {this.state.dialogTab === 1 && <div style={{ height: '100%' }}>
                     <ObjectChart
                         t={I18n.t}
                         lang={I18n.lang}
                         socket={this.props.socket}
                         obj={this.state.tempStateObject}
+                        obj2={this.state.tempObject}
                         themeType={this.props.themeType}
                         defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
-                        noToolbar
-                        dateFormat=""
-                        customsInstances={[]}
+                        noToolbar={false}
+                        systemConfig={this.props.systemConfig}
+                        dateFormat={this.props.systemConfig.common.dateFormat}
                     />
                 </div>}
             </DialogContent>

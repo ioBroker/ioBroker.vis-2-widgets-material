@@ -100,8 +100,8 @@ class App extends WidgetDemoApp {
                     name: 'Thermostat',
                     'oid-mode': 'javascript.0.thermostat.mode',
                     'oid-power': 'javascript.0.thermostat.power',
-                    'oid-temp-set': 'javascript.0.thermostat.actual',
-                    'oid-temp-actual': 'javascript.0.thermostat.setPoint',
+                    'oid-temp-set': 'javascript.0.thermostat.setPoint',
+                    'oid-temp-actual': 'javascript.0.thermostat.actual',
                 }}
             />
             <Actual
