@@ -23,9 +23,6 @@ dir.readFiles(__dirname + '/src',
         });
 
         walk.full(result, node => {
-            if (node.name === 't') {
-                // console.log(node);
-            }
             if (node.type === 'CallExpression' && node.callee.property?.type === 'Identifier' && node.callee.property?.name === 't') {
                 if (node.arguments.length === 1 && node.arguments[0].type === 'Literal' && typeof node.arguments[0].value === 'string') {
                     // This is for the case `t` is called with a single string
@@ -36,10 +33,21 @@ dir.readFiles(__dirname + '/src',
                 } else {
                     // In case you have things like template literals as well,
                     // or multiple arguments, you'd need to handle them here too.
-                    // console.log('t called with unknown arguments: ', node.arguments)
-                    node.arguments.forEach(arg =>
-                        console.log(`Cannot calculate: "${arg.left.raw} ${arg.operator} ${arg.right.name}"`))
+                    console.log(`Cannot calculate: "${content.slice(node.arguments[0].start, node.arguments[0].end)}"`);
                 }
+            }
+            if (node.type === 'Property' && node.key.name === 'visAttrs') {
+                const visAttrs = parser.parse(content.slice(node.value.start, node.value.end), {
+                    sourceType: 'module',
+                    ecmaVersion: 'latest'
+                });
+                walk.full(visAttrs, attrNode => {
+                    if (attrNode.type === 'Property' && attrNode.key.name === 'label') {
+                        if (!keys.includes(attrNode.value.value)) {
+                            keys.push(attrNode.value.value);
+                        }
+                    }
+                });
             }
         });
         next();
