@@ -1,8 +1,6 @@
 {
-  "User:": "Utente:",
-  "Text:": "Testo:",
-  "Instance:": "Esempio:",
-  "Sends message via telegram": "Invia messaggio tramite telegramma",
-  "Telegram": "Telegram",
-  "You can use %s in the text to display current trigger value or %id to display the triggered object ID": "È possibile utilizzare %s nel testo per visualizzare il valore di attivazione corrente o %id per visualizzare l'ID oggetto attivato"
+  "vis_2_widgets_material_name": "Nome",
+  "vis_2_widgets_material_hours": "Ore",
+  "vis_2_widgets_material_temperature_oid": "ID temperatura",
+  "vis_2_widgets_material_humidity_oid": "ID umidità"
 }

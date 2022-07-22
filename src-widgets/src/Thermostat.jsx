@@ -3,8 +3,10 @@ import { withStyles } from '@mui/styles';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import {
-    Card, CardContent, CardHeader, Button, Dialog, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Tab, Tabs, TextField, Tooltip,
+    Card, CardContent, CardHeader, Button, Dialog, DialogContent, DialogTitle, IconButton, Tooltip,
 } from '@mui/material';
+
+// import { FormControl, InputLabel, MenuItem, Select, Tab, Tabs, TextField } from '@mui/material';
 
 import {
     WbSunny as WbSunnyIcon,
@@ -42,6 +44,7 @@ const styles = theme => ({
         width: 'calc(100% - 8px)',
         height: 'calc(100% - 8px)',
         margin: 4,
+        position: 'relative',
     },
     mainName: {
         fontSize: 24,
@@ -69,7 +72,11 @@ const styles = theme => ({
                 top: '45% !important',
             }
         },
-
+    },
+    moreButton: {
+        position: 'absolute',
+        top: 4,
+        right: 4,
     }
 });
 
@@ -122,8 +129,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                         default: '1',
                     },
                 ],
-            },
-            ],
+            }],
             visPrev: 'widgets/material-widgets/img/prev_switches.png',
         };
     }
@@ -131,7 +137,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
     async propertiesUpdate() {
         const newState = {};
 
-        if (this.state.data['oid-mode']) {
+        if (this.state.data['oid-mode'] && this.state.data['oid-mode'] !== 'nothing_selected') {
             const mode = await this.props.socket.getObject(this.state.data['oid-mode']);
             newState.modes = mode?.common?.states;
             newState.modeObject = mode;
@@ -145,7 +151,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
             newState.mode = null;
         }
 
-        if (this.state.data['oid-temp-set']) {
+        if (this.state.data['oid-temp-set'] && this.state.data['oid-temp-set'] !== 'nothing_selected') {
             const tempObject = await this.props.socket.getObject(this.state.data['oid-temp-set']);
             newState.min = tempObject?.common?.min === undefined ? 12 : tempObject.common.min;
             newState.max = tempObject?.common?.max === undefined ? 30 : tempObject.common.max;
@@ -157,11 +163,14 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
             newState.min = null;
         }
 
-        if (this.state.data['oid-temp-actual']) {
+        if (this.state.data['oid-temp-actual'] && this.state.data['oid-temp-actual'] !== 'nothing_selected') {
             newState.tempStateObject = await this.props.socket.getObject(this.state.data['oid-temp-actual']);
         } else {
             newState.tempStateObject = null;
         }
+
+        newState.isChart = (newState.tempObject?.common?.custom && newState.tempObject.common.custom[this.props.systemConfig.common.defaultHistory]) ||
+            (newState.tempStateObject?.common?.custom && newState.tempStateObject.common.custom[this.props.systemConfig.common.defaultHistory]);
 
         this.setState(newState);
     }
@@ -256,8 +265,10 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                         t={I18n.t}
                         lang={I18n.lang}
                         socket={this.props.socket}
-                        obj={this.state.tempStateObject}
-                        obj2={this.state.tempObject}
+                        obj={this.state.tempStateObject || this.state.tempObject}
+                        obj2={!this.state.tempStateObject ? null : this.state.tempObject}
+                        objLineType={this.state.tempStateObject ? 'line' : 'step'}
+                        obj2LineType="step"
                         themeType={this.props.themeType}
                         defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
                         noToolbar={false}
@@ -278,8 +289,10 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
             if (size > this.refContainer.current.clientHeight) {
                 size = this.refContainer.current.clientHeight;
             }
-            size -= 64; // header
-            size -= 40; // mode buttons
+            if (this.state.data.name) {
+                size -= 64; // header
+            }
+            size -= 20; // mode buttons
 
             if (size !== this.state.width) {
                 this.setState({ width: size });
@@ -301,6 +314,10 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
             tempValue = this.state.max;
         }
 
+        if (tempValue === null) {
+            tempValue = (this.state.max - this.state.min) / 2 + this.state.min;
+        }
+
         let actualTemp = this.state.values[this.state.data['oid-temp-actual'] + '.val'];
         if (actualTemp === undefined) {
             actualTemp = null;
@@ -311,19 +328,28 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
             handleSize = 8;
         }
 
-        return <Card style={{ width: 'calc(100% - 8px)', height: 'calc(100% - 8px)', margin: 4 }}>
+        console.log(this.state.min, this.state.max, tempValue);
+
+        const chartButton = this.state.isChart ? <IconButton
+            className={this.state.data.name ? '' : this.props.classes.moreButton}
+            onClick={() => this.setState({ showDialog: true })}
+        >
+            <MoreVertIcon />
+        </IconButton> : null;
+
+        return <Card className={this.props.classes.root}>
             {this.renderDialog()}
-            <CardHeader
-                title={this.state.data.name}
-                action={
-                    <IconButton onClick={() => this.setState({ showDialog: true })}>
-                        <MoreVertIcon />
-                    </IconButton>
-                }
-            />
+            {this.state.data.name ?
+                <CardHeader
+                    title={this.state.data.name}
+                    action={chartButton}
+                />
+                :
+                chartButton
+            }
             <CardContent className={this.props.classes.content}>
                 <div ref={this.refContainer} style={{ width: '100%', height: '100%' }} className={this.props.classes.circleDiv}>
-                    {this.state.width ?
+                    {this.state.width && this.state.tempObject ?
                         <CircularSliderWithChildren
                             minValue={this.state.min}
                             maxValue={this.state.max}
@@ -401,7 +427,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                                     }}
                                 >{this.state.modes[modeIndex]}</Button>;
                         }) : null}
-                        {this.state.data['oid-power'] ?
+                        {this.state.data['oid-power'] && this.state.data['oid-power'] !== 'nothing_selected' ?
                             <Tooltip title={I18n.t('vis_2_widgets_material_power').replace('vis_2_widgets_material_', '')}>
                                 <IconButton
                                     color={this.state.values[this.state.data['oid-power'] + '.val'] ? 'primary' : 'grey'}

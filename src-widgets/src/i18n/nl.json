@@ -1,8 +1,6 @@
 {
-  "User:": "Gebruiker:",
-  "Text:": "Tekst:",
-  "Instance:": "Voorbeeld:",
-  "Sends message via telegram": "Stuurt bericht via telegram",
-  "Telegram": "Telegram",
-  "You can use %s in the text to display current trigger value or %id to display the triggered object ID": "U kunt %s in de tekst gebruiken om de huidige triggerwaarde weer te geven of %id om de getriggerde object-ID weer te geven"
+  "vis_2_widgets_material_name": "Naam",
+  "vis_2_widgets_material_hours": "Uren",
+  "vis_2_widgets_material_temperature_oid": "Temperatuur-ID",
+  "vis_2_widgets_material_humidity_oid": "Vochtigheids-ID"
 }

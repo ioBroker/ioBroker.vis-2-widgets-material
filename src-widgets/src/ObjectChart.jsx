@@ -2,10 +2,9 @@ import React, { createRef, Component } from 'react';
 
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
-import clsx from 'clsx';
 
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider, TimePicker, DatePicker } from '@mui/x-date-pickers';
+// import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+// import { LocalizationProvider, TimePicker, DatePicker } from '@mui/x-date-pickers';
 import {
     Paper,
     LinearProgress,
@@ -15,7 +14,7 @@ import {
     Select,
     Toolbar,
     Fab,
-    TextField,
+//    TextField,
 } from '@mui/material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -31,6 +30,7 @@ import {
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
 
+/*
 import frLocale from 'date-fns/locale/fr';
 import ruLocale from 'date-fns/locale/ru';
 import enLocale from 'date-fns/locale/en-US';
@@ -42,7 +42,7 @@ import cnLocale from 'date-fns/locale/zh-CN';
 import brLocale from 'date-fns/locale/pt-BR';
 import deLocale from 'date-fns/locale/de';
 import nlLocale from 'date-fns/locale/nl';
-
+*/
 import { Utils, withWidth } from '@iobroker/adapter-react-v5';
 
 // icons
@@ -51,7 +51,7 @@ import { FaChartLine as SplitLineIcon } from 'react-icons/fa';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, SVGRenderer]);
 
-const localeMap = {
+/*const localeMap = {
     en: enLocale,
     fr: frLocale,
     ru: ruLocale,
@@ -63,7 +63,7 @@ const localeMap = {
     pt: ptLocale,
     pl: plLocale,
     'zh-cn': cnLocale,
-};
+};*/
 
 function padding3(ms) {
     if (ms < 10) {
@@ -546,6 +546,7 @@ class ObjectChart extends Component {
         const serie = {
             xAxisIndex: 0,
             type: 'line',
+            step: this.props.objLineType === 'step' ? 'start' : undefined,
             showSymbol: false,
             hoverAnimation: true,
             animation: false,
@@ -555,12 +556,13 @@ class ObjectChart extends Component {
             },
             areaStyle: {},
         };
+
         let serie2;
         if (this.props.obj2) {
             serie2 = {
                 xAxisIndex: 0,
                 type: 'line',
-                step: 'start',
+                step: this.props.obj2LineType === 'step' || !this.props.obj2LineType ? 'start' : undefined,
                 showSymbol: false,
                 hoverAnimation: true,
                 animation: false,
@@ -1091,7 +1093,7 @@ class ObjectChart extends Component {
             }
         }
     }
-
+/*
     setStartDate(min) {
         min = min.getTime();
         if (this.timeTimer) {
@@ -1121,24 +1123,7 @@ class ObjectChart extends Component {
         this.setState({ max, relativeRange: 'absolute'  }, () =>
             this.updateChart(this.chart.min, this.chart.max, true));
     }
-
-    openEcharts() {
-        const args = [
-            `id=${window.encodeURIComponent(this.props.obj._id)}`,
-            `instance=${window.encodeURIComponent(this.state.historyInstance)}`,
-            'menuOpened=false',
-        ];
-
-        if (this.state.relativeRange === 'absolute') {
-            args.push(`start=${this.chart.min}`);
-            args.push(`end=${this.chart.max}`);
-        } else {
-            args.push(`range=${this.state.relativeRange}`);
-        }
-
-        window.open(`${window.location.protocol}//${window.location.host}/adapter/echarts/tab.html#${args.join('&')}`, 'echarts');
-    }
-
+*/
     renderToolbar() {
         if (this.props.noToolbar) {
             return null;
@@ -1159,7 +1144,7 @@ class ObjectChart extends Component {
                         this.setState({ historyInstance: e.target.value });
                     }}
                 >
-                    { this.state.historyInstances.map(it => <MenuItem key={it.id} value={it.id} className={clsx(!it.alive && classes.notAliveInstance)}>{ it.id }</MenuItem>) }
+                    { this.state.historyInstances.map(it => <MenuItem key={it.id} value={it.id} className={Utils.clsx(!it.alive && classes.notAliveInstance)}>{ it.id }</MenuItem>) }
                 </Select>
             </FormControl>}
             <FormControl variant="standard" className={classes.selectRelativeTime}>
@@ -1186,7 +1171,7 @@ class ObjectChart extends Component {
                     <MenuItem key="13" value="12months">{ this.props.t('last 12 months') }</MenuItem>
                 </Select>
             </FormControl>
-            {showTimeSettings ?
+            {/*showTimeSettings ? null
                 <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={localeMap[this.props.lang]}>
                     <div className={classes.toolbarTimeGrid}>
                         <DatePicker
@@ -1241,7 +1226,7 @@ class ObjectChart extends Component {
                         />
                     </div>
                 </LocalizationProvider>
-                : null}
+                : null*/}
             {showTimeSettings ? <Fab
                 variant="extended"
                 size="small"
@@ -1266,7 +1251,7 @@ class ObjectChart extends Component {
 
         return <Paper className={this.props.classes.paper}>
             { this.renderToolbar() }
-            <div ref={this.divRef} className={clsx(this.props.classes.chart, this.props.noToolbar ? this.props.classes.chartWithoutToolbar : this.props.classes.chartWithToolbar)}>
+            <div ref={this.divRef} className={Utils.clsx(this.props.classes.chart, this.props.noToolbar ? this.props.classes.chartWithoutToolbar : this.props.classes.chartWithToolbar)}>
                 { this.renderChart() }
             </div>
         </Paper>;
@@ -1280,6 +1265,8 @@ ObjectChart.propTypes = {
     socket: PropTypes.object,
     obj: PropTypes.object,
     obj2: PropTypes.object,
+    objLineType: PropTypes.string,
+    obj2LineType: PropTypes.string,
     customsInstances: PropTypes.array,
     themeType: PropTypes.string,
     objects: PropTypes.object,

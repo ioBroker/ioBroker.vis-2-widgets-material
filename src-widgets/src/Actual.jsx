@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Card, CardHeader, IconButton,
+    Card, Dialog, DialogContent, DialogTitle, IconButton,
 } from '@mui/material';
 import { withStyles } from '@mui/styles';
 
@@ -18,12 +18,14 @@ import {
 import { SVGRenderer } from 'echarts/renderers';
 
 import {
-    DeviceThermostat as ThermostatIcon, MoreVert as MoreVertIcon,
+    Close as IconClose,
+    DeviceThermostat as ThermostatIcon,
     Opacity as HumidityIcon,
 } from '@mui/icons-material';
 
 import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
 import { i18n as I18n } from '@iobroker/adapter-react-v5';
+import ObjectChart from './ObjectChart';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
@@ -140,7 +142,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         const objects = {};
 
         // try to find icons for all OIDs
-        if (this.state.data['oid-temperature']) {
+        if (this.state.data['oid-temperature'] && this.state.data['oid-temperature'] !== 'nothing_selected') {
             // read object itself
             const object = await this.props.socket.getObject(this.state.data['oid-temperature']);
             if (!object) {
@@ -164,7 +166,8 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 objects.temp = object;
             }
         }
-        if (this.state.data['oid-humidity']) {
+
+        if (this.state.data['oid-humidity'] && this.state.data['oid-humidity'] !== 'nothing_selected') {
             // read object itself
             const object = await this.props.socket.getObject(this.state.data['oid-humidity']);
             if (!object) {
@@ -188,8 +191,10 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                 objects.humidity = object;
             }
         }
+        const isChart = (objects.temp.common?.custom && objects.temp.common.custom[this.props.systemConfig.common.defaultHistory]) ||
+            (objects.humidity.common?.custom && objects.humidity.common?.custom[this.props.systemConfig.common.defaultHistory]);
 
-        this.setState({ objects });
+        this.setState({ objects, isChart });
     }
 
     convertData = (values, chart) => {
@@ -265,19 +270,20 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         super.componentDidMount();
         await this.propertiesUpdate();
 
-        if (this.state.data['oid-temperature']) {
+        if (this.state.data['oid-temperature'] && this.state.data['oid-temperature'] !== 'nothing_selected') {
             await this.readHistory(this.state.data['oid-temperature']);
             this.tempTimer = setInterval(async () => {
                 await this.readHistory(this.state.data['oid-temperature']);
-                if (this.state.data['oid-humidity']) {
+                if (this.state.data['oid-humidity'] && this.state.data['oid-humidity'] !== 'nothing_selected') {
                     await this.readHistory(this.state.data['oid-humidity']);
                 }
             }, 60000); // every minute
         }
-        if (this.state.data['oid-humidity']) {
+        if (this.state.data['oid-humidity'] && this.state.data['oid-humidity'] !== 'nothing_selected') {
             await this.readHistory(this.state.data['oid-humidity']);
             if (!this.tempTimer) {
-                this.tempTimer = setInterval(() => this.readHistory(this.state.data['oid-humidity']), 60000); // every minute
+                this.tempTimer = setInterval(() =>
+                    this.readHistory(this.state.data['oid-humidity']), 60000); // every minute
             }
         }
     }
@@ -285,6 +291,11 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
     componentWillUnmount() {
         clearInterval(this.tempTimer);
         super.componentWillUnmount();
+    }
+
+    async onPropertiesUpdated() {
+        super.onPropertiesUpdated();
+        await this.propertiesUpdate();
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -371,20 +382,63 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         return value === undefined || value === null ? '' : value.toString();
     }
 
+    renderDialog() {
+        if (!this.state.showDialog) {
+            return null
+        }
+        return <Dialog
+            sx={{'& .MuiDialog-paper': {height: '100%'}}}
+            maxWidth="lg"
+            fullWidth
+            open={true}
+            onClose={() => this.setState({showDialog: false})}
+        >
+            <DialogTitle>
+                {this.state.data.name}
+                <IconButton
+                    style={{ float: 'right' }}
+                    onClick={() => this.setState({ showDialog: false })}
+                >
+                    <IconClose/>
+                </IconButton>
+            </DialogTitle>
+            <DialogContent>
+                <ObjectChart
+                    t={I18n.t}
+                    lang={I18n.lang}
+                    socket={this.props.socket}
+                    obj={this.state.objects.temp || this.state.objects.humidity}
+                    obj2={this.state.objects.temp ? this.state.objects.humidity : null}
+                    objLineType="line"
+                    obj2LineType="line"
+                    themeType={this.props.themeType}
+                    defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
+                    noToolbar={false}
+                    systemConfig={this.props.systemConfig}
+                    dateFormat={this.props.systemConfig.common.dateFormat}
+                />
+            </DialogContent>
+        </Dialog>;
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
         return <Card className={this.props.classes.root}>
-            <div ref={this.refContainer} className={this.props.classes.container}>
+            <div ref={this.refContainer} className={this.props.classes.container} onClick={this.state.isChart ? e => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.setState({ showDialog: true });
+            } : undefined}>
                 <div className={this.props.classes.mainName}>{this.state.data.name}</div>
-                {this.state.objects && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
+                {this.state.objects && this.state.objects.temp && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
                     <div className={this.props.classes.temperatureDiv}>
                         <ThermostatIcon className={this.props.classes.temperatureIcon} />
                         <span className={this.props.classes.temperatureValue}>{this.formatValue(this.state.values[this.state.data['oid-temperature'] + '.val'])}</span>
                         <span className={this.props.classes.temperatureUnit}>{this.state.objects.temp.common.unit}</span>
                     </div>
                     : null}
-                {this.state.objects && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
+                {this.state.objects && this.state.objects.humidity && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
                     <div className={this.props.classes.humidityDiv}>
                         <HumidityIcon className={this.props.classes.humidityIcon} />
                         <span className={this.props.classes.humidityValue}>{this.formatValue(this.state.values[this.state.data['oid-humidity'] + '.val'], 0)}</span>
@@ -404,6 +458,7 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
                     />
                     : null}
             </div>
+            {this.renderDialog()}
         </Card>;
     }
 }

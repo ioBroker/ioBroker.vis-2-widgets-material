@@ -115,6 +115,10 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                             type: 'number',
                             default: 2,
                             label: 'vis_2_widgets_material_count',
+                            onChange: (field, data, changeData) => {
+                                changeData(data);
+                            },
+                            // component: MyField
                         },
                         {
                             name: 'type',
@@ -196,7 +200,7 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.data.count; index++) {
-            if (this.state.data[`oid${index}`]) {
+            if (this.state.data[`oid${index}`] && this.state.data[`oid${index}`] !== 'nothing_selected') {
                 // read object itself
                 const object = await this.props.socket.getObject(this.state.data[`oid${index}`]);
                 if (!object) {
@@ -422,8 +426,8 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        const allSwitchValue = Object.keys(this.state.values).every(index => this.state.values[index]);
-        const intermediate = this.state.data.type === 'switches' && !!Object.keys(this.state.values).find(index => this.state.values[index] !== allSwitchValue);
+        const allSwitchValue = Object.keys(this.state.objects).every(index => this.isOn(index));
+        const intermediate = this.state.data.type === 'switches' && !!Object.keys(this.state.objects).find(index => this.isOn(index) !== allSwitchValue);
 
         const icons = Object.keys(this.state.objects).map(index => this.getStateIcon(index));
         const anyIcon = icons.find(icon => icon);
@@ -440,7 +444,7 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
                     <>
                         <div className={this.props.classes.cardsHolder}>
                             <div className={this.props.classes.mainName}>{this.state.data.name}</div>
-                            {this.state.data.allSwitch ? <Switch
+                            {this.state.data.allSwitch && Object.keys(this.state.objects).length > 1 ? <Switch
                                 checked={allSwitchValue}
                                 className={intermediate ? this.props.classes.intermediate : ''}
                                 onChange={() => {
