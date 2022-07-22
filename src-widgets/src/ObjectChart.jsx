@@ -693,7 +693,7 @@ class ObjectChart extends Component {
                 left: 'right',
                 feature: this.props.noToolbar ? undefined : {
                     saveAsImage: {
-                        title: this.props.t('Save as image'),
+                        title: this.props.t('vis_2_widgets_material_Save as image'),
                         show: true,
                     },
                 },
@@ -1134,41 +1134,28 @@ class ObjectChart extends Component {
         const showTimeSettings = window.clientWidth > 600;
 
         return <Toolbar>
-            {showTimeSettings && !this.props.historyInstance && <FormControl variant="standard" className={classes.selectHistoryControl}>
-                <InputLabel>{ this.props.t('History instance') }</InputLabel>
-                <Select
-                    variant="standard"
-                    value={this.state.historyInstance}
-                    onChange={e => {
-                        window.localStorage.setItem('App.historyInstance', e.target.value);
-                        this.setState({ historyInstance: e.target.value });
-                    }}
-                >
-                    { this.state.historyInstances.map(it => <MenuItem key={it.id} value={it.id} className={Utils.clsx(!it.alive && classes.notAliveInstance)}>{ it.id }</MenuItem>) }
-                </Select>
-            </FormControl>}
             <FormControl variant="standard" className={classes.selectRelativeTime}>
-                <InputLabel>{ this.props.t('Relative') }</InputLabel>
+                <InputLabel>{this.props.t('vis_2_widgets_material_relative')}</InputLabel>
                 <Select
                     variant="standard"
                     ref={this.rangeRef}
                     value={this.state.relativeRange}
                     onChange={e => this.setRelativeInterval(e.target.value)}
                 >
-                    <MenuItem key="custom" value="absolute" className={classes.customRange}>{ this.props.t('custom range') }</MenuItem>
-                    <MenuItem key="1" value={10}>{ this.props.t('last 10 minutes') }</MenuItem>
-                    <MenuItem key="2" value={30}>{ this.props.t('last 30 minutes') }</MenuItem>
-                    <MenuItem key="3" value={60}>{ this.props.t('last hour') }</MenuItem>
-                    <MenuItem key="4" value="day">{ this.props.t('this day') }</MenuItem>
-                    <MenuItem key="5" value={24 * 60}>{ this.props.t('last 24 hours') }</MenuItem>
-                    <MenuItem key="6" value="week">{ this.props.t('this week') }</MenuItem>
-                    <MenuItem key="7" value={24 * 60 * 7}>{ this.props.t('last week') }</MenuItem>
-                    <MenuItem key="8" value="2weeks">{ this.props.t('this 2 weeks') }</MenuItem>
-                    <MenuItem key="9" value={24 * 60 * 14}>{ this.props.t('last 2 weeks') }</MenuItem>
-                    <MenuItem key="10" value="month">{ this.props.t('this month') }</MenuItem>
-                    <MenuItem key="11" value={30 * 24 * 60}>{ this.props.t('last 30 days') }</MenuItem>
-                    <MenuItem key="12" value="year">{ this.props.t('this year') }</MenuItem>
-                    <MenuItem key="13" value="12months">{ this.props.t('last 12 months') }</MenuItem>
+                    <MenuItem key="custom" value="absolute" className={classes.customRange}>{ this.props.t('vis_2_widgets_material_custom_range') }</MenuItem>
+                    <MenuItem key="1" value={10}>{ this.props.t('vis_2_widgets_material_last 10 minutes') }</MenuItem>
+                    <MenuItem key="2" value={30}>{ this.props.t('vis_2_widgets_material_last 30 minutes') }</MenuItem>
+                    <MenuItem key="3" value={60}>{ this.props.t('vis_2_widgets_material_last hour') }</MenuItem>
+                    <MenuItem key="4" value="day">{ this.props.t('vis_2_widgets_material_this day') }</MenuItem>
+                    <MenuItem key="5" value={24 * 60}>{ this.props.t('vis_2_widgets_material_last 24 hours') }</MenuItem>
+                    <MenuItem key="6" value="week">{ this.props.t('vis_2_widgets_material_this week') }</MenuItem>
+                    <MenuItem key="7" value={24 * 60 * 7}>{ this.props.t('vis_2_widgets_material_last week') }</MenuItem>
+                    <MenuItem key="8" value="2weeks">{ this.props.t('vis_2_widgets_material_this 2 weeks') }</MenuItem>
+                    <MenuItem key="9" value={24 * 60 * 14}>{ this.props.t('vis_2_widgets_material_last 2 weeks') }</MenuItem>
+                    <MenuItem key="10" value="month">{ this.props.t('vis_2_widgets_material_this month') }</MenuItem>
+                    <MenuItem key="11" value={30 * 24 * 60}>{ this.props.t('vis_2_widgets_material_last 30 days') }</MenuItem>
+                    <MenuItem key="12" value="year">{ this.props.t('vis_2_widgets_material_this year') }</MenuItem>
+                    <MenuItem key="13" value="12months">{ this.props.t('vis_2_widgets_material_last 12 months') }</MenuItem>
                 </Select>
             </FormControl>
             {/*showTimeSettings ? null
@@ -1239,7 +1226,7 @@ class ObjectChart extends Component {
                 className={classes.splitLineButton}
             >
                 <SplitLineIcon className={classes.splitLineButtonIcon} />
-                { this.props.t('Show lines') }
+                { this.props.t('vis_2_widgets_material_Show lines') }
             </Fab> : null}
         </Toolbar>;
     }
