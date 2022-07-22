@@ -16,7 +16,7 @@ module.exports = {
     name: 'vis2materialWidgets',
     filename: 'customWidgets.js',
     exposes: {
-//        './Thermostat': './src/Thermostat',
+        './Thermostat': './src/Thermostat',
         './Actual': './src/Actual',
         './Static': './src/Static',
         './Switches': './src/Switches',
