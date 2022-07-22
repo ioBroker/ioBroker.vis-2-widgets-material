@@ -101,7 +101,6 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
             id: 'tplMaterial2Switches',
             visSet: 'vis-2-widgets-material',
             visName: 'Switches',
-            visAttrs_: 'name;oid-mode;oid-temp;oid-temp-state;oid-power',
             visAttrs: [
                 {
                     name: 'common',
