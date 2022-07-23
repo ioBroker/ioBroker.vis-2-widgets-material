@@ -27,5 +27,20 @@
   "vis_2_widgets_material_ON": "ON",
   "vis_2_widgets_material_actual_temperature": "Actual temperature",
   "vis_2_widgets_material_desired_temperature": "Desired temperature",
-  "vis_2_widgets_material_power": "Power"
+  "vis_2_widgets_material_power": "Power",
+
+  "vis_2_widgets_material_count": "Count of elements",
+  "vis_2_widgets_material_oid": "Object ID",
+  "vis_2_widgets_material_icon": "Icon",
+  "vis_2_widgets_material_icon_active": "Active icon",
+  "vis_2_widgets_material_color": "Color",
+  "vis_2_widgets_material_color_active": "Active color",
+  "vis_2_widgets_material_title": "Title",
+  "vis_2_widgets_material_type": "Type",
+  "vis_2_widgets_material_show_all_switch": "Show switch - ALL",
+  "vis_2_widgets_material_buttons_width": "Buttons width",
+  "vis_2_widgets_material_buttons_height": "Buttons height",
+  "vis_2_widgets_material_actual_oid": "Actual temperature ID",
+  "vis_2_widgets_material_power_oid": "Power ID",
+  "vis_2_widgets_material_step": "Step"
 }
