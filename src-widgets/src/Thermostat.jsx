@@ -3,7 +3,7 @@ import { withStyles } from '@mui/styles';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import {
-    Card, CardContent, CardHeader, Button, Dialog, DialogContent, DialogTitle, IconButton, Tooltip,
+    Button, Dialog, DialogContent, DialogTitle, IconButton, Tooltip,
 } from '@mui/material';
 
 // import { FormControl, InputLabel, MenuItem, Select, Tab, Tabs, TextField } from '@mui/material';
@@ -23,9 +23,9 @@ import {
 } from '@mui/icons-material';
 
 import { i18n as I18n } from '@iobroker/adapter-react-v5';
-import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
 
 import ObjectChart from './ObjectChart';
+import Generic from './Generic';
 
 const Buttons = {
     AUTO: ThermostatAutoIcon,
@@ -40,25 +40,6 @@ const Buttons = {
 };
 
 const styles = theme => ({
-    root: {
-        width: 'calc(100% - 8px)',
-        height: 'calc(100% - 8px)',
-        margin: 4,
-        position: 'relative',
-    },
-    mainName: {
-        fontSize: 24,
-        paddingTop: 0,
-        paddingBottom: 4
-    },
-    content: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: 'calc(100% - 32px)',
-        height: 'calc(100% - 40px)',
-        textAlign: 'center',
-    },
     circleDiv: {
         width: '100%',
         height: '100%',
@@ -77,10 +58,13 @@ const styles = theme => ({
         position: 'absolute',
         top: 4,
         right: 4,
+    },
+    buttonsDiv: {
+        textAlign: 'center',
     }
 });
 
-class Thermostat extends (window.visRxWidget || VisRxWidget) {
+class Thermostat extends Generic {
     constructor(props) {
         super(props);
         this.state.showDialog = false;
@@ -263,7 +247,7 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                 {this.state.dialogTab === 1 && <div style={{ height: '100%' }}>
                     <ObjectChart
                         t={I18n.t}
-                        lang={I18n.lang}
+                        lang={I18n.getLanguage()}
                         socket={this.props.socket}
                         obj={this.state.tempStateObject || this.state.tempObject}
                         obj2={!this.state.tempStateObject ? null : this.state.tempObject}
@@ -337,84 +321,63 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
             <MoreVertIcon />
         </IconButton> : null;
 
-        return <Card className={this.props.classes.root}>
-            {this.renderDialog()}
-            {this.state.data.name ?
-                <CardHeader
-                    title={this.state.data.name}
-                    action={chartButton}
-                />
-                :
-                chartButton
-            }
-            <CardContent className={this.props.classes.content}>
-                <div ref={this.refContainer} style={{ width: '100%', height: '100%' }} className={this.props.classes.circleDiv}>
-                    {this.state.width && this.state.tempObject ?
-                        <CircularSliderWithChildren
-                            minValue={this.state.min}
-                            maxValue={this.state.max}
-                            size={this.state.width}
-                            arcColor={this.props.themeType === 'dark' ? '#fff' : '#000'}
-                            startAngle={40}
-                            step={0.5}
-                            handleSize={handleSize}
-                            endAngle={320}
-                            handle1={{
-                                value: tempValue,
-                                onChange: value => {
-                                    const values = JSON.parse(JSON.stringify(this.state.values));
-                                    if (this.state.data['oid-step'] === '0.5') {
-                                        values[this.state.data['oid-temp-set'] + '.val'] = Math.round(value * 2) / 2;
-                                    } else {
-                                        values[this.state.data['oid-temp-set'] + '.val'] = Math.round(value);
-                                    }
-                                    this.setState({ values });
-                                },
-                            }}
-                            onControlFinished={() =>
-                                this.props.socket.setState(this.state.data['oid-temp-set'], this.state.values[this.state.data['oid-temp-set'] + '.val'])}
-                        >
-                            {actualTemp !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_actual_temperature')}>
-                                <div style={{ fontSize: Math.round(this.state.width / 10), fontWeight: 'bold' }}>
-                                    {this.formatValue(actualTemp)}
-                                    {this.state.tempStateObject?.common?.unit}
-                                </div>
-                            </Tooltip> : null}
-                            {tempValue !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_desired_temperature')}>
-                                <div style={{ fontSize: Math.round(this.state.width * 0.6 / 10) }}>
-                                    {this.formatValue(tempValue)}
-                                    {this.state.tempObject?.common?.unit}
-                                </div>
-                            </Tooltip> : null}
-                        </CircularSliderWithChildren>
-                    : null}
-                    <div>
-                        {this.state.modes && (!this.state.data['oid-power'] || this.state.values[this.state.data['oid-power'] + '.val']) ?
-                            Object.keys(this.state.modes).map((modeIndex, i) => {
-                            const mode = this.state.modes[modeIndex];
-                            const MyButtonIcon = Buttons[mode] || null;
-                            return MyButtonIcon ?
-                                <Tooltip key={i} title={I18n.t('vis_2_widgets_material_' + mode).replace('vis_2_widgets_material_', '')}>
-                                    <IconButton
-                                        color={this.state.values[this.state.data['oid-mode'] + '.val'] == modeIndex ? 'primary' : 'grey'}
-                                        onClick={() => {
-                                            let value = modeIndex;
-                                            if (this.state.modeObject?.common?.type === 'number') {
-                                                value = parseFloat(value);
-                                            }
-                                            const values = JSON.parse(JSON.stringify(this.state.values));
-                                            values[this.state.data['oid-mode'] + '.val'] = value;
-                                            this.setState(values);
-                                            this.props.socket.setState(this.state.data['oid-mode'], value);
-                                        }}
-                                    >
-                                        <MyButtonIcon />
-                                    </IconButton>
-                                </Tooltip>
-                                :
-                                <Button
-                                    key={i}
-                                    color={this.state.values[this.state.data['oid-mode'] + '.val'] == modeIndex ? 'primary' : 'grey'}
+        const content = <div ref={this.refContainer} style={{ width: '100%', height: '100%' }} className={this.props.classes.circleDiv}>
+            {this.state.data.name ? null : chartButton}
+            {this.state.width && this.state.tempObject ?
+                <CircularSliderWithChildren
+                    minValue={this.state.min}
+                    maxValue={this.state.max}
+                    size={this.state.width}
+                    arcColor={this.props.themeType === 'dark' ? '#fff' : '#000'}
+                    startAngle={40}
+                    step={0.5}
+                    handleSize={handleSize}
+                    endAngle={320}
+                    handle1={{
+                        value: tempValue,
+                        onChange: value => {
+                            const values = JSON.parse(JSON.stringify(this.state.values));
+                            if (this.state.data['oid-step'] === '0.5') {
+                                values[this.state.data['oid-temp-set'] + '.val'] = Math.round(value * 2) / 2;
+                            } else {
+                                values[this.state.data['oid-temp-set'] + '.val'] = Math.round(value);
+                            }
+                            this.setState({ values });
+                        },
+                    }}
+                    onControlFinished={() =>
+                        this.props.socket.setState(this.state.data['oid-temp-set'], this.state.values[this.state.data['oid-temp-set'] + '.val'])}
+                >
+                    {actualTemp !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_actual_temperature')}>
+                        <div style={{ fontSize: Math.round(this.state.width / 10), fontWeight: 'bold' }}>
+                            {this.formatValue(actualTemp)}
+                            {this.state.tempStateObject?.common?.unit}
+                        </div>
+                    </Tooltip> : null}
+                    {tempValue !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_desired_temperature')}>
+                        <div style={{ fontSize: Math.round(this.state.width * 0.6 / 10) }}>
+                            {this.formatValue(tempValue)}
+                            {this.state.tempObject?.common?.unit}
+                        </div>
+                    </Tooltip> : null}
+                </CircularSliderWithChildren>
+                : null}
+            <div className={this.props.classes.buttonsDiv}>
+                {this.state.modes && (!this.state.data['oid-power'] || this.state.values[this.state.data['oid-power'] + '.val']) ?
+                    Object.keys(this.state.modes).map((modeIndex, i) => {
+                        const mode = this.state.modes[modeIndex];
+                        const MyButtonIcon = Buttons[mode] || null;
+                        let currentValueStr = this.state.values[this.state.data['oid-mode'] + '.val'];
+                        if (currentValueStr === null || currentValueStr === undefined) {
+                            currentValueStr = 'null';
+                        } else {
+                            currentValueStr = currentValueStr.toString()
+                        }
+
+                        return MyButtonIcon ?
+                            <Tooltip key={i} title={I18n.t('vis_2_widgets_material_' + mode).replace('vis_2_widgets_material_', '')}>
+                                <IconButton
+                                    color={currentValueStr === modeIndex ? 'primary' : 'grey'}
                                     onClick={() => {
                                         let value = modeIndex;
                                         if (this.state.modeObject?.common?.type === 'number') {
@@ -425,26 +388,45 @@ class Thermostat extends (window.visRxWidget || VisRxWidget) {
                                         this.setState(values);
                                         this.props.socket.setState(this.state.data['oid-mode'], value);
                                     }}
-                                >{this.state.modes[modeIndex]}</Button>;
-                        }) : null}
-                        {this.state.data['oid-power'] && this.state.data['oid-power'] !== 'nothing_selected' ?
-                            <Tooltip title={I18n.t('vis_2_widgets_material_power').replace('vis_2_widgets_material_', '')}>
-                                <IconButton
-                                    color={this.state.values[this.state.data['oid-power'] + '.val'] ? 'primary' : 'grey'}
-                                    onClick={() => {
-                                        const values = JSON.parse(JSON.stringify(this.state.values));
-                                        values[this.state.data['oid-power'] + '.val'] = !values[this.state.data['oid-power'] + '.val'];
-                                        this.setState(values);
-                                        this.props.socket.setState(this.state.data['oid-power'], values[this.state.data['oid-power'] + '.val']);
-                                    }}
                                 >
-                                    <PowerSettingsNewIcon />
+                                    <MyButtonIcon />
                                 </IconButton>
-                            </Tooltip> : null}
-                    </div>
-                </div>
-            </CardContent>
-        </Card>;
+                            </Tooltip>
+                            :
+                            <Button
+                                key={i}
+                                color={currentValueStr === modeIndex ? 'primary' : 'grey'}
+                                onClick={() => {
+                                    let value = modeIndex;
+                                    if (this.state.modeObject?.common?.type === 'number') {
+                                        value = parseFloat(value);
+                                    }
+                                    const values = JSON.parse(JSON.stringify(this.state.values));
+                                    values[this.state.data['oid-mode'] + '.val'] = value;
+                                    this.setState(values);
+                                    this.props.socket.setState(this.state.data['oid-mode'], value);
+                                }}
+                            >{this.state.modes[modeIndex]}</Button>;
+                    }) : null}
+                {this.state.data['oid-power'] && this.state.data['oid-power'] !== 'nothing_selected' ?
+                    <Tooltip title={I18n.t('vis_2_widgets_material_power').replace('vis_2_widgets_material_', '')}>
+                        <IconButton
+                            color={this.state.values[this.state.data['oid-power'] + '.val'] ? 'primary' : 'grey'}
+                            onClick={() => {
+                                const values = JSON.parse(JSON.stringify(this.state.values));
+                                values[this.state.data['oid-power'] + '.val'] = !values[this.state.data['oid-power'] + '.val'];
+                                this.setState(values);
+                                this.props.socket.setState(this.state.data['oid-power'], values[this.state.data['oid-power'] + '.val']);
+                            }}
+                        >
+                            <PowerSettingsNewIcon />
+                        </IconButton>
+                    </Tooltip> : null}
+            </div>
+            {this.renderDialog()}
+        </div>;
+
+        return this.wrapContent(content, this.state.data.name ? chartButton : null, { textAlign: 'center' });
     }
 }
 

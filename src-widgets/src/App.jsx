@@ -61,7 +61,7 @@ class App extends WidgetDemoApp {
                 data={{
                     name: 'Static information',
                     count: 2,
-                    oid1: 'javascript.0.number1',
+                    oid1: 'javascript.0.thermostat.actual',
                     oid2: 'javascript.0.numberWithStates',
                     title1: 'Number',
                     title2: 'States',

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Card, Dialog, DialogContent, DialogTitle, IconButton,
+    Dialog, DialogContent, DialogTitle, IconButton,
 } from '@mui/material';
 import { withStyles } from '@mui/styles';
 
@@ -30,26 +30,9 @@ import Generic from './Generic';
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
 const styles = theme => ({
-    root: {
-        width: 'calc(100% - 8px)',
-        height: 'calc(100% - 8px)',
-        margin: 4,
-    },
     chart: {
         height: 'calc(100% - 40px)',
         width: '100%'
-    },
-    container: {
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-    },
-    mainName: {
-        fontSize: 24,
-        paddingTop: 16,
-        paddingLeft: 16,
-        paddingRight: 16,
-        paddingBottom: 4,
     },
     temperatureDiv: {
         marginLeft: 10,
@@ -389,7 +372,7 @@ class Actual extends Generic {
             <DialogContent>
                 <ObjectChart
                     t={I18n.t}
-                    lang={I18n.lang}
+                    lang={I18n.getLanguage()}
                     socket={this.props.socket}
                     obj={this.state.objects.temp || this.state.objects.humidity}
                     obj2={this.state.objects.temp ? this.state.objects.humidity : null}
@@ -444,7 +427,7 @@ class Actual extends Generic {
             {this.renderDialog()}
         </div>;
 
-        return this.wrapContent(content, null, onCardClick, { paddingLeft: 0, paddingRight: 0 }, { paddingLeft: 16});
+        return this.wrapContent(content, null, onCardClick, { paddingLeft: 0, paddingRight: 0 }, { paddingLeft: 16 });
     }
 }
 

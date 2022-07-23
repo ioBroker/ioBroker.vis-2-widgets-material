@@ -22,16 +22,6 @@ import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 import Generic from './Generic';
 
 const styles = theme => ({
-    root: {
-        width: 'calc(100% - 8px)',
-        height: 'calc(100% - 8px)',
-        margin: 4,
-    },
-    mainName: {
-        fontSize: 24,
-        paddingTop: 0,
-        paddingBottom: 4
-    },
     intermediate: {
         opacity: 0.2,
     },

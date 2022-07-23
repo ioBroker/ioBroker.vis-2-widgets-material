@@ -35,6 +35,7 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     height: '100%',
+                    position: 'relative',
                 }, cardContentStyle)}
             >
                 {this.state.data.name ? <div style={{

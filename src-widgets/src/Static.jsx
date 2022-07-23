@@ -2,7 +2,7 @@ import React from 'react';
 import { withStyles } from '@mui/styles';
 
 import {
-    Card, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Switch,
+    Dialog, DialogContent, DialogTitle, IconButton, Switch,
 } from '@mui/material';
 
 import Generic from './Generic';
@@ -11,16 +11,7 @@ import ObjectChart from "./ObjectChart";
 import {i18n as I18n} from "@iobroker/adapter-react-v5";
 
 const styles = theme => ({
-    root: {
-        width: 'calc(100% - 8px)',
-        height: 'calc(100% - 8px)',
-        margin: 4,
-    },
-    mainName: {
-        fontSize: 24,
-        paddingTop: 0,
-        paddingBottom: 4
-    },
+
 });
 
 class Static extends Generic {
@@ -106,7 +97,7 @@ class Static extends Generic {
                     continue;
                 }
                 object.common = object.common || {};
-                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig.common.defaultHistory]);
+                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
                 if (!this.state.data[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.data[`oid${i}`].split('.');
 
@@ -205,12 +196,12 @@ class Static extends Generic {
         } : undefined;
 
         if (object?.common?.type === 'boolean') {
-            return <Switch checked={state} />;
+            return <Switch checked={state} onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}/>;
         }
         if (object?.common?.type === 'number') {
-            return `${state}${object.common.unit || ''}`;
+            return <span onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>{state}{object.common.unit || ''}</span>;
         }
-        return this.formatValue(state);
+        return <span onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>{this.formatValue(state)}</span>;
     }
 
     renderDialog() {
@@ -255,35 +246,39 @@ class Static extends Generic {
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
 
-        const content = Object.keys(this.state.objects).map((key, i) =>
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    alignItems: 'center',
-                }}
-                key={key}
-            >
-                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                    {anyIcon ? <span style={{
-                        width: 40,
-                        height: 40,
-                        display: 'inline-flex',
+        const content = <>
+            {this.renderDialog()}
+            {Object.keys(this.state.objects).map((key, i) =>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%',
                         alignItems: 'center',
-                        justifyContent: 'center',
                     }}
-                    >
-                        {icons[i]}
-                    </span> : null}
-                    <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                        {this.state.data['title' + key] || this.state.objects[key].common.name}
+                    key={key}
+                >
+                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        {anyIcon ? <span style={{
+                            width: 40,
+                            height: 40,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        >
+                            {icons[i]}
+                        </span> : null}
+                        <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
+                            {this.state.data['title' + key] || this.state.objects[key].common.name}
+                        </span>
                     </span>
-                </span>
 
-                {this.getValue(key)}
-            </div>
-        );
+                    {this.getValue(key)}
+                </div>
+            )}
+        </>;
+
         return this.wrapContent(content);
     }
 }
