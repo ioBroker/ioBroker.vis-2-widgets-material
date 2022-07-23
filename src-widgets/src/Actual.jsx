@@ -23,9 +23,10 @@ import {
     Opacity as HumidityIcon,
 } from '@mui/icons-material';
 
-import { i18n as I18n } from '@iobroker/adapter-react-v5';
+import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
+import PropTypes from "prop-types";
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
@@ -42,7 +43,7 @@ const styles = theme => ({
     },
     temperatureValue: {
         verticalAlign: 'middle',
-        fontSize: 32
+        fontSize: 28
     },
     temperatureUnit: {
         paddingLeft: 5,
@@ -73,6 +74,34 @@ const styles = theme => ({
     humidityIcon: {
         verticalAlign: 'middle',
         fontSize: 20,
+    },
+    newValueLight: {
+        animation: '$newValueAnimationLight 2s ease-in-out'
+    },
+    '@keyframes newValueAnimationLight': {
+        '0%': {
+            color: '#00bd00',
+        },
+        '80%': {
+            color: '#008000',
+        },
+        '100%': {
+            color: 'rgba(243,177,31)',
+        }
+    },
+    newValueDark: {
+        animation: '$newValueAnimationDark 2s ease-in-out'
+    },
+    '@keyframes newValueAnimationDark': {
+        '0%': {
+            color: '#008000',
+        },
+        '80%': {
+            color: '#00bd00',
+        },
+        '100%': {
+            color: 'rgba(243,177,31)',
+        }
     },
 });
 
@@ -316,15 +345,13 @@ class Actual extends Generic {
 
         return {
             animation: false,
+            backgroundColor: 'transparent',
             grid: {
                 show: false,
                 left: 0,
                 top: 0,
                 right: 0,
                 bottom: 0,
-                /*tooltip: {
-                    show: false,
-                }*/
             },
             legend: undefined,
             /*tooltip: {
@@ -358,7 +385,10 @@ class Actual extends Generic {
             maxWidth="lg"
             fullWidth
             open={true}
-            onClose={() => this.setState({showDialog: false})}
+            onClose={() => {
+                console.log('Ckise')
+                this.setState({ showDialog: false });
+            }}
         >
             <DialogTitle>
                 {this.state.data.name}
@@ -378,6 +408,10 @@ class Actual extends Generic {
                     obj2={this.state.objects.temp ? this.state.objects.humidity : null}
                     objLineType="line"
                     obj2LineType="line"
+                    objColor={this.state.objects.temp ? 'rgba(243,177,31,0.65)' : 'rgba(77,134,255,0.44)'}
+                    obj2Color="rgba(77,134,255,0.44)"
+                    objBackgroundColor={this.state.objects.temp ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'}
+                    obj2BackgroundColor="rgba(77,134,255,0.14)"
                     themeType={this.props.themeType}
                     defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
@@ -391,24 +425,32 @@ class Actual extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        const onCardClick = this.state.isChart ? e => {
+        const onCardClick = !this.state.showDialog && this.state.isChart ? e => {
             e.preventDefault();
             e.stopPropagation();
             this.setState({ showDialog: true });
         } : undefined;
 
+        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark: this.props.classes.newValueLight;
+
+        const tempVal = this.state.objects && this.state.objects.temp && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
+            this.formatValue(this.state.values[this.state.data['oid-temperature'] + '.val']) : undefined;
+
+        const humidityVal = this.state.objects && this.state.objects.humidity && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
+            this.formatValue(this.state.values[this.state.data['oid-humidity'] + '.val'], 0) : undefined;
+
         const content = <div style={{ width: '100%', height: '100%' }} ref={this.refContainer}>
-            {this.state.objects && this.state.objects.temp && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
+            {tempVal !== undefined ?
                 <div className={this.props.classes.temperatureDiv}>
                     <ThermostatIcon className={this.props.classes.temperatureIcon} />
-                    <span className={this.props.classes.temperatureValue}>{this.formatValue(this.state.values[this.state.data['oid-temperature'] + '.val'])}</span>
+                    <span key={`${tempVal}valText`} className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}>{tempVal}</span>
                     <span className={this.props.classes.temperatureUnit}>{this.state.objects.temp.common.unit}</span>
                 </div>
                 : null}
-            {this.state.objects && this.state.objects.humidity && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
+            {humidityVal !== undefined ?
                 <div className={this.props.classes.humidityDiv}>
                     <HumidityIcon className={this.props.classes.humidityIcon} />
-                    <span className={this.props.classes.humidityValue}>{this.formatValue(this.state.values[this.state.data['oid-humidity'] + '.val'], 0)}</span>
+                    <span key={`${humidityVal}valText`}className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}>{humidityVal}</span>
                     <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
                 </div>
                 : null}
@@ -427,8 +469,16 @@ class Actual extends Generic {
             {this.renderDialog()}
         </div>;
 
-        return this.wrapContent(content, null, onCardClick, { paddingLeft: 0, paddingRight: 0 }, { paddingLeft: 16 });
+        return this.wrapContent(content, null, { paddingLeft: 0, paddingRight: 0 }, { paddingLeft: 16 }, onCardClick);
     }
 }
+
+Actual.propTypes = {
+    systemConfig: PropTypes.object,
+    socket: PropTypes.object,
+    themeType: PropTypes.string,
+    style: PropTypes.object,
+    data: PropTypes.object,
+};
 
 export default withStyles(styles)(Actual);

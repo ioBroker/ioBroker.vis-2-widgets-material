@@ -551,9 +551,8 @@ class ObjectChart extends Component {
             hoverAnimation: true,
             animation: false,
             data: this.convertData(null, this.props.obj._id),
-            lineStyle: {
-                color: '#f5ba4d',
-            },
+            backgroundColor: this.props.objBackgroundColor || 'rgba(243,177,31,0.14)',
+            color: this.props.objColor || '#f5ba4d',
             areaStyle: {},
         };
 
@@ -567,9 +566,8 @@ class ObjectChart extends Component {
                 hoverAnimation: true,
                 animation: false,
                 data: this.convertData(null, this.props.obj2._id),
-                lineStyle: {
-                    color: '#21b400',
-                },
+                backgroundColor: this.props.obj2BackgroundColor || 'rgba(141,243,31,0.14)',
+                color: this.props.obj2Color || '#21b400',
                 areaStyle: {},
             };
         }
@@ -1254,6 +1252,10 @@ ObjectChart.propTypes = {
     obj2: PropTypes.object,
     objLineType: PropTypes.string,
     obj2LineType: PropTypes.string,
+    objColor: PropTypes.string,
+    obj2Color: PropTypes.string,
+    objBackgroundColor: PropTypes.string,
+    obj2BackgroundColor: PropTypes.string,
     customsInstances: PropTypes.array,
     themeType: PropTypes.string,
     objects: PropTypes.object,

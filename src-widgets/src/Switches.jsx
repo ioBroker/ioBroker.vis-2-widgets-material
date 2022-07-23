@@ -20,6 +20,7 @@ import {
 import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
+import PropTypes from "prop-types";
 
 const styles = theme => ({
     intermediate: {
@@ -487,5 +488,13 @@ class Switches extends Generic {
         return this.wrapContent(content, addToHeader);
     }
 }
+
+Switches.propTypes = {
+    systemConfig: PropTypes.object,
+    socket: PropTypes.object,
+    themeType: PropTypes.string,
+    style: PropTypes.object,
+    data: PropTypes.object,
+};
 
 export default withStyles(styles)(Switches);

@@ -26,6 +26,7 @@ import { i18n as I18n } from '@iobroker/adapter-react-v5';
 
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
+import PropTypes from "prop-types";
 
 const Buttons = {
     AUTO: ThermostatAutoIcon,
@@ -61,7 +62,35 @@ const styles = theme => ({
     },
     buttonsDiv: {
         textAlign: 'center',
-    }
+    },
+    newValueLight: {
+        animation: '$newValueAnimationLight 2s ease-in-out'
+    },
+    '@keyframes newValueAnimationLight': {
+        '0%': {
+            color: '#00bd00',
+        },
+        '80%': {
+            color: '#008000',
+        },
+        '100%': {
+            color: '#000',
+        }
+    },
+    newValueDark: {
+        animation: '$newValueAnimationDark 2s ease-in-out'
+    },
+    '@keyframes newValueAnimationDark': {
+        '0%': {
+            color: '#008000',
+        },
+        '80%': {
+            color: '#00bd00',
+        },
+        '100%': {
+            color: '#ffffff',
+        }
+    },
 });
 
 class Thermostat extends Generic {
@@ -204,7 +233,6 @@ class Thermostat extends Generic {
         >
             <DialogTitle>
                 {this.state.data.name}
-
                 <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDialog: false })}><IconClose /></IconButton>
             </DialogTitle>
             <DialogContent>
@@ -321,6 +349,8 @@ class Thermostat extends Generic {
             <MoreVertIcon />
         </IconButton> : null;
 
+        actualTemp = actualTemp !== null ? this.formatValue(actualTemp) : null;
+
         const content = <div ref={this.refContainer} style={{ width: '100%', height: '100%' }} className={this.props.classes.circleDiv}>
             {this.state.data.name ? null : chartButton}
             {this.state.width && this.state.tempObject ?
@@ -349,8 +379,12 @@ class Thermostat extends Generic {
                         this.props.socket.setState(this.state.data['oid-temp-set'], this.state.values[this.state.data['oid-temp-set'] + '.val'])}
                 >
                     {actualTemp !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_actual_temperature')}>
-                        <div style={{ fontSize: Math.round(this.state.width / 10), fontWeight: 'bold' }}>
-                            {this.formatValue(actualTemp)}
+                        <div
+                            key={`${actualTemp}valText`}
+                            style={{ fontSize: Math.round(this.state.width / 10), fontWeight: 'bold' }}
+                            className={this.props.themeType === 'dark' ? this.props.classes.newValueDark: this.props.classes.newValueLight}
+                        >
+                            {actualTemp}
                             {this.state.tempStateObject?.common?.unit}
                         </div>
                     </Tooltip> : null}
@@ -429,5 +463,13 @@ class Thermostat extends Generic {
         return this.wrapContent(content, this.state.data.name ? chartButton : null, { textAlign: 'center' });
     }
 }
+
+Thermostat.propTypes = {
+    systemConfig: PropTypes.object,
+    socket: PropTypes.object,
+    themeType: PropTypes.string,
+    style: PropTypes.object,
+    data: PropTypes.object,
+};
 
 export default withStyles(styles)(Thermostat);
