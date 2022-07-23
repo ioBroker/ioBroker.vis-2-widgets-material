@@ -1,12 +1,12 @@
 {
-    "name": "iobroker.vis-widget-thermostat",
+    "name": "iobroker.vis-2-widgets-material",
     "private": true,
     "version": "0.1.0",
     "dependencies": {
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.9.3",
         "@iobroker/adapter-react-v5": "^3.1.22",
-        "@iobroker/vis-widgets-react-dev": "^0.1.6",
+        "@iobroker/vis-widgets-react-dev": "^0.2.0",
         "@mui/icons-material": "^5.8.4",
         "@mui/material": "^5.9.1",
         "@mui/styles": "^5.9.1",
@@ -33,7 +33,7 @@
         "build": "craco build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "i18n": "node searchI18n.js"
+        "i18n": "node node_modules/@iobroker/vis-widgets-react-dev/searchI18n vis-2-widgets-material"
     },
     "eslintConfig": {
         "extends": "react-app"
@@ -48,12 +48,7 @@
         "eslint-plugin-jsx-a11y": "^6.6.0",
         "eslint-plugin-react": "^7.30.1",
         "eslint-plugin-react-hooks": "^4.6.0",
-        "sass": "^1.53.0",
-        "node-dir": "^0.1.17",
-        "acorn": "^8.8.0",
-        "acorn-jsx": "^5.3.2",
-        "acorn-walk": "^8.2.0",
-        "acorn-jsx-walk": "^2.0.0"
+        "sass": "^1.53.0"
     },
     "homepage": ".",
     "browserslist": [
