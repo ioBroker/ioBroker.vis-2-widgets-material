@@ -10,6 +10,8 @@ const walk = require('acorn-walk');
 const { extend } = require('acorn-jsx-walk');
 extend(walk.base);
 
+const en = require('./src/i18n/en.json');
+
 const keys = [];
 
 dir.readFiles(__dirname + '/src',
@@ -55,6 +57,15 @@ dir.readFiles(__dirname + '/src',
     () => {
         const result = {}
         keys.forEach(key => result[key] = key.replace(name + '_', ''));
+        console.log('All keys:');
         console.log(JSON.stringify(result, null, 2));
+        const emptyResult = {};
+        keys.forEach(key => {
+            if (!en[key]) {
+                emptyResult[key] = result[key];
+            }
+        });
+        console.log('Empty keys:');
+        console.log(JSON.stringify(emptyResult, null, 2));
     },
 );
