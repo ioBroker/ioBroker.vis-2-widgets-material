@@ -23,9 +23,9 @@ import {
     Opacity as HumidityIcon,
 } from '@mui/icons-material';
 
-import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
 import { i18n as I18n } from '@iobroker/adapter-react-v5';
 import ObjectChart from './ObjectChart';
+import Generic from './Generic';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
@@ -52,13 +52,14 @@ const styles = theme => ({
         paddingBottom: 4,
     },
     temperatureDiv: {
-        marginLeft: 4,
+        marginLeft: 10,
         color: 'rgba(243,177,31)',
         display: 'inline-block',
         lineHeight: '24px',
     },
     temperatureValue: {
         verticalAlign: 'middle',
+        fontSize: 32
     },
     temperatureUnit: {
         paddingLeft: 5,
@@ -92,7 +93,7 @@ const styles = theme => ({
     },
 });
 
-class Actual extends (window.visRxWidget || VisRxWidget) {
+class Actual extends Generic {
     constructor(props) {
         super(props);
         this.state.showDialog = false;
@@ -365,23 +366,6 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
         }
     }
 
-    formatValue(value, round) {
-        if (typeof value === 'number') {
-            if (round === 0) {
-                value = Math.round(value);
-            } else {
-                value = Math.round(value * 100) / 100;
-            }
-            if (this.props.systemConfig?.common) {
-                if (this.props.systemConfig.common.isFloatComma) {
-                    value = value.toString().replace('.', ',');
-                }
-            }
-        }
-
-        return value === undefined || value === null ? '' : value.toString();
-    }
-
     renderDialog() {
         if (!this.state.showDialog) {
             return null
@@ -424,42 +408,43 @@ class Actual extends (window.visRxWidget || VisRxWidget) {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        return <Card className={this.props.classes.root}>
-            <div ref={this.refContainer} className={this.props.classes.container} onClick={this.state.isChart ? e => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.setState({ showDialog: true });
-            } : undefined}>
-                <div className={this.props.classes.mainName}>{this.state.data.name}</div>
-                {this.state.objects && this.state.objects.temp && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
-                    <div className={this.props.classes.temperatureDiv}>
-                        <ThermostatIcon className={this.props.classes.temperatureIcon} />
-                        <span className={this.props.classes.temperatureValue}>{this.formatValue(this.state.values[this.state.data['oid-temperature'] + '.val'])}</span>
-                        <span className={this.props.classes.temperatureUnit}>{this.state.objects.temp.common.unit}</span>
-                    </div>
-                    : null}
-                {this.state.objects && this.state.objects.humidity && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
-                    <div className={this.props.classes.humidityDiv}>
-                        <HumidityIcon className={this.props.classes.humidityIcon} />
-                        <span className={this.props.classes.humidityValue}>{this.formatValue(this.state.values[this.state.data['oid-humidity'] + '.val'], 0)}</span>
-                        <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
-                    </div>
-                    : null}
-                {this.state.containerHeight && (this.state['chart-data-' + this.state.data['oid-temperature']] || this.state['chart-data-' + this.state.data['oid-humidity']]) ?
-                    <ReactEchartsCore
-                        className={this.props.classes.chart}
-                        echarts={echarts}
-                        option={this.getOptions()}
-                        notMerge
-                        lazyUpdate
-                        theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                        style={{ height: this.state.containerHeight - 77, width: '100%' }}
-                        opts={{ renderer: 'svg' }}
-                    />
-                    : null}
-            </div>
+        const onCardClick = this.state.isChart ? e => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.setState({ showDialog: true });
+        } : undefined;
+
+        const content = <div style={{ width: '100%', height: '100%' }} ref={this.refContainer}>
+            {this.state.objects && this.state.objects.temp && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
+                <div className={this.props.classes.temperatureDiv}>
+                    <ThermostatIcon className={this.props.classes.temperatureIcon} />
+                    <span className={this.props.classes.temperatureValue}>{this.formatValue(this.state.values[this.state.data['oid-temperature'] + '.val'])}</span>
+                    <span className={this.props.classes.temperatureUnit}>{this.state.objects.temp.common.unit}</span>
+                </div>
+                : null}
+            {this.state.objects && this.state.objects.humidity && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
+                <div className={this.props.classes.humidityDiv}>
+                    <HumidityIcon className={this.props.classes.humidityIcon} />
+                    <span className={this.props.classes.humidityValue}>{this.formatValue(this.state.values[this.state.data['oid-humidity'] + '.val'], 0)}</span>
+                    <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
+                </div>
+                : null}
+            {this.state.containerHeight && (this.state['chart-data-' + this.state.data['oid-temperature']] || this.state['chart-data-' + this.state.data['oid-humidity']]) ?
+                <ReactEchartsCore
+                    className={this.props.classes.chart}
+                    echarts={echarts}
+                    option={this.getOptions()}
+                    notMerge
+                    lazyUpdate
+                    theme={this.props.themeType === 'dark' ? 'dark' : ''}
+                    style={{ height: this.state.containerHeight - 42, width: '100%' }}
+                    opts={{ renderer: 'svg' }}
+                />
+                : null}
             {this.renderDialog()}
-        </Card>;
+        </div>;
+
+        return this.wrapContent(content, null, onCardClick, { paddingLeft: 0, paddingRight: 0 }, { paddingLeft: 16});
     }
 }
 

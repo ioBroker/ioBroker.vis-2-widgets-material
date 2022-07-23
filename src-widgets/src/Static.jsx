@@ -2,10 +2,13 @@ import React from 'react';
 import { withStyles } from '@mui/styles';
 
 import {
-    Card, CardContent, Switch,
+    Card, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Switch,
 } from '@mui/material';
 
-import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
+import Generic from './Generic';
+import {Close as IconClose} from "@mui/icons-material";
+import ObjectChart from "./ObjectChart";
+import {i18n as I18n} from "@iobroker/adapter-react-v5";
 
 const styles = theme => ({
     root: {
@@ -20,10 +23,11 @@ const styles = theme => ({
     },
 });
 
-class Static extends (window.visRxWidget || VisRxWidget) {
+class Static extends Generic {
     constructor(props) {
         super(props);
         this.state.objects = {};
+        this.state.showDialog = null;
     }
 
     static getWidgetInfo() {
@@ -102,6 +106,7 @@ class Static extends (window.visRxWidget || VisRxWidget) {
                     continue;
                 }
                 object.common = object.common || {};
+                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig.common.defaultHistory]);
                 if (!this.state.data[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.data[`oid${i}`].split('.');
 
@@ -192,6 +197,13 @@ class Static extends (window.visRxWidget || VisRxWidget) {
 
             return state.toString();
         }
+
+        const onClick = object.isChart ? e => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.setState({ showDialog: object });
+        } : undefined;
+
         if (object?.common?.type === 'boolean') {
             return <Switch checked={state} />;
         }
@@ -201,21 +213,40 @@ class Static extends (window.visRxWidget || VisRxWidget) {
         return this.formatValue(state);
     }
 
-    formatValue(value, round) {
-        if (typeof value === 'number') {
-            if (round === 0) {
-                value = Math.round(value);
-            } else {
-                value = Math.round(value * 100) / 100;
-            }
-            if (this.props.systemConfig?.common) {
-                if (this.props.systemConfig.common.isFloatComma) {
-                    value = value.toString().replace('.', ',');
-                }
-            }
+    renderDialog() {
+        if (!this.state.showDialog) {
+            return null
         }
-
-        return value === undefined || value === null ? '' : value.toString();
+        return <Dialog
+            sx={{'& .MuiDialog-paper': {height: '100%'}}}
+            maxWidth="lg"
+            fullWidth
+            open={true}
+            onClose={() => this.setState({showDialog: false})}
+        >
+            <DialogTitle>
+                {this.state.data.name}
+                <IconButton
+                    style={{ float: 'right' }}
+                    onClick={() => this.setState({ showDialog: false })}
+                >
+                    <IconClose/>
+                </IconButton>
+            </DialogTitle>
+            <DialogContent>
+                <ObjectChart
+                    t={I18n.t}
+                    lang={I18n.getLanguage()}
+                    socket={this.props.socket}
+                    obj={this.state.showDialog}
+                    themeType={this.props.themeType}
+                    defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
+                    noToolbar={false}
+                    systemConfig={this.props.systemConfig}
+                    dateFormat={this.props.systemConfig.common.dateFormat}
+                />
+            </DialogContent>
+        </Dialog>;
     }
 
     renderWidgetBody(props) {
@@ -224,54 +255,36 @@ class Static extends (window.visRxWidget || VisRxWidget) {
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
 
-        return <Card style={{ width: 'calc(100% - 8px)', height: 'calc(100% - 8px)', margin: 4 }}>
-            <CardContent
+        const content = Object.keys(this.state.objects).map((key, i) =>
+            <div
                 style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                {this.state.data.name ? <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     width: '100%',
                     alignItems: 'center',
                 }}
-                >
-                    <div style={{ fontSize: 24, paddingTop: 0, paddingBottom: 4 }}>{this.state.data.name}</div>
-                </div> : null}
-                {Object.keys(this.state.objects).map((key, i) => {
-                    return <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            alignItems: 'center',
-                        }}
-                        key={key}
+                key={key}
+            >
+                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    {anyIcon ? <span style={{
+                        width: 40,
+                        height: 40,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
                     >
-                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            {anyIcon ? <span style={{
-                                width: 40,
-                                height: 40,
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                            >
-                                {icons[i]}
-                            </span> : null}
-                            <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                                {this.state.data['title' + key] || this.state.objects[key].common.name}
-                            </span>
-                        </span>
+                        {icons[i]}
+                    </span> : null}
+                    <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
+                        {this.state.data['title' + key] || this.state.objects[key].common.name}
+                    </span>
+                </span>
 
-                        {this.getValue(key)}
-                    </div>;
-                })}
-            </CardContent>
-        </Card>;
+                {this.getValue(key)}
+            </div>
+        );
+        return this.wrapContent(content);
     }
 }
 

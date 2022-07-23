@@ -3,8 +3,6 @@ import { withStyles } from '@mui/styles';
 
 import {
     Button,
-    Card,
-    CardContent,
     Dialog,
     DialogContent,
     DialogTitle,
@@ -19,8 +17,9 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
 import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
+
+import Generic from './Generic';
 
 const styles = theme => ({
     root: {
@@ -88,7 +87,7 @@ const styles = theme => ({
     }
 });
 
-class Switches extends (window.visRxWidget || VisRxWidget) {
+class Switches extends Generic {
     constructor(props) {
         super(props);
         this.state.showDimmerDialog = null;
@@ -194,6 +193,11 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         };
     }
 
+    // eslint-disable-next-line class-methods-use-this
+    getWidgetInfo() {
+        return Switches.getWidgetInfo();
+    }
+
     async propertiesUpdate() {
         const objects = {};
 
@@ -243,20 +247,16 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         this.setState({ objects });
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         super.componentDidMount();
-        this.propertiesUpdate();
+        await this.propertiesUpdate();
     }
 
-    onPropertiesUpdated() {
+    async onPropertiesUpdated() {
         super.onPropertiesUpdated();
-        this.propertiesUpdate();
+        await this.propertiesUpdate();
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    getWidgetInfo() {
-        return Switches.getWidgetInfo();
-    }
 
     isOn(index, values) {
         values = values || this.state.values;
@@ -265,23 +265,6 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         } else {
             return !!values[this.state.objects[index]._id + '.val'];
         }
-    }
-
-    formatValue(value, round) {
-        if (typeof value === 'number') {
-            if (round === 0) {
-                value = Math.round(value);
-            } else {
-                value = Math.round(value * 100) / 100;
-            }
-            if (this.props.systemConfig?.common) {
-                if (this.props.systemConfig.common.isFloatComma) {
-                    value = value.toString().replace('.', ',');
-                }
-            }
-        }
-
-        return value === undefined || value === null ? '' : value.toString();
     }
 
     getStateIcon(index) {
@@ -431,95 +414,87 @@ class Switches extends (window.visRxWidget || VisRxWidget) {
         const icons = Object.keys(this.state.objects).map(index => this.getStateIcon(index));
         const anyIcon = icons.find(icon => icon);
 
-        return <Card className={this.props.classes.root}>
+        const content = <>
             {this.renderDimmerDialog()}
-            <CardContent style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}
-            >
-                {this.state.data.type === 'switches' ?
-                    <>
-                        <div className={this.props.classes.cardsHolder}>
-                            <div className={this.props.classes.mainName}>{this.state.data.name}</div>
-                            {this.state.data.allSwitch && Object.keys(this.state.objects).length > 1 ? <Switch
-                                checked={allSwitchValue}
-                                className={intermediate ? this.props.classes.intermediate : ''}
-                                onChange={() => {
-                                    const values = JSON.parse(JSON.stringify(this.state.values));
-                                    Object.keys(values).forEach(key => {
-                                        values[key] = !allSwitchValue;
-                                        this.props.socket.setState(this.state.data[`oid${key}`], !allSwitchValue);
-                                    });
-                                    this.setState({ values });
-                                }}
-                            /> : null}
-                        </div>
-                        {Object.keys(this.state.objects).map((index, i) => {
-                            // index from 1, i from 0
-                            return <div
-                                className={this.props.classes.cardsHolder}
-                                key={index}
-                            >
-                                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                    {anyIcon ? <span className={this.props.classes.iconSwitch}>
-                                        {icons[i]}
-                                    </span> : null}
-                                    <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
-                                        {this.state.data['title' + index] || this.state.objects[index].common.name}
-                                    </span>
+            {this.state.data.type === 'switches' ?
+                Object.keys(this.state.objects).map((index, i) =>
+                    // index from 1, i from 0
+                    <div
+                        className={this.props.classes.cardsHolder}
+                        key={index}
+                    >
+                            <span style={{display: 'inline-flex', alignItems: 'center'}}>
+                                {anyIcon ? <span className={this.props.classes.iconSwitch}>
+                                    {icons[i]}
+                                </span> : null}
+                                <span style={{color: this.getColor(index), paddingLeft: 16}}>
+                                    {this.state.data['title' + index] || this.state.objects[index].common.name}
                                 </span>
+                            </span>
 
-                                <Switch
-                                    checked={this.isOn(index)}
-                                    onChange={() => this.changeSwitch(index)}
-                                />
-                            </div>;
-                        })}
-                    </>
-                    :
-                    <div style={{ width: '100%' }}>
-                        <div className={this.props.classes.mainName}>{this.state.data.name}</div>
-                        {Object.keys(this.state.objects).map((index, i) => {
-                            // index from 1, i from 0
+                        <Switch
+                            checked={this.isOn(index)}
+                            onChange={() => this.changeSwitch(index)}
+                        />
+                    </div>
+                )
+                :
+                <div style={{ width: '100%' }}>
+                    {Object.keys(this.state.objects).map((index, i) => {
+                        // index from 1, i from 0
 
-                            let value;
-                            if (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states) {
-                                value = this.state.values[`${this.state.objects[index]._id}.val`];
-                                if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
-                                    value = this.state.objects[index].common.states[value];
-                                } else {
-                                    value = this.formatValue(value);
-                                }
+                        let value;
+                        if (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states) {
+                            value = this.state.values[`${this.state.objects[index]._id}.val`];
+                            if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
+                                value = this.state.objects[index].common.states[value];
+                            } else {
+                                value = this.formatValue(value);
                             }
+                        }
 
-                            return <div
-                                key={index}
-                                className={this.props.classes.buttonDiv}
-                                style={{
-                                    width: this.state.data.buttonsWidth || undefined,
-                                    height: this.state.data.buttonsHeight || undefined,
-                                }}
+                        return <div
+                            key={index}
+                            className={this.props.classes.buttonDiv}
+                            style={{
+                                width: this.state.data.buttonsWidth || undefined,
+                                height: this.state.data.buttonsHeight || undefined,
+                            }}
+                        >
+                            <Button
+                                onClick={() => this.changeSwitch(index)}
+                                color={!this.state.objects[index].common.states && this.isOn(index) ? 'primary' : 'grey'}
+                                className={Utils.clsx(this.props.classes.button, !this.isOn(index) && this.props.classes.buttonInactive)}
                             >
-                                <Button
-                                    onClick={() => this.changeSwitch(index)}
-                                    color={!this.state.objects[index].common.states && this.isOn(index) ? 'primary' : 'grey'}
-                                    className={Utils.clsx(this.props.classes.button, !this.isOn(index) && this.props.classes.buttonInactive)}
-                                >
-                                    {anyIcon ? <div className={this.props.classes.iconButton}>
-                                        {icons[i]}
-                                    </div> : null}
-                                    <div className={this.props.classes.text}>
-                                        {this.state.data['title' + index] || this.state.objects[index].common.name}
-                                    </div>
-                                    {value !== undefined && value !== null ? <div className={this.props.classes.value}>{value}</div> : null}
-                                </Button>
-                            </div>;
-                        })}
-                    </div>}
-            </CardContent>
-        </Card>;
+                                {anyIcon ? <div className={this.props.classes.iconButton}>
+                                    {icons[i]}
+                                </div> : null}
+                                <div className={this.props.classes.text}>
+                                    {this.state.data['title' + index] || this.state.objects[index].common.name}
+                                </div>
+                                {value !== undefined && value !== null ?
+                                    <div className={this.props.classes.value}>{value}</div> : null}
+                            </Button>
+                        </div>;
+                    })}
+                </div>
+            }
+        </>;
+
+        const addToHeader = this.state.data.allSwitch && Object.keys(this.state.objects).length > 1 ? <Switch
+            checked={allSwitchValue}
+            className={intermediate ? this.props.classes.intermediate : ''}
+            onChange={() => {
+                const values = JSON.parse(JSON.stringify(this.state.values));
+                Object.keys(values).forEach(key => {
+                    values[key] = !allSwitchValue;
+                    this.props.socket.setState(this.state.data[`oid${key}`], !allSwitchValue);
+                });
+                this.setState({ values });
+            }}
+        /> : null;
+
+        return this.wrapContent(content, addToHeader);
     }
 }
 
