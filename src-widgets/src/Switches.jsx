@@ -189,7 +189,7 @@ class Switches extends Generic {
                     ],
                 }
             ],
-            visPrev: 'widgets/material-widgets/img/prev_switch.png',
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_switches.png',
         };
     }
 

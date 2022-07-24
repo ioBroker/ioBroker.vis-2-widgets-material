@@ -143,7 +143,7 @@ class Thermostat extends Generic {
                     },
                 ],
             }],
-            visPrev: 'widgets/material-widgets/img/prev_switches.png',
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_thermostat.png',
         };
     }
 

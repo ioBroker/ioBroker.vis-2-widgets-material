@@ -36,9 +36,10 @@ const calculateSecondHandDegree = (minutes, seconds) => minutes * 360 + seconds 
 
 const styles = theme => ({
     analogClock: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        //display: 'flex',
+        //justifyContent: 'center',
+        //alignItems: 'center',
+        verticalAlign: 'middle',
     },
     hourHand: {
         position: 'absolute',
@@ -68,11 +69,11 @@ class AnalogClock extends Component {
         const secondsWidth = this.props.size * 0.45;
         const handsHeight = Math.round(this.props.size / 50);
 
-        return <div className={this.props.classes.analogClock}>
+        return <div className={this.props.classes.analogClock} style={this.props.style}>
             <AnalogClockBase
-                backgroundColor={this.props.backgroundColor || (this.props.typeName === 'dark' ? '#EEE' : '#111')}
-                ticksColor={this.props.ticksColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede')}
-                handsColor={this.props.handsColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede')}
+                backgroundColor={this.props.backgroundColor || (this.props.themeType === 'dark' ? '#111' : '#EEE')}
+                ticksColor={this.props.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
+                handsColor={this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
                 secondHandColor={this.props.secondHandColor || '#F44336'}
                 showNumbers={this.props.showNumbers}
                 size={this.props.size}
@@ -84,7 +85,7 @@ class AnalogClock extends Component {
                         width: this.props.size * 0.3,
                         height: handsHeight,
                         borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
-                        backgroundColor: this.props.handsColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede'),
+                        backgroundColor: this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
                         transform: `rotate(${calculateHourHandDegree(hours, minutes)}deg) translateX(${this.props.size * 0.3 / 2}px)`,
                     }}
                 />
@@ -94,7 +95,7 @@ class AnalogClock extends Component {
                         width: this.props.size * 0.4,
                         height: handsHeight,
                         borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
-                        backgroundColor: this.props.handsColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede'),
+                        backgroundColor: this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
                         transform: `rotate(${calculateMinuteHandDegree(hours, minutes, seconds)}deg) translateX(${this.props.size * 0.4 / 2}px)`,
                     }}
                 />
@@ -124,6 +125,7 @@ AnalogClock.propTypes = {
     handsColor: PropTypes.string,
     secondHandColor: PropTypes.string,
     themeType: PropTypes.string,
+    style: PropTypes.object,
 };
 
 export default withStyles(styles)(AnalogClock);

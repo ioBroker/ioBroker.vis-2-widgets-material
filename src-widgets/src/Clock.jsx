@@ -2,53 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
-// import ReactClock1 from 'react-clock';
-// import ReactClock2 from '@uiw/react-clock';
 import AnalogClock from './AnalogClock/AnalogClock';
-/*import FlipClockCountdown from '@leenguyen/react-flip-clock-countdown';
-*/
 import Generic from './Generic';
 
 const styles = theme => ({
-    reactClock: {
-        backgroundColor: 'white',
-        borderRadius: '50%',
-        'react-clock__face': {
-            border: '3px solid white',
-        },
-
-        'react-clock__second-hand': {
-            transition: 'transform cubic-bezier(.68,0,.27,1.55) 0.2s',
-
-            'react-clock__second-hand__body': {
-                '&:before': {
-                    content: '',
-                    display: 'block',
-                    width: 7,
-                    height: 7,
-                    position: 'absolute',
-                    bottom: '20%',
-                    left: '50%',
-                    backgroundColor: 'red',
-                    borderRadius: '50%',
-                    transform: 'translateX(-50%) translateY(-50%)',
-                },
-
-                '&:after': {
-                    content: '',
-                    display: 'block',
-                    width: 20,
-                    height: 20,
-                    position: 'absolute',
-                    top: 0,
-                    left: '50%',
-                    backgroundColor: 'red',
-                    borderRadius: '50%',
-                    transform: 'translateX(-50%)',
-                }
-            }
-        }
-    },
     '@keyframes uClockFadeIn': {
         from: {
             opacity: 0
@@ -58,6 +15,7 @@ const styles = theme => ({
         },
     },
     uClock: {
+        verticalAlign: 'middle',
         animationName: '$uClockFadeIn',
         animationDuration: '500ms',
         animationEasing: 'ease-in-out',
@@ -77,6 +35,27 @@ const styles = theme => ({
         // fontWeight: 500,
     }
 });
+
+function getTextWidth(text, font) {
+    // re-use canvas object for better performance
+    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+    const context = canvas.getContext('2d');
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.width;
+}
+
+function getCssStyle(element, prop) {
+    return window.getComputedStyle(element, null).getPropertyValue(prop);
+}
+
+function getCanvasFont(el = document.body) {
+    const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
+    const fontSize = getCssStyle(el, 'font-size') || '16px';
+    const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
+
+    return {fontWeight, fontSize, fontFamily};
+}
 
 class Clock extends Generic {
     constructor(props) {
@@ -111,35 +90,36 @@ class Clock extends Generic {
                                 value: 'digital',
                                 label: 'vis_2_widgets_material_digital'
                             },
+                            {
+                                value: 'digital2',
+                                label: 'vis_2_widgets_material_digital2'
+                            },
                         ],
                         default: 'analog'
                     },
                     {
                         name: 'backgroundColor',
-                        hidden: 'data.type === "digital"',
+                        hidden: 'data.type === "digital" || data.type === "digital2"',
                         label: 'vis_2_widgets_material_background',
-                        type: 'color',
-                        default: '#EEE'
+                        type: 'color'
                     },
                     {
                         name: 'ticksColor',
+                        hidden: 'data.type === "digital" || data.type === "digital2"',
                         label: 'vis_2_widgets_material_color',
-                        type: 'color',
-                        default: '#212121'
+                        type: 'color'
                     },
                     {
                         name: 'handsColor',
-                        hidden: 'data.type === "digital"',
+                        hidden: 'data.type === "digital" || data.type === "digital2"',
                         label: 'vis_2_widgets_material_hands_color',
-                        type: 'color',
-                        default: '#212121'
+                        type: 'color'
                     },
                     {
                         name: 'secondHandColor',
-                        hidden: 'data.type === "digital"',
+                        hidden: 'data.type === "digital" || data.type === "digital2"',
                         label: 'vis_2_widgets_material_seconds_hand_color',
-                        type: 'color',
-                        default: '#F44336'
+                        type: 'color'
                     },
                     {
                         name: 'withSeconds',
@@ -149,7 +129,7 @@ class Clock extends Generic {
                     },
                     {
                         name: 'showNumbers',
-                        hidden: 'data.type === "digital"',
+                        hidden: 'data.type === "digital" || data.type === "digital2"',
                         label: 'vis_2_widgets_material_show_numbers',
                         type: 'checkbox',
                         default: true
@@ -157,18 +137,18 @@ class Clock extends Generic {
                     {
                         name: 'blinkDelimiter',
                         label: 'vis_2_widgets_material_blink',
-                        hidden: 'data.type !== "digital" || data.withSeconds',
+                        hidden: '(data.type !== "digital" && data.type !== "digital2") || data.withSeconds',
                         type: 'checkbox',
                         default: true
                     },
                     {
                         name: 'hoursFormat',
                         label: 'vis_2_widgets_material_am_pm',
-                        hidden: 'data.type !== "digital"',
-                        type: 'options',
+                        hidden: 'data.type !== "digital" && data.type !== "digital2"',
+                        type: 'select',
                         options: ['24', '12'],
                         default: '24'
-                    },
+                    }
                 ],
             }],
             visPrev: 'widgets/vis-2-widgets-material/img/prev_clock.png',
@@ -181,29 +161,52 @@ class Clock extends Generic {
     }
 
     nextTick = () => {
+        const data = this.state.data || {};
         const time = new Date();
         let timeout;
         this.setState({time});
-        if (this.props.data.withSeconds || (this.props.data.type === 'digital' && this.props.data.blinkDelimiter)) {
+        if (data.withSeconds || (data.type === 'digital' && data.blinkDelimiter)) {
             timeout = 1000 - time.getMilliseconds();
         } else {
             timeout = (1000 - time.getMilliseconds()) + 1000 * (60 - time.getSeconds());
         }
-        this.timeInterval = setTimeout( this.nextTick, timeout);
+        this.timeInterval = setTimeout(this.nextTick, timeout);
+    }
+
+    onPropertiesUpdated() {
+        this.timeInterval && clearTimeout(this.timeInterval);
+        this.timeInterval = setTimeout(this.nextTick, 1000 - new Date().getMilliseconds());
     }
 
     async componentDidMount() {
         super.componentDidMount();
         this.timeInterval = setTimeout(this.nextTick, 1000 - new Date().getMilliseconds());
 
+        this.recalculateWidth();
+    }
+
+    recalculateWidth() {
         if (this.refContainer.current) {
             let size = this.refContainer.current.clientWidth;
-            if (size > this.refContainer.current.clientHeight) {
-                size = this.refContainer.current.clientHeight;
+            if (this.state.data.type !== 'digital') {
+                if (size > this.refContainer.current.clientHeight) {
+                    size = this.refContainer.current.clientHeight;
+                }
             }
 
-            if (size !== this.state.width) {
-                this.setState({ width: size });
+            let timeFormat = this.getDigitalClockText(true);
+            if (size !== this.state.width || this.state.height !== this.refContainer.current.clientHeight || this.state.timeFormat !== timeFormat) {
+                let fontSize = this.refContainer.current.clientHeight;
+                if (this.state.data.type === 'digital' && !this.state.style['font-size']) {
+                    const font = getCanvasFont(this.refContainer.current);
+                    let textWidth;
+                    do {
+                        fontSize -= 2;
+                        textWidth = getTextWidth(timeFormat, `${font.fontWeight} ${fontSize}px ${font.fontFamily}`);
+                    } while (textWidth > this.refContainer.current.clientWidth || fontSize > this.refContainer.current.clientHeight);
+                }
+
+                this.setState({ width: size, height: this.refContainer.current.clientHeight, fontSize, timeFormat });
             }
         }
     }
@@ -215,17 +218,7 @@ class Clock extends Generic {
 
     componentDidUpdate() {
         super.componentDidUpdate && super.componentDidUpdate();
-
-        if (this.refContainer.current) {
-            let size = this.refContainer.current.clientWidth;
-            if (size > this.refContainer.current.clientHeight) {
-                size = this.refContainer.current.clientHeight;
-            }
-
-            if (size !== this.state.width) {
-                this.setState({ width: size });
-            }
-        }
+        this.recalculateWidth();
     }
 
     // Code was taken from here and modified as it didn't work: https://github.com/uiwjs/react-clock/blob/master/src/index.tsx
@@ -253,6 +246,7 @@ class Clock extends Generic {
         SOFTWARE.
      */
     renderSimpleClock() {
+        const data = this.state.data || {};
         const now = new Date();
         const seconds = now.getSeconds();
         const minutes = now.getMinutes();
@@ -277,11 +271,11 @@ class Clock extends Generic {
 
         return <svg
             viewBox="0 0 100 100"
-            color={this.props.data.ticksColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede')}
+            color={data.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
             fill="currentColor"
             width={this.state.width}
             height={this.state.width}
-            style={{ backgroundColor: this.props.data.backgroundColor || (this.props.typeName === 'dark' ? '#EEE' : '#111') }}
+            style={{ backgroundColor: data.backgroundColor || (this.props.themeType === 'dark' ? '#111' : '#EEE') }}
             className={this.props.classes.uClock}
         >
             {[...Array(12)].map((_, idx) => (
@@ -300,7 +294,7 @@ class Clock extends Generic {
                 />
             ))}
             <line
-                stroke={this.props.data.handsColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede')}
+                stroke={data.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
                 style={{ transform: `rotate(${hoursDeg}deg)`, transformOrigin: 'center' }}
                 className={this.props.classes.uClockHand}
                 strokeLinecap="round"
@@ -311,7 +305,7 @@ class Clock extends Generic {
                 y2="50"
             />
             <line
-                stroke={this.props.data.handsColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede')}
+                stroke={data.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
                 style={{ transform: `rotate(${minutesDeg}deg)`, transformOrigin: 'center' }}
                 className={this.props.classes.uClockHand}
                 strokeLinecap="round"
@@ -322,18 +316,18 @@ class Clock extends Generic {
                 y2="50"
             />
             <circle stroke="currentColor" cx="50" cy="50" r="3" />
-            {this.props.data.withSeconds ?
+            {data.withSeconds ?
                 <g
                     style={{ transform: `rotate(${secondsDeg}deg)`, transformOrigin: 'center' }}
                     className={this.props.classes.uClockHand}
                     stroke="currentColor"
-                    color={this.props.data.secondHandColor || '#F44336'}
+                    color={data.secondHandColor || '#F44336'}
                     strokeWidth="1"
                 >
                     <line x1="50" y1="10" x2="50" y2="60" strokeLinecap="round" />
                     <circle cx="50" cy="50" r="1.5" />
                 </g> : null}
-            {this.props.data.showNumbers ?
+            {data.showNumbers ?
                 [...Array(12)].map((_, idx) =>
                     <text
                         key={idx.toString()}
@@ -362,70 +356,123 @@ class Clock extends Generic {
     }
 
     renderAnalogClock() {
+        const data = this.state.data || {};
         return <AnalogClock
+            style={{
+                marginTop:
+                    this.refContainer.current.clientHeight > this.refContainer.current.clientWidth ?
+                        (this.refContainer.current.clientHeight - this.refContainer.current.clientWidth) / 2 : undefined,
+                marginLeft: this.refContainer.current.clientHeight < this.refContainer.current.clientWidth ?
+                    (this.refContainer.current.clientWidth - this.refContainer.current.clientHeight) / 2 : undefined,
+            }}
             size={this.state.width}
-            ticksColor={this.props.data.ticksColor}
-            backgroundColor={this.props.data.ticksColor}
-            showNumbers={this.props.data.showNumbers}
-            withSeconds={this.props.data.withSeconds}
-            handsColor={this.props.data.handsColor}
-            secondHandColor={this.props.data.secondHandColor}
+            ticksColor={data.ticksColor}
+            backgroundColor={data.backgroundColor}
+            showNumbers={data.showNumbers}
+            withSeconds={data.withSeconds}
+            handsColor={data.handsColor}
+            secondHandColor={data.secondHandColor}
+            themeType={this.props.themeType}
         />;
     }
 
+    getDigitalClockText(replaceWithZero) {
+        const data = this.state.data || {};
+        let text;
+        if (replaceWithZero) {
+            text = '00:00';
+            if (data.withSeconds) {
+                text += ':00';
+            }
+            if (data.hoursFormat === '12') {
+                text += ' pm';
+            }
+        } else {
+            const time = new Date();
+            text = time.getHours().toString().padStart(2, '0');
+            if (data.hoursFormat === '12') {
+                text = (time.getHours() % 12).toString().padStart(2, '0');
+            }
+
+            if (!data.withSeconds && data.blinkDelimiter && time.getSeconds() % 2 === 0) {
+                text += ' ';
+            } else {
+                text += ':';
+            }
+            text += time.getMinutes().toString().padStart(2, '0');
+
+            if (data.withSeconds) {
+                text += ':' + time.getSeconds().toString().padStart(2, '0');
+            }
+            if (data.hoursFormat === '12') {
+                text += time.getHours() > 11 ? ' pm' : ' am';
+            }
+        }
+
+        return text;
+    }
+
     renderDigitalClock() {
+        return <div
+            style={{
+                display: 'inline-block',
+                margin: '0 auto',
+                fontSize: this.state.style['font-size'] || this.state.fontSize
+            }}
+        >
+            {this.getDigitalClockText()}
+        </div>
+    }
+
+    renderDigitalClock2() {
+        const data = this.state.data || {};
         const time = new Date();
         let text = time.getHours().toString().padStart(2, '0');
-        if (this.props.data.hoursFormat === '12') {
+        if (data.hoursFormat === '12') {
             text = (time.getHours() % 12).toString().padStart(2, '0');
         }
 
-        if (!this.props.data.withSeconds && this.props.data.blinkDelimiter && time.getSeconds() % 2 === 0) {
+        if (!data.withSeconds && data.blinkDelimiter && time.getSeconds() % 2 === 0) {
             text += ' ';
         } else {
             text += ':';
         }
         text += time.getMinutes().toString().padStart(2, '0');
 
-        if (this.props.data.withSeconds) {
+        if (data.withSeconds) {
             text += ':' + time.getSeconds().toString().padStart(2, '0');
         }
 
-        const fontSize = this.props.data.withSeconds ? 27 : 42;
-        const y = this.props.data.withSeconds ? 50 + 6 : 50 + 12;
+        const svgHeight = this.state.height / this.state.width * 100;
+        let fontSize = data.withSeconds ? 28 : (data.blinkDelimiter ? 36 : 42);
+        if (svgHeight < 100) {
+            fontSize = data.withSeconds ? svgHeight * 0.8 : svgHeight * 0.9;
+        }
 
         return <svg
-            viewBox="0 0 100 100"
-            color={this.props.data.ticksColor || (this.props.typeName === 'dark' ? '#212121' : '#dedede')}
+            viewBox={`0 0 100 ${svgHeight}`}
+            color={data.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
             fill="currentColor"
             width={this.state.width}
-            height={this.state.width}
+            height={this.state.height}
         >
             <text
-                x="0"
-                y={y}
+                x="50%"
+                y="50%"
                 fontSize={fontSize}
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fontFamily={data.withSeconds || !data.blinkDelimiter ? undefined : 'monospace'}
             >
-                {this.props.data.withSeconds ? text : time.getHours().toString().padStart(2, '0')}
+                {text}
             </text>
-            {!this.props.data.withSeconds && (!this.props.data.blinkDelimiter || time.getSeconds() % 2 === 0) ? <text
-                x={46}
-                y={y}
-                fontSize={fontSize}
-            >:</text> : null}
-            {!this.props.data.withSeconds ? <text
-                x={55}
-                y={y}
-                fontSize={fontSize}
-            >
-                {time.getMinutes().toString().padStart(2, '0')}
-            </text> : null}
-            {this.props.data.hoursFormat === '12' ?
+            {data.hoursFormat === '12' ?
                 <text
-                    x={this.props.data.withSeconds ? 75 : 69}
-                    y={y + fontSize / 2}
-                    fontSize={fontSize / 2}
-                >{time.getHours() > 12 ? 'PM' : 'AM'}</text>
+                    x="50%"
+                    y="50%"
+                    transform={`translate(${data.withSeconds ? 28 : (data.blinkDelimiter ? 30 : 20)}, 17)`}
+                    fontSize={data.withSeconds ? fontSize / 3 : (data.blinkDelimiter ? fontSize / 4 : fontSize / 3)}
+                >{time.getHours() > 11 ? 'PM' : 'AM'}</text>
             : null}
 
         </svg>
@@ -447,10 +494,27 @@ class Clock extends Generic {
                 case 'digital':
                     clock = this.renderDigitalClock();
                     break;
+                case 'digital2':
+                    clock = this.renderDigitalClock2();
+                    break;
             }
         }
 
-        const content = <div style={{ width: '100%', height: '100%' }} ref={this.refContainer}>
+        const content = <div
+            style={Object.assign({
+                width: 'calc(100% - 16px)',
+                height: 'calc(100% - 40px)',
+                textAlign: 'center',
+                lineHeight: this.state.height ? this.state.height + 'px' : undefined
+            }, {
+                fontFamily: this.state.style['font-family'],
+                fontShadow: this.state.style['font-shadow'],
+                fontStyle: this.state.style['font-style'],
+                fontWeight: this.state.style['font-weight'],
+                fontVariant: this.state.style['font-variant'],
+            })}
+            ref={this.refContainer}
+        >
             {clock}
         </div>;
 

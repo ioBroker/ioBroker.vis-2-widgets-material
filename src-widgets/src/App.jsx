@@ -56,13 +56,13 @@ class App extends WidgetDemoApp {
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
-                    width: 200,
-                    height: 200,
+                    width: 160,
+                    height: 420,
                 }}
                 systemConfig={this.state.systemConfig}
                 data={{
                     type: 'digital',
-                    //withSeconds: true,
+                    withSeconds: true,
                     showNumbers: true,
                     blinkDelimiter: true,
                     hoursFormat: '12',
