@@ -41,5 +41,16 @@
   "vis_2_widgets_material_this week": "本星期",
   "vis_2_widgets_material_this year": "今年",
   "vis_2_widgets_material_title": "标题",
-  "vis_2_widgets_material_type": "类型"
+  "vis_2_widgets_material_type": "类型",
+  "vis_2_widgets_material_switches": "开关",
+  "vis_2_widgets_material_buttons": "纽扣",
+  "vis_2_widgets_material_analog": "模拟",
+  "vis_2_widgets_material_analog2": "模拟2",
+  "vis_2_widgets_material_background": "背景颜色",
+  "vis_2_widgets_material_blink": "眨",
+  "vis_2_widgets_material_digital": "数字的",
+  "vis_2_widgets_material_hands_color": "双手颜色",
+  "vis_2_widgets_material_seconds": "用秒",
+  "vis_2_widgets_material_seconds_hand_color": "二手颜色",
+  "vis_2_widgets_material_show_numbers": "显示号码"
 }

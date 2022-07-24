@@ -1,15 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
 import {
     Dialog, DialogContent, DialogTitle, IconButton, Switch,
 } from '@mui/material';
 
+import { Close as IconClose } from '@mui/icons-material';
+
+import { i18n as I18n } from '@iobroker/adapter-react-v5';
+
 import Generic from './Generic';
-import {Close as IconClose} from "@mui/icons-material";
-import ObjectChart from "./ObjectChart";
-import {i18n as I18n} from "@iobroker/adapter-react-v5";
-import PropTypes from "prop-types";
+import ObjectChart from './ObjectChart';
 
 const styles = theme => ({
     newValueLight: {

@@ -41,5 +41,16 @@
   "vis_2_widgets_material_this week": "questa settimana",
   "vis_2_widgets_material_this year": "quest'anno",
   "vis_2_widgets_material_title": "Titolo",
-  "vis_2_widgets_material_type": "Tipo"
+  "vis_2_widgets_material_type": "Tipo",
+  "vis_2_widgets_material_switches": "Interruttori",
+  "vis_2_widgets_material_buttons": "Bottoni",
+  "vis_2_widgets_material_analog": "analogico",
+  "vis_2_widgets_material_analog2": "analogico2",
+  "vis_2_widgets_material_background": "Colore di sfondo",
+  "vis_2_widgets_material_blink": "Battito di ciglia",
+  "vis_2_widgets_material_digital": "digitale",
+  "vis_2_widgets_material_hands_color": "Colore delle mani",
+  "vis_2_widgets_material_seconds": "Con secondi",
+  "vis_2_widgets_material_seconds_hand_color": "Colore di seconda mano",
+  "vis_2_widgets_material_show_numbers": "Mostra i numeri"
 }

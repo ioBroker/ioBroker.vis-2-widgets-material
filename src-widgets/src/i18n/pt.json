@@ -41,5 +41,16 @@
   "vis_2_widgets_material_this week": "essa semana",
   "vis_2_widgets_material_this year": "este ano",
   "vis_2_widgets_material_title": "Título",
-  "vis_2_widgets_material_type": "Modelo"
+  "vis_2_widgets_material_type": "Modelo",
+  "vis_2_widgets_material_switches": "Comuta",
+  "vis_2_widgets_material_buttons": "Botões",
+  "vis_2_widgets_material_analog": "analógico",
+  "vis_2_widgets_material_analog2": "analógico2",
+  "vis_2_widgets_material_background": "Cor de fundo",
+  "vis_2_widgets_material_blink": "Piscar",
+  "vis_2_widgets_material_digital": "digital",
+  "vis_2_widgets_material_hands_color": "Cor das mãos",
+  "vis_2_widgets_material_seconds": "Com segundos",
+  "vis_2_widgets_material_seconds_hand_color": "Cor de segunda mão",
+  "vis_2_widgets_material_show_numbers": "Mostrar números"
 }

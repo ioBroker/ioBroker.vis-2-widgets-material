@@ -41,5 +41,16 @@
   "vis_2_widgets_material_this week": "cette semaine",
   "vis_2_widgets_material_this year": "cette année",
   "vis_2_widgets_material_title": "Titre",
-  "vis_2_widgets_material_type": "Taper"
+  "vis_2_widgets_material_type": "Taper",
+  "vis_2_widgets_material_switches": "Commutateurs",
+  "vis_2_widgets_material_buttons": "Boutons",
+  "vis_2_widgets_material_analog": "analogique",
+  "vis_2_widgets_material_analog2": "analogique2",
+  "vis_2_widgets_material_background": "Couleur de l'arrière plan",
+  "vis_2_widgets_material_blink": "Cligner",
+  "vis_2_widgets_material_digital": "numérique",
+  "vis_2_widgets_material_hands_color": "Couleur des mains",
+  "vis_2_widgets_material_seconds": "Avec secondes",
+  "vis_2_widgets_material_seconds_hand_color": "Couleur d'occasion",
+  "vis_2_widgets_material_show_numbers": "Afficher les numéros"
 }

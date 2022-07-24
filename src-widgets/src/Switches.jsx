@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
 import {
@@ -20,7 +21,6 @@ import {
 import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
-import PropTypes from "prop-types";
 
 const styles = theme => ({
     intermediate: {
@@ -113,7 +113,16 @@ class Switches extends Generic {
                             name: 'type',
                             type: 'select',
                             label: 'vis_2_widgets_material_type',
-                            options: ['switches', 'buttons'],
+                            options: [
+                                {
+                                    value: 'switches',
+                                    label: 'vis_2_widgets_material_switches'
+                                },
+                                {
+                                    value: 'buttons',
+                                    label: 'vis_2_widgets_material_buttons'
+                                }
+                            ],
                             default: 'switches',
                         },
                         {

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
@@ -26,7 +27,6 @@ import { i18n as I18n } from '@iobroker/adapter-react-v5';
 
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
-import PropTypes from "prop-types";
 
 const Buttons = {
     AUTO: ThermostatAutoIcon,

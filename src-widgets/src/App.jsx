@@ -8,6 +8,7 @@ import Thermostat from './Thermostat';
 import Actual from './Actual';
 import Switches from './Switches';
 import Static from './Static';
+import Clock from './Clock';
 
 const styles = theme => ({
     app: {
@@ -51,6 +52,21 @@ class App extends WidgetDemoApp {
 
     renderWidget() {
         return <div className={this.props.classes.app}>
+            <Clock
+                socket={this.socket}
+                themeType={this.state.themeType}
+                style={{
+                    width: 200,
+                    height: 200,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    type: 'digital',
+                    withSeconds: true,
+                    showNumbers: true,
+                    blinkDelimiter: true,
+                }}
+            />
             <Static
                 socket={this.socket}
                 themeType={this.state.themeType}

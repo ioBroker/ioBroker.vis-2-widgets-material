@@ -41,5 +41,16 @@
   "vis_2_widgets_material_this week": "На этой неделе",
   "vis_2_widgets_material_this year": "в этом году",
   "vis_2_widgets_material_title": "Заголовок",
-  "vis_2_widgets_material_type": "Тип"
+  "vis_2_widgets_material_type": "Тип",
+  "vis_2_widgets_material_switches": "Переключатели",
+  "vis_2_widgets_material_buttons": "Кнопки",
+  "vis_2_widgets_material_analog": "аналог",
+  "vis_2_widgets_material_analog2": "аналог2",
+  "vis_2_widgets_material_background": "Фоновый цвет",
+  "vis_2_widgets_material_blink": "мигать",
+  "vis_2_widgets_material_digital": "цифровой",
+  "vis_2_widgets_material_hands_color": "Цвет рук",
+  "vis_2_widgets_material_seconds": "С секундами",
+  "vis_2_widgets_material_seconds_hand_color": "Цвет б/у",
+  "vis_2_widgets_material_show_numbers": "Показать числа"
 }

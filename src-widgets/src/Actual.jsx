@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { withStyles } from '@mui/styles';
+
 import {
     Dialog, DialogContent, DialogTitle, IconButton,
 } from '@mui/material';
-import { withStyles } from '@mui/styles';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -26,7 +28,6 @@ import {
 import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
-import PropTypes from "prop-types";
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
@@ -204,8 +205,9 @@ class Actual extends Generic {
                 objects.humidity = object;
             }
         }
-        const isChart = (objects.temp.common?.custom && objects.temp.common.custom[this.props.systemConfig.common.defaultHistory]) ||
-            (objects.humidity.common?.custom && objects.humidity.common?.custom[this.props.systemConfig.common.defaultHistory]);
+
+        const isChart = (objects.temp?.common?.custom && objects.temp.common.custom[this.props.systemConfig?.common?.defaultHistory]) ||
+            (objects.humidity?.common?.custom && objects.humidity.common.custom[this.props.systemConfig?.common?.defaultHistory]);
 
         this.setState({ objects, isChart });
     }
