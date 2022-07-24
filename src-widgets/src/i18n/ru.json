@@ -52,5 +52,6 @@
   "vis_2_widgets_material_hands_color": "Цвет рук",
   "vis_2_widgets_material_seconds": "С секундами",
   "vis_2_widgets_material_seconds_hand_color": "Цвет б/у",
-  "vis_2_widgets_material_show_numbers": "Показать числа"
+  "vis_2_widgets_material_show_numbers": "Показать числа",
+  "vis_2_widgets_material_am_pm": "Формат часов"
 }

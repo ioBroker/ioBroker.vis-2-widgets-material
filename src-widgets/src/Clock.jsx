@@ -161,6 +161,14 @@ class Clock extends Generic {
                         type: 'checkbox',
                         default: true
                     },
+                    {
+                        name: 'hoursFormat',
+                        label: 'vis_2_widgets_material_am_pm',
+                        hidden: 'data.type !== "digital"',
+                        type: 'options',
+                        options: ['24', '12'],
+                        default: '24'
+                    },
                 ],
             }],
             visPrev: 'widgets/vis-2-widgets-material/img/prev_clock.png',
@@ -368,6 +376,10 @@ class Clock extends Generic {
     renderDigitalClock() {
         const time = new Date();
         let text = time.getHours().toString().padStart(2, '0');
+        if (this.props.data.hoursFormat === '12') {
+            text = (time.getHours() % 12).toString().padStart(2, '0');
+        }
+
         if (!this.props.data.withSeconds && this.props.data.blinkDelimiter && time.getSeconds() % 2 === 0) {
             text += ' ';
         } else {
@@ -408,6 +420,14 @@ class Clock extends Generic {
             >
                 {time.getMinutes().toString().padStart(2, '0')}
             </text> : null}
+            {this.props.data.hoursFormat === '12' ?
+                <text
+                    x={this.props.data.withSeconds ? 75 : 69}
+                    y={y + fontSize / 2}
+                    fontSize={fontSize / 2}
+                >{time.getHours() > 12 ? 'PM' : 'AM'}</text>
+            : null}
+
         </svg>
     }
 

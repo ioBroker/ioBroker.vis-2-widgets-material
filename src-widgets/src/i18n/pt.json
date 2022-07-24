@@ -52,5 +52,6 @@
   "vis_2_widgets_material_hands_color": "Cor das mãos",
   "vis_2_widgets_material_seconds": "Com segundos",
   "vis_2_widgets_material_seconds_hand_color": "Cor de segunda mão",
-  "vis_2_widgets_material_show_numbers": "Mostrar números"
+  "vis_2_widgets_material_show_numbers": "Mostrar números",
+  "vis_2_widgets_material_am_pm": "Formato de horas"
 }

@@ -62,9 +62,10 @@ class App extends WidgetDemoApp {
                 systemConfig={this.state.systemConfig}
                 data={{
                     type: 'digital',
-                    withSeconds: true,
+                    //withSeconds: true,
                     showNumbers: true,
                     blinkDelimiter: true,
+                    hoursFormat: '12',
                 }}
             />
             <Static
