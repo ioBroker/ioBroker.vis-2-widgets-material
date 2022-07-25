@@ -124,7 +124,6 @@ class Actual extends Generic {
             visSetColor: '#0783ff', // Color of widget set
 
             visWidgetLabel: 'vis_2_widgets_material_actual_temperature',  // Label of widget
-            visWidgetColor: '#005cc4',  // Label of widget
             visName: 'Actual temperature',
             visAttrs: [{
                 name: 'common',
@@ -154,6 +153,10 @@ class Actual extends Generic {
                     },
                 ],
             }],
+            visDefaultStyle: {
+                width: 240,
+                height: 120
+            },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_actual.png',
         };
     }
