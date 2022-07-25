@@ -119,6 +119,12 @@ class Actual extends Generic {
         return {
             id: 'tplMaterial2Actual',
             visSet: 'vis-2-widgets-material',
+
+            visSetLabel: 'vis_2_widgets_material_set_label', // Label of widget set
+            visSetColor: '#0783ff', // Color of widget set
+
+            visWidgetLabel: 'vis_2_widgets_material_actual_temperature',  // Label of widget
+            visWidgetColor: '#005cc4',  // Label of widget
             visName: 'Actual temperature',
             visAttrs: [{
                 name: 'common',

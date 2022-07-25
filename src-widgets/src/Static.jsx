@@ -56,6 +56,7 @@ class Static extends Generic {
             id: 'tplMaterial2Static',
             visSet: 'vis-2-widgets-material',
             visName: 'Static information',
+            visWidgetLabel: 'vis_2_widgets_material_static_info',  // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -73,7 +74,8 @@ class Static extends Generic {
                     ],
                 },
                 {
-                    name: 'switch',
+                    name: 'item',
+                    label: 'vis_2_widgets_material_group_item',
                     indexFrom: 1,
                     indexTo: 'count',
                     fields: [
@@ -110,6 +112,10 @@ class Static extends Generic {
                     ],
                 },
             ],
+            visDefaultStyle: {
+                width: 240,
+                height: 120
+            },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_static.png',
         };
     }

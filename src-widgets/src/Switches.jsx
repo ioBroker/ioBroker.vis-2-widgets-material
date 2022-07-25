@@ -91,6 +91,7 @@ class Switches extends Generic {
             id: 'tplMaterial2Switches',
             visSet: 'vis-2-widgets-material',
             visName: 'Switches',
+            visWidgetLabel: 'vis_2_widgets_material_switches_or_buttons',  // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -153,6 +154,7 @@ class Switches extends Generic {
                 },
                 {
                     name: 'switch',
+                    label: 'vis_2_widgets_material_group_switch',
                     indexFrom: 1,
                     indexTo: 'count',
                     fields: [
@@ -185,10 +187,15 @@ class Switches extends Generic {
                             name: 'title',
                             type: 'text',
                             label: 'vis_2_widgets_material_title',
+                            hidden: '!!data["oid" + index]'
                         },
                     ],
                 }
             ],
+            visDefaultStyle: {
+                width: 240,
+                height: 120
+            },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_switches.png',
         };
     }
@@ -256,7 +263,6 @@ class Switches extends Generic {
         super.onPropertiesUpdated();
         await this.propertiesUpdate();
     }
-
 
     isOn(index, values) {
         values = values || this.state.values;

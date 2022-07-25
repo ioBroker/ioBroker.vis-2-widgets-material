@@ -53,5 +53,13 @@
   "vis_2_widgets_material_seconds": "С секундами",
   "vis_2_widgets_material_seconds_hand_color": "Цвет б/у",
   "vis_2_widgets_material_show_numbers": "Показать числа",
-  "vis_2_widgets_material_am_pm": "Формат часов"
+  "vis_2_widgets_material_am_pm": "Формат часов",
+  "vis_2_widgets_material_set_label": "Vis 2 - Material виджеты",
+  "vis_2_widgets_material_clock": "Часы",
+  "vis_2_widgets_material_static_info": "Статическая информация",
+  "vis_2_widgets_material_switches_or_buttons": "Переключатели или кнопки",
+  "vis_2_widgets_material_thermostat": "Термостат",
+  "vis_2_widgets_material_digital2": "цифровой2",
+  "vis_2_widgets_material_group_item": "Вещь",
+  "vis_2_widgets_material_group_switch": "Переключатель или кнопка"
 }

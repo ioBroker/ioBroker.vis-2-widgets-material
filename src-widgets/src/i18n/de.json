@@ -53,5 +53,13 @@
   "vis_2_widgets_material_seconds": "Mit Sekunden",
   "vis_2_widgets_material_seconds_hand_color": "Farbe aus zweiter Hand",
   "vis_2_widgets_material_show_numbers": "Zahlen anzeigen",
-  "vis_2_widgets_material_am_pm": "Stundenformat"
+  "vis_2_widgets_material_am_pm": "Stundenformat",
+  "vis_2_widgets_material_set_label": "Vis 2 - Material-Widgets",
+  "vis_2_widgets_material_clock": "Uhr",
+  "vis_2_widgets_material_static_info": "Statische Informationen",
+  "vis_2_widgets_material_switches_or_buttons": "Schalter oder Knöpfe",
+  "vis_2_widgets_material_thermostat": "Thermostat",
+  "vis_2_widgets_material_digital2": "digital2",
+  "vis_2_widgets_material_group_item": "Artikel",
+  "vis_2_widgets_material_group_switch": "Schalter oder Knopf"
 }

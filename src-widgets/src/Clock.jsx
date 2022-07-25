@@ -69,6 +69,7 @@ class Clock extends Generic {
         return {
             id: 'tplMaterial2Clock',
             visSet: 'vis-2-widgets-material',
+            visWidgetLabel: 'vis_2_widgets_material_clock',  // Label of widget
             visName: 'Clock',
             visAttrs: [{
                 name: 'common',
@@ -151,6 +152,10 @@ class Clock extends Generic {
                     }
                 ],
             }],
+            visDefaultStyle: {
+                width: 120,
+                height: 120
+            },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_clock.png',
         };
     }

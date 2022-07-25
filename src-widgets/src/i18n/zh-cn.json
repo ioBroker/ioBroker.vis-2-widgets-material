@@ -53,5 +53,13 @@
   "vis_2_widgets_material_seconds": "用秒",
   "vis_2_widgets_material_seconds_hand_color": "二手颜色",
   "vis_2_widgets_material_show_numbers": "显示号码",
-  "vis_2_widgets_material_am_pm": "小时格式"
+  "vis_2_widgets_material_am_pm": "小时格式",
+  "vis_2_widgets_material_set_label": "Vis 2 - Material widgets",
+  "vis_2_widgets_material_clock": "钟",
+  "vis_2_widgets_material_static_info": "静态信息",
+  "vis_2_widgets_material_switches_or_buttons": "开关或按钮",
+  "vis_2_widgets_material_thermostat": "恒温器",
+  "vis_2_widgets_material_digital2": "数字2",
+  "vis_2_widgets_material_group_item": "物品",
+  "vis_2_widgets_material_group_switch": "开关或按钮"
 }

@@ -106,6 +106,7 @@ class Thermostat extends Generic {
         return {
             id: 'tplMaterial2Thermostat',
             visSet: 'vis-2-widgets-material',
+            visWidgetLabel: 'vis_2_widgets_material_thermostat',  // Label of widget
             visName: 'Thermostat',
             visAttrs: [{
                 name: 'common',
@@ -113,11 +114,6 @@ class Thermostat extends Generic {
                     {
                         name: 'name',
                         label: 'vis_2_widgets_material_name',
-                    },
-                    {
-                        name: 'oid-mode',
-                        type: 'id',
-                        label: 'vis_2_widgets_material_mode_oid',
                     },
                     {
                         name: 'oid-temp-set',
@@ -135,14 +131,24 @@ class Thermostat extends Generic {
                         label: 'vis_2_widgets_material_power_oid',
                     },
                     {
+                        name: 'oid-mode',
+                        type: 'id',
+                        label: 'vis_2_widgets_material_mode_oid',
+                    },
+                    {
                         name: 'oid-step',
                         type: 'select',
+                        disabled: '!data["oid-temp-set"]',
                         label: 'vis_2_widgets_material_step',
                         options: ['0.5', '1'],
                         default: '1',
                     },
                 ],
             }],
+            visDefaultStyle: {
+                width: 240,
+                height: 120
+            },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_thermostat.png',
         };
     }

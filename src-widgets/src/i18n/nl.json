@@ -53,5 +53,13 @@
   "vis_2_widgets_material_seconds": "Met seconden",
   "vis_2_widgets_material_seconds_hand_color": "Tweedehands kleur",
   "vis_2_widgets_material_show_numbers": "Toon nummers",
-  "vis_2_widgets_material_am_pm": "Urennotatie"
+  "vis_2_widgets_material_am_pm": "Urennotatie",
+  "vis_2_widgets_material_set_label": "Vis 2 - Material widgets",
+  "vis_2_widgets_material_clock": "Klok",
+  "vis_2_widgets_material_static_info": "Statische informatie",
+  "vis_2_widgets_material_switches_or_buttons": "Schakelaars of knoppen",
+  "vis_2_widgets_material_thermostat": "Thermostaat",
+  "vis_2_widgets_material_digital2": "digitaal2",
+  "vis_2_widgets_material_group_item": "Item",
+  "vis_2_widgets_material_group_switch": "Schakelaar of knop"
 }
