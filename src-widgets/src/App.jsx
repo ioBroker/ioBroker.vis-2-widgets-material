@@ -8,6 +8,7 @@ import Thermostat from './Thermostat';
 import Actual from './Actual';
 import Switches from './Switches';
 import Static from './Static';
+import SimpleState from './SimpleState';
 
 const styles = theme => ({
     app: {
@@ -65,6 +66,19 @@ class App extends WidgetDemoApp {
                     oid2: 'javascript.0.numberWithStates',
                     title1: 'Number',
                     title2: 'States',
+                }}
+            />
+            <SimpleState
+                socket={this.socket}
+                style={{
+                    width: 400,
+                    height: 180,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'SimpleState',
+                    valuesCount: 5,
+                    oid: 'javascript.0.power2',
                 }}
             />
             <Switches
