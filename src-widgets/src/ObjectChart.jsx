@@ -1,5 +1,4 @@
 import React, { createRef, Component } from 'react';
-
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
@@ -46,10 +45,15 @@ import nlLocale from 'date-fns/locale/nl';
 import { Utils, withWidth } from '@iobroker/adapter-react-v5';
 
 // icons
-import { FaChartLine as SplitLineIcon } from 'react-icons/fa';
 // import EchartsIcon from '../../assets/echarts.png';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, SVGRenderer]);
+
+const SplitLineIcon = props => {
+    return <svg viewBox="0 0 512 512" width={props.width || 20} height={props.height || props.width || 20} xmlns="http://www.w3.org/2000/svg" className={ props.className }>
+        <path fill="currentColor" d="M496 384H64V80c0-8.84-7.16-16-16-16H16C7.16 64 0 71.16 0 80v336c0 17.67 14.33 32 32 32h464c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16zM464 96H345.94c-21.38 0-32.09 25.85-16.97 40.97l32.4 32.4L288 242.75l-73.37-73.37c-12.5-12.5-32.76-12.5-45.25 0l-68.69 68.69c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L192 237.25l73.37 73.37c12.5 12.5 32.76 12.5 45.25 0l96-96 32.4 32.4c15.12 15.12 40.97 4.41 40.97-16.97V112c.01-8.84-7.15-16-15.99-16z"/>
+    </svg>;
+};
 
 /*const localeMap = {
     en: enLocale,
@@ -551,9 +555,8 @@ class ObjectChart extends Component {
             hoverAnimation: true,
             animation: false,
             data: this.convertData(null, this.props.obj._id),
-            lineStyle: {
-                color: '#f5ba4d',
-            },
+            backgroundColor: this.props.objBackgroundColor || 'rgba(243,177,31,0.14)',
+            color: this.props.objColor || '#f5ba4d',
             areaStyle: {},
         };
 
@@ -567,9 +570,8 @@ class ObjectChart extends Component {
                 hoverAnimation: true,
                 animation: false,
                 data: this.convertData(null, this.props.obj2._id),
-                lineStyle: {
-                    color: '#21b400',
-                },
+                backgroundColor: this.props.obj2BackgroundColor || 'rgba(141,243,31,0.14)',
+                color: this.props.obj2Color || '#21b400',
                 areaStyle: {},
             };
         }
@@ -1254,6 +1256,10 @@ ObjectChart.propTypes = {
     obj2: PropTypes.object,
     objLineType: PropTypes.string,
     obj2LineType: PropTypes.string,
+    objColor: PropTypes.string,
+    obj2Color: PropTypes.string,
+    objBackgroundColor: PropTypes.string,
+    obj2BackgroundColor: PropTypes.string,
     customsInstances: PropTypes.array,
     themeType: PropTypes.string,
     objects: PropTypes.object,

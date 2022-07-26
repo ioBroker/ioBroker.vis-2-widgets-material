@@ -9,6 +9,7 @@ import Actual from './Actual';
 import Switches from './Switches';
 import Static from './Static';
 import SimpleState from './SimpleState';
+import Clock from './Clock';
 
 const styles = theme => ({
     app: {
@@ -52,8 +53,25 @@ class App extends WidgetDemoApp {
 
     renderWidget() {
         return <div className={this.props.classes.app}>
+            <Clock
+                socket={this.socket}
+                themeType={this.state.themeType}
+                style={{
+                    width: 160,
+                    height: 420,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    type: 'digital',
+                    withSeconds: true,
+                    showNumbers: true,
+                    blinkDelimiter: true,
+                    hoursFormat: '12',
+                }}
+            />
             <Static
                 socket={this.socket}
+                themeType={this.state.themeType}
                 style={{
                     width: 400,
                     height: 160,
@@ -83,6 +101,7 @@ class App extends WidgetDemoApp {
             />
             <Switches
                 socket={this.socket}
+                themeType={this.state.themeType}
                 style={{
                     width: 400,
                     height: 180,
@@ -105,6 +124,7 @@ class App extends WidgetDemoApp {
             />
             <Thermostat
                 socket={this.socket}
+                themeType={this.state.themeType}
                 style={{
                     width: 600,
                     height: 650,
@@ -120,6 +140,7 @@ class App extends WidgetDemoApp {
             />
             <Actual
                 socket={this.socket}
+                themeType={this.state.themeType}
                 style={{
                     width: 400,
                     height: 200,

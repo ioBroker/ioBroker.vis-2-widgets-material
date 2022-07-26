@@ -1,17 +1,47 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
 import {
     Dialog, DialogContent, DialogTitle, IconButton, Switch,
 } from '@mui/material';
 
+import { Close as IconClose } from '@mui/icons-material';
+
+import { i18n as I18n } from '@iobroker/adapter-react-v5';
+
 import Generic from './Generic';
-import {Close as IconClose} from "@mui/icons-material";
-import ObjectChart from "./ObjectChart";
-import {i18n as I18n} from "@iobroker/adapter-react-v5";
+import ObjectChart from './ObjectChart';
 
 const styles = theme => ({
-
+    newValueLight: {
+        animation: '$newValueAnimationLight 2s ease-in-out'
+    },
+    '@keyframes newValueAnimationLight': {
+        '0%': {
+            color: '#00bd00',
+        },
+        '80%': {
+            color: '#008000',
+        },
+        '100%': {
+            color: '#000',
+        }
+    },
+    newValueDark: {
+        animation: '$newValueAnimationDark 2s ease-in-out'
+    },
+    '@keyframes newValueAnimationDark': {
+        '0%': {
+            color: '#008000',
+        },
+        '80%': {
+            color: '#00bd00',
+        },
+        '100%': {
+            color: '#ffffff',
+        }
+    },
 });
 
 class Static extends Generic {
@@ -26,6 +56,7 @@ class Static extends Generic {
             id: 'tplMaterial2Static',
             visSet: 'vis-2-widgets-material',
             visName: 'Static information',
+            visWidgetLabel: 'vis_2_widgets_material_static_info',  // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -43,7 +74,8 @@ class Static extends Generic {
                     ],
                 },
                 {
-                    name: 'switch',
+                    name: 'item',
+                    label: 'vis_2_widgets_material_group_item',
                     indexFrom: 1,
                     indexTo: 'count',
                     fields: [
@@ -80,6 +112,10 @@ class Static extends Generic {
                     ],
                 },
             ],
+            visDefaultStyle: {
+                width: 240,
+                height: 120
+            },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_static.png',
         };
     }
@@ -175,7 +211,7 @@ class Static extends Generic {
             this.state.data[`color${key}`] || this.state.objects[key].common.color;
     }
 
-    getValue(key) {
+    getValue(key, classUpdateVal) {
         const object = this.state.objects[key];
         const state = this.state.values[`${this.state.data[`oid${key}`]}.val`];
         if (state === undefined) {
@@ -196,12 +232,25 @@ class Static extends Generic {
         } : undefined;
 
         if (object?.common?.type === 'boolean') {
-            return <Switch checked={state} onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}/>;
+            return <Switch
+                checked={state}
+                onClick={onClick}
+                style={{ cursor: onClick ? 'pointer' : 'default' }}
+            />;
         }
+        let val;
+
         if (object?.common?.type === 'number') {
-            return <span onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>{state}{object.common.unit || ''}</span>;
+            val = `${state}${object.common.unit || ''}`;
+        } else {
+            val = this.formatValue(state);
         }
-        return <span onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>{this.formatValue(state)}</span>;
+        return <span
+            key={`${val}valText`}
+            onClick={onClick}
+            style={{ cursor: onClick ? 'pointer' : 'default' }}
+            className={classUpdateVal}
+        >{val}</span>;
     }
 
     renderDialog() {
@@ -245,6 +294,7 @@ class Static extends Generic {
 
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
+        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark: this.props.classes.newValueLight;
 
         const content = <>
             {this.renderDialog()}
@@ -274,7 +324,7 @@ class Static extends Generic {
                         </span>
                     </span>
 
-                    {this.getValue(key)}
+                    {this.getValue(key, classUpdateVal)}
                 </div>
             )}
         </>;
@@ -282,5 +332,13 @@ class Static extends Generic {
         return this.wrapContent(content);
     }
 }
+
+Static.propTypes = {
+    systemConfig: PropTypes.object,
+    socket: PropTypes.object,
+    themeType: PropTypes.string,
+    style: PropTypes.object,
+    data: PropTypes.object,
+};
 
 export default withStyles(styles)(Static);

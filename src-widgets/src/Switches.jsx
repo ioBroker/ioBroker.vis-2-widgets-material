@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
 import {
@@ -90,6 +91,7 @@ class Switches extends Generic {
             id: 'tplMaterial2Switches',
             visSet: 'vis-2-widgets-material',
             visName: 'Switches',
+            visWidgetLabel: 'vis_2_widgets_material_switches_or_buttons',  // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -112,7 +114,16 @@ class Switches extends Generic {
                             name: 'type',
                             type: 'select',
                             label: 'vis_2_widgets_material_type',
-                            options: ['switches', 'buttons'],
+                            options: [
+                                {
+                                    value: 'switches',
+                                    label: 'vis_2_widgets_material_switches'
+                                },
+                                {
+                                    value: 'buttons',
+                                    label: 'vis_2_widgets_material_buttons'
+                                }
+                            ],
                             default: 'switches',
                         },
                         {
@@ -143,6 +154,7 @@ class Switches extends Generic {
                 },
                 {
                     name: 'switch',
+                    label: 'vis_2_widgets_material_group_switch',
                     indexFrom: 1,
                     indexTo: 'count',
                     fields: [
@@ -175,11 +187,16 @@ class Switches extends Generic {
                             name: 'title',
                             type: 'text',
                             label: 'vis_2_widgets_material_title',
+                            hidden: '!!data["oid" + index]'
                         },
                     ],
                 }
             ],
-            visPrev: 'widgets/material-widgets/img/prev_switch.png',
+            visDefaultStyle: {
+                width: 240,
+                height: 120
+            },
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_switches.png',
         };
     }
 
@@ -246,7 +263,6 @@ class Switches extends Generic {
         super.onPropertiesUpdated();
         await this.propertiesUpdate();
     }
-
 
     isOn(index, values) {
         values = values || this.state.values;
@@ -487,5 +503,13 @@ class Switches extends Generic {
         return this.wrapContent(content, addToHeader);
     }
 }
+
+Switches.propTypes = {
+    systemConfig: PropTypes.object,
+    socket: PropTypes.object,
+    themeType: PropTypes.string,
+    style: PropTypes.object,
+    data: PropTypes.object,
+};
 
 export default withStyles(styles)(Switches);

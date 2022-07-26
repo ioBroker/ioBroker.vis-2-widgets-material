@@ -45,6 +45,7 @@
     "connectionType": "cloud",
     "dataSource": "poll",
     "visWidgets": {
+      "i18n": true,
       "vis2materialWidgets": {
         "name": "vis2materialWidgets",
         "url": "vis-2-widgets-material/customWidgets.js",
@@ -52,7 +53,8 @@
           "Thermostat",
           "Actual",
           "Static",
-          "Switches"
+          "Switches",
+          "Clock"
         ]
       }
     },
