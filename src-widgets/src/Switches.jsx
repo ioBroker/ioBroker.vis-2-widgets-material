@@ -22,7 +22,7 @@ import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 
-const styles = theme => ({
+const styles = () => ({
     intermediate: {
         opacity: 0.2,
     },
@@ -75,7 +75,7 @@ const styles = theme => ({
     iconCustom: {
         maxWidth: 40,
         maxHeight: 40,
-    }
+    },
 });
 
 class Switches extends Generic {
@@ -117,12 +117,12 @@ class Switches extends Generic {
                             options: [
                                 {
                                     value: 'switches',
-                                    label: 'vis_2_widgets_material_switches'
+                                    label: 'vis_2_widgets_material_switches',
                                 },
                                 {
                                     value: 'buttons',
-                                    label: 'vis_2_widgets_material_buttons'
-                                }
+                                    label: 'vis_2_widgets_material_buttons',
+                                },
                             ],
                             default: 'switches',
                         },
@@ -187,14 +187,14 @@ class Switches extends Generic {
                             name: 'title',
                             type: 'text',
                             label: 'vis_2_widgets_material_title',
-                            hidden: '!!data["oid" + index]'
+                            hidden: '!!data["oid" + index]',
                         },
                     ],
-                }
+                },
             ],
             visDefaultStyle: {
                 width: 240,
-                height: 120
+                height: 120,
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_switches.png',
         };
@@ -247,11 +247,13 @@ class Switches extends Generic {
                         object.common.icon = parentObject.common.icon;
                     }
                 }
-                objects[index] = object;
+                objects[index] = { common: object.common, _id: object._id };
             }
         }
 
-        this.setState({ objects });
+        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {
+            this.setState({ objects });
+        }
     }
 
     async componentDidMount() {
@@ -267,10 +269,10 @@ class Switches extends Generic {
     isOn(index, values) {
         values = values || this.state.values;
         if (this.state.objects[index].common.type === 'number') {
-            return values[this.state.objects[index]._id + '.val'] !== this.state.objects[index].common.min;
-        } else {
-            return !!values[this.state.objects[index]._id + '.val'];
+            return values[`${this.state.objects[index]._id}.val`] !== this.state.objects[index].common.min;
         }
+
+        return !!values[`${this.state.objects[index]._id}.val`];
     }
 
     getStateIcon(index) {
@@ -291,12 +293,10 @@ class Switches extends Generic {
                 alt=""
                 className={this.props.classes.iconCustom}
             />;
+        } else if (this.isOn(index)) {
+            icon = <LightbulbIconOn color="primary" />;
         } else {
-            if (this.isOn(index)) {
-                icon = <LightbulbIconOn color='primary'/>;
-            } else {
-                icon = <LightbulbIconOff />;
-            }
+            icon = <LightbulbIconOff />;
         }
 
         return icon;
@@ -313,7 +313,7 @@ class Switches extends Generic {
             this.setState({ showDimmerDialog: index });
         } else {
             const values = JSON.parse(JSON.stringify(this.state.values));
-            const oid = this.state.objects[index]._id + '.val';
+            const oid = `${this.state.objects[index]._id}.val`;
             if (this.state.objects[index].common.type === 'number') {
                 values[oid] = values[oid] === this.state.objects[index].common.max ? this.state.objects[index].common.min : this.state.objects[index].common.max;
             } else {
@@ -326,7 +326,7 @@ class Switches extends Generic {
 
     setOnOff(index, isOn) {
         const values = JSON.parse(JSON.stringify(this.state.values));
-        const oid = this.state.objects[index]._id + '.val';
+        const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = isOn ? this.state.objects[index].common.max : this.state.objects[index].common.min;
         this.setState({ values });
         this.props.socket.setState(this.state.data[`oid${index}`], values[oid]);
@@ -334,7 +334,7 @@ class Switches extends Generic {
 
     controlSpecificState(index, value) {
         const values = JSON.parse(JSON.stringify(this.state.values));
-        const oid = this.state.objects[index]._id + '.val';
+        const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = value;
         this.setState({ values });
         this.props.socket.setState(this.state.data[`oid${index}`], values[oid]);
@@ -343,72 +343,74 @@ class Switches extends Generic {
     renderDimmerDialog() {
         const index = this.state.showDimmerDialog;
         if (index !== null) {
+            const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
             return <Dialog
                 fullWidth
                 maxWidth="sm"
-                open={true}
+                open={!0}
                 onClose={() => this.setState({ showDimmerDialog: null })}
             >
                 <DialogTitle>
-                    {this.state.data['title' + index] || this.state.objects[index].common.name}
-                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}><CloseIcon/></IconButton>
+                    {this.state.data[`title${index}`] || this.state.objects[index].common.name}
+                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}><CloseIcon /></IconButton>
                 </DialogTitle>
                 <DialogContent>
                     {this.state.objects[index].common.states ?
-                        <div style={{width: '100%', textAlign: 'center' }}>
+                        <div style={{ width: '100%', textAlign: 'center' }}>
                             {Object.keys(this.state.objects[index].common.states).map((state, i) =>
                                 <Button
-                                    key={state + '_' + i}
-                                    className={this.state.values[this.state.objects[index]._id + '.val'] !== state ? this.props.classes.buttonInactive : ''}
-                                    color={this.state.values[this.state.objects[index]._id + '.val'] === state ? 'primary' : 'grey'}
+                                    key={`${state}_${i}`}
+                                    className={curValue !== state ? this.props.classes.buttonInactive : ''}
+                                    color={curValue === state ? 'primary' : 'grey'}
                                     onClick={() => this.controlSpecificState(index, state)}
-                                >{this.state.objects[index].common.states[state]}</Button>)}
+                                >
+                                    {this.state.objects[index].common.states[state]}
+                                </Button>)}
                         </div>
                         :
                         <>
-                            <div style={{width: '100%', marginBottom: 20}}>
+                            <div style={{ width: '100%', marginBottom: 20 }}>
                                 <Button
-                                    style={{width: '50%'}}
+                                    style={{ width: '50%' }}
                                     color="grey"
-                                    className={this.state.values[this.state.objects[index]._id + '.val'] === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
+                                    className={curValue === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
                                     onClick={() => this.setOnOff(index, false)}
                                 >
-                                    <LightbulbIconOff/>
+                                    <LightbulbIconOff />
                                     {I18n.t('vis_2_widgets_material_OFF').replace('vis_2_widgets_material_', '')}
                                 </Button>
                                 <Button
-                                    style={{width: '50%'}}
-                                    className={this.state.values[this.state.objects[index]._id + '.val'] === this.state.objects[index].common.max ? '' : this.props.classes.buttonInactive}
+                                    style={{ width: '50%' }}
+                                    className={curValue === this.state.objects[index].common.max ? '' : this.props.classes.buttonInactive}
                                     color="primary"
                                     onClick={() => this.setOnOff(index, true)}
                                 >
-                                    <LightbulbIconOn/>
+                                    <LightbulbIconOn />
                                     {I18n.t('vis_2_widgets_material_ON').replace('vis_2_widgets_material_', '')}
                                 </Button>
                             </div>
-                            <div style={{width: '100%'}}>
+                            <div style={{ width: '100%' }}>
                                 <Slider
                                     size="small"
-                                    value={this.state.values[this.state.objects[index]._id + '.val']}
+                                    value={curValue}
                                     valueLabelDisplay="auto"
                                     min={this.state.objects[index].common.min}
                                     max={this.state.objects[index].common.max}
                                     onChange={(event, value) => {
                                         const values = JSON.parse(JSON.stringify(this.state.values));
-                                        const oid = this.state.objects[index]._id + '.val';
+                                        const oid = `${this.state.objects[index]._id}.val`;
                                         values[oid] = value;
-                                        this.setState({values});
+                                        this.setState({ values });
                                         this.props.socket.setState(this.state.data[`oid${index}`], values[oid]);
                                     }}
                                 />
                             </div>
-                        </>
-                    }
+                        </>}
                 </DialogContent>
-            </Dialog>
-        } else {
-            return null;
+            </Dialog>;
         }
+
+        return null;
     }
 
     renderWidgetBody(props) {
@@ -429,21 +431,20 @@ class Switches extends Generic {
                         className={this.props.classes.cardsHolder}
                         key={index}
                     >
-                            <span style={{display: 'inline-flex', alignItems: 'center'}}>
-                                {anyIcon ? <span className={this.props.classes.iconSwitch}>
-                                    {icons[i]}
-                                </span> : null}
-                                <span style={{color: this.getColor(index), paddingLeft: 16}}>
-                                    {this.state.data['title' + index] || this.state.objects[index].common.name}
-                                </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            {anyIcon ? <span className={this.props.classes.iconSwitch}>
+                                {icons[i]}
+                            </span> : null}
+                            <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
+                                {this.state.data[`title${index}`] || this.state.objects[index].common.name}
                             </span>
+                        </span>
 
                         <Switch
                             checked={this.isOn(index)}
                             onChange={() => this.changeSwitch(index)}
                         />
-                    </div>
-                )
+                    </div>)
                 :
                 <div style={{ width: '100%' }}>
                     {Object.keys(this.state.objects).map((index, i) => {
@@ -476,15 +477,14 @@ class Switches extends Generic {
                                     {icons[i]}
                                 </div> : null}
                                 <div className={this.props.classes.text}>
-                                    {this.state.data['title' + index] || this.state.objects[index].common.name}
+                                    {this.state.data[`title${index}`] || this.state.objects[index].common.name}
                                 </div>
                                 {value !== undefined && value !== null ?
                                     <div className={this.props.classes.value}>{value}</div> : null}
                             </Button>
                         </div>;
                     })}
-                </div>
-            }
+                </div>}
         </>;
 
         const addToHeader = this.state.data.allSwitch && Object.keys(this.state.objects).length > 1 ? <Switch

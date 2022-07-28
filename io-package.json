@@ -54,7 +54,8 @@
           "Actual",
           "Static",
           "Switches",
-          "Clock"
+          "Clock",
+          "SimpleState"
         ]
       }
     },

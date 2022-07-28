@@ -41,7 +41,7 @@ class App extends WidgetDemoApp {
         // init translations
         I18n.extendTranslations(translations);
 
-        this.socket.registerConnectionHandler(this.onConnectionChanged)
+        this.socket.registerConnectionHandler(this.onConnectionChanged);
     }
 
     onConnectionChanged = isConnected => {
@@ -121,8 +121,8 @@ class App extends WidgetDemoApp {
                     oid1: 'javascript.0.boolean',
                     oid2: 'javascript.0.test',
                     oid3: 'javascript.0.boolean',
-//                    oid4: 'javascript.0.test',
- //                   oid5: 'javascript.0.numberWithStates',
+                    // oid4: 'javascript.0.test',
+                    // oid5: 'javascript.0.numberWithStates',
                     title2: 'Dimmer',
                 }}
             />

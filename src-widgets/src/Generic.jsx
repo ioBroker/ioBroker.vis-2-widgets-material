@@ -30,13 +30,14 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
     wrapContent(content, addToHeader, cardContentStyle, headerStyle, onCardClick) {
         return <Card style={{ width: 'calc(100% - 8px)', height: 'calc(100% - 8px)', margin: 4 }} onClick={onCardClick}>
             <CardContent
-                style={Object.assign({
+                style={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     height: '100%',
                     position: 'relative',
-                }, cardContentStyle)}
+                    ...cardContentStyle,
+                }}
             >
                 {this.state.data.name ? <div style={{
                     display: 'flex',
@@ -45,7 +46,16 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
                     alignItems: 'center',
                 }}
                 >
-                    <div style={Object.assign({ fontSize: 24, paddingTop: 0, paddingBottom: 4 }, headerStyle)}>{this.state.data.name}</div>
+                    <div
+                        style={{
+                            fontSize: 24,
+                            paddingTop: 0,
+                            paddingBottom: 4,
+                            ...headerStyle,
+                        }}
+                    >
+                        {this.state.data.name}
+                    </div>
                     {addToHeader || null}
                 </div> : (addToHeader || null)}
                 {content}

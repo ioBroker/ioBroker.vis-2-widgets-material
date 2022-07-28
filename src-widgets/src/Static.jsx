@@ -13,9 +13,9 @@ import { i18n as I18n } from '@iobroker/adapter-react-v5';
 import Generic from './Generic';
 import ObjectChart from './ObjectChart';
 
-const styles = theme => ({
+const styles = () => ({
     newValueLight: {
-        animation: '$newValueAnimationLight 2s ease-in-out'
+        animation: '$newValueAnimationLight 2s ease-in-out',
     },
     '@keyframes newValueAnimationLight': {
         '0%': {
@@ -26,10 +26,10 @@ const styles = theme => ({
         },
         '100%': {
             color: '#000',
-        }
+        },
     },
     newValueDark: {
-        animation: '$newValueAnimationDark 2s ease-in-out'
+        animation: '$newValueAnimationDark 2s ease-in-out',
     },
     '@keyframes newValueAnimationDark': {
         '0%': {
@@ -40,7 +40,7 @@ const styles = theme => ({
         },
         '100%': {
             color: '#ffffff',
-        }
+        },
     },
 });
 
@@ -114,7 +114,7 @@ class Static extends Generic {
             ],
             visDefaultStyle: {
                 width: 240,
-                height: 120
+                height: 120,
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_static.png',
         };
@@ -148,11 +148,13 @@ class Static extends Generic {
                         object.common.icon = parentObject.common.icon;
                     }
                 }
-                objects[i] = object;
+                objects[i] = { common: object.common, _id: object._id };
             }
         }
 
-        this.setState({ objects });
+        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {
+            this.setState({ objects });
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -250,19 +252,21 @@ class Static extends Generic {
             onClick={onClick}
             style={{ cursor: onClick ? 'pointer' : 'default' }}
             className={classUpdateVal}
-        >{val}</span>;
+        >
+            {val}
+        </span>;
     }
 
     renderDialog() {
         if (!this.state.showDialog) {
-            return null
+            return null;
         }
         return <Dialog
-            sx={{'& .MuiDialog-paper': {height: '100%'}}}
+            sx={{ '& .MuiDialog-paper': { height: '100%' } }}
             maxWidth="lg"
             fullWidth
-            open={true}
-            onClose={() => this.setState({showDialog: false})}
+            open={!0}
+            onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
                 {this.state.data.name}
@@ -270,7 +274,7 @@ class Static extends Generic {
                     style={{ float: 'right' }}
                     onClick={() => this.setState({ showDialog: false })}
                 >
-                    <IconClose/>
+                    <IconClose />
                 </IconButton>
             </DialogTitle>
             <DialogContent>
@@ -294,7 +298,7 @@ class Static extends Generic {
 
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
-        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark: this.props.classes.newValueLight;
+        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
         const content = <>
             {this.renderDialog()}
@@ -320,13 +324,12 @@ class Static extends Generic {
                             {icons[i]}
                         </span> : null}
                         <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                            {this.state.data['title' + key] || this.state.objects[key].common.name}
+                            {this.state.data[`title${key}`] || this.state.objects[key].common.name}
                         </span>
                     </span>
 
                     {this.getValue(key, classUpdateVal)}
-                </div>
-            )}
+                </div>)}
         </>;
 
         return this.wrapContent(content);
