@@ -342,8 +342,8 @@ class Switches extends Generic {
 
     renderDimmerDialog() {
         const index = this.state.showDimmerDialog;
-        const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
         if (index !== null) {
+            const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
             return <Dialog
                 fullWidth
                 maxWidth="sm"

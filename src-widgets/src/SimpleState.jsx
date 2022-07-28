@@ -152,6 +152,11 @@ class SimpleState extends Generic {
                     ],
                 },
             ],
+            visDefaultStyle: {
+                width: '100%',
+                height: 120,
+                position: 'relative',
+            },
             visPrev: 'widgets/material-widgets/img/prev_switch.png',
         };
     }
