@@ -15,7 +15,7 @@ import {
     TooltipComponent,
     TitleComponent,
     TimelineComponent,
-    LegendComponent
+    LegendComponent,
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
 
@@ -31,10 +31,10 @@ import Generic from './Generic';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
-const styles = theme => ({
+const styles = () => ({
     chart: {
         height: 'calc(100% - 40px)',
-        width: '100%'
+        width: '100%',
     },
     temperatureDiv: {
         marginLeft: 10,
@@ -44,7 +44,7 @@ const styles = theme => ({
     },
     temperatureValue: {
         verticalAlign: 'middle',
-        fontSize: 28
+        fontSize: 28,
     },
     temperatureUnit: {
         paddingLeft: 5,
@@ -77,7 +77,7 @@ const styles = theme => ({
         fontSize: 20,
     },
     newValueLight: {
-        animation: '$newValueAnimationLight 2s ease-in-out'
+        animation: '$newValueAnimationLight 2s ease-in-out',
     },
     '@keyframes newValueAnimationLight': {
         '0%': {
@@ -88,10 +88,10 @@ const styles = theme => ({
         },
         '100%': {
             color: 'rgba(243,177,31)',
-        }
+        },
     },
     newValueDark: {
-        animation: '$newValueAnimationDark 2s ease-in-out'
+        animation: '$newValueAnimationDark 2s ease-in-out',
     },
     '@keyframes newValueAnimationDark': {
         '0%': {
@@ -102,7 +102,7 @@ const styles = theme => ({
         },
         '100%': {
             color: 'rgba(243,177,31)',
-        }
+        },
     },
 });
 
@@ -155,7 +155,7 @@ class Actual extends Generic {
             }],
             visDefaultStyle: {
                 width: 240,
-                height: 120
+                height: 120,
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_actual.png',
         };
@@ -186,7 +186,7 @@ class Actual extends Generic {
                         object.common.icon = parentObject.common.icon;
                     }
                 }
-                objects.temp = object;
+                objects.temp = { common: object.common, _id: object._id };
             }
         }
 
@@ -211,17 +211,19 @@ class Actual extends Generic {
                         object.common.icon = parentObject.common.icon;
                     }
                 }
-                objects.humidity = object;
+                objects.humidity = { common: object.common, _id: object._id };
             }
         }
 
         const isChart = (objects.temp?.common?.custom && objects.temp.common.custom[this.props.systemConfig?.common?.defaultHistory]) ||
             (objects.humidity?.common?.custom && objects.humidity.common.custom[this.props.systemConfig?.common?.defaultHistory]);
 
-        this.setState({ objects, isChart });
+        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects) || isChart !== this.state.isChart) {
+            this.setState({ objects, isChart });
+        }
     }
 
-    convertData = (values, chart) => {
+    static convertData = (values, chart) => {
         const data = [];
         if (!values || !values.length) {
             return data;
@@ -241,7 +243,7 @@ class Actual extends Generic {
         }
 
         return data;
-    }
+    };
 
     readHistory = async id => {
         const timeInterval = this.state.data.timeInterval || 12;
@@ -250,8 +252,8 @@ class Actual extends Generic {
         now.setMinutes(0);
         now.setSeconds(0);
         now.setMilliseconds(0);
-        let start = now.getTime();
-        let end = Date.now();
+        const start = now.getTime();
+        const end = Date.now();
 
         const options = {
             instance: this.props.systemConfig?.common?.defaultHistory || 'history.0',
@@ -277,18 +279,16 @@ class Actual extends Generic {
                     chart.unshift({ ts: start, val: null });
                 }
                 if (chart) {
-                    chart.sort((a, b) => a.ts > b.ts ? 1 : (a.ts < b.ts ? -1 : 0)).filter(e => e.val !== null);
-                    state && state.val !== null && state.val !== undefined && chart.push({ts: Date.now(), val: state.val});
+                    chart.sort((a, b) => (a.ts > b.ts ? 1 : (a.ts < b.ts ? -1 : 0))).filter(e => e.val !== null);
+                    state && state.val !== null && state.val !== undefined && chart.push({ ts: Date.now(), val: state.val });
 
                     const _chart = {};
-                    _chart.data = this.convertData(chart, _chart);
-                    this.setState({ ['chart-data-' + id]: _chart });
+                    _chart.data = Actual.convertData(chart, _chart);
+                    this.setState({ [`chart-data-${id}`]: _chart });
                 }
             })
-            .catch(e =>
-                console.error('Cannot read history: ' + e)
-            );
-    }
+            .catch(e => console.error(`Cannot read history: ${e}`));
+    };
 
     async componentDidMount() {
         super.componentDidMount();
@@ -329,7 +329,7 @@ class Actual extends Generic {
 
     getOptions() {
         const series = [];
-        if (this.state['chart-data-' + this.state.data['oid-temperature']]) {
+        if (this.state[`chart-data-${this.state.data['oid-temperature']}`]) {
             series.push({
                 backgroundColor: 'rgba(243,177,31,0.14)',
                 color: 'rgba(243,177,31,0.65)',
@@ -337,11 +337,11 @@ class Actual extends Generic {
                 smooth: true,
                 showSymbol: false,
                 itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state['chart-data-' + this.state.data['oid-temperature']].data,
+                data: this.state[`chart-data-${this.state.data['oid-temperature']}`].data,
                 name: I18n.t('vis_2_widgets_material_temperature').replace('vis_2_widgets_material_', ''),
             });
         }
-        if (this.state['chart-data-' + this.state.data['oid-humidity']]) {
+        if (this.state[`chart-data-${this.state.data['oid-humidity']}`]) {
             series.push({
                 backgroundColor: 'rgba(77,134,255,0.14)',
                 color: 'rgba(77,134,255,0.44)',
@@ -349,7 +349,7 @@ class Actual extends Generic {
                 smooth: true,
                 showSymbol: false,
                 itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state['chart-data-' + this.state.data['oid-humidity']].data,
+                data: this.state[`chart-data-${this.state.data['oid-humidity']}`].data,
                 name: I18n.t('vis_2_widgets_material_humidity').replace('vis_2_widgets_material_', ''),
             });
         }
@@ -365,9 +365,6 @@ class Actual extends Generic {
                 bottom: 0,
             },
             legend: undefined,
-            /*tooltip: {
-                //trigger: 'axis',
-            },*/
             calculable : true,
             xAxis: {
                 show: false,
@@ -389,17 +386,14 @@ class Actual extends Generic {
 
     renderDialog() {
         if (!this.state.showDialog) {
-            return null
+            return null;
         }
         return <Dialog
-            sx={{'& .MuiDialog-paper': {height: '100%'}}}
+            sx={{ '& .MuiDialog-paper': { height: '100%' } }}
             maxWidth="lg"
             fullWidth
-            open={true}
-            onClose={() => {
-                console.log('Ckise')
-                this.setState({ showDialog: false });
-            }}
+            open={!0}
+            onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
                 {this.state.data.name}
@@ -407,7 +401,7 @@ class Actual extends Generic {
                     style={{ float: 'right' }}
                     onClick={() => this.setState({ showDialog: false })}
                 >
-                    <IconClose/>
+                    <IconClose />
                 </IconButton>
             </DialogTitle>
             <DialogContent>
@@ -442,13 +436,13 @@ class Actual extends Generic {
             this.setState({ showDialog: true });
         } : undefined;
 
-        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark: this.props.classes.newValueLight;
+        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
-        const tempVal = this.state.objects && this.state.objects.temp && this.state.values[this.state.data['oid-temperature'] + '.val'] !== undefined ?
-            this.formatValue(this.state.values[this.state.data['oid-temperature'] + '.val']) : undefined;
+        const tempVal = this.state.objects && this.state.objects.temp && this.state.values[`${this.state.data['oid-temperature']}.val`] !== undefined ?
+            this.formatValue(this.state.values[`${this.state.data['oid-temperature']}.val`]) : undefined;
 
-        const humidityVal = this.state.objects && this.state.objects.humidity && this.state.values[this.state.data['oid-humidity'] + '.val'] !== undefined ?
-            this.formatValue(this.state.values[this.state.data['oid-humidity'] + '.val'], 0) : undefined;
+        const humidityVal = this.state.objects && this.state.objects.humidity && this.state.values[`${this.state.data['oid-humidity']}.val`] !== undefined ?
+            this.formatValue(this.state.values[`${this.state.data['oid-humidity']}.val`], 0) : undefined;
 
         const content = <div style={{ width: '100%', height: '100%' }} ref={this.refContainer}>
             {tempVal !== undefined ?
@@ -461,11 +455,11 @@ class Actual extends Generic {
             {humidityVal !== undefined ?
                 <div className={this.props.classes.humidityDiv}>
                     <HumidityIcon className={this.props.classes.humidityIcon} />
-                    <span key={`${humidityVal}valText`}className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}>{humidityVal}</span>
+                    <span key={`${humidityVal}valText`} className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}>{humidityVal}</span>
                     <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
                 </div>
                 : null}
-            {this.state.containerHeight && (this.state['chart-data-' + this.state.data['oid-temperature']] || this.state['chart-data-' + this.state.data['oid-humidity']]) ?
+            {this.state.containerHeight && (this.state[`chart-data-${this.state.data['oid-temperature']}`] || this.state[`chart-data-${this.state.data['oid-humidity']}`]) ?
                 <ReactEchartsCore
                     className={this.props.classes.chart}
                     echarts={echarts}

@@ -21,7 +21,7 @@ import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 
-const styles = theme => ({
+const styles = () => ({
     intermediate: {
         opacity: 0.2,
     },
@@ -167,6 +167,8 @@ class SimpleState extends Generic {
             let object = await this.props.socket.getObject(this.state.data.oid);
             if (!object) {
                 object = { common: {} };
+            } else {
+                object = { common: object.common, _id: object._id };
             }
             object.common = object.common || {};
             if (object.common.type === 'number') {
@@ -290,7 +292,7 @@ class SimpleState extends Generic {
             return <Dialog
                 fullWidth
                 maxWidth="sm"
-                open
+                open={!0}
                 onClose={() => this.setState({ showDimmerDialog: null })}
             >
                 <DialogTitle>

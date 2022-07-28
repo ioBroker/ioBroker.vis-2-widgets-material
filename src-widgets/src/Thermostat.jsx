@@ -40,7 +40,7 @@ const Buttons = {
     OFF: PowerSettingsNewIcon,
 };
 
-const styles = theme => ({
+const styles = () => ({
     circleDiv: {
         width: '100%',
         height: '100%',
@@ -52,7 +52,7 @@ const styles = theme => ({
             '&>div': {
                 transform: 'translate(-40%, -50%) !important',
                 top: '45% !important',
-            }
+            },
         },
     },
     moreButton: {
@@ -64,7 +64,7 @@ const styles = theme => ({
         textAlign: 'center',
     },
     newValueLight: {
-        animation: '$newValueAnimationLight 2s ease-in-out'
+        animation: '$newValueAnimationLight 2s ease-in-out',
     },
     '@keyframes newValueAnimationLight': {
         '0%': {
@@ -75,10 +75,10 @@ const styles = theme => ({
         },
         '100%': {
             color: '#000',
-        }
+        },
     },
     newValueDark: {
-        animation: '$newValueAnimationDark 2s ease-in-out'
+        animation: '$newValueAnimationDark 2s ease-in-out',
     },
     '@keyframes newValueAnimationDark': {
         '0%': {
@@ -89,7 +89,7 @@ const styles = theme => ({
         },
         '100%': {
             color: '#ffffff',
-        }
+        },
     },
 });
 
@@ -147,7 +147,7 @@ class Thermostat extends Generic {
             }],
             visDefaultStyle: {
                 width: 240,
-                height: 120
+                height: 120,
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_thermostat.png',
         };
@@ -157,9 +157,9 @@ class Thermostat extends Generic {
         const newState = {};
 
         if (this.state.data['oid-mode'] && this.state.data['oid-mode'] !== 'nothing_selected') {
-            const mode = await this.props.socket.getObject(this.state.data['oid-mode']);
-            newState.modes = mode?.common?.states;
-            newState.modeObject = mode;
+            const modeObj = await this.props.socket.getObject(this.state.data['oid-mode']);
+            newState.modes = modeObj?.common?.states;
+            newState.modeObject = { common: modeObj.common, _id: modeObj._id };
             if (Array.isArray(newState.modes)) {
                 const result = {};
                 newState.modes.forEach(m => result[m] = m);
@@ -171,10 +171,10 @@ class Thermostat extends Generic {
         }
 
         if (this.state.data['oid-temp-set'] && this.state.data['oid-temp-set'] !== 'nothing_selected') {
-            const tempObject = await this.props.socket.getObject(this.state.data['oid-temp-set']);
-            newState.min = tempObject?.common?.min === undefined ? 12 : tempObject.common.min;
-            newState.max = tempObject?.common?.max === undefined ? 30 : tempObject.common.max;
-            newState.tempObject = tempObject;
+            const tempObj = await this.props.socket.getObject(this.state.data['oid-temp-set']);
+            newState.min = tempObj?.common?.min === undefined ? 12 : tempObj.common.min;
+            newState.max = tempObj?.common?.max === undefined ? 30 : tempObj.common.max;
+            newState.tempObject = { common: tempObj.common, _id: tempObj._id };
         } else {
             newState.tempObject = null;
             newState.temp = null;
@@ -183,7 +183,8 @@ class Thermostat extends Generic {
         }
 
         if (this.state.data['oid-temp-actual'] && this.state.data['oid-temp-actual'] !== 'nothing_selected') {
-            newState.tempStateObject = await this.props.socket.getObject(this.state.data['oid-temp-actual']);
+            const tempStateObj = await this.props.socket.getObject(this.state.data['oid-temp-actual']);
+            newState.tempStateObject = { common: tempStateObj.common, _id: tempStateObj._id };
         } else {
             newState.tempStateObject = null;
         }
@@ -191,7 +192,7 @@ class Thermostat extends Generic {
         newState.isChart = (newState.tempObject?.common?.custom && newState.tempObject.common.custom[this.props.systemConfig.common.defaultHistory]) ||
             (newState.tempStateObject?.common?.custom && newState.tempStateObject.common.custom[this.props.systemConfig.common.defaultHistory]);
 
-        this.setState(newState);
+        Object.keys(newState).find(key => JSON.stringify(this.state[key]) !== JSON.stringify(newState[key])) && this.setState(newState);
     }
 
     componentDidMount() {
@@ -228,13 +229,13 @@ class Thermostat extends Generic {
 
     renderDialog() {
         if (!this.state.showDialog) {
-            return null
+            return null;
         }
         return <Dialog
             sx={{ '& .MuiDialog-paper': { height: '100%' } }}
             maxWidth="lg"
             fullWidth
-            open={true}
+            open={!0}
             onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
@@ -242,7 +243,7 @@ class Thermostat extends Generic {
                 <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDialog: false })}><IconClose /></IconButton>
             </DialogTitle>
             <DialogContent>
-                {/*<Tabs value={this.state.dialogTab} onChange={(e, value) => this.setState({ dialogTab: value })}>
+                {/* <Tabs value={this.state.dialogTab} onChange={(e, value) => this.setState({ dialogTab: value })}>
                     <Tab label={I18n.t('Properties')} value={0} />
                     <Tab label={I18n.t('History')} value={1} />
                 </Tabs>
@@ -277,7 +278,7 @@ class Thermostat extends Generic {
                             }) : null}
                         </Select>
                     </FormControl>
-                </div>*/}
+                </div> */}
                 {this.state.dialogTab === 1 && <div style={{ height: '100%' }}>
                     <ObjectChart
                         t={I18n.t}
@@ -321,7 +322,7 @@ class Thermostat extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        let tempValue = this.state.values[this.state.data['oid-temp-set'] + '.val'];
+        let tempValue = this.state.values[`${this.state.data['oid-temp-set']}.val`];
         if (tempValue === undefined) {
             tempValue = null;
         }
@@ -336,7 +337,7 @@ class Thermostat extends Generic {
             tempValue = (this.state.max - this.state.min) / 2 + this.state.min;
         }
 
-        let actualTemp = this.state.values[this.state.data['oid-temp-actual'] + '.val'];
+        let actualTemp = this.state.values[`${this.state.data['oid-temp-actual']}.val`];
         if (actualTemp === undefined) {
             actualTemp = null;
         }
@@ -374,28 +375,28 @@ class Thermostat extends Generic {
                         onChange: value => {
                             const values = JSON.parse(JSON.stringify(this.state.values));
                             if (this.state.data['oid-step'] === '0.5') {
-                                values[this.state.data['oid-temp-set'] + '.val'] = Math.round(value * 2) / 2;
+                                values[`${this.state.data['oid-temp-set']}.val`] = Math.round(value * 2) / 2;
                             } else {
-                                values[this.state.data['oid-temp-set'] + '.val'] = Math.round(value);
+                                values[`${this.state.data['oid-temp-set']}.val`] = Math.round(value);
                             }
                             this.setState({ values });
                         },
                     }}
                     onControlFinished={() =>
-                        this.props.socket.setState(this.state.data['oid-temp-set'], this.state.values[this.state.data['oid-temp-set'] + '.val'])}
+                        this.props.socket.setState(this.state.data['oid-temp-set'], this.state.values[`${this.state.data['oid-temp-set']}.val`])}
                 >
                     {actualTemp !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_actual_temperature')}>
                         <div
                             key={`${actualTemp}valText`}
                             style={{ fontSize: Math.round(this.state.width / 10), fontWeight: 'bold' }}
-                            className={this.props.themeType === 'dark' ? this.props.classes.newValueDark: this.props.classes.newValueLight}
+                            className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
                         >
                             {actualTemp}
                             {this.state.tempStateObject?.common?.unit}
                         </div>
                     </Tooltip> : null}
                     {tempValue !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_desired_temperature')}>
-                        <div style={{ fontSize: Math.round(this.state.width * 0.6 / 10) }}>
+                        <div style={{ fontSize: Math.round((this.state.width * 0.6) / 10) }}>
                             {this.formatValue(tempValue)}
                             {this.state.tempObject?.common?.unit}
                         </div>
@@ -403,19 +404,19 @@ class Thermostat extends Generic {
                 </CircularSliderWithChildren>
                 : null}
             <div className={this.props.classes.buttonsDiv}>
-                {this.state.modes && (!this.state.data['oid-power'] || this.state.values[this.state.data['oid-power'] + '.val']) ?
+                {this.state.modes && (!this.state.data['oid-power'] || this.state.values[`${this.state.data['oid-power']}.val`]) ?
                     Object.keys(this.state.modes).map((modeIndex, i) => {
                         const mode = this.state.modes[modeIndex];
                         const MyButtonIcon = Buttons[mode] || null;
-                        let currentValueStr = this.state.values[this.state.data['oid-mode'] + '.val'];
+                        let currentValueStr = this.state.values[`${this.state.data['oid-mode']}.val`];
                         if (currentValueStr === null || currentValueStr === undefined) {
                             currentValueStr = 'null';
                         } else {
-                            currentValueStr = currentValueStr.toString()
+                            currentValueStr = currentValueStr.toString();
                         }
 
                         return MyButtonIcon ?
-                            <Tooltip key={i} title={I18n.t('vis_2_widgets_material_' + mode).replace('vis_2_widgets_material_', '')}>
+                            <Tooltip key={i} title={I18n.t(`vis_2_widgets_material_${mode}`).replace('vis_2_widgets_material_', '')}>
                                 <IconButton
                                     color={currentValueStr === modeIndex ? 'primary' : 'grey'}
                                     onClick={() => {
@@ -424,7 +425,7 @@ class Thermostat extends Generic {
                                             value = parseFloat(value);
                                         }
                                         const values = JSON.parse(JSON.stringify(this.state.values));
-                                        values[this.state.data['oid-mode'] + '.val'] = value;
+                                        values[`${this.state.data['oid-mode']}.val`] = value;
                                         this.setState(values);
                                         this.props.socket.setState(this.state.data['oid-mode'], value);
                                     }}
@@ -442,21 +443,24 @@ class Thermostat extends Generic {
                                         value = parseFloat(value);
                                     }
                                     const values = JSON.parse(JSON.stringify(this.state.values));
-                                    values[this.state.data['oid-mode'] + '.val'] = value;
+                                    values[`${this.state.data['oid-mode']}.val`] = value;
                                     this.setState(values);
                                     this.props.socket.setState(this.state.data['oid-mode'], value);
                                 }}
-                            >{this.state.modes[modeIndex]}</Button>;
+                            >
+                                {this.state.modes[modeIndex]}
+                            </Button>;
                     }) : null}
                 {this.state.data['oid-power'] && this.state.data['oid-power'] !== 'nothing_selected' ?
                     <Tooltip title={I18n.t('vis_2_widgets_material_power').replace('vis_2_widgets_material_', '')}>
                         <IconButton
-                            color={this.state.values[this.state.data['oid-power'] + '.val'] ? 'primary' : 'grey'}
+                            color={this.state.values[`${this.state.data['oid-power']}.val`] ? 'primary' : 'grey'}
                             onClick={() => {
                                 const values = JSON.parse(JSON.stringify(this.state.values));
-                                values[this.state.data['oid-power'] + '.val'] = !values[this.state.data['oid-power'] + '.val'];
+                                const id = `${this.state.data['oid-power']}.val`;
+                                values[id] = !values[id];
                                 this.setState(values);
-                                this.props.socket.setState(this.state.data['oid-power'], values[this.state.data['oid-power'] + '.val']);
+                                this.props.socket.setState(this.state.data['oid-power'], values[id]);
                             }}
                         >
                             <PowerSettingsNewIcon />

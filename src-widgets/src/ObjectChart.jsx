@@ -50,12 +50,12 @@ import { Utils, withWidth } from '@iobroker/adapter-react-v5';
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, SVGRenderer]);
 
 const SplitLineIcon = props => {
-    return <svg viewBox="0 0 512 512" width={props.width || 20} height={props.height || props.width || 20} xmlns="http://www.w3.org/2000/svg" className={ props.className }>
+    return <svg viewBox="0 0 512 512" width={props.width || 20} height={props.height || props.width || 20} xmlns="http://www.w3.org/2000/svg" className={props.className}>
         <path fill="currentColor" d="M496 384H64V80c0-8.84-7.16-16-16-16H16C7.16 64 0 71.16 0 80v336c0 17.67 14.33 32 32 32h464c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16zM464 96H345.94c-21.38 0-32.09 25.85-16.97 40.97l32.4 32.4L288 242.75l-73.37-73.37c-12.5-12.5-32.76-12.5-45.25 0l-68.69 68.69c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L192 237.25l73.37 73.37c12.5 12.5 32.76 12.5 45.25 0l96-96 32.4 32.4c15.12 15.12 40.97 4.41 40.97-16.97V112c.01-8.84-7.15-16-15.99-16z"/>
     </svg>;
 };
 
-/*const localeMap = {
+/* const localeMap = {
     en: enLocale,
     fr: frLocale,
     ru: ruLocale,
@@ -67,7 +67,7 @@ const SplitLineIcon = props => {
     pt: ptLocale,
     pl: plLocale,
     'zh-cn': cnLocale,
-};*/
+}; */
 
 function padding3(ms) {
     if (ms < 10) {
@@ -194,7 +194,7 @@ class ObjectChart extends Component {
         }
 
         this.state = {
-            loaded: false,
+            // loaded: false,
             historyInstance: this.props.historyInstance || '',
             historyInstances: null,
             defaultHistory: '',
@@ -202,8 +202,8 @@ class ObjectChart extends Component {
             chartWidth: 500,
             relativeRange,
             splitLine: window.localStorage.getItem('App.splitLine') === 'true',
-            dateFormat: 'dd.MM.yyyy',
-            min,
+            // dateFormat: 'dd.MM.yyyy',
+            // min,
             max,
             maxYLen: 0,
         };
@@ -283,7 +283,7 @@ class ObjectChart extends Component {
         if (this.props.noToolbar) {
             return new Promise(resolve =>
                 this.setState({
-                    dateFormat: this.props.dateFormat.replace(/D/g, 'd').replace(/Y/g, 'y'),
+                    // dateFormat: this.props.dateFormat.replace(/D/g, 'd').replace(/Y/g, 'y'),
                     defaultHistory: this.props.defaultHistory,
                     historyInstance: this.props.defaultHistory,
                 }, () => resolve()));
@@ -294,10 +294,9 @@ class ObjectChart extends Component {
                 list = _list;
                 if (this.props.systemConfig) {
                     return Promise.resolve(this.props.systemConfig);
-                } else {
-                    // read default history
-                    return this.props.socket.getSystemConfig();
                 }
+                // read default history
+                return this.props.socket.getSystemConfig();
             })
             .then(config => {
                 const defaultHistory = config && config.common && config.common.defaultHistory;
@@ -322,7 +321,7 @@ class ObjectChart extends Component {
                 }
 
                 this.setState({
-                    dateFormat: (config.common.dateFormat || 'dd.MM.yyyy').replace(/D/g, 'd').replace(/Y/g, 'y'),
+                    // dateFormat: (config.common.dateFormat || 'dd.MM.yyyy').replace(/D/g, 'd').replace(/Y/g, 'y'),
                     historyInstances: list,
                     defaultHistory,
                     historyInstance,
@@ -338,7 +337,7 @@ class ObjectChart extends Component {
             return list;
         }
         let customsInstances = this.props.customsInstances;
-        let objects = this.props.objects  || {};
+        const objects = this.props.objects  || {};
         if (!customsInstances) {
             const instances = await this.props.socket.getAdapterInstances();
             customsInstances = instances.filter(it => {
@@ -584,7 +583,7 @@ class ObjectChart extends Component {
             },
             splitNumber: Math.round(this.state.chartHeight / 50),
             axisLabel: {
-                formatter: (value, index) => {
+                formatter: value => {
                     let text;
                     if (this.props.isFloatComma) {
                         text = value.toString().replace(',', '.') + this.unit;
@@ -679,7 +678,7 @@ class ObjectChart extends Component {
                 max: this.chart.max,
                 axisTick: { alignWithLabel: true },
                 axisLabel: {
-                    formatter: (value, index) => {
+                    formatter: value => {
                         const date = new Date(value);
                         if (this.chart.withSeconds) {
                             return `${padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}`;
@@ -704,7 +703,7 @@ class ObjectChart extends Component {
         };
     }
 
-    static getDerivedStateFromProps(props, state) {
+    static getDerivedStateFromProps() {
         return null;
     }
 
@@ -990,7 +989,7 @@ class ObjectChart extends Component {
                     const diff = this.chart.max - this.chart.min;
                     const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
-                    const shift = Math.round(moved * diff / width);
+                    const shift = Math.round((moved * diff) / width);
                     this.chart.min += shift;
                     this.chart.max += shift;
                     this.setNewRange();
@@ -1053,7 +1052,7 @@ class ObjectChart extends Component {
                         const diff  = this.chart.max - this.chart.min;
                         const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
-                        const shift = Math.round(moved * diff / chartWidth);
+                        const shift = Math.round((moved * diff) / chartWidth);
                         this.chart.min += shift;
                         this.chart.max += shift;
 
@@ -1076,11 +1075,7 @@ class ObjectChart extends Component {
                 theme={this.props.themeType === 'dark' ? 'dark' : ''}
                 style={{ height: `${this.state.chartHeight}px`, width: '100%' }}
                 opts={{ renderer: 'svg' }}
-                onEvents={{
-                    rendered: e => {
-                        this.installEventHandlers();
-                    },
-                }}
+                onEvents={{ rendered: () => this.installEventHandlers() }}
             />;
         }
         return <LinearProgress />;
@@ -1095,7 +1090,7 @@ class ObjectChart extends Component {
             }
         }
     }
-/*
+    /*
     setStartDate(min) {
         min = min.getTime();
         if (this.timeTimer) {
@@ -1125,7 +1120,8 @@ class ObjectChart extends Component {
         this.setState({ max, relativeRange: 'absolute'  }, () =>
             this.updateChart(this.chart.min, this.chart.max, true));
     }
-*/
+   */
+
     renderToolbar() {
         if (this.props.noToolbar) {
             return null;
@@ -1160,7 +1156,7 @@ class ObjectChart extends Component {
                     <MenuItem key="13" value="12months">{ this.props.t('vis_2_widgets_material_last 12 months') }</MenuItem>
                 </Select>
             </FormControl>
-            {/*showTimeSettings ? null
+            {/* showTimeSettings ? null
                 <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={localeMap[this.props.lang]}>
                     <div className={classes.toolbarTimeGrid}>
                         <DatePicker
@@ -1215,7 +1211,7 @@ class ObjectChart extends Component {
                         />
                     </div>
                 </LocalizationProvider>
-                : null*/}
+                : null */}
             {showTimeSettings ? <Fab
                 variant="extended"
                 size="small"
@@ -1250,7 +1246,6 @@ class ObjectChart extends Component {
 ObjectChart.propTypes = {
     t: PropTypes.func,
     lang: PropTypes.string,
-    expertMode: PropTypes.bool,
     socket: PropTypes.object,
     obj: PropTypes.object,
     obj2: PropTypes.object,
@@ -1268,7 +1263,6 @@ ObjectChart.propTypes = {
     noToolbar: PropTypes.bool,
     defaultHistory: PropTypes.string,
     historyInstance: PropTypes.string,
-    showJumpToEchart: PropTypes.bool,
     isFloatComma: PropTypes.bool,
 };
 
