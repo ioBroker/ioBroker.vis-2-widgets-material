@@ -200,7 +200,10 @@ class SimpleState extends Generic {
                     object.common.icon = parentObject.common.icon;
                 }
             }
-            this.setState({ object });
+
+            if (JSON.stringify(this.state.object) !== JSON.stringify(object)) {
+                this.setState({ object });
+            }
         }
     }
 
