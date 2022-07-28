@@ -7,6 +7,7 @@ module.exports = makeFederation(
         './Actual': './src/Actual',
         './Static': './src/Static',
         './Switches': './src/Switches',
+        './SimpleState': './src/SimpleState',
         './Clock': './src/Clock',
     }
 );

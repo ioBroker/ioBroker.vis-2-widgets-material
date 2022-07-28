@@ -95,8 +95,12 @@ class App extends WidgetDemoApp {
                 systemConfig={this.state.systemConfig}
                 data={{
                     name: 'SimpleState',
-                    valuesCount: 5,
-                    oid: 'javascript.0.power2',
+                    values_count: 5,
+                    oid: 'javascript.0.mode',
+                    value1: 'COOL',
+                    color1: 'blue',
+                    value2: 'DRY',
+                    color2: 'red',
                 }}
             />
             <Switches

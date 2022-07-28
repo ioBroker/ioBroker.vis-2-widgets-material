@@ -108,8 +108,21 @@ class SimpleState extends Generic {
                             name: 'oid',
                             type: 'id',
                             label: 'vis_2_widgets_material_oid',
-                            onChange: (field, data, changeData) => {
-                                changeData(data);
+                            onChange: async (field, data, changeData, socket) => {
+                                const object = await socket.getObject(data.oid);
+                                if (object && object.common.states) {
+                                    if (Array.isArray(object.common.states)) {
+                                        // convert to {'state1': 'state1', 'state2': 'state2', ...}
+                                        const states = {};
+                                        object.common.states.forEach(state => states[state] = state);
+                                        object.common.states = states;
+                                    }
+                                    data.values_count = Object.keys(object.common.states).length;
+                                    Object.keys(object.common.states).forEach((state, index) => {
+                                        data[`value${index + 1}`] = object.common.states[state];
+                                    });
+                                    changeData(data);
+                                }
                             },
                         },
                     ],
@@ -117,7 +130,7 @@ class SimpleState extends Generic {
                 {
                     name: 'values',
                     indexFrom: 1,
-                    indexTo: 'fieldsCount',
+                    indexTo: 'values_count',
                     fields: [
                         {
                             name: 'value',
@@ -212,6 +225,19 @@ class SimpleState extends Generic {
         await this.propertiesUpdate();
     }
 
+    getValueData() {
+        const valueId = this.state.values[`${this.state.data.oid}.val`];
+        const value = this.state.object.common?.states[valueId];
+        for (let i = 1; i <= this.state.data.values_count; i++) {
+            if (this.state.data[`value${i}`] === value) {
+                return {
+                    color: this.state.data[`color${i}`],
+                    icon: this.state.data[`icon${i}`],
+                };
+            }
+        }
+    }
+
     isOn(values) {
         values = values || this.state.values;
         if (this.state.object.common.type === 'number') {
@@ -282,7 +308,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = value;
         this.setState({ values });
-        this.props.socket.setState(this.state.data.oid$, values[oid]);
+        this.props.socket.setState(this.state.data.oid, values[oid]);
     }
 
     renderDimmerDialog() {
@@ -396,7 +422,7 @@ class SimpleState extends Generic {
                             {this.state.data.title || this.state.object.common.name}
                         </div>
                         {value !== undefined && value !== null ?
-                            <div className={this.props.classes.value}>{value}</div> : null}
+                            <div className={this.props.classes.value} style={{ color: this.getValueData()?.color }}>{value}</div> : null}
                     </Button>
                 </div>
 ;
