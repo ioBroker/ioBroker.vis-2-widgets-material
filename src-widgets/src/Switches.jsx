@@ -193,8 +193,9 @@ class Switches extends Generic {
                 },
             ],
             visDefaultStyle: {
-                width: 240,
+                width: '100%',
                 height: 120,
+                position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_switches.png',
         };

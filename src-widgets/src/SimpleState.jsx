@@ -396,50 +396,49 @@ class SimpleState extends Generic {
 
         const icon = this.getStateIcon();
 
-        if (!this.state.object._id) {
-            return null;
-        }
+        let content = null;
 
-        let value;
-        if (this.state.object.common.type === 'number' || this.state.object.common.states) {
-            value = this.state.values[`${this.state.object._id}.val`];
-            if (this.state.object.common.states && this.state.object.common.states[value] !== undefined) {
-                value = this.state.object.common.states[value];
-            } else {
-                value = this.formatValue(value);
+        if (this.state.object._id) {
+            let value;
+            if (this.state.object.common.type === 'number' || this.state.object.common.states) {
+                value = this.state.values[`${this.state.object._id}.val`];
+                if (this.state.object.common.states && this.state.object.common.states[value] !== undefined) {
+                    value = this.state.object.common.states[value];
+                } else {
+                    value = this.formatValue(value);
+                }
             }
+
+            content = <>
+                {this.renderDimmerDialog()}
+                <div style={{ width: '100%' }}>
+                    <div
+                        className={this.props.classes.buttonDiv}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                        }}
+                    >
+                        <Button
+                            onClick={() => this.changeSwitch()}
+                            color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
+                            className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
+                        >
+                            {icon ? <div className={this.props.classes.iconButton}>
+                                {icon}
+                            </div> : null}
+                            <div className={this.props.classes.text}>
+                                {this.state.data.title || this.state.object.common.name}
+                            </div>
+                            {value !== undefined && value !== null ?
+                                <div className={this.props.classes.value}>{value}</div> : null}
+                        </Button>
+                    </div>
+                </div>
+            </>;
         }
 
-        const content = <>
-            {this.renderDimmerDialog()}
-            <div style={{ width: '100%' }}>
-                <div
-                    className={this.props.classes.buttonDiv}
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                    }}
-                >
-                    <Button
-                        onClick={() => this.changeSwitch()}
-                        color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
-                        className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
-                    >
-                        {icon ? <div className={this.props.classes.iconButton}>
-                            {icon}
-                        </div> : null}
-                        <div className={this.props.classes.text}>
-                            {this.state.data.title || this.state.object.common.name}
-                        </div>
-                        {value !== undefined && value !== null ?
-                            <div className={this.props.classes.value} style={{ color: this.getValueData()?.color }}>{value}</div> : null}
-                    </Button>
-                </div>
-;
-            </div>
-        </>;
-
-        return this.wrapContent(content, null);
+        return this.wrapContent(content);
     }
 }
 

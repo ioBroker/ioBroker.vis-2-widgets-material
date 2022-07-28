@@ -153,8 +153,9 @@ class Clock extends Generic {
                 ],
             }],
             visDefaultStyle: {
-                width: 120,
+                width: '100%',
                 height: 120,
+                position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_clock.png',
         };
@@ -496,7 +497,7 @@ class Clock extends Generic {
             switch (this.state.data.type) {
                 case 'analog2':
                     clock = this.renderAnalogClock();
-                    this.resizeLocked = true;
+                    this.resizeLocked = !this.props.isRelative;
                     break;
                 case 'digital':
                     this.resizeLocked = false;
@@ -509,7 +510,7 @@ class Clock extends Generic {
                 case 'analog':
                 default:
                     clock = this.renderSimpleClock();
-                    this.resizeLocked = true;
+                    this.resizeLocked = !this.props.isRelative;
                     break;
             }
         }
@@ -531,7 +532,7 @@ class Clock extends Generic {
             {clock}
         </div>;
 
-        return this.wrapContent(content, props);
+        return this.wrapContent(content, null);
     }
 }
 
