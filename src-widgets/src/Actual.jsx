@@ -166,15 +166,15 @@ class Actual extends Generic {
         const objects = {};
 
         // try to find icons for all OIDs
-        if (this.state.data['oid-temperature'] && this.state.data['oid-temperature'] !== 'nothing_selected') {
+        if (this.state.rxData['oid-temperature'] && this.state.rxData['oid-temperature'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.socket.getObject(this.state.data['oid-temperature']);
+            const object = await this.props.socket.getObject(this.state.rxData['oid-temperature']);
             if (!object) {
                 objects.temp = { common: {} };
             } else {
                 object.common = object.common || {};
                 if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.data['oid-temperature'].split('.');
+                    const idArray = this.state.rxData['oid-temperature'].split('.');
 
                     // read channel
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -191,15 +191,15 @@ class Actual extends Generic {
             }
         }
 
-        if (this.state.data['oid-humidity'] && this.state.data['oid-humidity'] !== 'nothing_selected') {
+        if (this.state.rxData['oid-humidity'] && this.state.rxData['oid-humidity'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.socket.getObject(this.state.data['oid-humidity']);
+            const object = await this.props.socket.getObject(this.state.rxData['oid-humidity']);
             if (!object) {
                 objects.humidity = { common: {} };
             } else {
                 object.common = object.common || {};
                 if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.data['oid-humidity'].split('.');
+                    const idArray = this.state.rxData['oid-humidity'].split('.');
 
                     // read channel
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -247,7 +247,7 @@ class Actual extends Generic {
     };
 
     readHistory = async id => {
-        const timeInterval = this.state.data.timeInterval || 12;
+        const timeInterval = this.state.rxData.timeInterval || 12;
         const now = new Date();
         now.setHours(now.getHours() - timeInterval);
         now.setMinutes(0);
@@ -295,20 +295,20 @@ class Actual extends Generic {
         super.componentDidMount();
         await this.propertiesUpdate();
 
-        if (this.state.data['oid-temperature'] && this.state.data['oid-temperature'] !== 'nothing_selected') {
-            await this.readHistory(this.state.data['oid-temperature']);
+        if (this.state.rxData['oid-temperature'] && this.state.rxData['oid-temperature'] !== 'nothing_selected') {
+            await this.readHistory(this.state.rxData['oid-temperature']);
             this.tempTimer = setInterval(async () => {
-                await this.readHistory(this.state.data['oid-temperature']);
-                if (this.state.data['oid-humidity'] && this.state.data['oid-humidity'] !== 'nothing_selected') {
-                    await this.readHistory(this.state.data['oid-humidity']);
+                await this.readHistory(this.state.rxData['oid-temperature']);
+                if (this.state.rxData['oid-humidity'] && this.state.rxData['oid-humidity'] !== 'nothing_selected') {
+                    await this.readHistory(this.state.rxData['oid-humidity']);
                 }
             }, 60000); // every minute
         }
-        if (this.state.data['oid-humidity'] && this.state.data['oid-humidity'] !== 'nothing_selected') {
-            await this.readHistory(this.state.data['oid-humidity']);
+        if (this.state.rxData['oid-humidity'] && this.state.rxData['oid-humidity'] !== 'nothing_selected') {
+            await this.readHistory(this.state.rxData['oid-humidity']);
             if (!this.tempTimer) {
                 this.tempTimer = setInterval(() =>
-                    this.readHistory(this.state.data['oid-humidity']), 60000); // every minute
+                    this.readHistory(this.state.rxData['oid-humidity']), 60000); // every minute
             }
         }
     }
@@ -330,7 +330,7 @@ class Actual extends Generic {
 
     getOptions() {
         const series = [];
-        if (this.state[`chart-data-${this.state.data['oid-temperature']}`]) {
+        if (this.state[`chart-data-${this.state.rxData['oid-temperature']}`]) {
             series.push({
                 backgroundColor: 'rgba(243,177,31,0.14)',
                 color: 'rgba(243,177,31,0.65)',
@@ -338,11 +338,11 @@ class Actual extends Generic {
                 smooth: true,
                 showSymbol: false,
                 itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state[`chart-data-${this.state.data['oid-temperature']}`].data,
+                data: this.state[`chart-data-${this.state.rxData['oid-temperature']}`].data,
                 name: I18n.t('vis_2_widgets_material_temperature').replace('vis_2_widgets_material_', ''),
             });
         }
-        if (this.state[`chart-data-${this.state.data['oid-humidity']}`]) {
+        if (this.state[`chart-data-${this.state.rxData['oid-humidity']}`]) {
             series.push({
                 backgroundColor: 'rgba(77,134,255,0.14)',
                 color: 'rgba(77,134,255,0.44)',
@@ -350,7 +350,7 @@ class Actual extends Generic {
                 smooth: true,
                 showSymbol: false,
                 itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state[`chart-data-${this.state.data['oid-humidity']}`].data,
+                data: this.state[`chart-data-${this.state.rxData['oid-humidity']}`].data,
                 name: I18n.t('vis_2_widgets_material_humidity').replace('vis_2_widgets_material_', ''),
             });
         }
@@ -397,7 +397,7 @@ class Actual extends Generic {
             onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
-                {this.state.data.name}
+                {this.state.rxData.name}
                 <IconButton
                     style={{ float: 'right' }}
                     onClick={() => this.setState({ showDialog: false })}
@@ -439,11 +439,11 @@ class Actual extends Generic {
 
         const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
-        const tempVal = this.state.objects && this.state.objects.temp && this.state.values[`${this.state.data['oid-temperature']}.val`] !== undefined ?
-            this.formatValue(this.state.values[`${this.state.data['oid-temperature']}.val`]) : undefined;
+        const tempVal = this.state.objects && this.state.objects.temp && this.state.values[`${this.state.rxData['oid-temperature']}.val`] !== undefined ?
+            this.formatValue(this.state.values[`${this.state.rxData['oid-temperature']}.val`]) : undefined;
 
-        const humidityVal = this.state.objects && this.state.objects.humidity && this.state.values[`${this.state.data['oid-humidity']}.val`] !== undefined ?
-            this.formatValue(this.state.values[`${this.state.data['oid-humidity']}.val`], 0) : undefined;
+        const humidityVal = this.state.objects && this.state.objects.humidity && this.state.values[`${this.state.rxData['oid-humidity']}.val`] !== undefined ?
+            this.formatValue(this.state.values[`${this.state.rxData['oid-humidity']}.val`], 0) : undefined;
 
         const content = <div style={{ width: '100%', height: '100%' }} ref={this.refContainer}>
             {tempVal !== undefined ?
@@ -460,7 +460,7 @@ class Actual extends Generic {
                     <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
                 </div>
                 : null}
-            {this.state.containerHeight && (this.state[`chart-data-${this.state.data['oid-temperature']}`] || this.state[`chart-data-${this.state.data['oid-humidity']}`]) ?
+            {this.state.containerHeight && (this.state[`chart-data-${this.state.rxData['oid-temperature']}`] || this.state[`chart-data-${this.state.rxData['oid-humidity']}`]) ?
                 <ReactEchartsCore
                     className={this.props.classes.chart}
                     echarts={echarts}

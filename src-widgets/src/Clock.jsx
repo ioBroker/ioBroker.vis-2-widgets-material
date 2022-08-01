@@ -167,7 +167,7 @@ class Clock extends Generic {
     }
 
     nextTick = () => {
-        const data = this.state.data || {};
+        const data = this.state.rxData || {};
         const time = new Date();
         let timeout;
         this.setState({ time });
@@ -194,7 +194,7 @@ class Clock extends Generic {
     recalculateWidth() {
         if (this.refContainer.current) {
             let size = this.refContainer.current.clientWidth;
-            if (this.state.data.type !== 'digital') {
+            if (this.state.rxData.type !== 'digital') {
                 if (size > this.refContainer.current.clientHeight) {
                     size = this.refContainer.current.clientHeight;
                 }
@@ -203,7 +203,7 @@ class Clock extends Generic {
             const timeFormat = this.getDigitalClockText(true);
             if (size !== this.state.width || this.state.height !== this.refContainer.current.clientHeight || this.state.timeFormat !== timeFormat) {
                 let fontSize = this.refContainer.current.clientHeight;
-                if (this.state.data.type === 'digital' && !this.state.style['font-size']) {
+                if (this.state.rxData.type === 'digital' && !this.state.rxStyle['font-size']) {
                     const font = getCanvasFont(this.refContainer.current);
                     let textWidth;
                     do {
@@ -257,7 +257,7 @@ class Clock extends Generic {
         SOFTWARE.
      */
     renderSimpleClock() {
-        const data = this.state.data || {};
+        const data = this.state.rxData || {};
         const now = new Date();
         const seconds = now.getSeconds();
         const minutes = now.getMinutes();
@@ -366,7 +366,7 @@ class Clock extends Generic {
     }
 
     renderAnalogClock() {
-        const data = this.state.data || {};
+        const data = this.state.rxData || {};
         return <AnalogClock
             style={{
                 marginTop:
@@ -387,7 +387,7 @@ class Clock extends Generic {
     }
 
     getDigitalClockText(replaceWithZero) {
-        const data = this.state.data || {};
+        const data = this.state.rxData || {};
         let text;
         if (replaceWithZero) {
             text = '00:00';
@@ -427,7 +427,7 @@ class Clock extends Generic {
             style={{
                 display: 'inline-block',
                 margin: '0 auto',
-                fontSize: this.state.style['font-size'] || this.state.fontSize,
+                fontSize: this.state.rxStyle['font-size'] || this.state.fontSize,
             }}
         >
             {this.getDigitalClockText()}
@@ -435,7 +435,7 @@ class Clock extends Generic {
     }
 
     renderDigitalClock2() {
-        const data = this.state.data || {};
+        const data = this.state.rxData || {};
         const time = new Date();
         let text = time.getHours().toString().padStart(2, '0');
         if (data.hoursFormat === '12') {
@@ -494,7 +494,7 @@ class Clock extends Generic {
 
         let clock = null;
         if (this.state.width) {
-            switch (this.state.data.type) {
+            switch (this.state.rxData.type) {
                 case 'analog2':
                     clock = this.renderAnalogClock();
                     this.resizeLocked = !this.props.isRelative;
@@ -521,11 +521,11 @@ class Clock extends Generic {
                 height: 'calc(100% - 40px)',
                 textAlign: 'center',
                 lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-                fontFamily: this.state.style['font-family'],
-                fontShadow: this.state.style['font-shadow'],
-                fontStyle: this.state.style['font-style'],
-                fontWeight: this.state.style['font-weight'],
-                fontVariant: this.state.style['font-variant'],
+                fontFamily: this.state.rxStyle['font-family'],
+                fontShadow: this.state.rxStyle['font-shadow'],
+                fontStyle: this.state.rxStyle['font-style'],
+                fontWeight: this.state.rxStyle['font-weight'],
+                fontVariant: this.state.rxStyle['font-variant'],
             }}
             ref={this.refContainer}
         >

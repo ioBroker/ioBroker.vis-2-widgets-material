@@ -39,7 +39,7 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
                     ...cardContentStyle,
                 }}
             >
-                {this.state.data.name ? <div style={{
+                {this.state.rxData.name ? <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     width: '100%',
@@ -54,7 +54,7 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
                             ...headerStyle,
                         }}
                     >
-                        {this.state.data.name}
+                        {this.state.rxData.name}
                     </div>
                     {addToHeader || null}
                 </div> : (addToHeader || null)}

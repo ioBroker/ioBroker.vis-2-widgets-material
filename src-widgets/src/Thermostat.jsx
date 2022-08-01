@@ -157,8 +157,8 @@ class Thermostat extends Generic {
     async propertiesUpdate() {
         const newState = {};
 
-        if (this.state.data['oid-mode'] && this.state.data['oid-mode'] !== 'nothing_selected') {
-            const modeObj = await this.props.socket.getObject(this.state.data['oid-mode']);
+        if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
+            const modeObj = await this.props.socket.getObject(this.state.rxData['oid-mode']);
             newState.modes = modeObj?.common?.states;
             newState.modeObject = { common: modeObj.common, _id: modeObj._id };
             if (Array.isArray(newState.modes)) {
@@ -171,8 +171,8 @@ class Thermostat extends Generic {
             newState.mode = null;
         }
 
-        if (this.state.data['oid-temp-set'] && this.state.data['oid-temp-set'] !== 'nothing_selected') {
-            const tempObj = await this.props.socket.getObject(this.state.data['oid-temp-set']);
+        if (this.state.rxData['oid-temp-set'] && this.state.rxData['oid-temp-set'] !== 'nothing_selected') {
+            const tempObj = await this.props.socket.getObject(this.state.rxData['oid-temp-set']);
             newState.min = tempObj?.common?.min === undefined ? 12 : tempObj.common.min;
             newState.max = tempObj?.common?.max === undefined ? 30 : tempObj.common.max;
             newState.tempObject = { common: tempObj.common, _id: tempObj._id };
@@ -183,8 +183,8 @@ class Thermostat extends Generic {
             newState.min = null;
         }
 
-        if (this.state.data['oid-temp-actual'] && this.state.data['oid-temp-actual'] !== 'nothing_selected') {
-            const tempStateObj = await this.props.socket.getObject(this.state.data['oid-temp-actual']);
+        if (this.state.rxData['oid-temp-actual'] && this.state.rxData['oid-temp-actual'] !== 'nothing_selected') {
+            const tempStateObj = await this.props.socket.getObject(this.state.rxData['oid-temp-actual']);
             newState.tempStateObject = { common: tempStateObj.common, _id: tempStateObj._id };
         } else {
             newState.tempStateObject = null;
@@ -240,7 +240,7 @@ class Thermostat extends Generic {
             onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
-                {this.state.data.name}
+                {this.state.rxData.name}
                 <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDialog: false })}><IconClose /></IconButton>
             </DialogTitle>
             <DialogContent>
@@ -254,7 +254,7 @@ class Thermostat extends Generic {
                         value={this.state.temp || null}
                         onChange={e => {
                             this.setState({ temp: Math.round(e.target.value) });
-                            this.props.socket.setState(this.state.data['oid-temp-set'], Math.round(e.target.value));
+                            this.props.socket.setState(this.state.rxData['oid-temp-set'], Math.round(e.target.value));
                         }}
                         variant="standard"
                         type="number"
@@ -270,7 +270,7 @@ class Thermostat extends Generic {
                             value={this.state.mode}
                             onChange={e => {
                                 this.setState({ mode: parseInt(e.target.value) });
-                                this.props.socket.setState(this.state.data['oid-mode'], parseInt(e.target.value));
+                                this.props.socket.setState(this.state.rxData['oid-mode'], parseInt(e.target.value));
                             }}
                         >
                             {this.state.modes ? Object.keys(this.state.modes).map(modeIndex => {
@@ -309,7 +309,7 @@ class Thermostat extends Generic {
             if (size > this.refContainer.current.clientHeight) {
                 size = this.refContainer.current.clientHeight;
             }
-            if (this.state.data.name) {
+            if (this.state.rxData.name) {
                 size -= 64; // header
             }
             size -= 20; // mode buttons
@@ -323,7 +323,7 @@ class Thermostat extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        let tempValue = this.state.values[`${this.state.data['oid-temp-set']}.val`];
+        let tempValue = this.state.values[`${this.state.rxData['oid-temp-set']}.val`];
         if (tempValue === undefined) {
             tempValue = null;
         }
@@ -338,7 +338,7 @@ class Thermostat extends Generic {
             tempValue = (this.state.max - this.state.min) / 2 + this.state.min;
         }
 
-        let actualTemp = this.state.values[`${this.state.data['oid-temp-actual']}.val`];
+        let actualTemp = this.state.values[`${this.state.rxData['oid-temp-actual']}.val`];
         if (actualTemp === undefined) {
             actualTemp = null;
         }
@@ -351,7 +351,7 @@ class Thermostat extends Generic {
         console.log(this.state.min, this.state.max, tempValue);
 
         const chartButton = this.state.isChart ? <IconButton
-            className={this.state.data.name ? '' : this.props.classes.moreButton}
+            className={this.state.rxData.name ? '' : this.props.classes.moreButton}
             onClick={() => this.setState({ showDialog: true })}
         >
             <MoreVertIcon />
@@ -360,7 +360,7 @@ class Thermostat extends Generic {
         actualTemp = actualTemp !== null ? this.formatValue(actualTemp) : null;
 
         const content = <div ref={this.refContainer} style={{ width: '100%', height: '100%' }} className={this.props.classes.circleDiv}>
-            {this.state.data.name ? null : chartButton}
+            {this.state.rxData.name ? null : chartButton}
             {this.state.width && this.state.tempObject ?
                 <CircularSliderWithChildren
                     minValue={this.state.min}
@@ -375,16 +375,16 @@ class Thermostat extends Generic {
                         value: tempValue,
                         onChange: value => {
                             const values = JSON.parse(JSON.stringify(this.state.values));
-                            if (this.state.data['oid-step'] === '0.5') {
-                                values[`${this.state.data['oid-temp-set']}.val`] = Math.round(value * 2) / 2;
+                            if (this.state.rxData['oid-step'] === '0.5') {
+                                values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value * 2) / 2;
                             } else {
-                                values[`${this.state.data['oid-temp-set']}.val`] = Math.round(value);
+                                values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value);
                             }
                             this.setState({ values });
                         },
                     }}
                     onControlFinished={() =>
-                        this.props.socket.setState(this.state.data['oid-temp-set'], this.state.values[`${this.state.data['oid-temp-set']}.val`])}
+                        this.props.socket.setState(this.state.rxData['oid-temp-set'], this.state.values[`${this.state.rxData['oid-temp-set']}.val`])}
                 >
                     {actualTemp !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_actual_temperature')}>
                         <div
@@ -405,11 +405,11 @@ class Thermostat extends Generic {
                 </CircularSliderWithChildren>
                 : null}
             <div className={this.props.classes.buttonsDiv}>
-                {this.state.modes && (!this.state.data['oid-power'] || this.state.values[`${this.state.data['oid-power']}.val`]) ?
+                {this.state.modes && (!this.state.rxData['oid-power'] || this.state.values[`${this.state.rxData['oid-power']}.val`]) ?
                     Object.keys(this.state.modes).map((modeIndex, i) => {
                         const mode = this.state.modes[modeIndex];
                         const MyButtonIcon = Buttons[mode] || null;
-                        let currentValueStr = this.state.values[`${this.state.data['oid-mode']}.val`];
+                        let currentValueStr = this.state.values[`${this.state.rxData['oid-mode']}.val`];
                         if (currentValueStr === null || currentValueStr === undefined) {
                             currentValueStr = 'null';
                         } else {
@@ -426,9 +426,9 @@ class Thermostat extends Generic {
                                             value = parseFloat(value);
                                         }
                                         const values = JSON.parse(JSON.stringify(this.state.values));
-                                        values[`${this.state.data['oid-mode']}.val`] = value;
+                                        values[`${this.state.rxData['oid-mode']}.val`] = value;
                                         this.setState(values);
-                                        this.props.socket.setState(this.state.data['oid-mode'], value);
+                                        this.props.socket.setState(this.state.rxData['oid-mode'], value);
                                     }}
                                 >
                                     <MyButtonIcon />
@@ -444,24 +444,24 @@ class Thermostat extends Generic {
                                         value = parseFloat(value);
                                     }
                                     const values = JSON.parse(JSON.stringify(this.state.values));
-                                    values[`${this.state.data['oid-mode']}.val`] = value;
+                                    values[`${this.state.rxData['oid-mode']}.val`] = value;
                                     this.setState(values);
-                                    this.props.socket.setState(this.state.data['oid-mode'], value);
+                                    this.props.socket.setState(this.state.rxData['oid-mode'], value);
                                 }}
                             >
                                 {this.state.modes[modeIndex]}
                             </Button>;
                     }) : null}
-                {this.state.data['oid-power'] && this.state.data['oid-power'] !== 'nothing_selected' ?
+                {this.state.rxData['oid-power'] && this.state.rxData['oid-power'] !== 'nothing_selected' ?
                     <Tooltip title={I18n.t('vis_2_widgets_material_power').replace('vis_2_widgets_material_', '')}>
                         <IconButton
-                            color={this.state.values[`${this.state.data['oid-power']}.val`] ? 'primary' : 'grey'}
+                            color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'grey'}
                             onClick={() => {
                                 const values = JSON.parse(JSON.stringify(this.state.values));
-                                const id = `${this.state.data['oid-power']}.val`;
+                                const id = `${this.state.rxData['oid-power']}.val`;
                                 values[id] = !values[id];
                                 this.setState(values);
-                                this.props.socket.setState(this.state.data['oid-power'], values[id]);
+                                this.props.socket.setState(this.state.rxData['oid-power'], values[id]);
                             }}
                         >
                             <PowerSettingsNewIcon />
@@ -471,7 +471,7 @@ class Thermostat extends Generic {
             {this.renderDialog()}
         </div>;
 
-        return this.wrapContent(content, this.state.data.name ? chartButton : null, { textAlign: 'center' });
+        return this.wrapContent(content, this.state.rxData.name ? chartButton : null, { textAlign: 'center' });
     }
 }
 

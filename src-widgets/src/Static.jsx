@@ -125,18 +125,18 @@ class Static extends Generic {
         const objects = {};
 
         // try to find icons for all OIDs
-        for (let i = 1; i <= this.state.data.count; i++) {
-            if (this.state.data[`oid${i}`]) {
+        for (let i = 1; i <= this.state.rxData.count; i++) {
+            if (this.state.rxData[`oid${i}`]) {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.data[`oid${i}`]);
+                const object = await this.props.socket.getObject(this.state.rxData[`oid${i}`]);
                 if (!object) {
                     objects[i] = { common: {} };
                     continue;
                 }
                 object.common = object.common || {};
                 object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
-                if (!this.state.data[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.data[`oid${i}`].split('.');
+                if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                    const idArray = this.state.rxData[`oid${i}`].split('.');
 
                     // read channel
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -177,13 +177,13 @@ class Static extends Generic {
 
     getStateIcon(key) {
         let icon = '';
-        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.data[`oid${key}`]}.val`];
+        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (isEnabled) {
-            if (this.state.data[`iconEnabled${key}`]) {
-                icon = `files/${this.state.data[`iconEnabled${key}`]}`;
+            if (this.state.rxData[`iconEnabled${key}`]) {
+                icon = `files/${this.state.rxData[`iconEnabled${key}`]}`;
             }
-        } else if (this.state.data[`icon${key}`]) {
-            icon = `files/${this.state.data[`icon${key}`]}`;
+        } else if (this.state.rxData[`icon${key}`]) {
+            icon = `files/${this.state.rxData[`icon${key}`]}`;
         }
 
         if (!icon) {
@@ -207,16 +207,16 @@ class Static extends Generic {
     }
 
     getColor(key) {
-        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.data[`oid${key}`]}.val`];
+        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         return isEnabled ?
-            this.state.data[`colorEnabled${key}`] || this.state.objects[key].common.color
+            this.state.rxData[`colorEnabled${key}`] || this.state.objects[key].common.color
             :
-            this.state.data[`color${key}`] || this.state.objects[key].common.color;
+            this.state.rxData[`color${key}`] || this.state.objects[key].common.color;
     }
 
     getValue(key, classUpdateVal) {
         const object = this.state.objects[key];
-        const state = this.state.values[`${this.state.data[`oid${key}`]}.val`];
+        const state = this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (state === undefined) {
             return '';
         }
@@ -270,7 +270,7 @@ class Static extends Generic {
             onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
-                {this.state.data.name}
+                {this.state.rxData.name}
                 <IconButton
                     style={{ float: 'right' }}
                     onClick={() => this.setState({ showDialog: false })}
@@ -325,7 +325,7 @@ class Static extends Generic {
                             {icons[i]}
                         </span> : null}
                         <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                            {this.state.data[`title${key}`] || this.state.objects[key].common.name}
+                            {this.state.rxData[`title${key}`] || this.state.objects[key].common.name}
                         </span>
                     </span>
 

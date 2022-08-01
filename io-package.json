@@ -55,7 +55,8 @@
           "Static",
           "Switches",
           "Clock",
-          "SimpleState"
+          "SimpleState",
+          "ViewInWidget"
         ]
       }
     },
