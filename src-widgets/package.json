@@ -8,7 +8,7 @@
         "@iobroker/adapter-react-v5": "^3.1.23",
         "@iobroker/vis-widgets-react-dev": "^0.2.2",
         "@mui/icons-material": "^5.8.4",
-        "@mui/material": "^5.9.1",
+        "@mui/material": "^5.9.2",
         "@mui/styles": "^5.9.1",
         "ace-builds": "^1.7.1",
         "clsx": "^1.2.1",
