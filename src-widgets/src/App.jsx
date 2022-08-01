@@ -10,6 +10,7 @@ import Switches from './Switches';
 import Static from './Static';
 import SimpleState from './SimpleState';
 import Clock from './Clock';
+import ViewInWidget from './ViewInWidget';
 
 const styles = theme => ({
     app: {
@@ -155,6 +156,18 @@ class App extends WidgetDemoApp {
                     timeInterval: 6,
                     'oid-temperature': 'system.adapter.admin.0.memHeapTotal',
                     'oid-humidity': 'system.adapter.admin.0.memHeapUsed',
+                }}
+            />
+            <ViewInWidget
+                socket={this.socket}
+                themeType={this.state.themeType}
+                style={{
+                    width: 400,
+                    height: 200,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'Actual temperature',
                 }}
             />
         </div>;

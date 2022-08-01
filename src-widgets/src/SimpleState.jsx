@@ -210,9 +210,9 @@ class SimpleState extends Generic {
     }
 
     async propertiesUpdate() {
-        if (this.state.data.oid && this.state.data.oid !== 'nothing_selected') {
+        if (this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected') {
             // read object itself
-            let object = await this.props.socket.getObject(this.state.data.oid);
+            let object = await this.props.socket.getObject(this.state.rxData.oid);
             if (!object) {
                 object = { common: {} };
             } else {
@@ -235,7 +235,7 @@ class SimpleState extends Generic {
             }
 
             if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                const idArray = this.state.data.oid.split('.');
+                const idArray = this.state.rxData.oid.split('.');
 
                 // read channel
                 const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -266,14 +266,14 @@ class SimpleState extends Generic {
     }
 
     getValueData() {
-        const valueId = this.state.values[`${this.state.data.oid}.val`];
+        const valueId = this.state.values[`${this.state.rxData.oid}.val`];
         const value = this.state.object.common?.states[valueId];
-        for (let i = 1; i <= this.state.data.values_count; i++) {
-            if (this.state.data[`value${i}`] === value) {
+        for (let i = 1; i <= this.state.rxData.values_count; i++) {
+            if (this.state.rxData[`value${i}`] === value) {
                 return {
-                    color: this.state.data[`color${i}`],
-                    icon: this.state.data[`icon${i}`],
-                    title: this.state.data[`title${i}`],
+                    color: this.state.rxData[`color${i}`],
+                    icon: this.state.rxData[`icon${i}`],
+                    title: this.state.rxData[`title${i}`],
                 };
             }
         }
@@ -297,11 +297,11 @@ class SimpleState extends Generic {
         }
         if (!icon) {
             if (this.isOn()) {
-                if (this.state.data.iconEnabled) {
-                    icon = `./files/${this.state.data.iconEnabled}`;
+                if (this.state.rxData.iconEnabled) {
+                    icon = `./files/${this.state.rxData.iconEnabled}`;
                 }
-            } else if (this.state.data.icon) {
-                icon = `./files/${this.state.data.icon}`;
+            } else if (this.state.rxData.icon) {
+                icon = `./files/${this.state.rxData.icon}`;
             }
         }
 
@@ -327,8 +327,8 @@ class SimpleState extends Generic {
             return this.getValueData()?.color;
         }
         return this.isOn() ?
-            this.state.data.colorEnabled || this.state.object.common.color
-            : this.state.data.color || this.state.object.common.color;
+            this.state.rxData.colorEnabled || this.state.object.common.color
+            : this.state.rxData.color || this.state.object.common.color;
     }
 
     changeSwitch = () => {
@@ -343,7 +343,7 @@ class SimpleState extends Generic {
                 values[oid] = !values[oid];
             }
             this.setState({ values });
-            this.props.socket.setState(this.state.data.oid, values[oid]);
+            this.props.socket.setState(this.state.rxData.oid, values[oid]);
         }
     };
 
@@ -352,7 +352,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = isOn ? this.state.object.common.max : this.state.object.common.min;
         this.setState({ values });
-        this.props.socket.setState(this.state.data.oid, values[oid]);
+        this.props.socket.setState(this.state.rxData.oid, values[oid]);
     }
 
     controlSpecificState(value) {
@@ -360,7 +360,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = value;
         this.setState({ values });
-        this.props.socket.setState(this.state.data.oid, values[oid]);
+        this.props.socket.setState(this.state.rxData.oid, values[oid]);
     }
 
     renderDimmerDialog() {
@@ -372,7 +372,7 @@ class SimpleState extends Generic {
                 onClose={() => this.setState({ showDimmerDialog: null })}
             >
                 <DialogTitle>
-                    {this.state.data.title || this.state.object.common.name}
+                    {this.state.rxData.title || this.state.object.common.name}
                     <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}><CloseIcon /></IconButton>
                 </DialogTitle>
                 <DialogContent>
@@ -422,7 +422,7 @@ class SimpleState extends Generic {
                                         const oid = `${this.state.object._id}.val`;
                                         values[oid] = value;
                                         this.setState({ values });
-                                        this.props.socket.setState(this.state.data.oid, values[oid]);
+                                        this.props.socket.setState(this.state.rxData.oid, values[oid]);
                                     }}
                                 />
                             </div>
@@ -498,7 +498,7 @@ class SimpleState extends Generic {
                             </div>
                         </div>
                         <div className={this.props.classes.text} style={{ color }}>
-                            {this.state.data.title || this.state.object.common.name}
+                            {this.state.rxData.title || this.state.object.common.name}
                         </div>
                         {!!this.state.object.common.states && value !== undefined && value !== null ?
                             <div className={this.props.classes.value} style={{ color }}>{stateTitle || value}</div> : null}

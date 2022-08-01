@@ -34,11 +34,11 @@ const calculateHourHandDegree = (hours, minutes) => hours * 30 + minutes * 0.5 -
 const calculateMinuteHandDegree = (hours, minutes, seconds) => hours * 360 + minutes * 6 + seconds / 12 - TIME_DEGREE_OFFSET;
 const calculateSecondHandDegree = (minutes, seconds) => minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
 
-const styles = theme => ({
+const styles = () => ({
     analogClock: {
-        //display: 'flex',
-        //justifyContent: 'center',
-        //alignItems: 'center',
+        // display: 'flex',
+        // justifyContent: 'center',
+        // alignItems: 'center',
         verticalAlign: 'middle',
     },
     hourHand: {
@@ -56,7 +56,7 @@ const styles = theme => ({
         position: 'absolute',
         transformOrigin: 'center',
         transition: 'transform linear 1s',
-    }
+    },
 });
 
 class AnalogClock extends Component {
