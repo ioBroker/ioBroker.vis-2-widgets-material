@@ -10,7 +10,7 @@
         "@mui/icons-material": "^5.8.4",
         "@mui/material": "^5.9.1",
         "@mui/styles": "^5.9.1",
-        "ace-builds": "^1.7.1",
+        "ace-builds": "^1.8.1",
         "clsx": "^1.2.1",
         "date-fns": "^2.28.0",
         "echarts": "^5.3.3",
