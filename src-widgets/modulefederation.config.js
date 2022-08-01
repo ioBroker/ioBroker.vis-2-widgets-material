@@ -9,6 +9,5 @@ module.exports = makeFederation(
         './Switches': './src/Switches',
         './SimpleState': './src/SimpleState',
         './Clock': './src/Clock',
-        './SimpleState': './src/SimpleState',
     }
 );

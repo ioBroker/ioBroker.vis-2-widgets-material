@@ -19,6 +19,7 @@ import {
 
 import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 
+import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
 
 const styles = () => ({
@@ -37,13 +38,30 @@ const styles = () => ({
     buttonInactive: {
         opacity: 0.6,
     },
-    iconButton: {
-        width: '100%',
-        height: 40,
-        display: 'block',
+    topButton: {
+        display: 'flex',
         alignItems: 'center',
-        flexDirection: 'column',
-        justifyContent: 'center',
+    },
+    iconButton: {
+        width: '50%',
+        height: 40,
+        display: 'flex',
+        textAlign: 'left',
+        alignItems: 'center',
+    },
+    rightButton: {
+        width: '50%',
+        textAlign: 'right',
+        position: 'relative',
+        marginTop: '-20px',
+        marginBottom: '-20px',
+        left: '20px',
+        display: 'flex',
+        justifyContent: 'right',
+    },
+    circularText: {
+        position: 'relative',
+        top: '8px',
     },
     iconSwitch: {
         width: 40,
@@ -125,18 +143,6 @@ class SimpleState extends Generic {
                                 }
                             },
                         },
-                    ],
-                },
-                {
-                    name: 'values',
-                    indexFrom: 1,
-                    indexTo: 'values_count',
-                    fields: [
-                        {
-                            name: 'value',
-                            type: 'text',
-                            label: 'vis_2_widgets_material_value',
-                        },
                         {
                             name: 'icon',
                             type: 'image',
@@ -159,7 +165,31 @@ class SimpleState extends Generic {
                         },
                         {
                             name: 'title',
-                            type: 'text',
+                            label: 'vis_2_widgets_material_title',
+                        },
+                    ],
+                },
+                {
+                    name: 'values',
+                    indexFrom: 1,
+                    indexTo: 'values_count',
+                    fields: [
+                        {
+                            name: 'value',
+                            label: 'vis_2_widgets_material_value',
+                        },
+                        {
+                            name: 'icon',
+                            type: 'image',
+                            label: 'vis_2_widgets_material_icon',
+                        },
+                        {
+                            name: 'color',
+                            type: 'color',
+                            label: 'vis_2_widgets_material_color',
+                        },
+                        {
+                            name: 'title',
                             label: 'vis_2_widgets_material_title',
                         },
                     ],
@@ -243,6 +273,7 @@ class SimpleState extends Generic {
                 return {
                     color: this.state.data[`color${i}`],
                     icon: this.state.data[`icon${i}`],
+                    title: this.state.data[`title${i}`],
                 };
             }
         }
@@ -256,14 +287,22 @@ class SimpleState extends Generic {
         return !!values[`${this.state.object._id}.val`];
     }
 
-    getStateIcon(index) {
+    getStateIcon() {
         let icon = '';
-        if (this.isOn()) {
-            if (this.state.data[`iconEnabled${index}`]) {
-                icon = `./files/${this.state.data[`iconEnabled${index}`]}`;
+        if (this.state.object.common.states) {
+            icon = this.getValueData()?.icon;
+            if (icon) {
+                icon = `/files/${icon}`;
             }
-        } else if (this.state.data[`icon${index}`]) {
-            icon = `./files/${this.state.data[`icon${index}`]}`;
+        }
+        if (!icon) {
+            if (this.isOn()) {
+                if (this.state.data.iconEnabled) {
+                    icon = `./files/${this.state.data.iconEnabled}`;
+                }
+            } else if (this.state.data.icon) {
+                icon = `./files/${this.state.data.icon}`;
+            }
         }
 
         icon = icon || this.state.object.common.icon;
@@ -283,10 +322,13 @@ class SimpleState extends Generic {
         return icon;
     }
 
-    getColor(index) {
+    getColor() {
+        if (this.state.object.common.states) {
+            return this.getValueData()?.color;
+        }
         return this.isOn() ?
-            this.state.data[`colorEnabled${index}`] || this.state.object.common.color
-            : this.state.data[`color${index}`] || this.state.object.common.color;
+            this.state.data.colorEnabled || this.state.object.common.color
+            : this.state.data.color || this.state.object.common.color;
     }
 
     changeSwitch = () => {
@@ -391,14 +433,35 @@ class SimpleState extends Generic {
         return null;
     }
 
+    renderCircular() {
+        const value = this.state.values[`${this.state.object._id}.val`];
+        const object = this.state.object;
+        return <CircularSliderWithChildren
+            minValue={object.common.min}
+            maxValue={object.common.max}
+            size={80}
+            arcColor={this.props.themeType === 'dark' ? '#fff' : '#000'}
+            startAngle={0}
+            step={1}
+            endAngle={360}
+            handle1={{
+                value,
+            }}
+        >
+            <div className={this.props.classes.circularText}>{value}</div>
+        </CircularSliderWithChildren>;
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
-
-        const icon = this.getStateIcon();
 
         if (!this.state.object._id) {
             return null;
         }
+
+        const icon = this.getStateIcon();
+        const color = this.getColor();
+        const stateTitle = this.state.object.common.states && this.getValueData()?.title;
 
         let value;
         if (this.state.object.common.type === 'number' || this.state.object.common.states) {
@@ -425,17 +488,22 @@ class SimpleState extends Generic {
                         color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
                         className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
                     >
-                        {icon ? <div className={this.props.classes.iconButton}>
-                            {icon}
-                        </div> : null}
-                        <div className={this.props.classes.text}>
+                        <div className={this.props.classes.topButton}>
+                            {icon ? <div className={this.props.classes.iconButton}>
+                                {icon}
+                            </div> : null}
+                            <div className={this.props.classes.rightButton}>
+                                {!this.state.object.common.states && value !== undefined && value !== null ?
+                                    this.renderCircular() : null}
+                            </div>
+                        </div>
+                        <div className={this.props.classes.text} style={{ color }}>
                             {this.state.data.title || this.state.object.common.name}
                         </div>
-                        {value !== undefined && value !== null ?
-                            <div className={this.props.classes.value} style={{ color: this.getValueData()?.color }}>{value}</div> : null}
+                        {!!this.state.object.common.states && value !== undefined && value !== null ?
+                            <div className={this.props.classes.value} style={{ color }}>{stateTitle || value}</div> : null}
                     </Button>
                 </div>
-;
             </div>
         </>;
 

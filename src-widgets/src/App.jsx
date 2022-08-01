@@ -96,7 +96,7 @@ class App extends WidgetDemoApp {
                 data={{
                     name: 'SimpleState',
                     values_count: 5,
-                    oid: 'javascript.0.mode',
+                    oid: 'javascript.0.temperatureSet',
                     value1: 'COOL',
                     color1: 'blue',
                     value2: 'DRY',
