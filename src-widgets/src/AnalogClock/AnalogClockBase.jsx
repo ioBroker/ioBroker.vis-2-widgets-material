@@ -31,15 +31,15 @@ const TIME_DEGREE_OFFSET = 90;
 const calculateHourLabelDegree = labelIndex => labelIndex * 30 - TIME_DEGREE_OFFSET;
 const calculateTickLabelDegree = labelIndex => labelIndex * 6;
 
-export const HOUR_LABELS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+export const HOUR_LABELS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-const styles = theme => ({
+const styles = () => ({
     analogClockBase: {
         borderRadius: '50%',
         borderStyle: 'solid',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     analogClockBaseCenter: {
         borderRadius: '50%',
@@ -57,7 +57,7 @@ const styles = theme => ({
     },
     hourLabelSpan: {
         fontWeight: 500,
-    }
+    },
 });
 
 class AnalogClockBase extends Component {
@@ -111,8 +111,10 @@ class AnalogClockBase extends Component {
                             style={{
                                 transform: `rotate(${-1 * calculateHourLabelDegree(index)}deg)`,
                                 fontSize: labelSize,
-                        }}
-                        >{label}</span>
+                            }}
+                        >
+                            {label}
+                        </span>
                     </div>
                 ))}
             {this.props.children}

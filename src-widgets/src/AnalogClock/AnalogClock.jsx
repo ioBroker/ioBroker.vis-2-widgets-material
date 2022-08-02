@@ -86,7 +86,7 @@ class AnalogClock extends Component {
                         height: handsHeight,
                         borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
                         backgroundColor: this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
-                        transform: `rotate(${calculateHourHandDegree(hours, minutes)}deg) translateX(${this.props.size * 0.3 / 2}px)`,
+                        transform: `rotate(${calculateHourHandDegree(hours, minutes)}deg) translateX(${(this.props.size * 0.3) / 2}px)`,
                     }}
                 />
                 <div
@@ -96,7 +96,7 @@ class AnalogClock extends Component {
                         height: handsHeight,
                         borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
                         backgroundColor: this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
-                        transform: `rotate(${calculateMinuteHandDegree(hours, minutes, seconds)}deg) translateX(${this.props.size * 0.4 / 2}px)`,
+                        transform: `rotate(${calculateMinuteHandDegree(hours, minutes, seconds)}deg) translateX(${(this.props.size * 0.4) / 2}px)`,
                     }}
                 />
                 {this.props.withSeconds ?

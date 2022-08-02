@@ -5,7 +5,7 @@ import {
     Card, CardContent,
 } from '@mui/material';
 
-import { VisRxWidget } from '@iobroker/vis-widgets-react-dev';
+import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 
 class Generic extends (window.visRxWidget || VisRxWidget) {
     // eslint-disable-next-line class-methods-use-this
