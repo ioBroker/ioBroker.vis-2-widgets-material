@@ -495,6 +495,13 @@ class SimpleState extends Generic {
 
         const size = this.refDiv.current?.offsetHeight || 80;
 
+        if (!this.refDiv.current) {
+            this.updateTimer1 = this.updateTimer1 || setTimeout(() => {
+                this.updateTimer1 = null;
+                this.forceUpdate();
+            }, 50);
+        }
+
         return <CircularSliderWithChildren
             minValue={object.common.min}
             maxValue={object.common.max}
@@ -520,16 +527,16 @@ class SimpleState extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        if (!this.state.object._id) {
-            return null;
-        }
-
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
             this.updateTimeout = this.updateTimeout || setTimeout(async () => {
                 this.updateTimeout = null;
                 await this.propertiesUpdate();
             }, 50);
+        }
+
+        if (!this.state.object._id) {
+            return null;
         }
 
         const icon = this.getStateIcon();
