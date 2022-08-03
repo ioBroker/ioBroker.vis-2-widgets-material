@@ -67,5 +67,7 @@
   "vis_2_widgets_material_view_in_widget": "View in widget",
   "vis_2_widgets_material_view": "View",
   "vis_2_widgets_material_view_button": "As button",
-  "vis_2_widgets_material_view_nav": "Views navigator"
+  "vis_2_widgets_material_view_nav": "Views navigator",
+  "vis_2_widgets_material_no_icon": "Without icon",
+  "vis_2_widgets_material_values": "State value"
 }

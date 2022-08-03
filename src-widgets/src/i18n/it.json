@@ -67,5 +67,7 @@
   "vis_2_widgets_material_view": "Visualizzazione",
   "vis_2_widgets_material_view_button": "Come pulsante",
   "vis_2_widgets_material_view_in_widget": "Visualizza nel widget",
-  "vis_2_widgets_material_view_nav": "Navigatore visualizzazioni"
+  "vis_2_widgets_material_view_nav": "Navigatore visualizzazioni",
+  "vis_2_widgets_material_no_icon": "Senza icona",
+  "vis_2_widgets_material_values": "Valore statale"
 }

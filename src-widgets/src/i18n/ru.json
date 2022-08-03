@@ -60,12 +60,14 @@
   "vis_2_widgets_material_switches_or_buttons": "Переключатели или кнопки",
   "vis_2_widgets_material_thermostat": "Термостат",
   "vis_2_widgets_material_digital2": "цифровой2",
-  "vis_2_widgets_material_group_item": "Вещь",
+  "vis_2_widgets_material_group_item": "Элемент",
   "vis_2_widgets_material_group_switch": "Переключатель или кнопка",
   "vis_2_widgets_material_value": "Государственное значение",
   "vis_2_widgets_material_values_count": "Количество значений",
   "vis_2_widgets_material_view": "Вид",
   "vis_2_widgets_material_view_button": "Как кнопка",
   "vis_2_widgets_material_view_in_widget": "Посмотреть в виджете",
-  "vis_2_widgets_material_view_nav": "Навигатор просмотров"
+  "vis_2_widgets_material_view_nav": "Навигатор просмотров",
+  "vis_2_widgets_material_no_icon": "Без значка",
+  "vis_2_widgets_material_values": "Значение состояния"
 }

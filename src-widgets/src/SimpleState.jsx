@@ -151,6 +151,7 @@ class SimpleState extends Generic {
                         {
                             name: 'values_count',
                             type: 'number',
+                            hidden: '!data.withStates',
                             default: 2,
                             label: 'vis_2_widgets_material_values_count',
                         },
@@ -168,9 +169,12 @@ class SimpleState extends Generic {
                                         object.common.states = states;
                                     }
                                     data.values_count = Object.keys(object.common.states).length;
+                                    data.withStates = true;
                                     Object.keys(object.common.states).forEach((state, index) =>
                                         data[`value${index + 1}`] = object.common.states[state]);
                                     changeData(data);
+                                } else {
+                                    changeData({ withStates: false });
                                 }
                             },
                         },
@@ -211,6 +215,7 @@ class SimpleState extends Generic {
                     name: 'values',
                     indexFrom: 1,
                     indexTo: 'values_count',
+                    label: 'vis_2_widgets_material_values',
                     fields: [
                         {
                             name: 'value',
