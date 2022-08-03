@@ -7,7 +7,6 @@ import {
     DialogContent,
     DialogTitle,
     Slider,
-    Switch,
     IconButton,
 } from '@mui/material';
 
@@ -22,7 +21,7 @@ import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
 
-const styles = () => ({
+const styles = theme => ({
     intermediate: {
         opacity: 0.2,
     },
@@ -32,6 +31,7 @@ const styles = () => ({
     button: {
         display: 'block',
         width: '100%',
+        height: '100%',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
     },
@@ -58,10 +58,14 @@ const styles = () => ({
         left: '20px',
         display: 'flex',
         justifyContent: 'right',
-    },
-    circularText: {
-        position: 'relative',
-        top: '8px',
+        color: theme.palette.mode === 'light' ? '#000' : '#fff',
+        '&>div': {
+            margin: 'auto',
+            '&>div': {
+                transform: 'translate(-50%, -50%) !important',
+                top: '50% !important',
+            },
+        },
     },
     iconSwitch: {
         width: 40,
@@ -93,13 +97,41 @@ const styles = () => ({
         maxWidth: 40,
         maxHeight: 40,
     },
+    newValueLight: {
+        animation: '$newValueAnimationLight 2s ease-in-out',
+    },
+    '@keyframes newValueAnimationLight': {
+        '0%': {
+            color: '#00bd00',
+        },
+        '80%': {
+            color: '#008000',
+        },
+        '100%': {
+            color: '#000',
+        },
+    },
+    newValueDark: {
+        animation: '$newValueAnimationDark 2s ease-in-out',
+    },
+    '@keyframes newValueAnimationDark': {
+        '0%': {
+            color: '#008000',
+        },
+        '80%': {
+            color: '#00bd00',
+        },
+        '100%': {
+            color: '#ffffff',
+        },
+    },
 });
 
 class SimpleState extends Generic {
     constructor(props) {
         super(props);
         this.state.showDimmerDialog = null;
-        // this.state.values = {};
+        this.refDiv = React.createRef();
         this.state.object = { common: {} };
     }
 
@@ -136,20 +168,26 @@ class SimpleState extends Generic {
                                         object.common.states = states;
                                     }
                                     data.values_count = Object.keys(object.common.states).length;
-                                    Object.keys(object.common.states).forEach((state, index) => {
-                                        data[`value${index + 1}`] = object.common.states[state];
-                                    });
+                                    Object.keys(object.common.states).forEach((state, index) =>
+                                        data[`value${index + 1}`] = object.common.states[state]);
                                     changeData(data);
                                 }
                             },
                         },
                         {
+                            name: 'noIcon',
+                            type: 'checkbox',
+                            label: 'vis_2_widgets_material_no_icon',
+                        },
+                        {
                             name: 'icon',
                             type: 'image',
+                            hidden: '!!data.noIcon',
                             label: 'vis_2_widgets_material_icon',
                         },
                         {
                             name: 'iconEnabled',
+                            hidden: '!!data.noIcon',
                             type: 'image',
                             label: 'vis_2_widgets_material_icon_active',
                         },
@@ -299,6 +337,9 @@ class SimpleState extends Generic {
 
     getStateIcon() {
         let icon = '';
+        if (this.state.rxData.noIcon) {
+            return null;
+        }
         if (this.state.object.common.states) {
             icon = this.getValueData()?.icon;
         }
@@ -372,6 +413,8 @@ class SimpleState extends Generic {
 
     renderDimmerDialog() {
         if (this.state.showDimmerDialog) {
+            const isLamp = this.state.object.common.min === 0 && (this.state.object.common.max === 100 || this.state.object.common.max === 1);
+
             return <Dialog
                 fullWidth
                 maxWidth="sm"
@@ -403,18 +446,18 @@ class SimpleState extends Generic {
                                     color="grey"
                                     className={this.state.values[`${this.state.object._id}.val`] === this.state.object.common.min ? '' : this.props.classes.buttonInactive}
                                     onClick={() => this.setOnOff(false)}
+                                    startIcon={isLamp ? <LightbulbIconOff /> : null}
                                 >
-                                    <LightbulbIconOff />
-                                    {I18n.t('vis_2_widgets_material_OFF').replace('vis_2_widgets_material_', '')}
+                                    {isLamp ? I18n.t('vis_2_widgets_material_OFF').replace('vis_2_widgets_material_', '') : this.state.object.common.min + (this.state.object.common.unit || '') }
                                 </Button>
                                 <Button
                                     style={{ width: '50%' }}
                                     className={this.state.values[`${this.state.object._id}.val`] === this.state.object.common.max ? '' : this.props.classes.buttonInactive}
                                     color="primary"
                                     onClick={() => this.setOnOff(true)}
+                                    startIcon={isLamp ? <LightbulbIconOn color="primary" /> : null}
                                 >
-                                    <LightbulbIconOn />
-                                    {I18n.t('vis_2_widgets_material_ON').replace('vis_2_widgets_material_', '')}
+                                    {isLamp ? I18n.t('vis_2_widgets_material_ON').replace('vis_2_widgets_material_', '') : this.state.object.common.max + (this.state.object.common.unit || '')}
                                 </Button>
                             </div>
                             <div style={{ width: '100%' }}>
@@ -443,10 +486,19 @@ class SimpleState extends Generic {
     renderCircular() {
         const value = this.state.values[`${this.state.object._id}.val`];
         const object = this.state.object;
+        if (value === undefined || value === null) {
+            return null;
+        }
+        if (value < object.common.min || value > object.common.max) {
+            return value + (this.state.object.common?.unit || '');
+        }
+
+        const size = this.refDiv.current?.offsetHeight || 80;
+
         return <CircularSliderWithChildren
             minValue={object.common.min}
             maxValue={object.common.max}
-            size={80}
+            size={size}
             arcColor={this.props.themeType === 'dark' ? '#fff' : '#000'}
             startAngle={0}
             step={1}
@@ -455,7 +507,13 @@ class SimpleState extends Generic {
                 value,
             }}
         >
-            <div className={this.props.classes.circularText}>{value}</div>
+            <div
+                key={`_${value}`}
+                style={{ fontSize: Math.round(size / 10), fontWeight: 'bold' }}
+                className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
+            >
+                {value + (this.state.object.common?.unit || '')}
+            </div>
         </CircularSliderWithChildren>;
     }
 
@@ -490,7 +548,7 @@ class SimpleState extends Generic {
 
         const content = <>
             {this.renderDimmerDialog()}
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%', height: this.state.rxData.name ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)' }} ref={this.refDiv}>
                 <div
                     className={this.props.classes.buttonDiv}
                     style={{
@@ -507,7 +565,7 @@ class SimpleState extends Generic {
                             {icon ? <div className={this.props.classes.iconButton}>
                                 {icon}
                             </div> : null}
-                            <div className={this.props.classes.rightButton}>
+                            <div className={this.props.classes.rightButton} style={icon ? {} : { width: '100%', left: 0 }}>
                                 {!this.state.object.common.states && value !== undefined && value !== null ?
                                     this.renderCircular() : null}
                             </div>
@@ -516,7 +574,13 @@ class SimpleState extends Generic {
                             {this.state.rxData.title || this.state.object.common.name}
                         </div>
                         {!!this.state.object.common.states && value !== undefined && value !== null ?
-                            <div className={this.props.classes.value} style={{ color }}>{stateTitle || value}</div> : null}
+                            <div
+                                key={` ${stateTitle || value}`}
+                                className={Utils.clsx(this.props.classes.value, this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight)}
+                                style={{ color }}
+                            >
+                                {stateTitle || value}
+                            </div> : null}
                     </Button>
                 </div>
             </div>
