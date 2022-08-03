@@ -30,7 +30,7 @@
         "build": "craco build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "i18n": "node node_modules/@iobroker/vis-2-widgets-react-dev/searchI18n vis-2-widgets-material"
+        "i18n": "node node_modules/@iobroker/vis-2-widgets-react-dev/searchI18n vis_2_widgets_material"
     },
     "eslintConfig": {
         "extends": "react-app"

@@ -163,6 +163,13 @@ class Actual extends Generic {
     }
 
     async propertiesUpdate() {
+        const actualRxData = JSON.stringify(this.state.rxData);
+        if (this.lastRxData === actualRxData) {
+            return;
+        }
+
+        this.lastRxData = actualRxData;
+
         const objects = {};
 
         // try to find icons for all OIDs
@@ -430,6 +437,14 @@ class Actual extends Generic {
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
+
+        const actualRxData = JSON.stringify(this.state.rxData);
+        if (this.lastRxData !== actualRxData) {
+            this.updateTimeout = this.updateTimeout || setTimeout(async () => {
+                this.updateTimeout = null;
+                await this.propertiesUpdate();
+            }, 50);
+        }
 
         const onCardClick = !this.state.showDialog && this.state.isChart ? e => {
             e.preventDefault();

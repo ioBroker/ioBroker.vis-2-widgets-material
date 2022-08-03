@@ -61,5 +61,11 @@
   "vis_2_widgets_material_thermostat": "Thermostat",
   "vis_2_widgets_material_digital2": "digital2",
   "vis_2_widgets_material_group_item": "Artikel",
-  "vis_2_widgets_material_group_switch": "Schalter oder Knopf"
+  "vis_2_widgets_material_group_switch": "Schalter oder Knopf",
+  "vis_2_widgets_material_value": "Wert angeben",
+  "vis_2_widgets_material_values_count": "Werte zählen",
+  "vis_2_widgets_material_view": "Aussicht",
+  "vis_2_widgets_material_view_button": "Als Knopf",
+  "vis_2_widgets_material_view_in_widget": "Im Widget anzeigen",
+  "vis_2_widgets_material_view_nav": "Ansichten-Navigator"
 }

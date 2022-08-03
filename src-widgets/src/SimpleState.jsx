@@ -200,7 +200,7 @@ class SimpleState extends Generic {
                 height: 120,
                 position: 'relative',
             },
-            visPrev: 'widgets/material-widgets/img/prev_simple_state.png',
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_simple_state.png',
         };
     }
 
@@ -210,48 +210,56 @@ class SimpleState extends Generic {
     }
 
     async propertiesUpdate() {
-        if (this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected') {
-            // read object itself
-            let object = await this.props.socket.getObject(this.state.rxData.oid);
-            if (!object) {
-                object = { common: {} };
+        const actualRxData = JSON.stringify(this.state.rxData);
+        if (this.lastRxData === actualRxData) {
+            return;
+        }
+
+        this.lastRxData = actualRxData;
+        if (!this.state.rxData.oid || this.state.rxData.oid === 'nothing_selected') {
+            this.setState({ object: { common: {} } });
+            return;
+        }
+        // read object itself
+        let object = await this.props.socket.getObject(this.state.rxData.oid);
+        if (!object) {
+            object = { common: {} };
+        } else {
+            object = { common: object.common, _id: object._id };
+        }
+        object.common = object.common || {};
+        if (object.common.type === 'number') {
+            if (object.common.max === undefined) {
+                object.common.max = 100;
+            }
+            if (object.common.min === undefined) {
+                object.common.min = 0;
+            }
+        }
+        if (object.common.states && Array.isArray(object.common.states)) {
+            // convert to {'state1': 'state1', 'state2': 'state2', ...}
+            const states = {};
+            object.common.states.forEach(state => states[state] = state);
+            object.common.states = states;
+        }
+
+        if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+            const idArray = this.state.rxData.oid.split('.');
+
+            // read channel
+            const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+            if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                if (grandParentObject?.common?.icon) {
+                    object.common.icon = grandParentObject.common.icon;
+                }
             } else {
-                object = { common: object.common, _id: object._id };
+                object.common.icon = parentObject.common.icon;
             }
-            object.common = object.common || {};
-            if (object.common.type === 'number') {
-                if (object.common.max === undefined) {
-                    object.common.max = 100;
-                }
-                if (object.common.min === undefined) {
-                    object.common.min = 0;
-                }
-            }
-            if (object.common.states && Array.isArray(object.common.states)) {
-                // convert to {'state1': 'state1', 'state2': 'state2', ...}
-                const states = {};
-                object.common.states.forEach(state => states[state] = state);
-                object.common.states = states;
-            }
+        }
 
-            if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                const idArray = this.state.rxData.oid.split('.');
-
-                // read channel
-                const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
-                if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
-                    if (grandParentObject?.common?.icon) {
-                        object.common.icon = grandParentObject.common.icon;
-                    }
-                } else {
-                    object.common.icon = parentObject.common.icon;
-                }
-            }
-
-            if (JSON.stringify(this.state.object) !== JSON.stringify(object)) {
-                this.setState({ object });
-            }
+        if (JSON.stringify(this.state.object) !== JSON.stringify(object)) {
+            this.setState({ object });
         }
     }
 
@@ -277,6 +285,8 @@ class SimpleState extends Generic {
                 };
             }
         }
+
+        return null;
     }
 
     isOn(values) {
@@ -454,6 +464,14 @@ class SimpleState extends Generic {
 
         if (!this.state.object._id) {
             return null;
+        }
+
+        const actualRxData = JSON.stringify(this.state.rxData);
+        if (this.lastRxData !== actualRxData) {
+            this.updateTimeout = this.updateTimeout || setTimeout(async () => {
+                this.updateTimeout = null;
+                await this.propertiesUpdate();
+            }, 50);
         }
 
         const icon = this.getStateIcon();

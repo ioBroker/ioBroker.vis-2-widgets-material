@@ -61,5 +61,11 @@
   "vis_2_widgets_material_thermostat": "Termostato",
   "vis_2_widgets_material_digital2": "digital2",
   "vis_2_widgets_material_group_item": "Artículo",
-  "vis_2_widgets_material_group_switch": "interruptor o botón"
+  "vis_2_widgets_material_group_switch": "interruptor o botón",
+  "vis_2_widgets_material_value": "valor del estado",
+  "vis_2_widgets_material_values_count": "Los valores cuentan",
+  "vis_2_widgets_material_view": "Vista",
+  "vis_2_widgets_material_view_button": "como botón",
+  "vis_2_widgets_material_view_in_widget": "Ver en widget",
+  "vis_2_widgets_material_view_nav": "Navegador de vistas"
 }

@@ -155,7 +155,13 @@ class Thermostat extends Generic {
     }
 
     async propertiesUpdate() {
+        const actualRxData = JSON.stringify(this.state.rxData);
+        if (this.lastRxData === actualRxData) {
+            return;
+        }
+
         const newState = {};
+        this.lastRxData = actualRxData;
 
         if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
             const modeObj = await this.props.socket.getObject(this.state.rxData['oid-mode']);
@@ -196,14 +202,14 @@ class Thermostat extends Generic {
         Object.keys(newState).find(key => JSON.stringify(this.state[key]) !== JSON.stringify(newState[key])) && this.setState(newState);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         super.componentDidMount();
-        this.propertiesUpdate();
+        await this.propertiesUpdate();
     }
 
-    onPropertiesUpdated() {
+    async onPropertiesUpdated() {
         super.onPropertiesUpdated();
-        this.propertiesUpdate();
+        await this.propertiesUpdate();
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -322,6 +328,14 @@ class Thermostat extends Generic {
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
+
+        const actualRxData = JSON.stringify(this.state.rxData);
+        if (this.lastRxData !== actualRxData) {
+            this.updateTimeout = this.updateTimeout || setTimeout(async () => {
+                this.updateTimeout = null;
+                await this.propertiesUpdate();
+            }, 50);
+        }
 
         let tempValue = this.state.values[`${this.state.rxData['oid-temp-set']}.val`];
         if (tempValue === undefined) {
