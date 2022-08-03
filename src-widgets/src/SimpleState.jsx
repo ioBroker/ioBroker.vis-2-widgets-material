@@ -565,7 +565,7 @@ class SimpleState extends Generic {
                             {icon ? <div className={this.props.classes.iconButton}>
                                 {icon}
                             </div> : null}
-                            <div className={this.props.classes.rightButton} style={icon ? {} : { width: '100%', left: 0 }}>
+                            <div className={this.props.classes.rightButton} style={icon ? {} : { width: '100%', left: 0, justifyContent: 'center' }}>
                                 {!this.state.object.common.states && value !== undefined && value !== null ?
                                     this.renderCircular() : null}
                             </div>
