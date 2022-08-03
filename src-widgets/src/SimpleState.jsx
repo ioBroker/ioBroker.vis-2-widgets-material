@@ -291,17 +291,14 @@ class SimpleState extends Generic {
         let icon = '';
         if (this.state.object.common.states) {
             icon = this.getValueData()?.icon;
-            if (icon) {
-                icon = `/files/${icon}`;
-            }
         }
         if (!icon) {
             if (this.isOn()) {
                 if (this.state.rxData.iconEnabled) {
-                    icon = `./files/${this.state.rxData.iconEnabled}`;
+                    icon = this.state.rxData.iconEnabled;
                 }
             } else if (this.state.rxData.icon) {
-                icon = `./files/${this.state.rxData.icon}`;
+                icon = this.state.rxData.icon;
             }
         }
 

@@ -280,10 +280,10 @@ class Switches extends Generic {
         let icon = '';
         if (this.isOn(index)) {
             if (this.state.rxData[`iconEnabled${index}`]) {
-                icon = `./files/${this.state.rxData[`iconEnabled${index}`]}`;
+                icon = this.state.rxData[`iconEnabled${index}`];
             }
         } else if (this.state.rxData[`icon${index}`]) {
-            icon = `./files/${this.state.rxData[`icon${index}`]}`;
+            icon = this.state.rxData[`icon${index}`];
         }
 
         icon = icon || this.state.objects[index].common.icon;
