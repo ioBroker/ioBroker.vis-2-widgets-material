@@ -174,7 +174,8 @@ class SimpleState extends Generic {
                                         data[`value${index + 1}`] = object.common.states[state]);
                                     changeData(data);
                                 } else {
-                                    changeData({ withStates: false });
+                                    data.withStates = false;
+                                    changeData(data);
                                 }
                             },
                         },
@@ -588,7 +589,7 @@ class SimpleState extends Generic {
                         {!!this.state.object.common.states && value !== undefined && value !== null ?
                             <div
                                 key={` ${stateTitle || value}`}
-                                className={Utils.clsx(this.props.classes.value, this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight)}
+                                className={Utils.clsx(this.props.classes.value, !color ? (this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight) : null)}
                                 style={{ color }}
                             >
                                 {stateTitle || value}
