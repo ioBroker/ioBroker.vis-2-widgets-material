@@ -177,10 +177,12 @@ class SimpleState extends Generic {
                                     }
                                     data.values_count = Object.keys(object.common.states).length;
                                     data.withStates = true;
+                                    data.withNumber = false;
                                     Object.keys(object.common.states).forEach((state, index) =>
                                         data[`value${index + 1}`] = object.common.states[state]);
                                     changeData(data);
                                 } else {
+                                    data.withNumber = object.common.type === 'number';
                                     data.withStates = false;
                                     changeData(data);
                                 }
@@ -216,6 +218,15 @@ class SimpleState extends Generic {
                         {
                             name: 'title',
                             label: 'vis_2_widgets_material_title',
+                        },
+                        {
+                            name: 'circleSize',
+                            label: 'vis_2_widgets_material_circle_size',
+                            type: 'slider',
+                            min: 0,
+                            max: 200,
+                            default: 0,
+                            hidden: '!data.withNumber',
                         },
                     ],
                 },
@@ -506,7 +517,7 @@ class SimpleState extends Generic {
             return value + (this.state.object.common?.unit || '');
         }
 
-        const size = this.refDiv.current?.offsetHeight || 80;
+        const size = this.state.rxData.circleSize || this.refDiv.current?.offsetHeight || 80;
 
         if (!this.refDiv.current) {
             this.updateTimer1 = this.updateTimer1 || setTimeout(() => {
@@ -599,7 +610,7 @@ class SimpleState extends Generic {
                         <div className={this.props.classes.text} style={{ color }}>
                             {this.state.rxData.title || this.state.object.common.name}
                         </div>
-                        {!!this.state.object.common.states && value !== undefined && value !== null ?
+                        {this.state.object.common.states && value !== undefined && value !== null ?
                             <div
                                 key={` ${stateTitle || value}`}
                                 className={Utils.clsx(this.props.classes.value, !color ? (this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight) : null)}

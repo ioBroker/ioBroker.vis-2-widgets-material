@@ -69,5 +69,6 @@
   "vis_2_widgets_material_view_in_widget": "Afficher dans le widget",
   "vis_2_widgets_material_view_nav": "Navigateur de vues",
   "vis_2_widgets_material_no_icon": "Sans icône",
-  "vis_2_widgets_material_values": "Valeur d'état"
+  "vis_2_widgets_material_values": "Valeur d'état",
+  "vis_2_widgets_material_circle_size": "Taille du cercle"
 }
