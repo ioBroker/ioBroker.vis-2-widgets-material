@@ -10,7 +10,6 @@ module.exports = makeFederation(
         './SimpleState': './src/SimpleState',
         './Clock': './src/Clock',
         './ViewInWidget': './src/ViewInWidget',
-        './ViewsNavigator': './src/ViewsNavigator',
         './translations': './src/translations',
     }
 );

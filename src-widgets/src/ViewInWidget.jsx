@@ -162,6 +162,7 @@ class ViewInWidget extends Generic {
                 userGroups={this.props.userGroups}
                 allWidgets={this.props.allWidgets}
                 jQuery={this.props.jQuery}
+                visInWidget
                 $$={this.props.$$}
                 adapterName={this.props.adapterName}
                 instance={this.props.instance}

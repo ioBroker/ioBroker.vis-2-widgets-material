@@ -56,8 +56,7 @@
           "Switches",
           "Clock",
           "SimpleState",
-          "ViewInWidget",
-          "ViewsNavigator"
+          "ViewInWidget"
         ]
       }
     },
