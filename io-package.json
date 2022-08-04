@@ -45,7 +45,7 @@
     "connectionType": "cloud",
     "dataSource": "poll",
     "visWidgets": {
-      "i18n": true,
+      "i18n": "component",
       "vis2materialWidgets": {
         "name": "vis2materialWidgets",
         "url": "vis-2-widgets-material/customWidgets.js",

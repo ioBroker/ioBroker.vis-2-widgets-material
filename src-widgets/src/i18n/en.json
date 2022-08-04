@@ -70,5 +70,6 @@
   "vis_2_widgets_material_view_nav": "Views navigator",
   "vis_2_widgets_material_no_icon": "Without icon",
   "vis_2_widgets_material_values": "State value",
-  "vis_2_widgets_material_circle_size": "Circle size"
+  "vis_2_widgets_material_circle_size": "Circle size",
+  "vis_2_widgets_material_simple_state": "Simple state"
 }

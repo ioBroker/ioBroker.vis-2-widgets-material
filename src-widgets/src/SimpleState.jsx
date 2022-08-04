@@ -147,6 +147,7 @@ class SimpleState extends Generic {
             id: 'tplMaterial2SimpleState',
             visSet: 'vis-2-widgets-material',
             visName: 'SimpleState',
+            visWidgetLabel: 'vis_2_widgets_material_simple_state',
             visAttrs: [
                 {
                     name: 'common',

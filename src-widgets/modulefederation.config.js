@@ -11,5 +11,6 @@ module.exports = makeFederation(
         './Clock': './src/Clock',
         './ViewInWidget': './src/ViewInWidget',
         './ViewsNavigator': './src/ViewsNavigator',
+        './translations': './src/translations',
     }
 );

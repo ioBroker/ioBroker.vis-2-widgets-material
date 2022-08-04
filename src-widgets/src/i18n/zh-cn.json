@@ -70,5 +70,6 @@
   "vis_2_widgets_material_view_nav": "视图导航器",
   "vis_2_widgets_material_no_icon": "无图标",
   "vis_2_widgets_material_values": "状态值",
-  "vis_2_widgets_material_circle_size": "圆圈大小"
+  "vis_2_widgets_material_circle_size": "圆圈大小",
+  "vis_2_widgets_material_simple_state": "简单状态"
 }
