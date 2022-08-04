@@ -49,6 +49,13 @@ const styles = theme => ({
         textAlign: 'left',
         alignItems: 'center',
     },
+    iconButtonCenter: {
+        width: '100%',
+        height: 40,
+        display: 'flex',
+        textAlign: 'center',
+        justifyContent: 'center',
+    },
     rightButton: {
         width: '50%',
         textAlign: 'right',
@@ -575,13 +582,19 @@ class SimpleState extends Generic {
                         className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
                     >
                         <div className={this.props.classes.topButton}>
-                            {icon ? <div className={this.props.classes.iconButton}>
+                            {icon ? <div className={
+                                !this.state.object.common.states && value !== undefined && value !== null ?
+                                    this.props.classes.iconButton :
+                                    this.props.classes.iconButtonCenter
+                            }
+                            >
                                 {icon}
                             </div> : null}
-                            <div className={this.props.classes.rightButton} style={icon ? {} : { width: '100%', left: 0, justifyContent: 'center' }}>
-                                {!this.state.object.common.states && value !== undefined && value !== null ?
-                                    this.renderCircular() : null}
-                            </div>
+                            {!this.state.object.common.states && value !== undefined && value !== null ?
+                                <div className={this.props.classes.rightButton} style={icon ? {} : { width: '100%', left: 0, justifyContent: 'center' }}>
+                                    {this.renderCircular()}
+                                </div>
+                                : null}
                         </div>
                         <div className={this.props.classes.text} style={{ color }}>
                             {this.state.rxData.title || this.state.object.common.name}
