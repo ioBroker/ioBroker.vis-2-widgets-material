@@ -203,13 +203,13 @@ class Clock extends Generic {
             const timeFormat = this.getDigitalClockText(true);
             if (size !== this.state.width || this.state.height !== this.refContainer.current.clientHeight || this.state.timeFormat !== timeFormat) {
                 let fontSize = this.refContainer.current.clientHeight;
-                if (this.state.rxData.type === 'digital' && !this.state.rxStyle['font-size']) {
+                if (fontSize && this.state.rxData.type === 'digital' && !this.state.rxStyle['font-size']) {
                     const font = getCanvasFont(this.refContainer.current);
                     let textWidth;
                     do {
                         fontSize -= 2;
                         textWidth = getTextWidth(timeFormat, `${font.fontWeight} ${fontSize}px ${font.fontFamily}`);
-                    } while (textWidth > this.refContainer.current.clientWidth || fontSize > this.refContainer.current.clientHeight);
+                    } while (fontSize > 6 && (textWidth > this.refContainer.current.clientWidth || fontSize > this.refContainer.current.clientHeight));
                 }
 
                 this.setState({
