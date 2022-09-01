@@ -4,6 +4,7 @@ import { withStyles } from '@mui/styles';
 import WidgetDemoApp from '@iobroker/vis-2-widgets-react-dev/widgetDemoApp';
 import { i18n as I18n } from '@iobroker/adapter-react-v5';
 
+import { Checkbox } from '@mui/material';
 import Thermostat from './Thermostat';
 import Actual from './Actual';
 import Switches from './Switches';
@@ -28,6 +29,8 @@ class App extends WidgetDemoApp {
     constructor(props) {
         super(props);
 
+        this.state.disabled = JSON.parse(window.localStorage.getItem('disabled')) || {};
+
         // init translations
         I18n.extendTranslations(translations);
 
@@ -42,8 +45,8 @@ class App extends WidgetDemoApp {
     };
 
     renderWidget() {
-        return <div className={this.props.classes.app}>
-            <Clock
+        const widgets = {
+            clock: <Clock
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -58,8 +61,8 @@ class App extends WidgetDemoApp {
                     blinkDelimiter: true,
                     hoursFormat: '12',
                 }}
-            />
-            <Static
+            />,
+            static: <Static
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -75,8 +78,8 @@ class App extends WidgetDemoApp {
                     title1: 'Number',
                     title2: 'States',
                 }}
-            />
-            <SimpleState
+            />,
+            simplestate: <SimpleState
                 socket={this.socket}
                 style={{
                     width: 400,
@@ -92,8 +95,8 @@ class App extends WidgetDemoApp {
                     value2: 'DRY',
                     color2: 'red',
                 }}
-            />
-            <Switches
+            />,
+            switches: <Switches
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -115,8 +118,8 @@ class App extends WidgetDemoApp {
                     // oid5: 'javascript.0.numberWithStates',
                     title2: 'Dimmer',
                 }}
-            />
-            <Thermostat
+            />,
+            thermostat: <Thermostat
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -131,8 +134,8 @@ class App extends WidgetDemoApp {
                     'oid-temp-set': 'javascript.0.thermostat.setPoint',
                     'oid-temp-actual': 'javascript.0.thermostat.actual',
                 }}
-            />
-            <Actual
+            />,
+            actual: <Actual
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -146,8 +149,8 @@ class App extends WidgetDemoApp {
                     'oid-temperature': 'system.adapter.admin.0.memHeapTotal',
                     'oid-humidity': 'system.adapter.admin.0.memHeapUsed',
                 }}
-            />
-            <ViewInWidget
+            />,
+            viewinwidget: <ViewInWidget
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -158,7 +161,26 @@ class App extends WidgetDemoApp {
                 data={{
                     name: 'Actual temperature',
                 }}
-            />
+            />,
+
+        };
+        return <div className={this.props.classes.app}>
+            <div>
+                {Object.keys(widgets).map(key => <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Checkbox
+                        key={key}
+                        checked={!this.state.disabled[key]}
+                        onChange={e => {
+                            const disabled = JSON.parse(JSON.stringify(this.state.disabled));
+                            disabled[key] = !e.target.checked;
+                            window.localStorage.setItem('disabled', JSON.stringify(disabled));
+                            this.setState({ disabled });
+                        }}
+                    />
+                    {key}
+                </div>)}
+            </div>
+            {Object.keys(widgets).map(key => (this.state.disabled[key] ? null : widgets[key]))}
         </div>;
     }
 }
