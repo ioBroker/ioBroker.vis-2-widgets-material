@@ -9,7 +9,7 @@
         "@iobroker/vis-2-widgets-react-dev": "^0.3.2",
         "@mui/icons-material": "^5.8.4",
         "@mui/material": "^5.9.2",
-        "@mui/styles": "^5.9.2",
+        "@mui/styles": "^5.10.3",
         "date-fns": "^2.29.2",
         "echarts": "^5.3.3",
         "echarts-for-react": "^3.0.2",
