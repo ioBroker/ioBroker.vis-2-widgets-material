@@ -176,10 +176,8 @@ class Static extends Generic {
             .then(() => {});
     }
 
-    onPropertiesUpdated() {
-        super.onPropertiesUpdated();
-        this.propertiesUpdate()
-            .then(() => {});
+    async onRxDataChanged() {
+        await this.propertiesUpdate();
     }
 
     getStateIcon(key) {

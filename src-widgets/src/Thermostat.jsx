@@ -207,8 +207,7 @@ class Thermostat extends Generic {
         await this.propertiesUpdate();
     }
 
-    async onPropertiesUpdated() {
-        super.onPropertiesUpdated();
+    async onRxDataChanged() {
         await this.propertiesUpdate();
     }
 

@@ -179,7 +179,7 @@ class Clock extends Generic {
         this.timeInterval = setTimeout(this.nextTick, timeout);
     };
 
-    onPropertiesUpdated() {
+    onRxDataChanged() {
         this.timeInterval && clearTimeout(this.timeInterval);
         this.timeInterval = setTimeout(this.nextTick, 1000 - new Date().getMilliseconds());
     }

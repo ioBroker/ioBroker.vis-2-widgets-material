@@ -325,8 +325,7 @@ class Actual extends Generic {
         super.componentWillUnmount();
     }
 
-    async onPropertiesUpdated() {
-        super.onPropertiesUpdated();
+    async onRxDataChanged() {
         await this.propertiesUpdate();
     }
 

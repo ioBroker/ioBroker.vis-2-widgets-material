@@ -62,10 +62,6 @@ class ViewInWidget extends Generic {
         return ViewInWidget.getWidgetInfo();
     }
 
-    onPropertiesUpdated() {
-        super.onPropertiesUpdated();
-    }
-
     async componentDidMount() {
         super.componentDidMount();
         this.recalculateWidth();
