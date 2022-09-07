@@ -13,6 +13,10 @@ import SimpleState from './SimpleState';
 import Clock from './Clock';
 import ViewInWidget from './ViewInWidget';
 import translations from './translations';
+import Camera from './Camera';
+import Map from './Map';
+import Player from './Player';
+import Security from './Security';
 
 const styles = theme => ({
     app: {
@@ -46,6 +50,72 @@ class App extends WidgetDemoApp {
 
     renderWidget() {
         const widgets = {
+            camera: <Camera
+                socket={this.socket}
+                style={{
+                    width: 400,
+                    height: 180,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'Camera',
+                    url: 'https://picsum.photos/200/300',
+                    refreshInterval: 1000,
+                    showRefreshTime: true,
+                }}
+            />,
+            map: <Map
+                socket={this.socket}
+                style={{
+                    width: 400,
+                    height: 420,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'Map',
+                    values_count: 5,
+                    oid: 'javascript.0.temperatureSet',
+                    value1: 'COOL',
+                    color1: 'blue',
+                    value2: 'DRY',
+                    color2: 'red',
+                }}
+            />,
+            player: <Player
+                socket={this.socket}
+                style={{
+                    width: 400,
+                    height: 420,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'Player',
+                    cover: 'sonos.0.root.192_168_1_102.current_cover',
+                    muted: 'sonos.0.root.192_168_1_102.muted',
+                    duration: 'sonos.0.root.192_168_1_102.current_duration',
+                    elapsed: 'sonos.0.root.192_168_1_102.current_elapsed',
+                    title: 'sonos.0.root.192_168_1_102.current_title',
+                    artist: 'sonos.0.root.192_168_1_102.current_artist',
+                    repeat: 'sonos.0.root.192_168_1_102.repeat',
+                    shuffle: 'sonos.0.root.192_168_1_102.shuffle',
+                }}
+            />,
+            security: <Security
+                socket={this.socket}
+                style={{
+                    width: 400,
+                    height: 180,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'Security',
+                    buttonsCount: 2,
+                    name1: 'button1',
+                    color1: 'blue',
+                    name2: 'button2',
+                    color2: 'red',
+                }}
+            />,
             clock: <Clock
                 socket={this.socket}
                 themeType={this.state.themeType}
