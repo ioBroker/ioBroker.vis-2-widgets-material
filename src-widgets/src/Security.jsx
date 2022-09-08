@@ -1,7 +1,9 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
 
-import { Button } from '@mui/material';
+import {
+    Button, Dialog, DialogContent, DialogTitle,
+} from '@mui/material';
 import Generic from './Generic';
 
 const styles = theme => ({
@@ -11,6 +13,8 @@ const styles = theme => ({
 class Security extends Generic {
     constructor(props) {
         super(props);
+        this.state.dialog = false;
+        this.state.pinInput = '';
     }
 
     static getWidgetInfo() {
@@ -57,6 +61,19 @@ class Security extends Generic {
                             label: 'vis_2_widgets_material_name',
                         },
                         {
+                            name: 'pincode',
+                            label: 'vis_2_widgets_material_pincode',
+                            onChange: async (field, data, changeData, socket) => {
+                                data[`pincode${field.index}`] = data[`pincode${field.index}`].replace(/[^0-9]/g, '');
+                                changeData(data);
+                            },
+                        },
+                        {
+                            name: 'pincode-oid',
+                            type: 'id',
+                            label: 'vis_2_widgets_material_pincode_oid',
+                        },
+                        {
                             name: 'color',
                             type: 'color',
                             label: 'vis_2_widgets_material_color',
@@ -93,6 +110,35 @@ class Security extends Generic {
         await this.propertiesUpdate();
     }
 
+    renderDialog() {
+        return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
+            <DialogTitle></DialogTitle>
+            <DialogContent>
+                <div>{this.state.pinInput}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridGap: '10px' }}>
+                    {
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0, '<='].map(button =>
+                            <Button
+                                variant="outlined"
+                                key={button}
+                                onClick={() => {
+                                    if (button === '<=') {
+                                        this.setState({ pinInput: this.state.pinInput.slice(0, -1) });
+                                    } else if (button === 'R') {
+                                        this.setState({ pinInput: '' });
+                                    } else {
+                                        this.setState({ pinInput: this.state.pinInput + button });
+                                    }
+                                }}
+                            >
+                                {button}
+                            </Button>)
+                    }
+                </div>
+            </DialogContent>
+        </Dialog>;
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
@@ -107,13 +153,18 @@ class Security extends Generic {
             });
         }
 
-        const content = <div style={{
-            display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center', flex: 1,
-        }}
-        >
-            {buttons.map((button, index) =>
-                <Button variant="contained" key={index}>{button.name}</Button>)}
-        </div>;
+        const content = <>
+            {this.renderDialog()}
+            <div style={{
+                display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center', flex: 1,
+            }}
+            >
+                {buttons.map((button, index) =>
+                    <Button variant="contained" key={index} onClick={() => this.setState({ dialog: true })}>
+                        {button.name}
+                    </Button>)}
+            </div>
+        </>;
 
         return this.wrapContent(content, null, {
             boxSizing: 'border-box',

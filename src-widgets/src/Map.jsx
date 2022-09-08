@@ -1,5 +1,8 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
+import L from 'leaflet';
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
 import {
     Popup, TileLayer, MapContainer, Marker, useMap,
@@ -13,12 +16,30 @@ import { Close as CloseIcon, OpenInFull as OpenInFullIcon } from '@mui/icons-mat
 
 import Generic from './Generic';
 
+// L.Popup.include({
+//     _originalInitLayout: L.Popup.prototype._initLayout, // Keep a reference to super method
+
+//     _initLayout() {
+//         this._originalInitLayout();
+//         this._closeButton.addEventListener('click', e => e.preventDefault());
+//     },
+// });
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    iconUrl: require('leaflet/dist/images/marker-icon.png'),
+    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+
 const styles = theme => ({
 
 });
 
 const MapContent = props => {
     const map = useMap();
+    map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
 };
 
 class Map extends Generic {
@@ -129,13 +150,15 @@ class Map extends Generic {
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
             markers.push({
-                longitude: this.state.values[`position${i}.val`]?.split(';')[0] || this.state.values[`longitude${i}.val`],
-                latitude: this.state.values[`position${i}.val`]?.split(';')[1] || this.state.values[`latitude${i}.val`],
+                longitude: this.getPropertyValue(`position${i}`)?.split(';')[0] || this.getPropertyValue(`longitude${i}`),
+                latitude: this.getPropertyValue(`position${i}`)?.split(';')[1] || this.getPropertyValue(`latitude${i}`),
                 name: this.state.rxData[`name${i}`],
                 color: this.state.rxData[`color${i}`],
                 icon: this.state.rxData[`icon${i}`],
             });
         }
+
+        console.log(markers);
 
         const map = <>
             <style>
@@ -164,14 +187,14 @@ Easily customizable.
                 </Marker>
                 {
                     markers.map((marker, index) => (
-                        <Marker key={index} position={[parseInt(marker.latitude) || 0, parseInt(marker.longitude) || 0]}>
+                        <Marker key={index} position={[parseFloat(marker.latitude) || 0, parseFloat(marker.longitude) || 0]}>
                             <Popup>
                                 {marker.name}
                             </Popup>
                         </Marker>
                     ))
                 }
-                <MapContent widget={this} />
+                <MapContent widget={this} markers={markers} />
             </MapContainer>
         </>;
 

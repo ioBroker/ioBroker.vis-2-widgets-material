@@ -179,7 +179,7 @@ class Camera extends Generic {
                     ref={this.imageRef}
                     src={this.state.rxData.url}
                     alt="Camera"
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
                     onClick={() => {
                         this.setState({ dialog: true });
                         this.propertiesUpdate();

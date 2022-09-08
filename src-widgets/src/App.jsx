@@ -73,12 +73,8 @@ class App extends WidgetDemoApp {
                 systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Map',
-                    values_count: 5,
-                    oid: 'javascript.0.temperatureSet',
-                    value1: 'COOL',
-                    color1: 'blue',
-                    value2: 'DRY',
-                    color2: 'red',
+                    markersCount: 1,
+                    position1: 'javascript.0.marker1',
                 }}
             />,
             player: <Player
@@ -91,6 +87,7 @@ class App extends WidgetDemoApp {
                 data={{
                     name: 'Player',
                     cover: 'sonos.0.root.192_168_1_102.current_cover',
+                    volume: 'sonos.0.root.192_168_1_102.volume',
                     muted: 'sonos.0.root.192_168_1_102.muted',
                     duration: 'sonos.0.root.192_168_1_102.current_duration',
                     elapsed: 'sonos.0.root.192_168_1_102.current_elapsed',
@@ -98,6 +95,7 @@ class App extends WidgetDemoApp {
                     artist: 'sonos.0.root.192_168_1_102.current_artist',
                     repeat: 'sonos.0.root.192_168_1_102.repeat',
                     shuffle: 'sonos.0.root.192_168_1_102.shuffle',
+                    state: 'sonos.0.root.192_168_1_102.state',
                 }}
             />,
             security: <Security
