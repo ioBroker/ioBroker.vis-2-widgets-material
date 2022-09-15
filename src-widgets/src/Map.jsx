@@ -5,7 +5,7 @@ import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
 import {
-    Popup, TileLayer, MapContainer, Marker, useMap,
+    Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, CircleMarker,
 } from 'react-leaflet';
 
 import {
@@ -15,15 +15,6 @@ import {
 import { Close as CloseIcon, OpenInFull as OpenInFullIcon } from '@mui/icons-material';
 
 import Generic from './Generic';
-
-// L.Popup.include({
-//     _originalInitLayout: L.Popup.prototype._initLayout, // Keep a reference to super method
-
-//     _initLayout() {
-//         this._originalInitLayout();
-//         this._closeButton.addEventListener('click', e => e.preventDefault());
-//     },
-// });
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -39,13 +30,20 @@ const styles = theme => ({
 
 const MapContent = props => {
     const map = useMap();
-    map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
+    const [oldRxData, setOldRxData] = React.useState('');
+    if (JSON.stringify(props.rxData) !== oldRxData && props.markers.filter(marker => marker.latitude && marker.longitude).length
+    ) {
+        map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
+        setOldRxData(JSON.stringify(props.rxData));
+    }
 };
 
 class Map extends Generic {
     constructor(props) {
         super(props);
         this.state.dialog = false;
+        this.state.history = {};
+        this.state.objects = {};
     }
 
     static getWidgetInfo() {
@@ -105,6 +103,11 @@ class Map extends Generic {
                             label: 'vis_2_widgets_material_latitude',
                         },
                         {
+                            name: 'radius',
+                            type: 'id',
+                            label: 'vis_2_widgets_material_radius',
+                        },
+                        {
                             name: 'name',
                             label: 'vis_2_widgets_material_name',
                         },
@@ -118,6 +121,12 @@ class Map extends Generic {
                             type: 'image',
                             label: 'vis_2_widgets_material_icon',
                         },
+                        {
+                            name: 'useHistory',
+                            type: 'checkbox',
+                            label: 'vis_2_widgets_material_use_history',
+                            default: true,
+                        }
                     ],
                 }],
             visDefaultStyle: {
@@ -132,7 +141,63 @@ class Map extends Generic {
     }
 
     async propertiesUpdate() {
+        const options = {
+            instance: this.props.systemConfig?.common?.defaultHistory || 'history.0',
+            from: false,
+            ack: false,
+            q: false,
+            addID: false,
+            end: new Date().getTime(),
+            count: 100,
+        };
 
+        const newHistory = {};
+
+        for (let i = 1; i <= this.state.rxData.markersCount; i++) {
+            if (this.state.rxData[`position${i}`] && this.state.rxData[`useHistory${i}`]) {
+                const history = (await this.props.socket.getHistory(this.state.rxData[`position${i}`], options));
+                newHistory[i] =                    history
+                    .filter(position => position.val)
+                    .sort((a, b) => (a.ts > b.ts ? 1 : -1));
+            }
+        }
+
+        this.setState({ history: newHistory });
+
+        const objects = {};
+
+        // try to find icons for all OIDs
+        for (let i = 1; i <= this.state.rxData.markersCount; i++) {
+            if (this.state.rxData[`oid${i}`]) {
+                // read object itself
+                const object = await this.props.socket.getObject(this.state.rxData[`oid${i}`]);
+                if (!object) {
+                    objects[i] = { common: {} };
+                    continue;
+                }
+                object.common = object.common || {};
+                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+                if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                    const idArray = this.state.rxData[`oid${i}`].split('.');
+
+                    // read channel
+                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        if (grandParentObject?.common?.icon) {
+                            object.common.icon = grandParentObject.common.icon;
+                        }
+                    } else {
+                        object.common.icon = parentObject.common.icon;
+                    }
+                }
+                objects[i] = { common: object.common, _id: object._id };
+            }
+        }
+
+        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {
+            this.setState({ objects });
+        }
     }
 
     async componentDidMount() {
@@ -140,8 +205,11 @@ class Map extends Generic {
         await this.propertiesUpdate();
     }
 
-    async onPropertiesUpdated() {
-        super.onPropertiesUpdated();
+    async onRxDataChanged(prevRxData) {
+        await this.propertiesUpdate();
+    }
+
+    async onStateUpdated(id, state) {
         await this.propertiesUpdate();
     }
 
@@ -150,51 +218,98 @@ class Map extends Generic {
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
             markers.push({
-                longitude: this.getPropertyValue(`position${i}`)?.split(';')[0] || this.getPropertyValue(`longitude${i}`),
-                latitude: this.getPropertyValue(`position${i}`)?.split(';')[1] || this.getPropertyValue(`latitude${i}`),
+                i,
+                longitude: parseFloat(this.getPropertyValue(`position${i}`)?.split(';')[0]) || this.getPropertyValue(`longitude${i}`) || 0,
+                latitude: parseFloat(this.getPropertyValue(`position${i}`)?.split(';')[1]) || this.getPropertyValue(`latitude${i}`) || 0,
+                radius: parseFloat(this.getPropertyValue(`radius${i}`)) || 0,
                 name: this.state.rxData[`name${i}`],
                 color: this.state.rxData[`color${i}`],
-                icon: this.state.rxData[`icon${i}`],
+                icon: this.state.rxData[`icon${i}`] || this.state.objects[i]?.common?.icon,
             });
         }
-
-        console.log(markers);
 
         const map = <>
             <style>
                 {`.leaflet-control-attribution svg {
                     display: none !important;
-                }`}
+                }
+                .leaflet-div-icon {
+                    border-radius: 50%;
+                }
+                `}
             </style>
             <MapContainer
                 style={{ width: '100%', height: '100%' }}
-                center={[51.505, -0.09]}
-                zoom={13}
                 scrollWheelZoom
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[51.505, -0.09]}>
-                    <Popup>
-      A pretty CSS3 popup.
-                        {' '}
-                        <br />
-                        {' '}
-Easily customizable.
-                    </Popup>
-                </Marker>
                 {
-                    markers.map((marker, index) => (
-                        <Marker key={index} position={[parseFloat(marker.latitude) || 0, parseFloat(marker.longitude) || 0]}>
-                            <Popup>
-                                {marker.name}
-                            </Popup>
-                        </Marker>
-                    ))
+                    markers.map((marker, index) => {
+                        const history = this.state.history[marker.i]?.map(position => [
+                            parseFloat(position.val.split(';')[1] || 0),
+                            parseFloat(position.val.split(';')[0] || 0),
+                        ]) || [];
+                        history.push([marker.latitude, marker.longitude]);
+
+                        const markerIcon = marker.icon ? new L.Icon({
+                            iconUrl: marker.icon,
+                            iconRetinaUrl: marker.icon,
+                            iconAnchor: new L.Point(16, 16),
+                            popupAnchor: new L.Point(0, -16),
+                            shadowUrl: null,
+                            shadowSize: null,
+                            shadowAnchor: null,
+                            iconSize: new L.Point(32, 32),
+                            className: 'leaflet-div-icon',
+
+                        }) : new L.Icon.Default();
+
+                        return <React.Fragment key={index}>
+                            <Marker
+                                position={[marker.latitude, marker.longitude]}
+                                icon={markerIcon}
+                                title={marker.name}
+                                eventHandlers={{
+                                    click: () => {
+                                        window.document.querySelectorAll('.leaflet-popup-close-button').forEach(el => el.addEventListener('click', e => {
+                                            e.preventDefault();
+                                        }));
+                                    },
+                                }}
+                            >
+                                <Popup>
+                                    {marker.name}
+                                </Popup>
+                            </Marker>
+                            {
+                                this.state.history[marker.i] ?
+                                    history.map((position, historyIndex) =>
+                                        historyIndex < history.length - 1 && <Polyline
+                                            key={historyIndex}
+                                            pathOptions={{
+                                                color: marker.color || 'blue',
+                                                opacity: historyIndex + 1 / history.length,
+                                            }}
+                                            positions={[position, history[historyIndex + 1]]}
+                                        />)
+                                    : null
+                            }
+                            {
+                                marker.radius ? <Circle
+                                    center={[marker.latitude, marker.longitude]}
+                                    pathOptions={{
+                                        color: marker.color || 'blue',
+                                    }}
+                                    radius={marker.radius}
+                                /> : null
+                            }
+                        </React.Fragment>;
+                    })
                 }
-                <MapContent widget={this} markers={markers} />
+                <MapContent widget={this} markers={markers} rxData={this.state.rxData} />
             </MapContainer>
         </>;
 

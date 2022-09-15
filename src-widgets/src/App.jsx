@@ -59,7 +59,7 @@ class App extends WidgetDemoApp {
                 systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Camera',
-                    url: 'https://picsum.photos/200/300',
+                    url: 'https://loremflickr.com/200/300',
                     refreshInterval: 1000,
                     showRefreshTime: true,
                 }}
@@ -75,6 +75,7 @@ class App extends WidgetDemoApp {
                     name: 'Map',
                     markersCount: 1,
                     position1: 'javascript.0.marker1',
+                    useHistory1: true,
                 }}
             />,
             player: <Player
@@ -108,10 +109,15 @@ class App extends WidgetDemoApp {
                 data={{
                     name: 'Security',
                     buttonsCount: 2,
+                    oid1: 'javascript.0.locked1',
                     name1: 'button1',
                     color1: 'blue',
+                    oid2: 'javascript.0.locked2',
                     name2: 'button2',
                     color2: 'red',
+                    pincode2: '1234',
+                    timerSeconds2: 2,
+                    pincodeReturnButton2: 'backspace',
                 }}
             />,
             clock: <Clock

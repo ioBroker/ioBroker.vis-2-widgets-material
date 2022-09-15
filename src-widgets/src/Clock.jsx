@@ -124,7 +124,7 @@ class Clock extends Generic {
                     },
                     {
                         name: 'withSeconds',
-                        label: 'vis_2_widgets_material_seconds',
+                        label: 'vis_2_widgets_material_with_seconds',
                         type: 'checkbox',
                         default: true,
                     },

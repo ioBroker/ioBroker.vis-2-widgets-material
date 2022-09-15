@@ -59,6 +59,7 @@ class Camera extends Generic {
                         {
                             name: 'showRefreshTime',
                             type: 'checkbox',
+                            label: 'vis_2_widgets_material_show_refresh_time',
                             default: true,
                         },
                     ],
@@ -147,11 +148,6 @@ class Camera extends Generic {
             </DialogTitle>
             <DialogContent>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div>
-                        {this.state.rxData.showRefreshTime && this.state.fullRefreshTime ?
-                            moment(this.state.fullRefreshTime).format('YYYY:MM:DD HH:mm:ss') :
-                            null}
-                    </div>
                     <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
                         <img
                             ref={this.fullImageRef}
@@ -159,6 +155,11 @@ class Camera extends Generic {
                             alt="Camera"
                             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                         />
+                    </div>
+                    <div style={{ textAlign: 'right', paddingTop: 20 }}>
+                        {this.state.rxData.showRefreshTime && this.state.fullRefreshTime ?
+                            moment(this.state.fullRefreshTime).format('DD.MM.YYYY HH:mm:ss') :
+                            null}
                     </div>
                 </div>
             </DialogContent>
@@ -169,23 +170,25 @@ class Camera extends Generic {
         super.renderWidgetBody(props);
 
         const content = <>
-            <div>
-                {this.state.rxData.showRefreshTime && this.state.refreshTime ?
-                    moment(this.state.refreshTime).format('YYYY:MM:DD HH:mm:ss') :
-                    null}
-            </div>
             <div style={{ flex: 1, overflow: 'hidden' }}>
                 <img
                     ref={this.imageRef}
                     src={this.state.rxData.url}
                     alt="Camera"
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
+                    style={{
+                        width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer',
+                    }}
                     onClick={() => {
                         this.setState({ dialog: true });
                         this.propertiesUpdate();
                     }}
                 />
                 {this.renderDialog()}
+            </div>
+            <div style={{ textAlign: 'right', width: '100%', paddingTop: 20 }}>
+                {this.state.rxData.showRefreshTime && this.state.refreshTime ?
+                    moment(this.state.refreshTime).format('DD.MM.YYYY HH:mm:ss') :
+                    null}
             </div>
         </>;
 

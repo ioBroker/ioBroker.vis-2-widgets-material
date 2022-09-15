@@ -2,8 +2,12 @@ import React from 'react';
 import { withStyles } from '@mui/styles';
 
 import {
-    Button, Dialog, DialogContent, DialogTitle,
+    Button, Chip, Dialog, DialogContent, DialogTitle, TextField,
 } from '@mui/material';
+import { I18n } from '@iobroker/adapter-react-v5';
+import {
+    Backspace, Check, RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon,
+} from '@mui/icons-material';
 import Generic from './Generic';
 
 const styles = theme => ({
@@ -13,8 +17,12 @@ const styles = theme => ({
 class Security extends Generic {
     constructor(props) {
         super(props);
+        this.state.objects = {};
         this.state.dialog = false;
+        this.state.timerDialog = false;
         this.state.pinInput = '';
+        this.state.timerI = null;
+        this.state.timerSeconds = 0;
     }
 
     static getWidgetInfo() {
@@ -61,6 +69,16 @@ class Security extends Generic {
                             label: 'vis_2_widgets_material_name',
                         },
                         {
+                            name: 'color',
+                            type: 'color',
+                            label: 'vis_2_widgets_material_color',
+                        },
+                        {
+                            name: 'icon',
+                            type: 'image',
+                            label: 'vis_2_widgets_material_icon',
+                        },
+                        {
                             name: 'pincode',
                             label: 'vis_2_widgets_material_pincode',
                             onChange: async (field, data, changeData, socket) => {
@@ -74,14 +92,21 @@ class Security extends Generic {
                             label: 'vis_2_widgets_material_pincode_oid',
                         },
                         {
-                            name: 'color',
-                            type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            name: 'pincodeReturnButton',
+                            type: 'select',
+                            options: ['submit', 'backspace'],
+                            default: 'submit',
+                            label: 'vis_2_widgets_material_pincode_return_button',
                         },
                         {
-                            name: 'icon',
-                            type: 'image',
-                            label: 'vis_2_widgets_material_icon',
+                            name: 'timerSeconds',
+                            type: 'number',
+                            label: 'vis_2_widgets_material_timer_seconds',
+                        },
+                        {
+                            name: 'timerSeconds-oid',
+                            type: 'id',
+                            label: 'vis_2_widgets_material_timer_seconds_oid',
                         },
                     ],
                 }],
@@ -97,46 +122,178 @@ class Security extends Generic {
     }
 
     async propertiesUpdate() {
+        const actualRxData = JSON.stringify(this.state.rxData);
+        if (this.lastRxData === actualRxData) {
+            return;
+        }
 
+        this.lastRxData = actualRxData;
+
+        const objects = {};
+
+        // try to find icons for all OIDs
+        for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
+            if (this.state.rxData[`oid${i}`]) {
+                // read object itself
+                const object = await this.props.socket.getObject(this.state.rxData[`oid${i}`]);
+                if (!object) {
+                    objects[i] = { common: {} };
+                    continue;
+                }
+                object.common = object.common || {};
+                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+                if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                    const idArray = this.state.rxData[`oid${i}`].split('.');
+
+                    // read channel
+                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        if (grandParentObject?.common?.icon) {
+                            object.common.icon = grandParentObject.common.icon;
+                        }
+                    } else {
+                        object.common.icon = parentObject.common.icon;
+                    }
+                }
+                objects[i] = { common: object.common, _id: object._id };
+            }
+        }
+
+        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {
+            this.setState({ objects });
+        }
+    }
+
+    async onRxDataChanged(prevRxData) {
+        await this.propertiesUpdate();
     }
 
     async componentDidMount() {
         super.componentDidMount();
-        await this.propertiesUpdate();
+        this.propertiesUpdate();
     }
 
-    async onPropertiesUpdated() {
-        super.onPropertiesUpdated();
-        await this.propertiesUpdate();
-    }
+    renderUnlockDialog() {
+        let lockedId = null;
+        let pincode = null;
+        let pincodeReturnButton = null;
+        for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
+            if (this.getPropertyValue(`oid${i}`)) {
+                lockedId = this.state.rxData[`oid${i}`];
+                pincode = this.getPincode(i);
+                pincodeReturnButton = this.state.rxData[`pincodeReturnButton${i}`] === 'backspace' ? 'backspace' : 'submit';
 
-    renderDialog() {
+                break;
+            }
+        }
+
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
-            <DialogTitle></DialogTitle>
+            <DialogTitle>{I18n.t('vis_2_widgets_material_enter_pin')}</DialogTitle>
             <DialogContent>
-                <div>{this.state.pinInput}</div>
+                <div style={{ padding: '10px 0px' }}>
+                    <TextField
+                        variant="outlined"
+                        fullWidth
+                        inputProps={{
+                            readOnly: true,
+                            style:{
+                                textAlign: 'center',
+                            },
+                        }}
+                        value={this.state.pinInput}
+                    />
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridGap: '10px' }}>
                     {
-                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0, '<='].map(button =>
-                            <Button
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
+                            pincodeReturnButton].map(button => {
+                            let buttonTitle = button;
+                            if (button === 'backspace') {
+                                buttonTitle = <Backspace />;
+                            } else if (button === 'submit') {
+                                buttonTitle = <Check />;
+                            }
+                            return <Button
                                 variant="outlined"
                                 key={button}
                                 onClick={() => {
-                                    if (button === '<=') {
+                                    if (button === 'submit') {
+                                        if (this.state.pinInput === pincode) {
+                                            this.props.socket.setState(lockedId, false);
+                                            this.setState({ dialog: false });
+                                        }
+                                    } else if (button === 'backspace') {
                                         this.setState({ pinInput: this.state.pinInput.slice(0, -1) });
                                     } else if (button === 'R') {
                                         this.setState({ pinInput: '' });
                                     } else {
-                                        this.setState({ pinInput: this.state.pinInput + button });
+                                        const pinInput = this.state.pinInput + button;
+                                        this.setState({ pinInput });
+                                        if (pincodeReturnButton === 'backspace' && pinInput === pincode) {
+                                            this.props.socket.setState(lockedId, false);
+                                            this.setState({ dialog: false });
+                                        }
                                     }
                                 }}
                             >
-                                {button}
-                            </Button>)
+                                {buttonTitle}
+                            </Button>;
+                        })
                     }
                 </div>
             </DialogContent>
         </Dialog>;
+    }
+
+    renderTimerDialog() {
+        const onClose = () => {
+            this.setState({ timerDialog: false });
+            if (this.state.rxData.timerSecondsOid) {
+                this.props.socket.setState(this.state.rxData.timerSecondsOid, -1);
+            }
+            clearInterval(this.timerInterval);
+        };
+        return <Dialog
+            open={this.state.timerDialog}
+            onClose={onClose}
+            style={{ textAlign: 'center' }}
+        >
+            <DialogTitle>{`${I18n.t('vis_2_widgets_material_lock_after')} ${this.state.timerSeconds} ${I18n.t('vis_2_widgets_material_seconds')}`}</DialogTitle>
+            <DialogContent>
+                <div style={{ fontSize: '200%', padding: 40 }}>
+                    {this.state.timerSeconds}
+                </div>
+                <div>
+                    <Button onClick={onClose} variant="contained">{I18n.t('vis_2_widgets_material_lock_cancel')}</Button>
+                </div>
+            </DialogContent>
+        </Dialog>;
+    }
+
+    startTimer(i) {
+        this.setState({ timerSeconds: this.state.rxData[`timerSeconds${i}`], timerDialog: true });
+        if (this.state.rxData[`timerSeconds-oid${i}`]) {
+            this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], this.state.rxData[`timerSeconds${i}`]);
+        }
+        this.timerInterval = setInterval(() => {
+            const timerSeconds = this.state.timerSeconds - 1;
+            this.setState({ timerSeconds });
+            if (timerSeconds === 0) {
+                this.props.socket.setState(this.state.rxData[`oid${i}`], true);
+                if (this.state.rxData[`timerSeconds-oid${i}`]) {
+                    this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
+                }
+                clearInterval(this.timerInterval);
+                this.setState({ timerDialog: false });
+            }
+        }, 1000);
+    }
+
+    getPincode(i) {
+        return this.state.rxData[`pincode-oid${i}`] ?
+            this.getPropertyValue(`pincode-oid${i}`) :
+            this.state.rxData[`pincode${i}`];
     }
 
     renderWidgetBody(props) {
@@ -144,29 +301,84 @@ class Security extends Generic {
 
         const buttons = [];
 
+        let locked = false;
+        let lockedButton = null;
+
         for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
             buttons.push({
+                i,
                 oid: this.state.rxData[`oid${i}`],
                 name: this.state.rxData[`name${i}`],
                 color: this.state.rxData[`color${i}`],
-                icon: this.state.rxData[`icon${i}`],
+                icon: this.state.rxData[`icon${i}`] || this.state.objects[i]?.common?.icon,
             });
+            if (this.getPropertyValue(`oid${i}`)) {
+                locked = true;
+                lockedButton = buttons[buttons.length - 1];
+            }
         }
 
         const content = <>
-            {this.renderDialog()}
-            <div style={{
+            {this.renderUnlockDialog()}
+            {this.renderTimerDialog()}
+            {locked ? <div style={{
+                display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', flex: 1,
+            }}
+            >
+                <Button
+                    variant="contained"
+                    onClick={() => {
+                        if (this.getPincode(lockedButton.i)) {
+                            this.setState({ dialog: true, pinInput: '' });
+                        } else {
+                            this.props.socket.setState(lockedButton.oid, false);
+                        }
+                    }}
+                >
+                    {I18n.t('vis_2_widgets_material_unlock')}
+                </Button>
+            </div> : <div style={{
                 display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center', flex: 1,
             }}
             >
                 {buttons.map((button, index) =>
-                    <Button variant="contained" key={index} onClick={() => this.setState({ dialog: true })}>
-                        {button.name}
+                    <Button
+                        variant="contained"
+                        key={index}
+                        style={{ backgroundColor: button.color }}
+                        onClick={() => {
+                            if (this.state.rxData[`timerSeconds${button.i}`]) {
+                                this.startTimer(button.i);
+                            } else {
+                                this.props.socket.setState(button.oid, true);
+                            }
+                        }}
+                    >
+                        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            {button.icon ? <img style={{ height: 20 }} src={button.icon} alt="" /> : null}
+                            {button.name}
+                        </span>
                     </Button>)}
-            </div>
+            </div>}
         </>;
 
-        return this.wrapContent(content, null, {
+        const lockedChip = <Chip
+            label={<span style={{ display: 'flex', alignItems: 'center' }}>
+                {locked ? <>
+                    <SecurityIcon />
+                    {lockedButton.name}
+                </> : <>
+                    <RemoveModeratorIcon />
+                    {I18n.t('vis_2_widgets_material_security_off')}
+                </>}
+            </span>}
+            style={{
+                backgroundColor: locked ? 'orange' : 'green',
+                color: locked ? 'black' : 'white',
+            }}
+        />;
+
+        return this.wrapContent(content, lockedChip, {
             boxSizing: 'border-box',
             paddingBottom: 10,
         });

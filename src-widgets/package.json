@@ -10,6 +10,7 @@
         "@mui/icons-material": "^5.10.3",
         "@mui/material": "^5.10.3",
         "@mui/styles": "^5.10.3",
+        "color": "^4.2.3",
         "colorthief": "^2.3.2",
         "date-fns": "^2.29.2",
         "echarts": "^5.3.3",
