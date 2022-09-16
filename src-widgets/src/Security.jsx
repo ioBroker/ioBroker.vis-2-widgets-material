@@ -11,7 +11,19 @@ import {
 import Generic from './Generic';
 
 const styles = theme => ({
-
+    pinGrid:  { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridGap: '10px' },
+    pinInput:  { padding: '10px 0px' },
+    timerDialog: { textAlign: 'center' },
+    timerSeconds:  { fontSize: '200%', padding: 40 },
+    lockedButton: {
+        display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', flex: 1,
+    },
+    unlockedButtons: {
+        display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center', flex: 1,
+    },
+    lockButton: { display: 'flex', gap: 8, alignItems: 'center' },
+    icon: { height: 20 },
+    status: { display: 'flex', alignItems: 'center' },
 });
 
 class Security extends Generic {
@@ -191,7 +203,7 @@ class Security extends Generic {
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
             <DialogTitle>{I18n.t('vis_2_widgets_material_enter_pin')}</DialogTitle>
             <DialogContent>
-                <div style={{ padding: '10px 0px' }}>
+                <div className={this.props.classes.pinInput}>
                     <TextField
                         variant="outlined"
                         fullWidth
@@ -204,7 +216,7 @@ class Security extends Generic {
                         value={this.state.pinInput}
                     />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridGap: '10px' }}>
+                <div className={this.props.classes.pinGrid}>
                     {
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
                             pincodeReturnButton].map(button => {
@@ -257,11 +269,11 @@ class Security extends Generic {
         return <Dialog
             open={this.state.timerDialog}
             onClose={onClose}
-            style={{ textAlign: 'center' }}
+            className={this.props.classes.timerDialog}
         >
             <DialogTitle>{`${I18n.t('vis_2_widgets_material_lock_after')} ${this.state.timerSeconds} ${I18n.t('vis_2_widgets_material_seconds')}`}</DialogTitle>
             <DialogContent>
-                <div style={{ fontSize: '200%', padding: 40 }}>
+                <div className={this.props.classes.timerSeconds}>
                     {this.state.timerSeconds}
                 </div>
                 <div>
@@ -321,10 +333,7 @@ class Security extends Generic {
         const content = <>
             {this.renderUnlockDialog()}
             {this.renderTimerDialog()}
-            {locked ? <div style={{
-                display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', flex: 1,
-            }}
-            >
+            {locked ? <div className={this.props.classes.lockedButton}>
                 <Button
                     variant="contained"
                     onClick={() => {
@@ -337,10 +346,7 @@ class Security extends Generic {
                 >
                     {I18n.t('vis_2_widgets_material_unlock')}
                 </Button>
-            </div> : <div style={{
-                display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center', flex: 1,
-            }}
-            >
+            </div> : <div className={this.props.classes.unlockedButtons}>
                 {buttons.map((button, index) =>
                     <Button
                         variant="contained"
@@ -354,8 +360,8 @@ class Security extends Generic {
                             }
                         }}
                     >
-                        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                            {button.icon ? <img style={{ height: 20 }} src={button.icon} alt="" /> : null}
+                        <span className={this.props.classes.lockButton}>
+                            {button.icon ? <img className={this.props.classes.icon} src={button.icon} alt="" /> : null}
                             {button.name}
                         </span>
                     </Button>)}
@@ -363,7 +369,7 @@ class Security extends Generic {
         </>;
 
         const lockedChip = <Chip
-            label={<span style={{ display: 'flex', alignItems: 'center' }}>
+            label={<span className={this.props.classes.status}>
                 {locked ? <>
                     <SecurityIcon />
                     {lockedButton.name}

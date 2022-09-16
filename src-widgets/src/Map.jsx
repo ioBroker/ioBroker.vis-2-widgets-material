@@ -1,9 +1,8 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
 import L from 'leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
+import './leaflet-providers';
 import {
     Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, CircleMarker,
 } from 'react-leaflet';
@@ -16,6 +15,8 @@ import { Close as CloseIcon, OpenInFull as OpenInFullIcon } from '@mui/icons-mat
 
 import Generic from './Generic';
 
+console.log(L.TileLayer.Provider.providers);
+
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -25,7 +26,8 @@ L.Icon.Default.mergeOptions({
 });
 
 const styles = theme => ({
-
+    mapContainer: { width: '100%', height: '100%' },
+    dialogTitle: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
 });
 
 const MapContent = props => {
@@ -126,7 +128,7 @@ class Map extends Generic {
                             type: 'checkbox',
                             label: 'vis_2_widgets_material_use_history',
                             default: true,
-                        }
+                        },
                     ],
                 }],
             visDefaultStyle: {
@@ -239,7 +241,7 @@ class Map extends Generic {
                 `}
             </style>
             <MapContainer
-                style={{ width: '100%', height: '100%' }}
+                className={this.props.classes.mapContainer}
                 scrollWheelZoom
             >
                 <TileLayer
@@ -322,7 +324,7 @@ class Map extends Generic {
             fullScreen
             onClose={() => this.setState({ dialog: false })}
         >
-            <DialogTitle style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <DialogTitle className={this.props.classes.dialogTitle}>
                 {this.state.rxData.name}
                 <IconButton onClick={() => this.setState({ dialog: false })}>
                     <CloseIcon />

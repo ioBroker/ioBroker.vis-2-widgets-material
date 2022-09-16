@@ -9,7 +9,16 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import Generic from './Generic';
 
 const styles = theme => ({
-
+    dialogTitle: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    fullCamera: { width: '100%', height: '100%', objectFit: 'contain' },
+    dialogTime: { textAlign: 'right', paddingTop: 20 },
+    camera: {
+        width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer',
+    },
+    time: { textAlign: 'right', width: '100%', paddingTop: 20 },
+    dialogContent: { display: 'flex', flexDirection: 'column' },
+    dialogImageContainer: { flex: 1, overflow: 'hidden', display: 'flex' },
+    imageContainer: { flex: 1, overflow: 'hidden' },
 });
 
 class Camera extends Generic {
@@ -140,23 +149,23 @@ class Camera extends Generic {
             open={this.state.dialog}
             onClose={this.closeDialog}
         >
-            <DialogTitle style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <DialogTitle className={this.props.classes.dialogTitle}>
                 {this.state.rxData.name}
                 <IconButton onClick={this.closeDialog}>
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
             <DialogContent>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+                <div className={this.props.classes.dialogContent}>
+                    <div className={this.props.classes.dialogImageContainer}>
                         <img
                             ref={this.fullImageRef}
                             src={this.state.rxData.fullUrl || this.state.rxData.url}
                             alt="Camera"
-                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                            className={this.props.classes.fullCamera}
                         />
                     </div>
-                    <div style={{ textAlign: 'right', paddingTop: 20 }}>
+                    <div className={this.props.classes.dialogTime}>
                         {this.state.rxData.showRefreshTime && this.state.fullRefreshTime ?
                             moment(this.state.fullRefreshTime).format('DD.MM.YYYY HH:mm:ss') :
                             null}
@@ -170,14 +179,12 @@ class Camera extends Generic {
         super.renderWidgetBody(props);
 
         const content = <>
-            <div style={{ flex: 1, overflow: 'hidden' }}>
+            <div className={this.props.classes.imageContainer}>
                 <img
                     ref={this.imageRef}
                     src={this.state.rxData.url}
                     alt="Camera"
-                    style={{
-                        width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer',
-                    }}
+                    className={this.props.classes.camera}
                     onClick={() => {
                         this.setState({ dialog: true });
                         this.propertiesUpdate();
@@ -185,7 +192,7 @@ class Camera extends Generic {
                 />
                 {this.renderDialog()}
             </div>
-            <div style={{ textAlign: 'right', width: '100%', paddingTop: 20 }}>
+            <div className={this.props.classes.time}>
                 {this.state.rxData.showRefreshTime && this.state.refreshTime ?
                     moment(this.state.refreshTime).format('DD.MM.YYYY HH:mm:ss') :
                     null}

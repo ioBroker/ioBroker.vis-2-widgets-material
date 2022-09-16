@@ -17,7 +17,58 @@ import {
 import Generic from './Generic';
 
 const styles = theme => ({
-
+    content: {
+        display: 'flex',
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        width: '100%',
+        boxSizing: 'border-box',
+        position: 'relative',
+    },
+    volume: { display: 'flex', alignItems: 'center', gap: 10 },
+    seek: { display: 'flex', alignItems: 'center', gap: 10 },
+    buttons: { display: 'flex' },
+    mode: { display: 'flex' },
+    title:  { fontSize: '140%' },
+    zIndex: { zIndex: 1 },
+    player: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
+    seekSlider: {
+        color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
+        height: 4,
+        '& .MuiSlider-thumb': {
+            width: 8,
+            height: 8,
+            transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+            '&:before': {
+                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
+            },
+            '&.Mui-active': {
+                width: 20,
+                height: 20,
+            },
+        },
+        '& .MuiSlider-rail': {
+            opacity: 0.28,
+        },
+    },
+    volumeSlider: {
+        color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
+        '& .MuiSlider-track': {
+            border: 'none',
+        },
+        '& .MuiSlider-thumb': {
+            width: 24,
+            height: 24,
+            backgroundColor: '#fff',
+            '&:before': {
+                boxShadow: '0 4px 8px rgba(0,0,0,0.4)',
+            },
+            '&:hover, &.Mui-focusVisible, &.Mui-active': {
+                boxShadow: 'none',
+            },
+        },
+    },
 });
 
 const mediaTypes = ['title', 'artist', 'cover', 'state', 'duration', 'elapsed', 'prev', 'next', 'volume', 'mute', 'repeat', 'shuffle'];
@@ -194,6 +245,7 @@ class Player extends Generic {
                 height: 'calc(100% - 8px)',
                 margin: 4,
                 position: 'relative',
+                backgroundImage: 'none',
                 backgroundColor: coverColor ? `rgb(${coverColor.join(', ')}` : null,
                 color,
             }}
@@ -295,110 +347,119 @@ class Player extends Generic {
             repeatIcon = <RepeatRounded />;
         }
 
+        const coverColor = this.getColor();
+        let color;
+        if (coverColor) {
+            color = (coverColor[0] + coverColor[1] + coverColor[2]) / 3 < 128 ? 'white' : 'black';
+        }
+
         const content = <div
-            style={{
-                display: 'flex',
-                flex: 1,
-                flexDirection: 'column',
-                justifyContent: 'center',
-                width: '100%',
-                boxSizing: 'border-box',
-                position: 'relative',
-            }}
+            className={this.props.classes.content}
         >
 
-            <div style={{ zIndex: 1 }}>
-                <div style={{
-                    display: 'flex', width: '100%', justifyContent: 'space-between',
+            <div className={this.props.classes.zIndex}>
+                <div className={this.props.classes.player}>
+                    <div className={this.props.classes.title}>{this.getPropertyValue('title')}</div>
+                    <div>{this.getPropertyValue('artist')}</div>
+                    <div className={this.props.classes.mode}>
+                        <IconButton
+                            color={this.getPropertyValue('repeat') ? 'primary' : undefined}
+                            onClick={() => {
+                                let newValue = null;
+                                if (parseInt(this.getPropertyValue('repeat')) === 1) {
+                                    newValue = 2;
+                                } else if (parseInt(this.getPropertyValue('repeat')) === 2) {
+                                    newValue = 0;
+                                } else {
+                                    newValue = 1;
+                                }
+                                this.props.socket.setState(this.state.rxData.repeat, newValue);
+                            }}
+                        >
+                            {repeatIcon}
+                        </IconButton>
+                        <IconButton
+                            color={this.getPropertyValue('shuffle') ? 'primary' : undefined}
+                            onClick={() => {
+                                this.props.socket.setState(this.state.rxData.shuffle, !this.getPropertyValue('shuffle'));
+                            }}
+                        >
+                            <ShuffleRounded />
+                        </IconButton>
+                    </div>
+                    <div className={this.props.classes.buttons}>
+                        <IconButton onClick={() => {
+                            this.props.socket.setState(this.state.rxData.prev, true);
+                        }}
+                        >
+                            <SkipPreviousRounded fontSize="large" />
+                        </IconButton>
+                        <IconButton onClick={() => {
+                            this.props.socket.setState(this.state.rxData.state, this.getPropertyValue('state') === 'play' ? 'pause' : 'play');
+                        }}
+                        >
+                            {this.getPropertyValue('state') === 'play' ?
+                                <PlayArrowRounded fontSize="large" /> :
+                                <PauseRounded fontSize="large" />}
+                        </IconButton>
+                        <IconButton onClick={() => {
+                            this.props.socket.setState(this.state.rxData.next, true);
+                        }}
+                        >
+                            <SkipNextRounded fontSize="large" />
+                        </IconButton>
+                    </div>
+                </div>
+
+            </div>
+            <div className={this.props.classes.seek}>
+                {this.getTimeString(this.getPropertyValue('elapsed'))}
+                <Slider
+                    className={this.props.classes.seekSlider}
+                    style={{ color }}
+                    sx={theme => ({
+                        '& .MuiSlider-thumb': {
+                            '&:hover, &.Mui-focusVisible': {
+                                boxShadow: `0px 0px 0px 8px ${
+                                    theme.palette.mode === 'dark' || color === 'white'
+                                        ? 'rgb(255 255 255 / 16%)'
+                                        : 'rgb(0 0 0 / 16%)'
+                                }`,
+                            },
+                        },
+                    })}
+                    size="small"
+                    min={0}
+                    max={this.getPropertyValue('duration') || 0}
+                    value={this.getPropertyValue('elapsed') || 0}
+                    valueLabelDisplay="auto"
+                    valueLabelFormat={this.getTimeString}
+                    onChange={e => {
+                        this.props.socket.setState(this.state.rxData.elapsed, e.target.value);
+                    }}
+                />
+                {this.getTimeString(this.getPropertyValue('duration'))}
+            </div>
+            <div className={this.props.classes.volume}>
+                <IconButton onClick={() => {
+                    this.props.socket.setState(this.state.rxData.mute, !this.getPropertyValue('mute'));
                 }}
                 >
-                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <div style={{ fontSize: '140%' }}>{this.getPropertyValue('title')}</div>
-                        <div>{this.getPropertyValue('artist')}</div>
-                        <div style={{ display: 'flex' }}>
-                            <IconButton
-                                color={this.getPropertyValue('repeat') ? 'primary' : undefined}
-                                onClick={() => {
-                                    let newValue = null;
-                                    if (parseInt(this.getPropertyValue('repeat')) === 1) {
-                                        newValue = 2;
-                                    } else if (parseInt(this.getPropertyValue('repeat')) === 2) {
-                                        newValue = 0;
-                                    } else {
-                                        newValue = 1;
-                                    }
-                                    this.props.socket.setState(this.state.rxData.repeat, newValue);
-                                }}
-                            >
-                                {repeatIcon}
-                            </IconButton>
-                            <IconButton
-                                color={this.getPropertyValue('shuffle') ? 'primary' : undefined}
-                                onClick={() => {
-                                    this.props.socket.setState(this.state.rxData.shuffle, !this.getPropertyValue('shuffle'));
-                                }}
-                            >
-                                <ShuffleRounded />
-                            </IconButton>
-                        </div>
-                        <div style={{ display: 'flex' }}>
-                            <IconButton onClick={() => {
-                                this.props.socket.setState(this.state.rxData.prev, true);
-                            }}
-                            >
-                                <SkipPreviousRounded fontSize="large" />
-                            </IconButton>
-                            <IconButton onClick={() => {
-                                this.props.socket.setState(this.state.rxData.state, this.getPropertyValue('state') === 'play' ? 'pause' : 'play');
-                            }}
-                            >
-                                {this.getPropertyValue('state') === 'play' ?
-                                    <PlayArrowRounded fontSize="large" /> :
-                                    <PauseRounded fontSize="large" />}
-                            </IconButton>
-                            <IconButton onClick={() => {
-                                this.props.socket.setState(this.state.rxData.next, true);
-                            }}
-                            >
-                                <SkipNextRounded fontSize="large" />
-                            </IconButton>
-                        </div>
-                    </div>
-
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {this.getTimeString(this.getPropertyValue('elapsed'))}
-                    <Slider
-                        min={0}
-                        max={this.getPropertyValue('duration') || 0}
-                        value={this.getPropertyValue('elapsed') || 0}
-                        valueLabelDisplay="auto"
-                        valueLabelFormat={this.getTimeString}
-                        onChange={e => {
-                            this.props.socket.setState(this.state.rxData.elapsed, e.target.value);
-                        }}
-                    />
-                    {this.getTimeString(this.getPropertyValue('duration'))}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <IconButton onClick={() => {
-                        this.props.socket.setState(this.state.rxData.mute, !this.getPropertyValue('mute'));
+                    {this.getPropertyValue('mute') ?
+                        <VolumeMute /> :
+                        <VolumeUp />}
+                </IconButton>
+                <Slider
+                    className={this.props.classes.volumeSlider}
+                    style={{ color }}
+                    min={this.state.volumeObject?.common?.min || 0}
+                    max={this.state.volumeObject?.common?.max || 100}
+                    value={this.getPropertyValue('volume') || 0}
+                    valueLabelDisplay="auto"
+                    onChange={e => {
+                        this.props.socket.setState(this.state.rxData.volume, e.target.value);
                     }}
-                    >
-                        {this.getPropertyValue('mute') ?
-                            <VolumeMute /> :
-                            <VolumeUp />}
-                    </IconButton>
-                    <Slider
-                        min={this.state.volumeObject?.common?.min || 0}
-                        max={this.state.volumeObject?.common?.max || 100}
-                        value={this.getPropertyValue('volume') || 0}
-                        valueLabelDisplay="auto"
-                        onChange={e => {
-                            this.props.socket.setState(this.state.rxData.volume, e.target.value);
-                        }}
-                    />
-                </div>
+                />
             </div>
         </div>;
 
