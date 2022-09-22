@@ -109,5 +109,12 @@
   "vis_2_widgets_material_show_refresh_time": "Show refresh time",
   "vis_2_widgets_material_radius": "Radius",
   "vis_2_widgets_material_use_history": "Use history",
-  "vis_2_widgets_material_lock_cancel": "Cancel"
+  "vis_2_widgets_material_lock_cancel": "Cancel",
+  "vis_2_widgets_material_theme": "Theme",
+  "vis_2_widgets_material_theme_url": "Theme url",
+  "vis_2_widgets_material_theme_attribution": "Theme attribution",
+  "darkmatter": "DarkMatter",
+  "openstreetmapde": "Openstreetmap.de",
+  "stadiaosmbright": "Stadia.OSMBright",
+  "esriworldimagery": "Esri.WorldImagery"
 }

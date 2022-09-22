@@ -76,6 +76,7 @@ class App extends WidgetDemoApp {
                     markersCount: 1,
                     position1: 'javascript.0.marker1',
                     useHistory1: true,
+                    theme: 'darkmatter',
                 }}
             />,
             player: <Player

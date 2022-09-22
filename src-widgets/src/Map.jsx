@@ -15,8 +15,6 @@ import { Close as CloseIcon, OpenInFull as OpenInFullIcon } from '@mui/icons-mat
 
 import Generic from './Generic';
 
-console.log(L.TileLayer.Provider.providers);
-
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -38,6 +36,38 @@ const MapContent = props => {
         map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
         setOldRxData(JSON.stringify(props.rxData));
     }
+};
+
+const mapThemes = {
+    '': {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    },
+    darkmatter: {
+        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        attribution: '<a href="https://carto.com/attributions">CARTO</a>',
+    },
+    openstreetmapde: {
+        url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    },
+    stadiaosmbright: {
+        url: 'https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png',
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+    },
+    // jawgstreets: {
+    //     url: '',
+    //     attribution: '',
+    // },
+    // jawgdark: {
+    //     url: '',
+    //     attribution: '',
+    // },
+    esriworldimagery: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles &copy; Esri &mdash; ' +
+        'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    },
 };
 
 class Map extends Generic {
@@ -67,6 +97,23 @@ class Map extends Generic {
                             label: 'vis_2_widgets_material_markers_count',
                             type: 'number',
                             default: 2,
+                        },
+                        {
+                            name: 'theme',
+                            label: 'vis_2_widgets_material_theme',
+                            type: 'select',
+                            options: Object.keys(mapThemes),
+                            default: '',
+                        },
+                        {
+                            name: 'themeUrl',
+                            label: 'vis_2_widgets_material_theme_url',
+                            hidden: data => data.theme,
+                        },
+                        {
+                            name: 'themeAttribution',
+                            label: 'vis_2_widgets_material_theme_attribution',
+                            hidden: data => data.theme,
                         },
                     ],
                 }, {
@@ -230,6 +277,16 @@ class Map extends Generic {
             });
         }
 
+        let tilesUrl = mapThemes[''].url;
+        let tilesAttribution = mapThemes[''].attribution;
+        if (this.state.rxData.theme && mapThemes[this.state.rxData.theme]) {
+            tilesUrl = mapThemes[this.state.rxData.theme].url;
+            tilesAttribution = mapThemes[this.state.rxData.theme].attribution;
+        } else if (this.state.rxData.themeUrl) {
+            tilesUrl = this.state.rxData.themeUrl;
+            tilesAttribution = this.state.rxData.themeAttribution;
+        }
+
         const map = <>
             <style>
                 {`.leaflet-control-attribution svg {
@@ -243,10 +300,11 @@ class Map extends Generic {
             <MapContainer
                 className={this.props.classes.mapContainer}
                 scrollWheelZoom
+                key={tilesUrl}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution={tilesAttribution}
+                    url={tilesUrl}
                 />
                 {
                     markers.map((marker, index) => {
