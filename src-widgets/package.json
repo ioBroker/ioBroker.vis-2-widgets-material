@@ -49,7 +49,7 @@
         "eslint-plugin-jsx-a11y": "^6.6.1",
         "eslint-plugin-react": "^7.31.1",
         "eslint-plugin-react-hooks": "^4.6.0",
-        "sass": "^1.54.8"
+        "sass": "^1.55.0"
     },
     "homepage": ".",
     "browserslist": [
