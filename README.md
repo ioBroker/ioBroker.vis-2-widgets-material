@@ -1,19 +1,31 @@
-# Vis React Widget Template
+![Logo](admin/vis-2-widgets-material.png)
+# Material widgets for ioBroker.vis 2.0
 
-## Development
-After all entries with vis-widgets-react-template are replaced to your adapter name in package.json, io-package.json 
-and file admin/ vis-widgets-react-template.png renamed too, you can start with renaming of widgets.
+![Number of Installations](http://iobroker.live/badges/vis-2-widgets-material-installed.svg) ![Number of Installations](http://iobroker.live/badges/vis-2-widgets-material-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.vis-2-widgets-material.svg)](https://www.npmjs.com/package/iobroker.vis-2-widgets-material)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.vis-2-widgets-material.svg)](https://www.npmjs.com/package/iobroker.vis-2-widgets-material)
 
-Some important places:
-1. `io-package.json` => `common.visWidgets`
-2. `src-widgets/modulefederation.config.js` from Line 15
-3. File `DemoWidget.jsx`
+[![NPM](https://nodei.co/npm/iobroker.vis-2-widgets-material.png?downloads=true)](https://nodei.co/npm/iobroker.vis-2-widgets-material/)
 
-Files in directory `src-widgets` (`App.jsx`, `bootstrap.jsx`, `index.jsx`) are only for development mode and will not be used in production. 
+## Widgets
+### Buttons and switches
 
-By development, you can start script from `src-widgets` folder `npm run start` and then on port 4173 you will see the demo widget.
+### Clock
 
+### Simple state
+
+### View in widget
+
+### Security control
+
+### Player
+
+<!--
+    Placeholder for the next version (at the beginning of the line):
+    ### **WORK IN PROGRESS**
+-->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) initial commit
 
 ## License
 The MIT License (MIT)

@@ -101,11 +101,10 @@
   "vis_2_widgets_material_pincode_return_button": "Pincode return button",
   "vis_2_widgets_material_timer_seconds": "Timer seconds",
   "vis_2_widgets_material_timer_seconds_oid": "Timer seconds OID",
-  "vis_2_widgets_material_seconds": "seconds",
   "vis_2_widgets_material_enter_pin": "Enter pin",
-  "vis_2_widgets_material_lock_after": "Lock after",
+  "vis_2_widgets_material_lock_after": "Lock after %s second(s)",
   "vis_2_widgets_material_unlock": "Unlock",
-  "vis_2_widgets_material_security_off": "security off",
+  "vis_2_widgets_material_security_off": "Security off",
   "vis_2_widgets_material_show_refresh_time": "Show refresh time",
   "vis_2_widgets_material_radius": "Radius",
   "vis_2_widgets_material_use_history": "Use history",
@@ -119,5 +118,7 @@
   "esriworldimagery": "Esri.WorldImagery",
   "vis_2_widgets_material_default_zoom": "Default zoom",
   "vis_2_widgets_material_hide_zoom": "Hide zoom",
-  "vis_2_widgets_material_radius_tooltip": "Accuracy in meters"
+  "vis_2_widgets_material_radius_tooltip": "Accuracy in meters",
+  "vis_2_widgets_material_default_button_name": "Alarm ON",
+  "vis_2_widgets_material_no_oid": "Please set Object ID for this button first"
 }

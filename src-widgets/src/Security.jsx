@@ -4,7 +4,7 @@ import { withStyles } from '@mui/styles';
 import {
     Button, Chip, Dialog, DialogContent, DialogTitle, TextField,
 } from '@mui/material';
-import { I18n } from '@iobroker/adapter-react-v5';
+import { I18n, Message as DialogMessage } from '@iobroker/adapter-react-v5';
 import {
     Backspace, Check, RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon,
 } from '@mui/icons-material';
@@ -33,6 +33,7 @@ class Security extends Generic {
         this.state.dialog = false;
         this.state.timerDialog = false;
         this.state.pinInput = '';
+        this.state.invalidPin = false;
         this.state.timerI = null;
         this.state.timerSeconds = 0;
     }
@@ -52,10 +53,18 @@ class Security extends Generic {
                             label: 'vis_2_widgets_material_name',
                         },
                         {
+                            name: 'disarmText',
+                            label: 'vis_2_widgets_material_disarm_text',
+                        },
+                        {
+                            name: 'securityOffText',
+                            label: 'vis_2_widgets_material_security_off_text',
+                        },
+                        {
                             name: 'buttonsCount',
                             label: 'vis_2_widgets_material_buttons_count',
                             type: 'number',
-                            default: 2,
+                            default: 1,
                         },
                     ],
                 }, {
@@ -69,16 +78,27 @@ class Security extends Generic {
                             label: 'vis_2_widgets_material_oid',
                             onChange: async (field, data, changeData, socket) => {
                                 const object = await socket.getObject(data[field.name]);
+                                let changed = false;
                                 if (object && object.common) {
-                                    data[`color${field.index}`] = object.common.color !== undefined ? object.common.color : null;
-                                    data[`name${field.index}`] = object.common.name && typeof object.common.name === 'object' ? object.common.name[I18n.getLanguage()] : object.common.name;
-                                    changeData(data);
+                                    if (object.common.color && data[`color${field.index}`] !== object.common.color) {
+                                        data[`color${field.index}`] = object.common.color;
+                                        changed = true;
+                                    }
+                                    if (object.common.name) {
+                                        const name = object.common.name && typeof object.common.name === 'object' ? object.common.name[I18n.getLanguage()] : object.common.name;
+                                        if (data[`name${field.index}`] !== name) {
+                                            data[`name${field.index}`] = name;
+                                            changed = true;
+                                        }
+                                    }
+                                    changed && changeData(data);
                                 }
                             },
                         },
                         {
                             name: 'name',
                             label: 'vis_2_widgets_material_name',
+                            default: I18n.t('vis_2_widgets_material_default_button_name'),
                         },
                         {
                             name: 'color',
@@ -97,11 +117,13 @@ class Security extends Generic {
                                 data[`pincode${field.index}`] = data[`pincode${field.index}`].replace(/[^0-9]/g, '');
                                 changeData(data);
                             },
+                            hidden: (data, index) => !!data[`pincode-oid${index}`],
                         },
                         {
                             name: 'pincode-oid',
                             type: 'id',
                             label: 'vis_2_widgets_material_pincode_oid',
+                            hidden: (data, index) => !!data[`pincode${index}`],
                         },
                         {
                             name: 'pincodeReturnButton',
@@ -109,6 +131,7 @@ class Security extends Generic {
                             options: ['submit', 'backspace'],
                             default: 'submit',
                             label: 'vis_2_widgets_material_pincode_return_button',
+                            hidden: (data, index) => !!data[`pincode-oid${index}`] && !!data[`pincode${index}`],
                         },
                         {
                             name: 'timerSeconds',
@@ -190,6 +213,12 @@ class Security extends Generic {
         this.propertiesUpdate();
     }
 
+    componentWillUnmount() {
+        this.timerInterval && clearInterval(this.timerInterval);
+        this.timerInterval = null;
+        super.componentWillUnmount();
+    }
+
     renderUnlockDialog() {
         let lockedId = null;
         let pincode = null;
@@ -199,7 +228,6 @@ class Security extends Generic {
                 lockedId = this.state.rxData[`oid${i}`];
                 pincode = this.getPincode(i);
                 pincodeReturnButton = this.state.rxData[`pincodeReturnButton${i}`] === 'backspace' ? 'backspace' : 'submit';
-
                 break;
             }
         }
@@ -238,6 +266,9 @@ class Security extends Generic {
                                         if (this.state.pinInput === pincode) {
                                             this.props.socket.setState(lockedId, false);
                                             this.setState({ dialog: false });
+                                        } else {
+                                            this.setState({ pinInput: '', invalidPin: true });
+                                            setTimeout(() => this.setState({ invalidPin: false }), 500);
                                         }
                                     } else if (button === 'backspace') {
                                         this.setState({ pinInput: this.state.pinInput.slice(0, -1) });
@@ -275,7 +306,7 @@ class Security extends Generic {
             onClose={onClose}
             className={this.props.classes.timerDialog}
         >
-            <DialogTitle>{`${I18n.t('vis_2_widgets_material_lock_after')} ${this.state.timerSeconds} ${I18n.t('vis_2_widgets_material_seconds')}`}</DialogTitle>
+            <DialogTitle>{I18n.t('vis_2_widgets_material_lock_after', this.state.timerSeconds)}</DialogTitle>
             <DialogContent>
                 <div className={this.props.classes.timerSeconds}>
                     {this.state.timerSeconds}
@@ -288,19 +319,24 @@ class Security extends Generic {
     }
 
     startTimer(i) {
-        this.setState({ timerSeconds: this.state.rxData[`timerSeconds${i}`], timerDialog: true });
+        const timerSeconds = this.state.rxData[`timerSeconds${i}`];
+        this.setState({ timerSeconds, timerDialog: true });
         if (this.state.rxData[`timerSeconds-oid${i}`]) {
-            this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], this.state.rxData[`timerSeconds${i}`]);
+            this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
         }
         this.timerInterval = setInterval(() => {
-            const timerSeconds = this.state.timerSeconds - 1;
-            this.setState({ timerSeconds });
-            if (timerSeconds === 0) {
-                this.props.socket.setState(this.state.rxData[`oid${i}`], true);
-                if (this.state.rxData[`timerSeconds-oid${i}`]) {
-                    this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
+            const _timerSeconds = this.state.timerSeconds - 1;
+            this.setState({ timerSeconds: _timerSeconds });
+            if (!_timerSeconds) {
+                if (!this.state.rxData[`oid${i}`]) {
+                    this.setState({ message: I18n.t('vis_2_widgets_material_no_oid') });
+                } else {
+                    this.props.socket.setState(this.state.rxData[`oid${i}`], true);
                 }
-                clearInterval(this.timerInterval);
+                if (this.state.rxData[`timerSeconds-oid${i}`]) {
+                    this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], 0);
+                }
+                this.timerInterval && clearInterval(this.timerInterval);
                 this.setState({ timerDialog: false });
             }
         }, 1000);
@@ -310,6 +346,13 @@ class Security extends Generic {
         return this.state.rxData[`pincode-oid${i}`] ?
             this.getPropertyValue(`pincode-oid${i}`) :
             this.state.rxData[`pincode${i}`];
+    }
+
+    renderMessageDialog() {
+        return this.state.message ? <DialogMessage
+            text={this.state.message}
+            onClose={() => this.setState({ message: null })}
+        /> : null;
     }
 
     renderWidgetBody(props) {
@@ -337,6 +380,7 @@ class Security extends Generic {
         const content = <>
             {this.renderUnlockDialog()}
             {this.renderTimerDialog()}
+            {this.renderMessageDialog()}
             {locked ? <div className={this.props.classes.lockedButton}>
                 <Button
                     variant="contained"
@@ -348,7 +392,7 @@ class Security extends Generic {
                         }
                     }}
                 >
-                    {I18n.t('vis_2_widgets_material_unlock')}
+                    {this.state.rxData.disarmText || I18n.t('vis_2_widgets_material_unlock')}
                 </Button>
             </div> : <div className={this.props.classes.unlockedButtons}>
                 {buttons.map((button, index) =>
@@ -359,6 +403,8 @@ class Security extends Generic {
                         onClick={() => {
                             if (this.state.rxData[`timerSeconds${button.i}`]) {
                                 this.startTimer(button.i);
+                            } else if (!button.oid) {
+                                this.setState({ message: I18n.t('vis_2_widgets_material_no_oid') });
                             } else {
                                 this.props.socket.setState(button.oid, true);
                             }
@@ -379,7 +425,7 @@ class Security extends Generic {
                     {lockedButton.name}
                 </> : <>
                     <RemoveModeratorIcon />
-                    {I18n.t('vis_2_widgets_material_security_off')}
+                    {this.state.rxData.securityOffText || I18n.t('vis_2_widgets_material_security_off')}
                 </>}
             </span>}
             style={{

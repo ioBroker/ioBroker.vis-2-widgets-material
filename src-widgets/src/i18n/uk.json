@@ -77,7 +77,6 @@
   "vis_2_widgets_material_refresh_seconds": "Оновити секунди",
   "vis_2_widgets_material_relative": "відносний",
   "vis_2_widgets_material_repeat": "Повторіть",
-  "vis_2_widgets_material_seconds": "секунд",
   "vis_2_widgets_material_seconds_hand_color": "Колір б/у",
   "vis_2_widgets_material_security": "Безпека",
   "vis_2_widgets_material_security_off": "безпека вимкнена",
@@ -119,5 +118,7 @@
   "vis_2_widgets_material_view_nav": "Навігатор переглядів",
   "vis_2_widgets_material_volume": "Обсяг",
   "vis_2_widgets_material_with_seconds": "З секундами",
-  "vis_2_widgets_material_radius_tooltip": "Точність в метрах"
+  "vis_2_widgets_material_radius_tooltip": "Точність в метрах",
+  "vis_2_widgets_material_default_button_name": "Будильник увімкнено",
+  "vis_2_widgets_material_no_oid": "Спочатку встановіть ідентифікатор об’єкта для цієї кнопки"
 }

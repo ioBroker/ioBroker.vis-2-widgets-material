@@ -50,7 +50,6 @@
   "vis_2_widgets_material_blink": "眨",
   "vis_2_widgets_material_digital": "数字的",
   "vis_2_widgets_material_hands_color": "双手颜色",
-  "vis_2_widgets_material_seconds": "用秒",
   "vis_2_widgets_material_seconds_hand_color": "二手颜色",
   "vis_2_widgets_material_show_numbers": "显示号码",
   "vis_2_widgets_material_am_pm": "小时格式",
@@ -119,5 +118,7 @@
   "vis_2_widgets_material_use_history": "使用历史",
   "vis_2_widgets_material_volume": "体积",
   "vis_2_widgets_material_with_seconds": "用秒",
-  "vis_2_widgets_material_radius_tooltip": "精度（米）"
+  "vis_2_widgets_material_radius_tooltip": "精度（米）",
+  "vis_2_widgets_material_default_button_name": "警报开启",
+  "vis_2_widgets_material_no_oid": "请先设置此按钮的对象 ID"
 }

@@ -50,7 +50,6 @@
   "vis_2_widgets_material_blink": "Battito di ciglia",
   "vis_2_widgets_material_digital": "digitale",
   "vis_2_widgets_material_hands_color": "Colore delle mani",
-  "vis_2_widgets_material_seconds": "Con secondi",
   "vis_2_widgets_material_seconds_hand_color": "Colore di seconda mano",
   "vis_2_widgets_material_show_numbers": "Mostra i numeri",
   "vis_2_widgets_material_am_pm": "Formato delle ore",
@@ -88,7 +87,7 @@
   "vis_2_widgets_material_full_url": "URL a schermo intero",
   "vis_2_widgets_material_hide_zoom": "Nascondi zoom",
   "vis_2_widgets_material_latitude": "Latitudine",
-  "vis_2_widgets_material_lock_after": "Blocca dopo",
+  "vis_2_widgets_material_lock_after": "Blocca dopo %s",
   "vis_2_widgets_material_lock_cancel": "Annulla",
   "vis_2_widgets_material_longitude": "Longitudine",
   "vis_2_widgets_material_map": "Carta geografica",
@@ -105,7 +104,7 @@
   "vis_2_widgets_material_refresh_seconds": "Aggiorna secondi",
   "vis_2_widgets_material_repeat": "Ripetere",
   "vis_2_widgets_material_security": "Sicurezza",
-  "vis_2_widgets_material_security_off": "sicurezza disattivata",
+  "vis_2_widgets_material_security_off": "Sicurezza disattivata",
   "vis_2_widgets_material_show_refresh_time": "Mostra il tempo di aggiornamento",
   "vis_2_widgets_material_shuffle": "Mescola",
   "vis_2_widgets_material_state": "Stato (riproduzione/pausa)",
@@ -119,5 +118,7 @@
   "vis_2_widgets_material_use_history": "Usa la cronologia",
   "vis_2_widgets_material_volume": "Volume",
   "vis_2_widgets_material_with_seconds": "Con secondi",
-  "vis_2_widgets_material_radius_tooltip": "Precisione in metri"
+  "vis_2_widgets_material_radius_tooltip": "Precisione in metri",
+  "vis_2_widgets_material_default_button_name": "Allarme acceso",
+  "vis_2_widgets_material_no_oid": "Si prega di impostare prima l'ID oggetto per questo pulsante"
 }

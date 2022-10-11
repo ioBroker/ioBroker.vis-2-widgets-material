@@ -50,7 +50,6 @@
   "vis_2_widgets_material_blink": "Knipperen",
   "vis_2_widgets_material_digital": "digitaal",
   "vis_2_widgets_material_hands_color": "Handen kleur",
-  "vis_2_widgets_material_seconds": "Met seconden",
   "vis_2_widgets_material_seconds_hand_color": "Tweedehands kleur",
   "vis_2_widgets_material_show_numbers": "Toon nummers",
   "vis_2_widgets_material_am_pm": "Urennotatie",
@@ -88,7 +87,7 @@
   "vis_2_widgets_material_full_url": "URL op volledig scherm",
   "vis_2_widgets_material_hide_zoom": "Zoom verbergen",
   "vis_2_widgets_material_latitude": "Breedtegraad",
-  "vis_2_widgets_material_lock_after": "Afsluiten achter",
+  "vis_2_widgets_material_lock_after": "Afsluiten achter %s",
   "vis_2_widgets_material_lock_cancel": "Annuleren",
   "vis_2_widgets_material_longitude": "Lengtegraad",
   "vis_2_widgets_material_map": "Kaart",
@@ -105,7 +104,7 @@
   "vis_2_widgets_material_refresh_seconds": "Ververs seconden",
   "vis_2_widgets_material_repeat": "Herhalen",
   "vis_2_widgets_material_security": "Veiligheid",
-  "vis_2_widgets_material_security_off": "beveiliging uit",
+  "vis_2_widgets_material_security_off": "Beveiliging uit",
   "vis_2_widgets_material_show_refresh_time": "Vernieuwingstijd weergeven",
   "vis_2_widgets_material_shuffle": "Shuffle",
   "vis_2_widgets_material_state": "Status (afspelen/pauzeren)",
@@ -119,5 +118,7 @@
   "vis_2_widgets_material_use_history": "Geschiedenis gebruiken",
   "vis_2_widgets_material_volume": "Volume",
   "vis_2_widgets_material_with_seconds": "Met seconden",
-  "vis_2_widgets_material_radius_tooltip": "Nauwkeurigheid in meters"
+  "vis_2_widgets_material_radius_tooltip": "Nauwkeurigheid in meters",
+  "vis_2_widgets_material_default_button_name": "Alarm AAN",
+  "vis_2_widgets_material_no_oid": "Stel eerst de Object-ID in voor deze knop"
 }
