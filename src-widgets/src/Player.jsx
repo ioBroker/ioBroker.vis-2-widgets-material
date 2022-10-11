@@ -299,7 +299,7 @@ class Player extends Generic {
                             }}
                         />
                         <div style={{
-                            width: '50%',
+                            width: '70%',
                             height: '100%',
                             backgroundImage: `url(${this.getPropertyValue('cover')})`,
                             backgroundSize: 'cover',
@@ -311,7 +311,7 @@ class Player extends Generic {
                         />
                         <div style={{
                             position: 'absolute',
-                            width: '50%',
+                            width: '70%',
                             height: '100%',
                             right: 0,
                             backgroundImage: coverColor ?
