@@ -94,6 +94,7 @@ class Player extends Generic {
     constructor(props) {
         super(props);
         this.coverRef = React.createRef();
+        this.state.volume = 0;
     }
 
     static getWidgetInfo() {
@@ -377,7 +378,6 @@ class Player extends Generic {
         }
 
         const playerState = this.getPropertyValue('state');
-        console.log('Volume: ' + this.state.volume);
 
         const content = <div className={this.props.classes.content}>
             <div className={this.props.classes.zIndex}>
