@@ -9,7 +9,7 @@
         "@iobroker/vis-2-widgets-react-dev": "^0.3.2",
         "@mui/icons-material": "^5.10.6",
         "@mui/material": "^5.10.8",
-        "@mui/styles": "^5.10.8",
+        "@mui/styles": "^5.10.9",
         "color": "^4.2.3",
         "colorthief": "^2.3.2",
         "date-fns": "^2.29.3",
