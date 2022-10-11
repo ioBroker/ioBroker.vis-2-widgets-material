@@ -93,7 +93,6 @@ const loadStates = async (field, data, changeData, socket) => {
 class Player extends Generic {
     constructor(props) {
         super(props);
-
         this.coverRef = React.createRef();
     }
 
@@ -207,9 +206,10 @@ class Player extends Generic {
 
     async propertiesUpdate() {
         try {
-            const volumeObject = this.props.socket.getObject(this.state.rxData.volume);
+            const volumeObject = await this.props.socket.getObject(this.state.rxData.volume);
             if (volumeObject) {
-                this.setState({ volumeObject });
+                const volume = await this.props.socket.getState(this.state.rxData.volume);
+                this.setState({ volumeObject, volume: volume?.val || 0 });
             }
         } catch (e) {
             // ignore
@@ -221,9 +221,21 @@ class Player extends Generic {
         await this.propertiesUpdate();
     }
 
+    componentWillUnmount() {
+        this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
+        this.setVolumeTimer = null;
+        super.componentWillUnmount();
+    }
+
     async onRxDataChanged(prevRxData) {
         if (prevRxData.volume !== this.state.rxData.volume) {
             await this.propertiesUpdate();
+        }
+    }
+
+    onStateUpdated(id, state) {
+        if (id === this.state.rxData.volume) {
+            this.setState({ volume: state?.val || 0 });
         }
     }
 
@@ -240,6 +252,8 @@ class Player extends Generic {
         if (coverColor) {
             color = (coverColor[0] + coverColor[1] + coverColor[2]) / 3 < 128 ? 'white' : 'black';
         }
+
+        const coverUrl = this.getPropertyValue('cover');
 
         return <Card
             style={{
@@ -261,48 +275,53 @@ class Player extends Generic {
                 }
             ` : null}
             </style>
-
-            <div style={{
-                position: 'absolute', width: '100%', height: '100%',
-            }}
-            >
-                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                    <img
-                        src={this.getPropertyValue('cover')}
-                        alt="cover"
-                        crossOrigin="anonymous"
-                        ref={this.coverRef}
-                        style={{ maxWidth: 0, maxHeight: 0, position: 'absolute' }}
-                        onLoad={() => {
-                            const img = this.coverRef.current;
-                            const colorThief = new ColorThief();
-                            this.setState({ coverColor: colorThief.getColor(img) });
+            {coverUrl ?
+                <div style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    top: 0,
+                    left: 0,
+                }}
+                >
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <img
+                            src={coverUrl}
+                            alt="cover"
+                            crossOrigin="anonymous"
+                            ref={this.coverRef}
+                            style={{ maxWidth: 0, maxHeight: 0, position: 'absolute' }}
+                            onLoad={() => {
+                                const img = this.coverRef.current;
+                                const colorThief = new ColorThief();
+                                this.setState({ coverColor: colorThief.getColor(img) });
+                            }}
+                        />
+                        <div style={{
+                            width: '50%',
+                            height: '100%',
+                            backgroundImage: `url(${this.getPropertyValue('cover')})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            position: 'absolute',
+                            right: 0,
                         }}
-                    />
-                    <div style={{
-                        width: '50%',
-                        height: '100%',
-                        backgroundImage: `url(${this.getPropertyValue('cover')})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        position: 'absolute',
-                        right: 0,
-                    }}
-                    />
-                    <div style={{
-                        position: 'absolute',
-                        width: '50%',
-                        height: '100%',
-                        right: 0,
-                        backgroundImage:
-                    coverColor ?
-                        `linear-gradient(to right, rgb(${coverColor.join(', ')}), rgba(${coverColor.join(', ')}, 0))`
-                        : null,
-                    }}
-                    ></div>
+                        />
+                        <div style={{
+                            position: 'absolute',
+                            width: '50%',
+                            height: '100%',
+                            right: 0,
+                            backgroundImage: coverColor ?
+                                `linear-gradient(to right, rgb(${coverColor.join(', ')}), rgba(${coverColor.join(', ')}, 0))`
+                                : null,
+                        }}
+                        ></div>
+                    </div>
                 </div>
-            </div>
+                : null
+            }
             <CardContent
                 style={{
                     display: 'flex',
@@ -341,12 +360,14 @@ class Player extends Generic {
         super.renderWidgetBody(props);
 
         let repeatIcon = null;
-        if (parseInt(this.getPropertyValue('repeat')) === 1) {
-            repeatIcon = <RepeatOneRounded />;
-        } else if (parseInt(this.getPropertyValue('repeat')) === 2) {
-            repeatIcon = <RepeatRounded />;
-        } else {
-            repeatIcon = <RepeatRounded />;
+        if (this.state.rxData.repeat) {
+            if (parseInt(this.getPropertyValue('repeat')) === 1) {
+                repeatIcon = <RepeatOneRounded />;
+            } else if (parseInt(this.getPropertyValue('repeat')) === 2) {
+                repeatIcon = <RepeatRounded />;
+            } else {
+                repeatIcon = <RepeatRounded />;
+            }
         }
 
         const coverColor = this.getColor();
@@ -355,16 +376,16 @@ class Player extends Generic {
             color = (coverColor[0] + coverColor[1] + coverColor[2]) / 3 < 128 ? 'white' : 'black';
         }
 
-        const content = <div
-            className={this.props.classes.content}
-        >
+        const playerState = this.getPropertyValue('state');
+        console.log('Volume: ' + this.state.volume);
 
+        const content = <div className={this.props.classes.content}>
             <div className={this.props.classes.zIndex}>
                 <div className={this.props.classes.player}>
-                    <div className={this.props.classes.title}>{this.getPropertyValue('title')}</div>
-                    <div>{this.getPropertyValue('artist')}</div>
-                    <div className={this.props.classes.mode}>
-                        <IconButton
+                    {this.state.rxData.title && this.state.rxData.title !== 'nothing_selected' ? <div className={this.props.classes.title}>{this.getPropertyValue('title')}</div> : null}
+                    {this.state.rxData.artist && this.state.rxData.artist !== 'nothing_selected' ? <div>{this.getPropertyValue('artist')}</div> : null}
+                    {(this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected') || (this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected') ? <div className={this.props.classes.mode}>
+                        {this.state.rxData.repeat && this.state.rxData.volume !== 'nothing_selected' ? <IconButton
                             color={this.getPropertyValue('repeat') ? 'primary' : undefined}
                             onClick={() => {
                                 let newValue = null;
@@ -379,44 +400,44 @@ class Player extends Generic {
                             }}
                         >
                             {repeatIcon}
-                        </IconButton>
-                        <IconButton
+                        </IconButton> : null}
+                        {this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected' ? <IconButton
                             color={this.getPropertyValue('shuffle') ? 'primary' : undefined}
-                            onClick={() => {
-                                this.props.socket.setState(this.state.rxData.shuffle, !this.getPropertyValue('shuffle'));
-                            }}
+                            onClick={() =>
+                                this.props.socket.setState(this.state.rxData.shuffle, !this.getPropertyValue('shuffle'))}
                         >
                             <ShuffleRounded />
-                        </IconButton>
-                    </div>
+                        </IconButton> : null}
+                    </div> : null}
                     <div className={this.props.classes.buttons}>
-                        <IconButton onClick={() => {
-                            this.props.socket.setState(this.state.rxData.prev, true);
-                        }}
+                        {this.state.rxData.prev && this.state.rxData.prev !== 'nothing_selected' ?
+                            <IconButton onClick={() => this.props.socket.setState(this.state.rxData.prev, true)}>
+                                <SkipPreviousRounded fontSize="large" />
+                            </IconButton>
+                            : null}
+                        <IconButton
+                            onClick={() => {
+                                const st = this.getPropertyValue('state');
+                                if (typeof st === 'string') {
+                                    this.props.socket.setState(this.state.rxData.state, st === 'play' ? 'pause' : 'play');
+                                } else {
+                                    this.props.socket.setState(this.state.rxData.state, !st);
+                                }
+                            }}
                         >
-                            <SkipPreviousRounded fontSize="large" />
-                        </IconButton>
-                        <IconButton onClick={() => {
-                            this.props.socket.setState(this.state.rxData.state, this.getPropertyValue('state') === 'play' ? 'pause' : 'play');
-                        }}
-                        >
-                            {this.getPropertyValue('state') === 'play' ?
+                            {playerState === 'play' || playerState === true ?
                                 <PlayArrowRounded fontSize="large" /> :
                                 <PauseRounded fontSize="large" />}
                         </IconButton>
-                        <IconButton onClick={() => {
-                            this.props.socket.setState(this.state.rxData.next, true);
-                        }}
-                        >
+                        {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? <IconButton onClick={() => this.props.socket.setState(this.state.rxData.next, true)} >
                             <SkipNextRounded fontSize="large" />
-                        </IconButton>
+                        </IconButton> : null}
                     </div>
                 </div>
-
             </div>
             <div className={this.props.classes.seek}>
-                {Player.getTimeString(this.getPropertyValue('elapsed'))}
-                <Slider
+                {this.state.rxData.elapsed && this.state.rxData.elapsed !== 'nothing_selected' ? Player.getTimeString(this.getPropertyValue('elapsed')) : null}
+                {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? <Slider
                     className={this.props.classes.seekSlider}
                     style={{ color }}
                     sx={theme => ({
@@ -436,33 +457,45 @@ class Player extends Generic {
                     value={this.getPropertyValue('elapsed') || 0}
                     valueLabelDisplay="auto"
                     valueLabelFormat={Player.getTimeString}
-                    onChange={e => {
-                        this.props.socket.setState(this.state.rxData.elapsed, e.target.value);
-                    }}
-                />
-                {Player.getTimeString(this.getPropertyValue('duration'))}
+                    readOnly
+                    // onChange={e =>
+                    //    this.props.socket.setState(this.state.rxData.elapsed, e.target.value)}
+                /> : null}
+                {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? Player.getTimeString(this.getPropertyValue('duration')) : null}
             </div>
-            <div className={this.props.classes.volume}>
-                <IconButton onClick={() => {
-                    this.props.socket.setState(this.state.rxData.mute, !this.getPropertyValue('mute'));
-                }}
-                >
-                    {this.getPropertyValue('mute') ?
-                        <VolumeMute /> :
-                        <VolumeUp />}
-                </IconButton>
-                <Slider
-                    className={this.props.classes.volumeSlider}
-                    style={{ color }}
-                    min={this.state.volumeObject?.common?.min || 0}
-                    max={this.state.volumeObject?.common?.max || 100}
-                    value={this.getPropertyValue('volume') || 0}
-                    valueLabelDisplay="auto"
-                    onChange={e => {
-                        this.props.socket.setState(this.state.rxData.volume, e.target.value);
-                    }}
-                />
-            </div>
+            {(this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected') || (this.state.rxData.mute && this.state.rxData.mute !== 'nothing_selected') ?
+                <div className={this.props.classes.volume}>
+                    {this.state.rxData.mute ?
+                        <IconButton onClick={() =>
+                            this.props.socket.setState(this.state.rxData.mute, !this.getPropertyValue('mute'))}
+                        >
+                            {this.getPropertyValue('mute') ?
+                                <VolumeMute /> :
+                                <VolumeUp />}
+                        </IconButton>
+                        :
+                        null}
+                    {this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected' ? <Slider
+                        className={this.props.classes.volumeSlider}
+                        style={{ color }}
+                        min={this.state.volumeObject?.common?.min || 0}
+                        max={this.state.volumeObject?.common?.max || 100}
+                        value={this.state.volume}
+                        valueLabelDisplay="auto"
+                        onChange={(e, value) => {
+                            this.setState({ volume: value }, () => {
+                                this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
+                                this.setVolumeTimer = setTimeout(
+                                    () => {
+                                        this.setVolumeTimer = null;
+                                        this.props.socket.setState(this.state.rxData.volume, this.state.volume);
+                                    },
+                                    200,
+                                );
+                            });
+                        }}
+                    /> : null}
+                </div> : null}
         </div>;
 
         return this.wrapContent(content, null, {
