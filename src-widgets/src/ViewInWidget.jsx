@@ -53,7 +53,7 @@ class ViewInWidget extends Generic {
                 height: 120,
                 position: 'relative',
             },
-            visPrev: 'widgets/vis-2-widgets-material/img/prev_clock.png',
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_view.png',
         };
     }
 

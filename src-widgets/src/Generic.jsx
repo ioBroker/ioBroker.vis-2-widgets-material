@@ -10,6 +10,13 @@ import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 class Generic extends (window.visRxWidget || VisRxWidget) {
     getPropertyValue = state => this.state.values[`${this.state.rxData[state]}.val`];
 
+    async getParentObject(id) {
+        const parts = id.split('.');
+        parts.pop();
+        const parentOID = parts.join('.');
+        return this.props.socket.getObject(parentOID);
+    }
+
     // eslint-disable-next-line class-methods-use-this
     formatValue(value, round) {
         if (typeof value === 'number') {

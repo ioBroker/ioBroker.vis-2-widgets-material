@@ -5,10 +5,7 @@ import { withStyles } from '@mui/styles';
 
 import {
     PauseRounded, PlayArrowRounded, SkipNextRounded, SkipPreviousRounded,
-    RepeatRounded,
-    RepeatOneRounded,
-    ShuffleRounded,
-    VolumeUpRounded, VolumeDownRounded, VolumeUp, VolumeMute,
+    RepeatRounded, RepeatOneRounded, ShuffleRounded, VolumeUp, VolumeMute,
 } from '@mui/icons-material';
 
 import {
@@ -192,8 +189,12 @@ class Player extends Generic {
                             label: 'vis_2_widgets_material_shuffle',
                         },
                     ],
-                }],
+                },
+            ],
             visDefaultStyle: {
+                width: '100%',
+                height: 240,
+                position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_player.png',
         };
@@ -211,7 +212,7 @@ class Player extends Generic {
                 this.setState({ volumeObject });
             }
         } catch (e) {
-
+            // ignore
         }
     }
 
@@ -226,7 +227,8 @@ class Player extends Generic {
         }
     }
 
-    getTimeString = seconds => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
+    static getTimeString = seconds =>
+        `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
 
     getColor() {
         return (this.state.rxData.color ? Color(this.state.rxData.color).rgb().color : null) || this.state.coverColor;
@@ -413,7 +415,7 @@ class Player extends Generic {
 
             </div>
             <div className={this.props.classes.seek}>
-                {this.getTimeString(this.getPropertyValue('elapsed'))}
+                {Player.getTimeString(this.getPropertyValue('elapsed'))}
                 <Slider
                     className={this.props.classes.seekSlider}
                     style={{ color }}
@@ -433,12 +435,12 @@ class Player extends Generic {
                     max={this.getPropertyValue('duration') || 0}
                     value={this.getPropertyValue('elapsed') || 0}
                     valueLabelDisplay="auto"
-                    valueLabelFormat={this.getTimeString}
+                    valueLabelFormat={Player.getTimeString}
                     onChange={e => {
                         this.props.socket.setState(this.state.rxData.elapsed, e.target.value);
                     }}
                 />
-                {this.getTimeString(this.getPropertyValue('duration'))}
+                {Player.getTimeString(this.getPropertyValue('duration'))}
             </div>
             <div className={this.props.classes.volume}>
                 <IconButton onClick={() => {

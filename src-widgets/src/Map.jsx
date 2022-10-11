@@ -4,14 +4,16 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './leaflet-providers';
 import {
-    Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, CircleMarker,
+    Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, ZoomControl,
 } from 'react-leaflet';
 
 import {
     Dialog, DialogContent, DialogTitle, IconButton,
 } from '@mui/material';
 
-import { Close as CloseIcon, OpenInFull as OpenInFullIcon } from '@mui/icons-material';
+import { Close as CloseIcon, Fullscreen as OpenInFullIcon } from '@mui/icons-material';
+
+import { I18n } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 
@@ -23,9 +25,16 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const styles = theme => ({
-    mapContainer: { width: '100%', height: '100%' },
-    dialogTitle: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+const styles = () => ({
+    mapContainer: {
+        width: '100%',
+        height: '100%',
+    },
+    dialogTitle: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
 });
 
 const MapContent = props => {
@@ -66,9 +75,58 @@ const mapThemes = {
     esriworldimagery: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         attribution: 'Tiles &copy; Esri &mdash; ' +
-        'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, ' +
+            'Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
     },
 };
+
+async function detectNameAndColor(field, data, changeData, socket) {
+    const object = await socket.getObject(data[field.name]);
+    let changed = false;
+    let parentChannel;
+    let parentDevice;
+    if (object && object.common && object.common.color) {
+        data[`color${field.index}`] = object.common.color;
+        changed = true;
+    } else if (object) {
+        // try to detect parent
+        parentChannel = await this.getParentObject(data[field.name]);
+        if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
+            if (parentChannel.common?.color) {
+                data[`name${field.index}`] = parentChannel.common.color;
+                changed = true;
+            } else {
+                parentDevice = await this.getParentObject(data[field.name], true);
+                if (parentDevice.common?.color) {
+                    data[`name${field.index}`] = parentDevice.common.color;
+                    changed = true;
+                }
+            }
+        }
+    }
+    if (object && object.common && object.common.name) {
+        changed = true;
+        data[`name${field.index}`] = typeof object.common.name === 'object' ? object.common.name[I18n.getLanguage()] : object.common.name;
+    } else if (object) {
+        // try to detect parent
+        parentChannel = parentChannel || (await this.getParentObject(data[field.name]));
+        if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
+            if (parentChannel.common?.name) {
+                data[`name${field.index}`] = typeof parentChannel.common.name === 'object' ?
+                    parentChannel.common.name[I18n.getLanguage()] : parentChannel.common.name;
+                changed = true;
+            } else {
+                parentDevice = parentDevice || (await this.getParentObject(data[field.name], true));
+                if (parentDevice.common?.name) {
+                    data[`name${field.index}`] = typeof parentDevice.common.name === 'object' ?
+                        parentDevice.common.name[I18n.getLanguage()] : parentDevice.common.name;
+                    changed = true;
+                }
+            }
+        }
+    }
+    changed && changeData(data);
+}
 
 class Map extends Generic {
     constructor(props) {
@@ -96,7 +154,7 @@ class Map extends Generic {
                             name: 'markersCount',
                             label: 'vis_2_widgets_material_markers_count',
                             type: 'number',
-                            default: 2,
+                            default: 1,
                         },
                         {
                             name: 'theme',
@@ -115,35 +173,39 @@ class Map extends Generic {
                             label: 'vis_2_widgets_material_theme_attribution',
                             hidden: data => data.theme,
                         },
+                        {
+                            name: 'defaultZoom',
+                            label: 'vis_2_widgets_material_default_zoom',
+                            default: 15,
+                            type: 'slider',
+                            min: 4,
+                            max: 25,
+                        },
+                        {
+                            name: 'hideZoomButtons',
+                            label: 'vis_2_widgets_material_hide_zoom',
+                            default: false,
+                            type: 'checkbox',
+                        },
                     ],
-                }, {
+                },
+                {
                     name: 'markers',
                     indexFrom: 1,
                     indexTo: 'markersCount',
                     fields: [
                         {
-                            name: 'oid',
-                            type: 'id',
-                            label: 'vis_2_widgets_material_oid',
-                            onChange: async (field, data, changeData, socket) => {
-                                const object = await socket.getObject(data[field.name]);
-                                if (object && object.common) {
-                                    data[`color${field.index}`] = object.common.color !== undefined ? object.common.color : null;
-                                    data[`name${field.index}`] = object.common.name && typeof object.common.name === 'object' ? object.common.name[I18n.getLanguage()] : object.common.name;
-                                    changeData(data);
-                                }
-                            },
-                        },
-                        {
                             name: 'position',
                             type: 'id',
                             label: 'vis_2_widgets_material_position',
+                            onChange: detectNameAndColor,
                         },
                         {
                             name: 'longitude',
                             hidden: (data, index) => !!data[`position${index}`],
                             type: 'id',
                             label: 'vis_2_widgets_material_longitude',
+                            onChange: detectNameAndColor,
                         },
                         {
                             name: 'latitude',
@@ -155,6 +217,7 @@ class Map extends Generic {
                             name: 'radius',
                             type: 'id',
                             label: 'vis_2_widgets_material_radius',
+                            tooltip: 'vis_2_widgets_material_radius_tooltip',
                         },
                         {
                             name: 'name',
@@ -177,8 +240,12 @@ class Map extends Generic {
                             default: true,
                         },
                     ],
-                }],
+                },
+            ],
             visDefaultStyle: {
+                width: '100%',
+                height: 240,
+                position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_map.png',
         };
@@ -203,9 +270,13 @@ class Map extends Generic {
         const newHistory = {};
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
-            if (this.state.rxData[`position${i}`] && this.state.rxData[`useHistory${i}`]) {
+            if (this.state.rxData[`position${i}`] &&
+                this.state.rxData[`useHistory${i}`] &&
+                this.state.objects[i]?.common?.custom &&
+                this.state.objects[i].common.custom[options.instance]
+            ) {
                 const history = (await this.props.socket.getHistory(this.state.rxData[`position${i}`], options));
-                newHistory[i] =                    history
+                newHistory[i] = history
                     .filter(position => position.val)
                     .sort((a, b) => (a.ts > b.ts ? 1 : -1));
             }
@@ -217,9 +288,9 @@ class Map extends Generic {
 
         // try to find icons for all OIDs
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
-            if (this.state.rxData[`oid${i}`]) {
+            if (this.state.rxData[`position${i}`]) {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`oid${i}`]);
+                const object = await this.props.socket.getObject(this.state.rxData[`position${i}`]);
                 if (!object) {
                     objects[i] = { common: {} };
                     continue;
@@ -254,11 +325,11 @@ class Map extends Generic {
         await this.propertiesUpdate();
     }
 
-    async onRxDataChanged(prevRxData) {
+    async onRxDataChanged(/* prevRxData */) {
         await this.propertiesUpdate();
     }
 
-    async onStateUpdated(id, state) {
+    async onStateUpdated(/* id, state */) {
         await this.propertiesUpdate();
     }
 
@@ -266,15 +337,27 @@ class Map extends Generic {
         const markers = [];
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
-            markers.push({
+            const position = this.getPropertyValue(`position${i}`);
+            let radius;
+            if (isFinite(this.state.rxData[`radius${i}`])) {
+                radius = parseFloat(this.state.rxData[`radius${i}`]);
+            } else {
+                radius = parseFloat(this.getPropertyValue(`radius${i}`)) || 0;
+            }
+            const mrk = {
                 i,
-                longitude: parseFloat(this.getPropertyValue(`position${i}`)?.split(';')[0]) || this.getPropertyValue(`longitude${i}`) || 0,
-                latitude: parseFloat(this.getPropertyValue(`position${i}`)?.split(';')[1]) || this.getPropertyValue(`latitude${i}`) || 0,
-                radius: parseFloat(this.getPropertyValue(`radius${i}`)) || 0,
+                longitude: parseFloat(position?.split(';')[0]) || this.getPropertyValue(`longitude${i}`) || 0,
+                latitude: parseFloat(position?.split(';')[1]) || this.getPropertyValue(`latitude${i}`) || 0,
+                radius,
                 name: this.state.rxData[`name${i}`],
                 color: this.state.rxData[`color${i}`],
                 icon: this.state.rxData[`icon${i}`] || this.state.objects[i]?.common?.icon,
-            });
+            };
+            if (mrk.icon && mrk.icon.startsWith('_PRJ_NAME')) {
+                mrk.icon = mrk.icon.replace('_PRJ_NAME', `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`)
+            }
+
+            markers.push(mrk);
         }
 
         let tilesUrl = mapThemes[''].url;
@@ -287,31 +370,38 @@ class Map extends Generic {
             tilesAttribution = this.state.rxData.themeAttribution;
         }
 
-        const map = <>
+        return <>
             <style>
-                {`.leaflet-control-attribution svg {
-                    display: none !important;
+                {
+                    `.leaflet-control-attribution svg {
+    display: none !important;
+}
+.leaflet-div-icon {
+    border-radius: 50%;
+}`
                 }
-                .leaflet-div-icon {
-                    border-radius: 50%;
-                }
-                `}
             </style>
             <MapContainer
                 className={this.props.classes.mapContainer}
                 scrollWheelZoom
                 key={tilesUrl}
+                zoom={this.state.rxData.defaultZoom || undefined}
+                zoomControl={false}
             >
                 <TileLayer
                     attribution={tilesAttribution}
                     url={tilesUrl}
                 />
+                {!this.state.rxData.hideZoomButtons ? <ZoomControl position="bottomright" /> : null}
                 {
                     markers.map((marker, index) => {
-                        const history = this.state.history[marker.i]?.map(position => [
-                            parseFloat(position.val.split(';')[1] || 0),
-                            parseFloat(position.val.split(';')[0] || 0),
-                        ]) || [];
+                        const history = this.state.history[marker.i]?.map(position => {
+                            const parts = position.val.split(';');
+                            return [
+                                parseFloat(parts[1] || 0),
+                                parseFloat(parts[0] || 0),
+                            ];
+                        }) || [];
                         history.push([marker.latitude, marker.longitude]);
 
                         const markerIcon = marker.icon ? new L.Icon({
@@ -324,7 +414,6 @@ class Map extends Generic {
                             shadowAnchor: null,
                             iconSize: new L.Point(32, 32),
                             className: 'leaflet-div-icon',
-
                         }) : new L.Icon.Default();
 
                         return <React.Fragment key={index}>
@@ -334,9 +423,9 @@ class Map extends Generic {
                                 title={marker.name}
                                 eventHandlers={{
                                     click: () => {
-                                        window.document.querySelectorAll('.leaflet-popup-close-button').forEach(el => el.addEventListener('click', e => {
-                                            e.preventDefault();
-                                        }));
+                                        window.document.querySelectorAll('.leaflet-popup-close-button')
+                                            .forEach(el => el.addEventListener('click', e =>
+                                                e.preventDefault()));
                                     },
                                 }}
                             >
@@ -351,7 +440,7 @@ class Map extends Generic {
                                             key={historyIndex}
                                             pathOptions={{
                                                 color: marker.color || 'blue',
-                                                opacity: historyIndex + 1 / history.length,
+                                                opacity: historyIndex + (1 / history.length),
                                             }}
                                             positions={[position, history[historyIndex + 1]]}
                                         />)
@@ -360,9 +449,7 @@ class Map extends Generic {
                             {
                                 marker.radius ? <Circle
                                     center={[marker.latitude, marker.longitude]}
-                                    pathOptions={{
-                                        color: marker.color || 'blue',
-                                    }}
+                                    pathOptions={{ color: marker.color || 'blue' }}
                                     radius={marker.radius}
                                 /> : null
                             }
@@ -372,8 +459,6 @@ class Map extends Generic {
                 <MapContent widget={this} markers={markers} rxData={this.state.rxData} />
             </MapContainer>
         </>;
-
-        return map;
     }
 
     renderDialog() {
@@ -402,9 +487,14 @@ class Map extends Generic {
             {this.renderMap()}
         </>;
 
+        const iconFull = <IconButton onClick={() => this.setState({ dialog: true })}><OpenInFullIcon /></IconButton>;
+
         return this.wrapContent(
             content,
-            <IconButton onClick={() => this.setState({ dialog: true })}><OpenInFullIcon /></IconButton>,
+            this.state.rxData.name ? iconFull : <div style={{ display: 'flex', width: '100%' }}>
+                <div style={{ flex: 1 }} />
+                {iconFull}
+            </div>,
             {
                 boxSizing: 'border-box',
                 paddingBottom: 10,

@@ -10,7 +10,7 @@ import {
 } from '@mui/icons-material';
 import Generic from './Generic';
 
-const styles = theme => ({
+const styles = () => ({
     pinGrid:  { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridGap: '10px' },
     pinInput:  { padding: '10px 0px' },
     timerDialog: { textAlign: 'center' },
@@ -93,7 +93,7 @@ class Security extends Generic {
                         {
                             name: 'pincode',
                             label: 'vis_2_widgets_material_pincode',
-                            onChange: async (field, data, changeData, socket) => {
+                            onChange: async (field, data, changeData /* , socket */) => {
                                 data[`pincode${field.index}`] = data[`pincode${field.index}`].replace(/[^0-9]/g, '');
                                 changeData(data);
                             },
@@ -121,8 +121,12 @@ class Security extends Generic {
                             label: 'vis_2_widgets_material_timer_seconds_oid',
                         },
                     ],
-                }],
+                },
+            ],
             visDefaultStyle: {
+                width: '100%',
+                height: 240,
+                position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_security.png',
         };
