@@ -41,12 +41,15 @@ const MapContent = props => {
     const map = useMap();
     const [oldRxData, setOldRxData] = React.useState('');
     const [oldRxStyle, setOldRxStyle] = React.useState('');
+    const [markers, setOldMarkers] = React.useState('');
     if (
         (JSON.stringify(props.rxData) !== oldRxData && props.markers.filter(marker => marker.latitude && marker.longitude).length)
-            || JSON.stringify(props.rxStyle) !== oldRxStyle) {
+            || JSON.stringify(props.rxStyle) !== oldRxStyle
+            || JSON.stringify(props.markers) !== markers) {
         map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
         setOldRxData(JSON.stringify(props.rxData));
         setOldRxStyle(JSON.stringify(props.rxStyle));
+        setOldMarkers(JSON.stringify(props.markers));
     }
 };
 
@@ -387,7 +390,7 @@ class Map extends Generic {
             <MapContainer
                 className={this.props.classes.mapContainer}
                 scrollWheelZoom
-                key={`${tilesUrl}${this.state.rxStyle?.width}${this.state.rxStyle?.height}`}
+                key={`${tilesUrl}`}
                 zoom={this.state.rxData.defaultZoom || undefined}
                 zoomControl={false}
             >
