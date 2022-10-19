@@ -40,10 +40,13 @@ const styles = () => ({
 const MapContent = props => {
     const map = useMap();
     const [oldRxData, setOldRxData] = React.useState('');
-    if (JSON.stringify(props.rxData) !== oldRxData && props.markers.filter(marker => marker.latitude && marker.longitude).length
-    ) {
+    const [oldRxStyle, setOldRxStyle] = React.useState('');
+    if (
+        (JSON.stringify(props.rxData) !== oldRxData && props.markers.filter(marker => marker.latitude && marker.longitude).length)
+            || JSON.stringify(props.rxStyle) !== oldRxStyle) {
         map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
         setOldRxData(JSON.stringify(props.rxData));
+        setOldRxStyle(JSON.stringify(props.rxStyle));
     }
 };
 
@@ -354,7 +357,7 @@ class Map extends Generic {
                 icon: this.state.rxData[`icon${i}`] || this.state.objects[i]?.common?.icon,
             };
             if (mrk.icon && mrk.icon.startsWith('_PRJ_NAME')) {
-                mrk.icon = mrk.icon.replace('_PRJ_NAME', `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`)
+                mrk.icon = mrk.icon.replace('_PRJ_NAME', `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`);
             }
 
             markers.push(mrk);
@@ -384,7 +387,7 @@ class Map extends Generic {
             <MapContainer
                 className={this.props.classes.mapContainer}
                 scrollWheelZoom
-                key={tilesUrl}
+                key={`${tilesUrl}${this.state.rxStyle?.width}${this.state.rxStyle?.height}`}
                 zoom={this.state.rxData.defaultZoom || undefined}
                 zoomControl={false}
             >
@@ -456,7 +459,7 @@ class Map extends Generic {
                         </React.Fragment>;
                     })
                 }
-                <MapContent widget={this} markers={markers} rxData={this.state.rxData} />
+                <MapContent widget={this} markers={markers} rxData={this.state.rxData} rxStyle={this.state.rxStyle} />
             </MapContainer>
         </>;
     }
