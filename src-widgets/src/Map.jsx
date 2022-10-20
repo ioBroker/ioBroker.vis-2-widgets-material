@@ -46,7 +46,18 @@ const MapContent = props => {
         (JSON.stringify(props.rxData) !== oldRxData && props.markers.filter(marker => marker.latitude && marker.longitude).length)
             || JSON.stringify(props.rxStyle) !== oldRxStyle
             || JSON.stringify(props.markers) !== markers) {
-        map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
+        let centerLat = 0;
+        let centerLng = 0;
+        props.markers.forEach(marker => {
+            centerLat += marker.latitude || 0;
+            centerLng += marker.longitude || 0;
+        });
+        centerLat /= props.markers.length;
+        centerLng /= props.markers.length;
+        map.setView([centerLat, centerLng], parseInt(props.rxData.defaultZoom) || 18);
+        if (!props.markers.every(marker => map.getBounds().contains([marker.latitude || 0, marker.longitude || 0]))) {
+            map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
+        }
         setOldRxData(JSON.stringify(props.rxData));
         setOldRxStyle(JSON.stringify(props.rxStyle));
         setOldMarkers(JSON.stringify(props.markers));
@@ -184,7 +195,7 @@ class Map extends Generic {
                             label: 'vis_2_widgets_material_default_zoom',
                             default: 15,
                             type: 'slider',
-                            min: 4,
+                            min: 1,
                             max: 25,
                         },
                         {
@@ -391,7 +402,8 @@ class Map extends Generic {
                 className={this.props.classes.mapContainer}
                 scrollWheelZoom
                 key={`${tilesUrl}`}
-                zoom={this.state.rxData.defaultZoom || undefined}
+                zoom={this.state.rxData.defaultZoom || 18}
+                center={[0, 0]}
                 zoomControl={false}
             >
                 <TileLayer
