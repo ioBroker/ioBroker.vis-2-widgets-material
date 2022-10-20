@@ -315,7 +315,7 @@ class Map extends Generic {
                 object.common = object.common || {};
                 object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
                 if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData[`oid${i}`].split('.');
+                    const idArray = this.state.rxData[`position${i}`].split('.');
 
                     // read channel
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
