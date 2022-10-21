@@ -321,8 +321,7 @@ class Player extends Generic {
                         ></div>
                     </div>
                 </div>
-                : null
-            }
+                : null}
             <CardContent
                 style={{
                     display: 'flex',
@@ -429,7 +428,7 @@ class Player extends Generic {
                                 <PlayArrowRounded fontSize="large" /> :
                                 <PauseRounded fontSize="large" />}
                         </IconButton>
-                        {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? <IconButton onClick={() => this.props.socket.setState(this.state.rxData.next, true)} >
+                        {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? <IconButton onClick={() => this.props.socket.setState(this.state.rxData.next, true)}>
                             <SkipNextRounded fontSize="large" />
                         </IconButton> : null}
                     </div>

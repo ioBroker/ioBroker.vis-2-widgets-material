@@ -204,7 +204,7 @@ class Security extends Generic {
         }
     }
 
-    async onRxDataChanged(prevRxData) {
+    async onRxDataChanged(/* prevRxData */) {
         await this.propertiesUpdate();
     }
 

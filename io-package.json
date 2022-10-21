@@ -3,31 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "0.1.1",
     "news": {
-      "0.1.1": {
-        "en": "initial commit",
-        "de": "erster auftrag",
-        "ru": "первоначальный коммит",
-        "pt": "commit inicial",
-        "nl": ".",
-        "fr": "initial commit",
-        "it": "commit iniziale",
-        "es": "inicial",
-        "pl": "wstępny proces",
-        "uk": "початкова комісія",
-        "zh-cn": "初步承诺"
-      },
-      "0.1.0": {
-        "en": "initial commit",
-        "de": "anfängliches Commit",
-        "ru": "начальная фиксация",
-        "pt": "commit inicial",
-        "nl": "initiële commit",
-        "fr": "validation initiale",
-        "it": "impegno iniziale",
-        "es": "Compromiso inicial",
-        "pl": "początkowe zatwierdzenie",
-        "zh-cn": "初始提交"
-      }
     },
     "title": "Vis 2 Widgets Material",
     "titleLang": {

@@ -1,12 +1,16 @@
+// eslint-disable-next-line func-names
 (function (root, factory) {
+    // eslint-disable-next-line no-undef
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
+        // eslint-disable-next-line no-undef
         define(['leaflet'], factory);
     } else if (typeof modules === 'object' && module.exports) {
         // define a Common JS module that relies on 'leaflet'
         module.exports = factory(require('leaflet'));
     } else {
         // Assume Leaflet is loaded into global object L already
+        // eslint-disable-next-line no-undef
         factory(L);
     }
 }(this, L => {
@@ -20,6 +24,7 @@
             const variantName = parts[1];
 
             if (!providers[providerName]) {
+                // eslint-disable-next-line no-throw-literal
                 throw `No such provider (${providerName})`;
             }
 
@@ -31,6 +36,7 @@
             // overwrite values in provider from variant.
             if (variantName && 'variants' in providers[providerName]) {
                 if (!(variantName in providers[providerName].variants)) {
+                    // eslint-disable-next-line no-throw-literal
                     throw `No such variant of ${providerName} (${variantName})`;
                 }
                 const variant = providers[providerName].variants[variantName];
@@ -50,12 +56,13 @@
 
             // replace attribution placeholders with their values from toplevel provider attribution,
             // recursively
+            // eslint-disable-next-line func-names
             const attributionReplacer = function (attr) {
                 if (attr.indexOf('{attribution.') === -1) {
                     return attr;
                 }
                 return attr.replace(
-                    /\{attribution.(\w*)\}/g,
+                    /\{attribution.(\w*)}/g,
                     (match, attributionName) => attributionReplacer(providers[attributionName].options.attribution),
                 );
             };
@@ -996,7 +1003,7 @@
                 minZoom: 11,
                 maxZoom: 18,
                 bounds: [[1.56073, 104.11475], [1.16, 103.502]],
-                attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;"/> New OneMap | Map data &copy; contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>',
+                attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" alt="attribution" style="height:20px;width:20px;"/> New OneMap | Map data &copy; contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>',
             },
             variants: {
                 Default: 'Default',
@@ -1125,6 +1132,7 @@
         },
     };
 
+    // eslint-disable-next-line func-names
     L.tileLayer.provider = function (provider, options) {
         return new L.TileLayer.Provider(provider, options);
     };

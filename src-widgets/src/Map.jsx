@@ -356,7 +356,8 @@ class Map extends Generic {
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
             const position = this.getPropertyValue(`position${i}`);
             let radius;
-            if (isFinite(this.state.rxData[`radius${i}`])) {
+            // eslint-disable-next-line no-restricted-properties
+            if (window.isFinite(this.state.rxData[`radius${i}`])) {
                 radius = parseFloat(this.state.rxData[`radius${i}`]);
             } else {
                 radius = parseFloat(this.getPropertyValue(`radius${i}`)) || 0;
