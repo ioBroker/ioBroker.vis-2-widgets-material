@@ -75,7 +75,7 @@ const loadStates = async (field, data, changeData, socket) => {
     if (object && object.common) {
         const id = data[field.name].split('.');
         id.pop();
-        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.') + id.join('.')}.\u9999`, 'state');
+        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
         if (states) {
             const currentMediaTypes = [...mediaTypes];
             Object.values(states).forEach(state => {
