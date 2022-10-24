@@ -148,6 +148,7 @@ class Clock extends Generic {
                         hidden: 'data.type !== "digital" && data.type !== "digital2"',
                         type: 'select',
                         options: ['24', '12'],
+                        noTranslation: true,
                         default: '24',
                     },
                 ],
