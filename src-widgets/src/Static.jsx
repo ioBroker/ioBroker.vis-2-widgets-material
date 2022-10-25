@@ -8,7 +8,7 @@ import {
 
 import { Close as IconClose } from '@mui/icons-material';
 
-import { i18n as I18n } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import ObjectChart from './ObjectChart';
@@ -56,58 +56,60 @@ class Static extends Generic {
             id: 'tplMaterial2Static',
             visSet: 'vis-2-widgets-material',
             visName: 'Static information',
-            visWidgetLabel: 'vis_2_widgets_material_static_info',  // Label of widget
+            visWidgetLabel: 'static_info',  // Label of widget
             visAttrs: [
                 {
                     name: 'common',
                     fields: [
                         {
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
+                            noButton: true,
                             name: 'name',
                         },
                         {
                             name: 'count',
                             type: 'number',
                             default: 2,
-                            label: 'vis_2_widgets_material_count',
+                            label: 'count',
                         },
                     ],
                 },
                 {
                     name: 'item',
-                    label: 'vis_2_widgets_material_group_item',
+                    label: 'group_item',
                     indexFrom: 1,
                     indexTo: 'count',
                     fields: [
                         {
                             name: 'oid',
                             type: 'id',
-                            label: 'vis_2_widgets_material_oid',
+                            label: 'oid',
                         },
                         {
                             name: 'icon',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon',
+                            label: 'icon',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon_active',
+                            label: 'icon_active',
                         },
                         {
                             name: 'color',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            label: 'color',
                         },
                         {
                             name: 'colorEnabled',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color_active',
+                            label: 'color_active',
                         },
                         {
                             name: 'title',
                             type: 'text',
-                            label: 'vis_2_widgets_material_title',
+                            label: 'title',
+                            noButton: true,
                         },
                     ],
                 },
@@ -131,6 +133,8 @@ class Static extends Generic {
 
         const objects = {};
 
+        const defaultHistory = this.props.systemConfig?.common?.defaultHistory;
+
         // try to find icons for all OIDs
         for (let i = 1; i <= this.state.rxData.count; i++) {
             if (this.state.rxData[`oid${i}`]) {
@@ -141,7 +145,7 @@ class Static extends Generic {
                     continue;
                 }
                 object.common = object.common || {};
-                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+                object.isChart = !!(defaultHistory && object.common.custom && object.common.custom[defaultHistory]);
                 if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`oid${i}`].split('.');
 
@@ -151,12 +155,18 @@ class Static extends Generic {
                         const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
+                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                            }
                         }
                     } else {
                         object.common.icon = parentObject.common.icon;
+                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                        }
                     }
                 }
-                objects[i] = { common: object.common, _id: object._id };
+                objects[i] = { common: object.common, _id: object._id, isChart: object.isChart };
             }
         }
 
@@ -184,11 +194,9 @@ class Static extends Generic {
         let icon = '';
         const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (isEnabled) {
-            if (this.state.rxData[`iconEnabled${key}`]) {
-                icon = `files/${this.state.rxData[`iconEnabled${key}`]}`;
-            }
-        } else if (this.state.rxData[`icon${key}`]) {
-            icon = `files/${this.state.rxData[`icon${key}`]}`;
+            icon = this.state.rxData[`iconEnabled${key}`] || this.state.rxData[`icon${key}`];
+        } else {
+            icon = this.state.rxData[`icon${key}`];
         }
 
         if (!icon) {
@@ -196,16 +204,13 @@ class Static extends Generic {
         }
 
         if (icon) {
-            icon = <img
+            icon = <Icon
                 src={icon}
-                alt={isEnabled ? 'activ' : 'inactiv'}
                 style={{
-                    maxWidth: 40,
-                    maxHeight: 40,
+                    width: 24,
+                    height: 24,
                 }}
             />;
-        } else {
-            // icon = <LightbulbIcon color={isEnabled ? 'primary' : undefined} />;
         }
 
         return icon;
@@ -214,7 +219,7 @@ class Static extends Generic {
     getColor(key) {
         const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         return isEnabled ?
-            this.state.rxData[`colorEnabled${key}`] || this.state.objects[key].common.color
+            this.state.rxData[`colorEnabled${key}`] || this.state.rxData[`color${key}`] || this.state.objects[key].common.color
             :
             this.state.rxData[`color${key}`] || this.state.objects[key].common.color;
     }
@@ -236,7 +241,7 @@ class Static extends Generic {
         const onClick = object.isChart ? e => {
             e.preventDefault();
             e.stopPropagation();
-            this.setState({ showDialog: object });
+            this.setState({ showDialog: key });
         } : undefined;
 
         if (object?.common?.type === 'boolean') {
@@ -264,31 +269,36 @@ class Static extends Generic {
     }
 
     renderDialog() {
-        if (!this.state.showDialog) {
+        if (this.state.showDialog === null) {
             return null;
         }
+
+        const index = this.state.showDialog;
+
         return <Dialog
             sx={{ '& .MuiDialog-paper': { height: '100%' } }}
             maxWidth="lg"
             fullWidth
             open={!0}
-            onClose={() => this.setState({ showDialog: false })}
+            onClose={() => this.setState({ showDialog: null })}
         >
             <DialogTitle>
                 {this.state.rxData.name}
                 <IconButton
                     style={{ float: 'right' }}
-                    onClick={() => this.setState({ showDialog: false })}
+                    onClick={() => this.setState({ showDialog: null })}
                 >
                     <IconClose />
                 </IconButton>
             </DialogTitle>
             <DialogContent>
                 <ObjectChart
-                    t={I18n.t}
-                    lang={I18n.getLanguage()}
+                    t={word => Generic.t(word)}
+                    lang={Generic.getLanguage()}
                     socket={this.props.socket}
-                    obj={this.state.showDialog}
+                    obj={this.state.objects[index]}
+                    chartTitle={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
+                    title=""
                     themeType={this.props.themeType}
                     defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
@@ -328,8 +338,8 @@ class Static extends Generic {
                 >
                     <span style={{ display: 'inline-flex', alignItems: 'center' }}>
                         {anyIcon ? <span style={{
-                            width: 40,
-                            height: 40,
+                            width: 24,
+                            height: 24,
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -338,7 +348,7 @@ class Static extends Generic {
                             {icons[i]}
                         </span> : null}
                         <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                            {this.state.rxData[`title${key}`] || this.state.objects[key].common.name}
+                            {this.state.rxData[`title${key}`] || Generic.getText(this.state.objects[key].common.name)}
                         </span>
                     </span>
 

@@ -13,8 +13,6 @@ import {
 
 import { Close as CloseIcon, Fullscreen as OpenInFullIcon } from '@mui/icons-material';
 
-import { I18n } from '@iobroker/adapter-react-v5';
-
 import Generic from './Generic';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -123,20 +121,20 @@ async function detectNameAndColor(field, data, changeData, socket) {
     }
     if (object && object.common && object.common.name) {
         changed = true;
-        data[`name${field.index}`] = typeof object.common.name === 'object' ? object.common.name[I18n.getLanguage()] : object.common.name;
+        data[`name${field.index}`] = typeof object.common.name === 'object' ? object.common.name[Generic.getLanguage()] : object.common.name;
     } else if (object) {
         // try to detect parent
         parentChannel = parentChannel || (await this.getParentObject(data[field.name]));
         if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
             if (parentChannel.common?.name) {
                 data[`name${field.index}`] = typeof parentChannel.common.name === 'object' ?
-                    parentChannel.common.name[I18n.getLanguage()] : parentChannel.common.name;
+                    parentChannel.common.name[Generic.getLanguage()] : parentChannel.common.name;
                 changed = true;
             } else {
                 parentDevice = parentDevice || (await this.getParentObject(data[field.name], true));
                 if (parentDevice.common?.name) {
                     data[`name${field.index}`] = typeof parentDevice.common.name === 'object' ?
-                        parentDevice.common.name[I18n.getLanguage()] : parentDevice.common.name;
+                        parentDevice.common.name[Generic.getLanguage()] : parentDevice.common.name;
                     changed = true;
                 }
             }
@@ -158,41 +156,42 @@ class Map extends Generic {
             id: 'tplMaterial2Map',
             visSet: 'vis-2-widgets-material',
             visName: 'Map',
-            visWidgetLabel: 'vis_2_widgets_material_map',
+            visWidgetLabel: 'map',
             visAttrs: [
                 {
                     name: 'common',
                     fields: [
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
                         },
                         {
                             name: 'markersCount',
-                            label: 'vis_2_widgets_material_markers_count',
+                            label: 'markers_count',
                             type: 'number',
                             default: 1,
                         },
                         {
                             name: 'theme',
-                            label: 'vis_2_widgets_material_theme',
+                            label: 'theme',
                             type: 'select',
                             options: Object.keys(mapThemes),
                             default: '',
+                            noTranslation: true,
                         },
                         {
                             name: 'themeUrl',
-                            label: 'vis_2_widgets_material_theme_url',
+                            label: 'theme_url',
                             hidden: data => data.theme,
                         },
                         {
                             name: 'themeAttribution',
-                            label: 'vis_2_widgets_material_theme_attribution',
+                            label: 'theme_attribution',
                             hidden: data => data.theme,
                         },
                         {
                             name: 'defaultZoom',
-                            label: 'vis_2_widgets_material_default_zoom',
+                            label: 'default_zoom',
                             default: 15,
                             type: 'slider',
                             min: 1,
@@ -200,7 +199,7 @@ class Map extends Generic {
                         },
                         {
                             name: 'hideZoomButtons',
-                            label: 'vis_2_widgets_material_hide_zoom',
+                            label: 'hide_zoom',
                             default: false,
                             type: 'checkbox',
                         },
@@ -214,46 +213,46 @@ class Map extends Generic {
                         {
                             name: 'position',
                             type: 'id',
-                            label: 'vis_2_widgets_material_position',
+                            label: 'position',
                             onChange: detectNameAndColor,
                         },
                         {
                             name: 'longitude',
                             hidden: (data, index) => !!data[`position${index}`],
                             type: 'id',
-                            label: 'vis_2_widgets_material_longitude',
+                            label: 'longitude',
                             onChange: detectNameAndColor,
                         },
                         {
                             name: 'latitude',
                             hidden: (data, index) => !!data[`position${index}`],
                             type: 'id',
-                            label: 'vis_2_widgets_material_latitude',
+                            label: 'latitude',
                         },
                         {
                             name: 'radius',
                             type: 'id',
-                            label: 'vis_2_widgets_material_radius',
-                            tooltip: 'vis_2_widgets_material_radius_tooltip',
+                            label: 'radius',
+                            tooltip: 'radius_tooltip',
                         },
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
                         },
                         {
                             name: 'color',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            label: 'color',
                         },
                         {
                             name: 'icon',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon',
+                            label: 'icon',
                         },
                         {
                             name: 'useHistory',
                             type: 'checkbox',
-                            label: 'vis_2_widgets_material_use_history',
+                            label: 'use_history',
                             default: true,
                         },
                     ],
@@ -323,9 +322,15 @@ class Map extends Generic {
                         const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
+                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                            }
                         }
                     } else {
                         object.common.icon = parentObject.common.icon;
+                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                        }
                     }
                 }
                 objects[i] = { common: object.common, _id: object._id };

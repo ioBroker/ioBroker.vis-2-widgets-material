@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
 import {
-    Dialog, DialogContent, DialogTitle, IconButton,
+    Dialog, DialogContent, DialogTitle, IconButton, Tooltip,
 } from '@mui/material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -25,7 +25,7 @@ import {
     Opacity as HumidityIcon,
 } from '@mui/icons-material';
 
-import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
+import { Utils, Icon } from '@iobroker/adapter-react-v5';
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
 
@@ -36,7 +36,7 @@ const styles = () => ({
         height: 'calc(100% - 40px)',
         width: '100%',
     },
-    temperatureDiv: {
+    mainDiv: {
         marginLeft: 10,
         color: 'rgba(243,177,31)',
         display: 'inline-block',
@@ -52,11 +52,12 @@ const styles = () => ({
         fontSize: 14,
         verticalAlign: 'middle',
     },
-    temperatureIcon: {
+    mainIcon: {
         verticalAlign: 'middle',
         fontSize: 20,
+        width: 20,
     },
-    humidityDiv: {
+    secondaryDiv: {
         color: 'rgba(77,134,255)',
         display: 'inline-block',
         float: 'right',
@@ -72,7 +73,7 @@ const styles = () => ({
         fontSize: 14,
         verticalAlign: 'middle',
     },
-    humidityIcon: {
+    secondaryIcon: {
         verticalAlign: 'middle',
         fontSize: 20,
     },
@@ -120,39 +121,104 @@ class Actual extends Generic {
             id: 'tplMaterial2Actual',
             visSet: 'vis-2-widgets-material',
 
-            visSetLabel: 'vis_2_widgets_material_set_label', // Label of widget set
+            visSetLabel: 'set_label', // Label of widget set
             visSetColor: '#0783ff', // Color of widget set
 
-            visWidgetLabel: 'vis_2_widgets_material_actual_temperature',  // Label of widget
-            visName: 'Actual temperature',
-            visAttrs: [{
-                name: 'common',
-                fields: [
-                    {
-                        name: 'name',
-                        label: 'vis_2_widgets_material_name',
-                    },
-                    {
-                        name: 'timeInterval',
-                        label: 'vis_2_widgets_material_hours',
-                        type: 'slider',
-                        min: 0,
-                        max: 48,
-                        step: 1,
-                        default: 12,
-                    },
-                    {
-                        label: 'vis_2_widgets_material_temperature_oid',
-                        name: 'oid-temperature',
-                        type: 'id',
-                    },
-                    {
-                        label: 'vis_2_widgets_material_humidity_oid',
-                        name: 'oid-humidity',
-                        type: 'id',
-                    },
-                ],
-            }],
+            visWidgetLabel: 'actual_value_with_chart',  // Label of widget
+            visName: 'Actual values',
+            visAttrs: [
+                {
+                    name: 'common',
+                    fields: [
+                        {
+                            name: 'name',
+                            label: 'name',
+                        },
+                        {
+                            name: 'timeInterval',
+                            label: 'chart_time_interval',
+                            tooltip: 'hours',
+                            type: 'slider',
+                            min: 0,
+                            max: 48,
+                            step: 1,
+                            default: 12,
+                        },
+                        {
+                            name: 'updateInterval',
+                            label: 'chart_update_interval',
+                            tooltip: 'seconds',
+                            type: 'slider',
+                            min: 10,
+                            max: 360,
+                            step: 1,
+                            default: 60,
+                        },
+                    ],
+                },
+                {
+                    name: 'main',
+                    label: 'main_object',
+                    fields: [
+                        {
+                            label: 'oid',
+                            name: 'oid-main',
+                            type: 'id',
+                        },
+                        {
+                            label: 'title',
+                            name: 'title-main',
+                            type: 'text',
+                            noButton: true,
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'icon',
+                            name: 'icon-main',
+                            type: 'icon64',
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'unit',
+                            name: 'unit-main',
+                            type: 'text',
+                            noButton: true,
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                        },
+                    ],
+                },
+                {
+                    name: 'secondary',
+                    label: 'secondary_object',
+                    fields: [
+                        {
+                            label: 'oid',
+                            name: 'oid-secondary',
+                            type: 'id',
+                        },
+                        {
+                            label: 'title',
+                            name: 'title-secondary',
+                            type: 'text',
+                            noButton: true,
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'icon',
+                            name: 'icon-secondary',
+                            type: 'icon64',
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'unit',
+                            name: 'unit-secondary',
+                            type: 'text',
+                            noButton: true,
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
+                        },
+                    ],
+                },
+            ],
             visDefaultStyle: {
                 width: '100%',
                 height: 120,
@@ -160,6 +226,17 @@ class Actual extends Generic {
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_actual.png',
         };
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getWidgetInfo() {
+        return Actual.getWidgetInfo();
+    }
+
+    async setStateAsync(newState) {
+        return new Promise(resolve => {
+            this.setState(newState, resolve);
+        });
     }
 
     async propertiesUpdate() {
@@ -173,15 +250,15 @@ class Actual extends Generic {
         const objects = {};
 
         // try to find icons for all OIDs
-        if (this.state.rxData['oid-temperature'] && this.state.rxData['oid-temperature'] !== 'nothing_selected') {
+        if (this.state.rxData['oid-main'] && this.state.rxData['oid-main'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.socket.getObject(this.state.rxData['oid-temperature']);
+            const object = await this.props.socket.getObject(this.state.rxData['oid-main']);
             if (!object) {
-                objects.temp = { common: {} };
+                objects.main = { common: {} };
             } else {
                 object.common = object.common || {};
                 if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData['oid-temperature'].split('.');
+                    const idArray = this.state.rxData['oid-main'].split('.');
 
                     // read channel
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -189,24 +266,30 @@ class Actual extends Generic {
                         const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
+                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                            }
                         }
                     } else {
                         object.common.icon = parentObject.common.icon;
+                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                        }
                     }
                 }
-                objects.temp = { common: object.common, _id: object._id };
+                objects.main = { common: object.common, _id: object._id };
             }
         }
 
-        if (this.state.rxData['oid-humidity'] && this.state.rxData['oid-humidity'] !== 'nothing_selected') {
+        if (this.state.rxData['oid-secondary'] && this.state.rxData['oid-secondary'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.socket.getObject(this.state.rxData['oid-humidity']);
+            const object = await this.props.socket.getObject(this.state.rxData['oid-secondary']);
             if (!object) {
-                objects.humidity = { common: {} };
+                objects.secondary = { common: {} };
             } else {
                 object.common = object.common || {};
                 if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData['oid-humidity'].split('.');
+                    const idArray = this.state.rxData['oid-secondary'].split('.');
 
                     // read channel
                     const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -214,20 +297,44 @@ class Actual extends Generic {
                         const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
+                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                            }
                         }
                     } else {
                         object.common.icon = parentObject.common.icon;
+                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                        }
                     }
                 }
-                objects.humidity = { common: object.common, _id: object._id };
+                objects.secondary = { common: object.common, _id: object._id };
             }
         }
 
-        const isChart = (objects.temp?.common?.custom && objects.temp.common.custom[this.props.systemConfig?.common?.defaultHistory]) ||
-            (objects.humidity?.common?.custom && objects.humidity.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+        const isChart = (objects.main?.common?.custom && objects.main.common.custom[this.props.systemConfig?.common?.defaultHistory]) ||
+            (objects.secondary?.common?.custom && objects.secondary.common.custom[this.props.systemConfig?.common?.defaultHistory]);
 
         if (JSON.stringify(objects) !== JSON.stringify(this.state.objects) || isChart !== this.state.isChart) {
-            this.setState({ objects, isChart });
+            await this.setStateAsync({ objects, isChart });
+        }
+
+        this.mainTimer && clearInterval(this.mainTimer);
+        this.mainTimer = null;
+
+        if (this.state.objects.main?.common?.custom && this.state.objects.main.common.custom[this.props.systemConfig?.common?.defaultHistory]) {
+            await this.readHistory(this.state.objects.main._id);
+            this.mainTimer = this.mainTimer || setInterval(async () => {
+                await this.readHistory(this.state.objects.main._id);
+                if (this.state.objects.secondary?.common?.custom && this.state.objects.secondary.common.custom[this.props.systemConfig?.common?.defaultHistory]) {
+                    await this.readHistory(this.state.objects.secondary._id);
+                }
+            }, parseInt(this.state.rxData.updateInterval, 10) || 60000); // every minute by default
+        }
+        if (this.state.objects.secondary?.common?.custom && this.state.objects.secondary.common.custom[this.props.systemConfig?.common?.defaultHistory]) {
+            await this.readHistory(this.state.objects.secondary._id);
+            this.mainTimer = this.mainTimer || setInterval(() =>
+                this.readHistory(this.state.objects.secondary._id), parseInt(this.state.rxData.updateInterval, 10) || 60000); // every minute by default
         }
     }
 
@@ -301,27 +408,11 @@ class Actual extends Generic {
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
-
-        if (this.state.rxData['oid-temperature'] && this.state.rxData['oid-temperature'] !== 'nothing_selected') {
-            await this.readHistory(this.state.rxData['oid-temperature']);
-            this.tempTimer = setInterval(async () => {
-                await this.readHistory(this.state.rxData['oid-temperature']);
-                if (this.state.rxData['oid-humidity'] && this.state.rxData['oid-humidity'] !== 'nothing_selected') {
-                    await this.readHistory(this.state.rxData['oid-humidity']);
-                }
-            }, 60000); // every minute
-        }
-        if (this.state.rxData['oid-humidity'] && this.state.rxData['oid-humidity'] !== 'nothing_selected') {
-            await this.readHistory(this.state.rxData['oid-humidity']);
-            if (!this.tempTimer) {
-                this.tempTimer = setInterval(() =>
-                    this.readHistory(this.state.rxData['oid-humidity']), 60000); // every minute
-            }
-        }
     }
 
     componentWillUnmount() {
-        clearInterval(this.tempTimer);
+        clearInterval(this.mainTimer);
+        this.mainTimer = null;
         super.componentWillUnmount();
     }
 
@@ -329,14 +420,15 @@ class Actual extends Generic {
         await this.propertiesUpdate();
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    getWidgetInfo() {
-        return Actual.getWidgetInfo();
-    }
-
     getOptions() {
         const series = [];
-        if (this.state[`chart-data-${this.state.rxData['oid-temperature']}`]) {
+        if (this.state[`chart-data-${this.state.rxData['oid-main']}`]) {
+            let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name) || '';
+            if (!name) {
+                if (this.state.objects.secondary.common.role?.includes('temperature')) {
+                    name = Generic.t('temperature').replace('vis_2_widgets_material_', '');
+                }
+            }
             series.push({
                 backgroundColor: 'rgba(243,177,31,0.14)',
                 color: 'rgba(243,177,31,0.65)',
@@ -344,11 +436,18 @@ class Actual extends Generic {
                 smooth: true,
                 showSymbol: false,
                 itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state[`chart-data-${this.state.rxData['oid-temperature']}`].data,
-                name: I18n.t('vis_2_widgets_material_temperature').replace('vis_2_widgets_material_', ''),
+                data: this.state[`chart-data-${this.state.rxData['oid-main']}`].data,
+                name,
             });
         }
-        if (this.state[`chart-data-${this.state.rxData['oid-humidity']}`]) {
+        if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) {
+            let name = this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name) || '';
+            if (!name) {
+                if (this.state.objects.secondary.common.role?.includes('humidity')) {
+                    name = Generic.t('humidity').replace('vis_2_widgets_material_', '');
+                }
+            }
+
             series.push({
                 backgroundColor: 'rgba(77,134,255,0.14)',
                 color: 'rgba(77,134,255,0.44)',
@@ -356,8 +455,8 @@ class Actual extends Generic {
                 smooth: true,
                 showSymbol: false,
                 itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state[`chart-data-${this.state.rxData['oid-humidity']}`].data,
-                name: I18n.t('vis_2_widgets_material_humidity').replace('vis_2_widgets_material_', ''),
+                data: this.state[`chart-data-${this.state.rxData['oid-secondary']}`].data,
+                name,
             });
         }
 
@@ -413,22 +512,31 @@ class Actual extends Generic {
             </DialogTitle>
             <DialogContent>
                 <ObjectChart
-                    t={I18n.t}
-                    lang={I18n.getLanguage()}
+                    t={key => Generic.t(key)}
+                    lang={Generic.getLanguage()}
                     socket={this.props.socket}
-                    obj={this.state.objects.temp || this.state.objects.humidity}
-                    obj2={this.state.objects.temp ? this.state.objects.humidity : null}
+                    obj={this.state.objects.main || this.state.objects.secondary}
+                    obj2={this.state.objects.main ? this.state.objects.secondary : null}
+                    unit={this.state.objects.main ?
+                        (this.state.rxData['unit-main'] || this.state.objects.main.common.unit) :
+                        (this.state.rxData['unit-secondary'] || this.state.objects.secondary.common.unit)}
+                    unit2={this.state.rxData['unit-secondary'] || this.state.objects.secondary.common.unit}
+                    title={this.state.objects.main ?
+                        (this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name)) :
+                        (this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name))}
+                    title2={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name)}
                     objLineType="line"
                     obj2LineType="line"
-                    objColor={this.state.objects.temp ? 'rgba(243,177,31,0.65)' : 'rgba(77,134,255,0.44)'}
+                    objColor={this.state.objects.main ? 'rgba(243,177,31,0.65)' : 'rgba(77,134,255,0.44)'}
                     obj2Color="rgba(77,134,255,0.44)"
-                    objBackgroundColor={this.state.objects.temp ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'}
+                    objBackgroundColor={this.state.objects.main ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'}
                     obj2BackgroundColor="rgba(77,134,255,0.14)"
                     themeType={this.props.themeType}
                     defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
                     systemConfig={this.props.systemConfig}
                     dateFormat={this.props.systemConfig.common.dateFormat}
+                    chartTitle=""
                 />
             </DialogContent>
         </Dialog>;
@@ -453,28 +561,50 @@ class Actual extends Generic {
 
         const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
-        const tempVal = this.state.objects && this.state.objects.temp && this.state.values[`${this.state.rxData['oid-temperature']}.val`] !== undefined ?
-            this.formatValue(this.state.values[`${this.state.rxData['oid-temperature']}.val`]) : undefined;
+        const mainValue = this.state.objects && this.state.objects.main && this.state.values[`${this.state.rxData['oid-main']}.val`] !== undefined ?
+            this.formatValue(this.state.values[`${this.state.rxData['oid-main']}.val`]) : undefined;
 
-        const humidityVal = this.state.objects && this.state.objects.humidity && this.state.values[`${this.state.rxData['oid-humidity']}.val`] !== undefined ?
-            this.formatValue(this.state.values[`${this.state.rxData['oid-humidity']}.val`], 0) : undefined;
+        const secondaryValue = this.state.objects && this.state.objects.secondary && this.state.values[`${this.state.rxData['oid-secondary']}.val`] !== undefined ?
+            this.formatValue(this.state.values[`${this.state.rxData['oid-secondary']}.val`], 0) : undefined;
+
+        let mainIcon = this.state.rxData['icon-main'] || this.state.objects?.main?.common?.icon;
+        if (mainIcon) {
+            mainIcon = <Icon src={mainIcon} style={{ width: 20 }} className={this.props.classes.mainIcon} />;
+        } else if (this.state.objects?.main?.common?.role?.includes('temperature') || this.state.objects?.main?.common?.unit?.includes('°')) {
+            mainIcon = <ThermostatIcon className={this.props.classes.mainIcon} />;
+        } else {
+            mainIcon = null;
+        }
+
+        let secondaryIcon = this.state.rxData['icon-secondary'] || this.state.objects?.secondary?.common?.icon;
+        if (secondaryIcon) {
+            secondaryIcon = <Icon src={secondaryIcon} style={{ width: 20 }} className={this.props.classes.secondaryIcon} />;
+        } else if (this.state.objects?.secondary?.common?.role?.includes('humidity')) {
+            secondaryIcon = <HumidityIcon className={this.props.classes.secondaryIcon} />;
+        } else {
+            secondaryIcon = null;
+        }
 
         const content = <div style={{ width: '100%', height: '100%' }} ref={this.refContainer}>
-            {tempVal !== undefined ?
-                <div className={this.props.classes.temperatureDiv}>
-                    <ThermostatIcon className={this.props.classes.temperatureIcon} />
-                    <span key={`${tempVal}valText`} className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}>{tempVal}</span>
-                    <span className={this.props.classes.temperatureUnit}>{this.state.objects.temp.common.unit}</span>
-                </div>
+            {mainValue !== undefined ?
+                <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name) || null}>
+                    <div className={this.props.classes.mainDiv}>
+                        {mainIcon}
+                        <span key={`${mainValue}valText`} className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}>{mainValue}</span>
+                        <span className={this.props.classes.temperatureUnit}>{this.state.rxData['unit-main'] || this.state.objects.main.common.unit}</span>
+                    </div>
+                </Tooltip>
                 : null}
-            {humidityVal !== undefined ?
-                <div className={this.props.classes.humidityDiv}>
-                    <HumidityIcon className={this.props.classes.humidityIcon} />
-                    <span key={`${humidityVal}valText`} className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}>{humidityVal}</span>
-                    <span className={this.props.classes.humidityUnit}>{this.state.objects.humidity.common.unit || '%'}</span>
-                </div>
+            {secondaryValue !== undefined ?
+                <Tooltip title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name) || null}>
+                    <div className={this.props.classes.secondaryDiv}>
+                        {secondaryIcon}
+                        <span key={`${secondaryValue}valText`} className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}>{secondaryValue}</span>
+                        <span className={this.props.classes.humidityUnit}>{this.state.rxData['unit-secondary'] || this.state.objects.secondary.common.unit}</span>
+                    </div>
+                </Tooltip>
                 : null}
-            {this.state.containerHeight && (this.state[`chart-data-${this.state.rxData['oid-temperature']}`] || this.state[`chart-data-${this.state.rxData['oid-humidity']}`]) ?
+            {this.state.containerHeight && (this.state[`chart-data-${this.state.rxData['oid-main']}`] || this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) ?
                 <ReactEchartsCore
                     className={this.props.classes.chart}
                     echarts={echarts}

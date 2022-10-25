@@ -102,91 +102,91 @@ class Player extends Generic {
             id: 'tplMaterial2Player',
             visSet: 'vis-2-widgets-material',
             visName: 'Player',
-            visWidgetLabel: 'vis_2_widgets_material_player',
+            visWidgetLabel: 'player',
             visAttrs: [
                 {
                     name: 'common',
                     fields: [
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
                         },
                         {
                             name: 'title',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_title',
+                            label: 'title',
                         },
                         {
                             name: 'artist',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_artist',
+                            label: 'artist',
                         },
                         {
                             name: 'cover',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_cover',
+                            label: 'cover',
                         },
                         {
                             name: 'color',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            label: 'color',
                         },
                         {
                             name: 'state',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_state',
+                            label: 'state',
                         },
                         {
                             name: 'duration',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_duration',
+                            label: 'duration',
                         },
                         {
                             name: 'elapsed',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_elapsed',
+                            label: 'elapsed',
                         },
                         {
                             name: 'prev',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_prev',
+                            label: 'prev',
                         },
                         {
                             name: 'next',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_next',
+                            label: 'next',
                         },
                         {
                             name: 'volume',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_volume',
+                            label: 'volume',
                         },
                         {
                             name: 'mute',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_mute',
+                            label: 'mute',
                         },
                         {
                             name: 'repeat',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_repeat',
+                            label: 'repeat',
                         },
                         {
                             name: 'shuffle',
                             onChange: loadStates,
                             type: 'id',
-                            label: 'vis_2_widgets_material_shuffle',
+                            label: 'shuffle',
                         },
                     ],
                 },
@@ -254,7 +254,11 @@ class Player extends Generic {
             color = (coverColor[0] + coverColor[1] + coverColor[2]) / 3 < 128 ? 'white' : 'black';
         }
 
-        const coverUrl = this.getPropertyValue('cover');
+        let coverUrl = this.getPropertyValue('cover');
+
+        if (coverUrl.startsWith('/')) {
+            coverUrl = `../${coverUrl}`;
+        }
 
         return <Card
             style={{
@@ -295,7 +299,8 @@ class Player extends Generic {
                             onLoad={() => {
                                 const img = this.coverRef.current;
                                 const colorThief = new ColorThief();
-                                this.setState({ coverColor: colorThief.getColor(img) });
+                                const coverColor = colorThief.getColor(img);
+                                this.setState({ coverColor });
                             }}
                         />
                         <div style={{
@@ -425,8 +430,8 @@ class Player extends Generic {
                             }}
                         >
                             {playerState === 'play' || playerState === true ?
-                                <PlayArrowRounded fontSize="large" /> :
-                                <PauseRounded fontSize="large" />}
+                                <PauseRounded fontSize="large" /> :
+                                <PlayArrowRounded fontSize="large" />}
                         </IconButton>
                         {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? <IconButton onClick={() => this.props.socket.setState(this.state.rxData.next, true)}>
                             <SkipNextRounded fontSize="large" />

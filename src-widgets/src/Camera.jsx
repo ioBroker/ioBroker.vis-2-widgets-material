@@ -61,45 +61,45 @@ class Camera extends Generic {
             id: 'tplMaterial2Camera',
             visSet: 'vis-2-widgets-material',
             visName: 'Camera',
-            visWidgetLabel: 'vis_2_widgets_material_camera',
+            visWidgetLabel: 'camera',
             visAttrs: [
                 {
                     name: 'common',
                     fields: [
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
                         },
                         {
                             name: 'url',
-                            label: 'vis_2_widgets_material_url',
+                            label: 'url',
                             hidden: data => !!data['url-oid'],
                         },
                         {
                             name: 'url-oid',
-                            label: 'vis_2_widgets_material_url_oid',
+                            label: 'url_oid',
                             hidden: data => !!data.url,
                         },
                         {
                             name: 'refreshInterval',
                             type: 'number',
                             default: 1000,
-                            label: 'vis_2_widgets_material_refresh_seconds',
+                            label: 'refresh_seconds',
                         },
                         {
                             name: 'fullUrl',
-                            label: 'vis_2_widgets_material_full_url',
+                            label: 'full_url',
                             hidden: data => !!data['url-oid'],
                         },
                         {
                             name: 'fullRefreshInterval',
                             type: 'number',
-                            label: 'vis_2_widgets_material_full_refresh_seconds',
+                            label: 'full_refresh_seconds',
                         },
                         {
                             name: 'showRefreshTime',
                             type: 'checkbox',
-                            label: 'vis_2_widgets_material_show_refresh_time',
+                            label: 'show_refresh_time',
                             default: true,
                         },
                     ],

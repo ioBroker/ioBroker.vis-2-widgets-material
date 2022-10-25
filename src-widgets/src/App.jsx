@@ -2,7 +2,7 @@ import React from 'react';
 import { withStyles } from '@mui/styles';
 
 import WidgetDemoApp from '@iobroker/vis-2-widgets-react-dev/widgetDemoApp';
-import { i18n as I18n } from '@iobroker/adapter-react-v5';
+import { I18n } from '@iobroker/adapter-react-v5';
 
 import { Checkbox } from '@mui/material';
 import Thermostat from './Thermostat';
@@ -51,6 +51,7 @@ class App extends WidgetDemoApp {
     renderWidget() {
         const widgets = {
             camera: <Camera
+                key="Camera"
                 socket={this.socket}
                 style={{
                     width: 400,
@@ -65,6 +66,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             map: <Map
+                key="Map"
                 socket={this.socket}
                 style={{
                     width: 400,
@@ -80,6 +82,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             player: <Player
+                key="Player"
                 socket={this.socket}
                 style={{
                     width: 400,
@@ -101,6 +104,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             security: <Security
+                key="Security"
                 socket={this.socket}
                 style={{
                     width: 400,
@@ -122,6 +126,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             clock: <Clock
+                key="Clock"
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -138,6 +143,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             static: <Static
+                key="Static"
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -155,6 +161,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             simplestate: <SimpleState
+                key="SimpleState"
                 socket={this.socket}
                 style={{
                     width: 400,
@@ -172,6 +179,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             switches: <Switches
+                key="Switches"
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -195,6 +203,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             thermostat: <Thermostat
+                key="Thermostat"
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -211,6 +220,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             actual: <Actual
+                key="Actual"
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{
@@ -226,6 +236,7 @@ class App extends WidgetDemoApp {
                 }}
             />,
             viewinwidget: <ViewInWidget
+                key="ViewInWidget"
                 socket={this.socket}
                 themeType={this.state.themeType}
                 style={{

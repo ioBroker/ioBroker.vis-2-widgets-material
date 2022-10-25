@@ -16,7 +16,7 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
+import { Utils } from '@iobroker/adapter-react-v5';
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
@@ -147,26 +147,26 @@ class SimpleState extends Generic {
             id: 'tplMaterial2SimpleState',
             visSet: 'vis-2-widgets-material',
             visName: 'SimpleState',
-            visWidgetLabel: 'vis_2_widgets_material_simple_state',
+            visWidgetLabel: 'simple_state',
             visAttrs: [
                 {
                     name: 'common',
                     fields: [
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
                         },
                         {
                             name: 'values_count',
                             type: 'number',
                             hidden: '!data.withStates',
                             default: 2,
-                            label: 'vis_2_widgets_material_values_count',
+                            label: 'values_count',
                         },
                         {
                             name: 'oid',
                             type: 'id',
-                            label: 'vis_2_widgets_material_oid',
+                            label: 'oid',
                             onChange: async (field, data, changeData, socket) => {
                                 const object = await socket.getObject(data.oid);
                                 if (object && object.common.states) {
@@ -185,6 +185,7 @@ class SimpleState extends Generic {
                                 } else {
                                     data.withNumber = object.common.type === 'number';
                                     data.withStates = false;
+                                    data.values_count = 0;
                                     changeData(data);
                                 }
                             },
@@ -192,37 +193,37 @@ class SimpleState extends Generic {
                         {
                             name: 'noIcon',
                             type: 'checkbox',
-                            label: 'vis_2_widgets_material_no_icon',
+                            label: 'no_icon',
                         },
                         {
                             name: 'icon',
                             type: 'image',
                             hidden: '!!data.noIcon',
-                            label: 'vis_2_widgets_material_icon',
+                            label: 'icon',
                         },
                         {
                             name: 'iconEnabled',
                             hidden: '!!data.noIcon',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon_active',
+                            label: 'icon_active',
                         },
                         {
                             name: 'color',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            label: 'color',
                         },
                         {
                             name: 'colorEnabled',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color_active',
+                            label: 'color_active',
                         },
                         {
                             name: 'title',
-                            label: 'vis_2_widgets_material_title',
+                            label: 'title',
                         },
                         {
                             name: 'circleSize',
-                            label: 'vis_2_widgets_material_circle_size',
+                            label: 'circle_size',
                             type: 'slider',
                             min: 0,
                             max: 200,
@@ -235,25 +236,25 @@ class SimpleState extends Generic {
                     name: 'values',
                     indexFrom: 1,
                     indexTo: 'values_count',
-                    label: 'vis_2_widgets_material_values',
+                    label: 'values',
                     fields: [
                         {
                             name: 'value',
-                            label: 'vis_2_widgets_material_value',
+                            label: 'value',
                         },
                         {
                             name: 'icon',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon',
+                            label: 'icon',
                         },
                         {
                             name: 'color',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            label: 'color',
                         },
                         {
                             name: 'title',
-                            label: 'vis_2_widgets_material_title',
+                            label: 'title',
                         },
                     ],
                 },
@@ -315,9 +316,15 @@ class SimpleState extends Generic {
                 const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                 if (grandParentObject?.common?.icon) {
                     object.common.icon = grandParentObject.common.icon;
+                    if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                        object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                    }
                 }
             } else {
                 object.common.icon = parentObject.common.icon;
+                if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                    object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                }
             }
         }
 
@@ -472,7 +479,7 @@ class SimpleState extends Generic {
                                     onClick={() => this.setOnOff(false)}
                                     startIcon={isLamp ? <LightbulbIconOff /> : null}
                                 >
-                                    {isLamp ? I18n.t('vis_2_widgets_material_OFF').replace('vis_2_widgets_material_', '') : this.state.object.common.min + (this.state.object.common.unit || '') }
+                                    {isLamp ? Generic.t('OFF').replace('vis_2_widgets_material_', '') : this.state.object.common.min + (this.state.object.common.unit || '') }
                                 </Button>
                                 <Button
                                     style={{ width: '50%' }}
@@ -481,7 +488,7 @@ class SimpleState extends Generic {
                                     onClick={() => this.setOnOff(true)}
                                     startIcon={isLamp ? <LightbulbIconOn color="primary" /> : null}
                                 >
-                                    {isLamp ? I18n.t('vis_2_widgets_material_ON').replace('vis_2_widgets_material_', '') : this.state.object.common.max + (this.state.object.common.unit || '')}
+                                    {isLamp ? Generic.t('ON').replace('vis_2_widgets_material_', '') : this.state.object.common.max + (this.state.object.common.unit || '')}
                                 </Button>
                             </div>
                             <div style={{ width: '100%' }}>

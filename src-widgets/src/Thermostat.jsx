@@ -23,8 +23,6 @@ import {
     Close as IconClose,
 } from '@mui/icons-material';
 
-import { i18n as I18n } from '@iobroker/adapter-react-v5';
-
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
 
@@ -106,40 +104,40 @@ class Thermostat extends Generic {
         return {
             id: 'tplMaterial2Thermostat',
             visSet: 'vis-2-widgets-material',
-            visWidgetLabel: 'vis_2_widgets_material_thermostat',  // Label of widget
+            visWidgetLabel: 'thermostat',  // Label of widget
             visName: 'Thermostat',
             visAttrs: [{
                 name: 'common',
                 fields: [
                     {
                         name: 'name',
-                        label: 'vis_2_widgets_material_name',
+                        label: 'name',
                     },
                     {
                         name: 'oid-temp-set',
                         type: 'id',
-                        label: 'vis_2_widgets_material_temperature_oid',
+                        label: 'temperature_oid',
                     },
                     {
                         name: 'oid-temp-actual',
                         type: 'id',
-                        label: 'vis_2_widgets_material_actual_oid',
+                        label: 'actual_oid',
                     },
                     {
                         name: 'oid-power',
                         type: 'id',
-                        label: 'vis_2_widgets_material_power_oid',
+                        label: 'power_oid',
                     },
                     {
                         name: 'oid-mode',
                         type: 'id',
-                        label: 'vis_2_widgets_material_mode_oid',
+                        label: 'mode_oid',
                     },
                     {
                         name: 'oid-step',
                         type: 'select',
                         disabled: '!data["oid-temp-set"]',
-                        label: 'vis_2_widgets_material_step',
+                        label: 'step',
                         options: ['0.5', '1'],
                         default: '1',
                     },
@@ -250,8 +248,8 @@ class Thermostat extends Generic {
             </DialogTitle>
             <DialogContent>
                 {/* <Tabs value={this.state.dialogTab} onChange={(e, value) => this.setState({ dialogTab: value })}>
-                    <Tab label={I18n.t('Properties')} value={0} />
-                    <Tab label={I18n.t('History')} value={1} />
+                    <Tab label={Generic.t('Properties')} value={0} />
+                    <Tab label={Generic.t('History')} value={1} />
                 </Tabs>
                 {this.state.dialogTab === 0 && <div>
                     <TextField
@@ -267,10 +265,10 @@ class Thermostat extends Generic {
                             min: this.state.min,
                             max: this.state.max,
                         }}
-                        label={I18n.t('Temperature')}
+                        label={Generic.t('Temperature')}
                     />
                     <FormControl fullWidth variant="standard">
-                        <InputLabel>{I18n.t('Mode')}</InputLabel>
+                        <InputLabel>{Generic.t('Mode')}</InputLabel>
                         <Select
                             value={this.state.mode}
                             onChange={e => {
@@ -280,15 +278,15 @@ class Thermostat extends Generic {
                         >
                             {this.state.modes ? Object.keys(this.state.modes).map(modeIndex => {
                                 const mode = this.state.modes[modeIndex];
-                                return <MenuItem key={modeIndex} value={modeIndex}>{I18n.t(mode)}</MenuItem>;
+                                return <MenuItem key={modeIndex} value={modeIndex}>{Generic.t(mode)}</MenuItem>;
                             }) : null}
                         </Select>
                     </FormControl>
                 </div> */}
                 {this.state.dialogTab === 1 && <div style={{ height: '100%' }}>
                     <ObjectChart
-                        t={I18n.t}
-                        lang={I18n.getLanguage()}
+                        t={Generic.t}
+                        lang={Generic.getLanguage()}
                         socket={this.props.socket}
                         obj={this.state.tempStateObject || this.state.tempObject}
                         obj2={!this.state.tempStateObject ? null : this.state.tempObject}
@@ -399,20 +397,22 @@ class Thermostat extends Generic {
                     onControlFinished={() =>
                         this.props.socket.setState(this.state.rxData['oid-temp-set'], this.state.values[`${this.state.rxData['oid-temp-set']}.val`])}
                 >
-                    {actualTemp !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_actual_temperature')}>
+                    {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
                         <div
-                            key={`${actualTemp}valText`}
                             style={{ fontSize: Math.round(this.state.width / 10), fontWeight: 'bold' }}
+                        >
+                            {this.formatValue(tempValue)}
+                            {this.state.tempObject?.common?.unit}
+                        </div>
+                    </Tooltip> : null}
+                    {actualTemp !== null ? <Tooltip title={Generic.t('actual_temperature')}>
+                        <div
+                            style={{ fontSize: Math.round((this.state.width * 0.6) / 10) }}
+                            key={`${actualTemp}valText`}
                             className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
                         >
                             {actualTemp}
                             {this.state.tempStateObject?.common?.unit}
-                        </div>
-                    </Tooltip> : null}
-                    {tempValue !== null ? <Tooltip title={I18n.t('vis_2_widgets_material_desired_temperature')}>
-                        <div style={{ fontSize: Math.round((this.state.width * 0.6) / 10) }}>
-                            {this.formatValue(tempValue)}
-                            {this.state.tempObject?.common?.unit}
                         </div>
                     </Tooltip> : null}
                 </CircularSliderWithChildren>
@@ -430,7 +430,7 @@ class Thermostat extends Generic {
                         }
 
                         return MyButtonIcon ?
-                            <Tooltip key={i} title={I18n.t(`vis_2_widgets_material_${mode}`).replace('vis_2_widgets_material_', '')}>
+                            <Tooltip key={i} title={Generic.t(`${mode}`).replace('vis_2_widgets_material_', '')}>
                                 <IconButton
                                     color={currentValueStr === modeIndex ? 'primary' : 'grey'}
                                     onClick={() => {
@@ -466,7 +466,7 @@ class Thermostat extends Generic {
                             </Button>;
                     }) : null}
                 {this.state.rxData['oid-power'] && this.state.rxData['oid-power'] !== 'nothing_selected' ?
-                    <Tooltip title={I18n.t('vis_2_widgets_material_power').replace('vis_2_widgets_material_', '')}>
+                    <Tooltip title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
                         <IconButton
                             color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'grey'}
                             onClick={() => {

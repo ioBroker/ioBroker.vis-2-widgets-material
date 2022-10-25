@@ -18,7 +18,7 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { i18n as I18n, Utils } from '@iobroker/adapter-react-v5';
+import { Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 
@@ -91,20 +91,20 @@ class Switches extends Generic {
             id: 'tplMaterial2Switches',
             visSet: 'vis-2-widgets-material',
             visName: 'Switches',
-            visWidgetLabel: 'vis_2_widgets_material_switches_or_buttons',  // Label of widget
+            visWidgetLabel: 'switches_or_buttons',  // Label of widget
             visAttrs: [
                 {
                     name: 'common',
                     fields: [
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
                         },
                         {
                             name: 'count',
                             type: 'number',
                             default: 2,
-                            label: 'vis_2_widgets_material_count',
+                            label: 'count',
                             onChange: (field, data, changeData) => {
                                 changeData(data);
                             },
@@ -113,15 +113,15 @@ class Switches extends Generic {
                         {
                             name: 'type',
                             type: 'select',
-                            label: 'vis_2_widgets_material_type',
+                            label: 'type',
                             options: [
                                 {
                                     value: 'switches',
-                                    label: 'vis_2_widgets_material_switches',
+                                    label: 'switches',
                                 },
                                 {
                                     value: 'buttons',
-                                    label: 'vis_2_widgets_material_buttons',
+                                    label: 'buttons',
                                 },
                             ],
                             default: 'switches',
@@ -130,10 +130,10 @@ class Switches extends Generic {
                             name: 'allSwitch',
                             type: 'checkbox',
                             default: true,
-                            label: 'vis_2_widgets_material_show_all_switch',
+                            label: 'show_all_switch',
                         },
                         {
-                            label: 'vis_2_widgets_material_buttons_width',
+                            label: 'buttons_width',
                             name: 'buttonsWidth',
                             hidden: 'data.type !== "buttons"',
                             type: 'slider',
@@ -142,7 +142,7 @@ class Switches extends Generic {
                             max: 300,
                         },
                         {
-                            label: 'vis_2_widgets_material_buttons_height',
+                            label: 'buttons_height',
                             name: 'buttonsHeight',
                             hidden: 'data.type !== "buttons"',
                             type: 'slider',
@@ -154,40 +154,47 @@ class Switches extends Generic {
                 },
                 {
                     name: 'switch',
-                    label: 'vis_2_widgets_material_group_switch',
+                    label: 'group_switch',
                     indexFrom: 1,
                     indexTo: 'count',
                     fields: [
                         {
                             name: 'oid',
                             type: 'id',
-                            label: 'vis_2_widgets_material_oid',
+                            label: 'oid',
                         },
                         {
                             name: 'icon',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon',
+                            label: 'icon',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon_active',
+                            label: 'icon_active',
                         },
                         {
                             name: 'color',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            label: 'color',
                         },
                         {
                             name: 'colorEnabled',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color_active',
+                            label: 'color_active',
                         },
                         {
                             name: 'title',
                             type: 'text',
-                            label: 'vis_2_widgets_material_title',
-                            hidden: '!!data["oid" + index]',
+                            label: 'title',
+                            noButton: true,
+                        },
+                        {
+                            name: 'unit',
+                            type: 'text',
+                            noButton: true,
+                            label: 'unit',
+                            hidden: 'data.type !== "buttons"',
                         },
                     ],
                 },
@@ -249,9 +256,15 @@ class Switches extends Generic {
                         const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
+                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                            }
                         }
                     } else {
                         object.common.icon = parentObject.common.icon;
+                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                        }
                     }
                 }
                 objects[index] = { common: object.common, _id: object._id };
@@ -286,6 +299,8 @@ class Switches extends Generic {
         if (this.isOn(index)) {
             if (this.state.rxData[`iconEnabled${index}`]) {
                 icon = this.state.rxData[`iconEnabled${index}`];
+            } else if (this.state.rxData[`icon${index}`]) {
+                icon = this.state.rxData[`icon${index}`];
             }
         } else if (this.state.rxData[`icon${index}`]) {
             icon = this.state.rxData[`icon${index}`];
@@ -383,7 +398,7 @@ class Switches extends Generic {
                                     onClick={() => this.setOnOff(index, false)}
                                 >
                                     <LightbulbIconOff />
-                                    {I18n.t('vis_2_widgets_material_OFF').replace('vis_2_widgets_material_', '')}
+                                    {Generic.t('OFF').replace('vis_2_widgets_material_', '')}
                                 </Button>
                                 <Button
                                     style={{ width: '50%' }}
@@ -392,7 +407,7 @@ class Switches extends Generic {
                                     onClick={() => this.setOnOff(index, true)}
                                 >
                                     <LightbulbIconOn />
-                                    {I18n.t('vis_2_widgets_material_ON').replace('vis_2_widgets_material_', '')}
+                                    {Generic.t('ON').replace('vis_2_widgets_material_', '')}
                                 </Button>
                             </div>
                             <div style={{ width: '100%' }}>
@@ -439,9 +454,12 @@ class Switches extends Generic {
         const content = <>
             {this.renderDimmerDialog()}
             {this.state.rxData.type === 'switches' ?
-                Object.keys(this.state.objects).map((index, i) =>
+                Object.keys(this.state.objects).map((index, i) => {
+                    if (!this.state.objects[index]) {
+                        return null;
+                    }
                     // index from 1, i from 0
-                    <div
+                    return <div
                         className={this.props.classes.cardsHolder}
                         key={index}
                     >
@@ -450,20 +468,22 @@ class Switches extends Generic {
                                 {icons[i]}
                             </span> : null}
                             <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
-                                {this.state.rxData[`title${index}`] || this.state.objects[index].common.name}
+                                {this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
                             </span>
                         </span>
-
                         <Switch
                             checked={this.isOn(index)}
                             onChange={() => this.changeSwitch(index)}
                         />
-                    </div>)
+                    </div>;
+                })
                 :
-                <div style={{ width: '100%' }}>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                     {Object.keys(this.state.objects).map((index, i) => {
                         // index from 1, i from 0
-
+                        if (!this.state.objects[index]) {
+                            return null;
+                        }
                         let value;
                         if (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states) {
                             value = this.state.values[`${this.state.objects[index]._id}.val`];
@@ -491,10 +511,13 @@ class Switches extends Generic {
                                     {icons[i]}
                                 </div> : null}
                                 <div className={this.props.classes.text}>
-                                    {this.state.rxData[`title${index}`] || this.state.objects[index].common.name}
+                                    {this.state.rxData[`title${index}`] || this.state.objects[index].common.name || ''}
                                 </div>
                                 {value !== undefined && value !== null ?
-                                    <div className={this.props.classes.value}>{value}</div> : null}
+                                    <div className={this.props.classes.value}>
+                                        {value}
+                                        {this.state.rxData[`unit${index}`] || this.state.objects[index].common.unit || ''}
+                                    </div> : null}
                             </Button>
                         </div>;
                     })}

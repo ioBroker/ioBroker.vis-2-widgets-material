@@ -9,6 +9,8 @@ const translations = {
     es: require('./i18n/es.json'),
     pl: require('./i18n/pl.json'),
     'zh-cn': require('./i18n/zh-cn.json'),
+    uk: require('./i18n/uk.json'),
+    prefix: 'vis_2_widgets_material_',
 };
 
 export default translations;

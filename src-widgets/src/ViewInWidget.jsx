@@ -26,24 +26,24 @@ class ViewInWidget extends Generic {
         return {
             id: 'tplMaterial2ViewInWidget',
             visSet: 'vis-2-widgets-material',
-            visWidgetLabel: 'vis_2_widgets_material_view_in_widget',  // Label of widget
+            visWidgetLabel: 'view_in_widget',  // Label of widget
             visName: 'View in Widget',
             visAttrs: [{
                 name: 'common',
                 fields: [
                     {
                         name: 'name',
-                        label: 'vis_2_widgets_material_name',
+                        label: 'name',
                     },
                     {
                         name: 'view',
-                        label: 'vis_2_widgets_material_view',
+                        label: 'view',
                         type: 'select-views',
                         multiple: false,
                     },
                     {
                         name: 'button',
-                        label: 'vis_2_widgets_material_view_button',
+                        label: 'view_button',
                         type: 'checkbox',
                     },
                 ],

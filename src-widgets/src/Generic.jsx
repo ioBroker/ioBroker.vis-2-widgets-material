@@ -10,6 +10,17 @@ import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 class Generic extends (window.visRxWidget || VisRxWidget) {
     getPropertyValue = state => this.state.values[`${this.state.rxData[state]}.val`];
 
+    static getI18nPrefix() {
+        return 'vis_2_widgets_material_';
+    }
+
+    static getText(text) {
+        if (typeof text === 'object') {
+            return text[(window.visRxWidget || VisRxWidget).getLanguage()] || text.en;
+        }
+        return text;
+    }
+
     async getParentObject(id) {
         const parts = id.split('.');
         parts.pop();

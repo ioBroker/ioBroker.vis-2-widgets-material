@@ -204,6 +204,7 @@ class ObjectChart extends Component {
             // min,
             max,
             maxYLen: 0,
+            maxYLen2: 0,
         };
 
         this.echartsReact = createRef();
@@ -212,7 +213,8 @@ class ObjectChart extends Component {
         this.chartValues  = null;
         this.rangeValues  = null;
 
-        this.unit         = this.props.obj.common && this.props.obj.common.unit ? ` ${this.props.obj.common.unit}` : '';
+        this.unit         = this.props.unit  ? ` ${this.props.unit}`  : (this.props.obj?.common?.unit  ? ` ${this.props.obj.common.unit}`  : '');
+        this.unit2        = this.props.unit2 ? ` ${this.props.unit2}` : (this.props.obj2?.common?.unit ? ` ${this.props.obj2.common.unit}` : '');
 
         this.divRef       = createRef();
 
@@ -241,6 +243,9 @@ class ObjectChart extends Component {
 
         this.maxYLenTimeout && clearTimeout(this.maxYLenTimeout);
         this.maxYLenTimeout = null;
+
+        this.maxYLenTimeout2 && clearTimeout(this.maxYLenTimeout2);
+        this.maxYLenTimeout2 = null;
 
         this.props.socket.unsubscribeState(this.props.obj._id, this.onChange);
         this.props.obj2 && this.props.socket.unsubscribeState(this.props.obj2._id, this.onChange);
@@ -545,6 +550,26 @@ class ObjectChart extends Component {
             }
         }
 
+        let widthAxis2;
+        if (this.props.obj2) {
+            if (this.minY[this.props.obj2._id] !== null && this.minY[this.props.obj2._id] !== undefined) {
+                widthAxis2 = (this.minY[this.props.obj2._id].toString() + this.unit2).length * 9 + 12;
+            }
+            if (this.maxY[this.props.obj2._id] !== null && this.maxY[this.props.obj2._id] !== undefined) {
+                const w = (this.maxY[this.props.obj2._id].toString() + this.unit2).length * 9 + 12;
+                if (w > widthAxis2) {
+                    widthAxis2 = w;
+                }
+            }
+
+            if (this.state.maxYLen2) {
+                const w = this.state.maxYLen2 * 9 + 12;
+                if (w > widthAxis2) {
+                    widthAxis2 = w;
+                }
+            }
+        }
+
         const serie = {
             xAxisIndex: 0,
             type: 'line',
@@ -557,12 +582,45 @@ class ObjectChart extends Component {
             color: this.props.objColor || '#f5ba4d',
             areaStyle: {},
         };
+        const yAxis = [
+            {
+                type: 'value',
+                boundaryGap: [0, '100%'],
+                splitLine: {
+                    show: this.props.noToolbar || !!this.state.splitLine,
+                },
+                splitNumber: Math.round(this.state.chartHeight / 50),
+                name: this.props.title || undefined,
+                axisLabel: {
+                    formatter: value => {
+                        let text;
+                        if (this.props.isFloatComma) {
+                            text = value.toString().replace(',', '.') + this.unit;
+                        } else {
+                            text = value + this.unit;
+                        }
+
+                        if (this.state.maxYLen < text.length) {
+                            this.maxYLenTimeout && clearTimeout(this.maxYLenTimeout);
+                            this.maxYLenTimeout = setTimeout(maxYLen => this.setState({ maxYLen }), 200, text.length);
+                        }
+                        return text;
+                    },
+                    showMaxLabel: true,
+                    showMinLabel: true,
+                },
+                axisTick: {
+                    alignWithLabel: true,
+                },
+            },
+        ];
 
         let serie2;
         if (this.props.obj2) {
             serie2 = {
                 xAxisIndex: 0,
                 type: 'line',
+                yAxisIndex: 1,
                 step: this.props.obj2LineType === 'step' || !this.props.obj2LineType ? 'start' : undefined,
                 showSymbol: false,
                 hoverAnimation: true,
@@ -572,55 +630,55 @@ class ObjectChart extends Component {
                 color: this.props.obj2Color || '#21b400',
                 areaStyle: {},
             };
+            yAxis.push({
+                type: 'value',
+                alignTicks: true,
+                boundaryGap: [0, '100%'],
+                name: this.props.title2 || undefined,
+                splitLine: {
+                    show: this.props.noToolbar || !!this.state.splitLine,
+                },
+                splitNumber: Math.round(this.state.chartHeight / 50),
+                axisLabel: {
+                    formatter: value => {
+                        let text;
+                        if (this.props.isFloatComma) {
+                            text = value.toString().replace(',', '.') + this.unit2;
+                        } else {
+                            text = value + this.unit2;
+                        }
+
+                        if (this.state.maxYLen2 < text.length) {
+                            this.maxYLenTimeout2 && clearTimeout(this.maxYLenTimeout2);
+                            this.maxYLenTimeout2 = setTimeout(maxYLen2 => this.setState({ maxYLen2 }), 200, text.length);
+                        }
+                        return text;
+                    },
+                    showMaxLabel: true,
+                    showMinLabel: true,
+                },
+                axisTick: {
+                    alignWithLabel: true,
+                },
+            });
         }
 
-        const yAxis = {
-            type: 'value',
-            boundaryGap: [0, '100%'],
-            splitLine: {
-                show: this.props.noToolbar || !!this.state.splitLine,
-            },
-            splitNumber: Math.round(this.state.chartHeight / 50),
-            axisLabel: {
-                formatter: value => {
-                    let text;
-                    if (this.props.isFloatComma) {
-                        text = value.toString().replace(',', '.') + this.unit;
-                    } else {
-                        text = value + this.unit;
-                    }
-
-                    if (this.state.maxYLen < text.length) {
-                        this.maxYLenTimeout && clearTimeout(this.maxYLenTimeout);
-                        this.maxYLenTimeout = setTimeout(maxYLen => this.setState({ maxYLen }), 200, text.length);
-                    }
-                    return text;
-                },
-                showMaxLabel: true,
-                showMinLabel: true,
-            },
-            axisTick: {
-                alignWithLabel: true,
-            },
-        };
-
-        if (this.props.obj.common.type === 'boolean') {
+        if (this.props.obj?.common?.type === 'boolean') {
             serie.step = 'end';
-            yAxis.axisLabel.showMaxLabel = false;
-            yAxis.axisLabel.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
-            yAxis.max = 1.5;
-            yAxis.interval = 1;
+            yAxis[0].axisLabel.showMaxLabel = false;
+            yAxis[0].axisLabel.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+            yAxis[0].max = 1.5;
+            yAxis[0].interval = 1;
             widthAxis = 50;
         } else
-        if (this.props.obj.common.type === 'number' &&
-            this.props.obj.common.states) {
+        if (this.props.obj?.common?.type === 'number' && this.props.obj.common.states) {
             serie.step = 'end';
-            yAxis.axisLabel.showMaxLabel = false;
-            yAxis.axisLabel.formatter = value => (this.props.obj.common.states[value] !== undefined ? this.props.obj.common.states[value] : value);
+            yAxis[0].axisLabel.showMaxLabel = false;
+            yAxis[0].axisLabel.formatter = value => (this.props.obj.common.states[value] !== undefined ? this.props.obj.common.states[value] : value);
             const keys = Object.keys(this.props.obj.common.states);
             keys.sort();
-            yAxis.max = parseFloat(keys[keys.length - 1]) + 0.5;
-            yAxis.interval = 1;
+            yAxis[0].max = parseFloat(keys[keys.length - 1]) + 0.5;
+            yAxis[0].interval = 1;
             let max = '';
             for (let i = 0; i < keys.length; i++) {
                 if (typeof this.props.obj.common.states[keys[i]] === 'string' && this.props.obj.common.states[keys[i]].length > max.length) {
@@ -628,6 +686,49 @@ class ObjectChart extends Component {
                 }
             }
             widthAxis = ((max.length * 9) || 50) + 12;
+        } else if (this.props.obj?.common?.type === 'number') {
+            if (this.props.obj.common.min !== undefined && this.props.obj.common.max !== undefined) {
+                yAxis[0].max = this.props.obj.common.max;
+                yAxis[0].min = this.props.obj.common.min;
+            } else
+            if (this.props.obj.common.unit === '%') {
+                yAxis[0].max = 100;
+                yAxis[0].min = 0;
+            }
+        }
+
+        if (this.props.obj2?.common?.type === 'boolean') {
+            serie.step = 'end';
+            yAxis[1].axisLabel.showMaxLabel = false;
+            yAxis[1].axisLabel.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+            yAxis[1].max = 1.5;
+            yAxis[1].interval = 1;
+            widthAxis2 = 50;
+        } else
+        if (this.props.obj2?.common?.type === 'number' && this.props.obj2.common.states) {
+            serie.step = 'end';
+            yAxis[1].axisLabel.showMaxLabel = false;
+            yAxis[1].axisLabel.formatter = value => (this.props.obj2.common.states[value] !== undefined ? this.props.obj2.common.states[value] : value);
+            const keys = Object.keys(this.props.obj2.common.states);
+            keys.sort();
+            yAxis[1].max = parseFloat(keys[keys.length - 1]) + 0.5;
+            yAxis[1].interval = 1;
+            let max = '';
+            for (let i = 0; i < keys.length; i++) {
+                if (typeof this.props.obj2.common.states[keys[i]] === 'string' && this.props.obj2.common.states[keys[i]].length > max.length) {
+                    max = this.props.obj2.common.states[keys[i]];
+                }
+            }
+            widthAxis2 = ((max.length * 9) || 50) + 12;
+        } else if (this.props.obj2?.common?.type === 'number') {
+            if (this.props.obj2.common.min !== undefined && this.props.obj2.common.max !== undefined) {
+                yAxis[1].max = this.props.obj2.common.max;
+                yAxis[1].min = this.props.obj2.common.min;
+            } else
+            if (this.props.obj2.common.unit === '%') {
+                yAxis[1].max = 100;
+                yAxis[1].min = 0;
+            }
         }
 
         const splitNumber = this.chart.withSeconds ?
@@ -638,7 +739,7 @@ class ObjectChart extends Component {
         return {
             backgroundColor: 'transparent',
             title: {
-                text: this.props.noToolbar ? '' : Utils.getObjectNameFromObj(this.props.obj, this.props.lang),
+                text: this.props.noToolbar ? '' : (this.props.chartTitle !== undefined ? this.props.chartTitle : Utils.getObjectNameFromObj(this.props.obj, this.props.lang)),
                 padding: [
                     10, // up
                     0,  // right
@@ -648,8 +749,8 @@ class ObjectChart extends Component {
             },
             grid: {
                 left: widthAxis || GRID_PADDING_LEFT,
-                top: 8,
-                right: this.props.noToolbar ? 5 : GRID_PADDING_RIGHT,
+                top: yAxis[0].name || (yAxis[1] && yAxis[1].name) ? 38 : 8,
+                right: widthAxis2 || (this.props.noToolbar ? 5 : GRID_PADDING_RIGHT),
                 bottom: 40,
             },
             tooltip: {
@@ -693,7 +794,7 @@ class ObjectChart extends Component {
                 left: 'right',
                 feature: this.props.noToolbar ? undefined : {
                     saveAsImage: {
-                        title: this.props.t('vis_2_widgets_material_Save as image'),
+                        title: this.props.t('Save as image'),
                         show: true,
                     },
                 },
@@ -1132,27 +1233,27 @@ class ObjectChart extends Component {
 
         return <Toolbar>
             <FormControl variant="standard" className={classes.selectRelativeTime}>
-                <InputLabel>{this.props.t('vis_2_widgets_material_relative')}</InputLabel>
+                <InputLabel>{this.props.t('relative')}</InputLabel>
                 <Select
                     variant="standard"
                     ref={this.rangeRef}
                     value={this.state.relativeRange}
                     onChange={e => this.setRelativeInterval(e.target.value)}
                 >
-                    <MenuItem key="custom" value="absolute" className={classes.customRange}>{ this.props.t('vis_2_widgets_material_custom_range') }</MenuItem>
-                    <MenuItem key="1" value={10}>{ this.props.t('vis_2_widgets_material_last 10 minutes') }</MenuItem>
-                    <MenuItem key="2" value={30}>{ this.props.t('vis_2_widgets_material_last 30 minutes') }</MenuItem>
-                    <MenuItem key="3" value={60}>{ this.props.t('vis_2_widgets_material_last hour') }</MenuItem>
-                    <MenuItem key="4" value="day">{ this.props.t('vis_2_widgets_material_this day') }</MenuItem>
-                    <MenuItem key="5" value={24 * 60}>{ this.props.t('vis_2_widgets_material_last 24 hours') }</MenuItem>
-                    <MenuItem key="6" value="week">{ this.props.t('vis_2_widgets_material_this week') }</MenuItem>
-                    <MenuItem key="7" value={24 * 60 * 7}>{ this.props.t('vis_2_widgets_material_last week') }</MenuItem>
-                    <MenuItem key="8" value="2weeks">{ this.props.t('vis_2_widgets_material_this 2 weeks') }</MenuItem>
-                    <MenuItem key="9" value={24 * 60 * 14}>{ this.props.t('vis_2_widgets_material_last 2 weeks') }</MenuItem>
-                    <MenuItem key="10" value="month">{ this.props.t('vis_2_widgets_material_this month') }</MenuItem>
-                    <MenuItem key="11" value={30 * 24 * 60}>{ this.props.t('vis_2_widgets_material_last 30 days') }</MenuItem>
-                    <MenuItem key="12" value="year">{ this.props.t('vis_2_widgets_material_this year') }</MenuItem>
-                    <MenuItem key="13" value="12months">{ this.props.t('vis_2_widgets_material_last 12 months') }</MenuItem>
+                    <MenuItem key="custom" value="absolute" className={classes.customRange}>{ this.props.t('custom_range') }</MenuItem>
+                    <MenuItem key="1" value={10}>{this.props.t('last 10 minutes')}</MenuItem>
+                    <MenuItem key="2" value={30}>{this.props.t('last 30 minutes')}</MenuItem>
+                    <MenuItem key="3" value={60}>{this.props.t('last hour')}</MenuItem>
+                    <MenuItem key="4" value="day">{this.props.t('this day')}</MenuItem>
+                    <MenuItem key="5" value={24 * 60}>{this.props.t('last 24 hours')}</MenuItem>
+                    <MenuItem key="6" value="week">{this.props.t('this week')}</MenuItem>
+                    <MenuItem key="7" value={24 * 60 * 7}>{this.props.t('last week')}</MenuItem>
+                    <MenuItem key="8" value="2weeks">{this.props.t('this 2 weeks')}</MenuItem>
+                    <MenuItem key="9" value={24 * 60 * 14}>{this.props.t('last 2 weeks')}</MenuItem>
+                    <MenuItem key="10" value="month">{this.props.t('this month')}</MenuItem>
+                    <MenuItem key="11" value={30 * 24 * 60}>{this.props.t('last 30 days')}</MenuItem>
+                    <MenuItem key="12" value="year">{this.props.t('this year')}</MenuItem>
+                    <MenuItem key="13" value="12months">{ this.props.t('last 12 months')}</MenuItem>
                 </Select>
             </FormControl>
             {/* showTimeSettings ? null
@@ -1223,7 +1324,7 @@ class ObjectChart extends Component {
                 className={classes.splitLineButton}
             >
                 <SplitLineIcon className={classes.splitLineButtonIcon} />
-                { this.props.t('vis_2_widgets_material_Show lines') }
+                { this.props.t('Show lines') }
             </Fab> : null}
         </Toolbar>;
     }
@@ -1248,6 +1349,10 @@ ObjectChart.propTypes = {
     socket: PropTypes.object,
     obj: PropTypes.object,
     obj2: PropTypes.object,
+    unit: PropTypes.string,
+    unit2: PropTypes.string,
+    title: PropTypes.string,
+    title2: PropTypes.string,
     objLineType: PropTypes.string,
     obj2LineType: PropTypes.string,
     objColor: PropTypes.string,
@@ -1263,6 +1368,7 @@ ObjectChart.propTypes = {
     defaultHistory: PropTypes.string,
     historyInstance: PropTypes.string,
     isFloatComma: PropTypes.bool,
+    chartTitle: PropTypes.string,
 };
 
 export default withWidth()(withStyles(styles)(ObjectChart));

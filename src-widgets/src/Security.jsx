@@ -4,7 +4,7 @@ import { withStyles } from '@mui/styles';
 import {
     Button, Chip, Dialog, DialogContent, DialogTitle, TextField,
 } from '@mui/material';
-import { I18n, Message as DialogMessage } from '@iobroker/adapter-react-v5';
+import { Message as DialogMessage } from '@iobroker/adapter-react-v5';
 import {
     Backspace, Check, RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon,
 } from '@mui/icons-material';
@@ -43,26 +43,26 @@ class Security extends Generic {
             id: 'tplMaterial2Security',
             visSet: 'vis-2-widgets-material',
             visName: 'Security',
-            visWidgetLabel: 'vis_2_widgets_material_security',
+            visWidgetLabel: 'security',
             visAttrs: [
                 {
                     name: 'common',
                     fields: [
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
+                            label: 'name',
                         },
                         {
                             name: 'disarmText',
-                            label: 'vis_2_widgets_material_disarm_text',
+                            label: 'disarm_text',
                         },
                         {
                             name: 'securityOffText',
-                            label: 'vis_2_widgets_material_security_off_text',
+                            label: 'security_off_text',
                         },
                         {
                             name: 'buttonsCount',
-                            label: 'vis_2_widgets_material_buttons_count',
+                            label: 'buttons_count',
                             type: 'number',
                             default: 1,
                         },
@@ -75,7 +75,7 @@ class Security extends Generic {
                         {
                             name: 'oid',
                             type: 'id',
-                            label: 'vis_2_widgets_material_oid',
+                            label: 'oid',
                             onChange: async (field, data, changeData, socket) => {
                                 const object = await socket.getObject(data[field.name]);
                                 let changed = false;
@@ -85,7 +85,7 @@ class Security extends Generic {
                                         changed = true;
                                     }
                                     if (object.common.name) {
-                                        const name = object.common.name && typeof object.common.name === 'object' ? object.common.name[I18n.getLanguage()] : object.common.name;
+                                        const name = object.common.name && typeof object.common.name === 'object' ? object.common.name[this.getLanguage()] : object.common.name;
                                         if (data[`name${field.index}`] !== name) {
                                             data[`name${field.index}`] = name;
                                             changed = true;
@@ -97,22 +97,22 @@ class Security extends Generic {
                         },
                         {
                             name: 'name',
-                            label: 'vis_2_widgets_material_name',
-                            default: I18n.t('vis_2_widgets_material_default_button_name'),
+                            label: 'name',
+                            default: Generic.t('default_button_name'),
                         },
                         {
                             name: 'color',
                             type: 'color',
-                            label: 'vis_2_widgets_material_color',
+                            label: 'color',
                         },
                         {
                             name: 'icon',
                             type: 'image',
-                            label: 'vis_2_widgets_material_icon',
+                            label: 'icon',
                         },
                         {
                             name: 'pincode',
-                            label: 'vis_2_widgets_material_pincode',
+                            label: 'pincode',
                             onChange: async (field, data, changeData /* , socket */) => {
                                 data[`pincode${field.index}`] = data[`pincode${field.index}`].replace(/[^0-9]/g, '');
                                 changeData(data);
@@ -122,7 +122,7 @@ class Security extends Generic {
                         {
                             name: 'pincode-oid',
                             type: 'id',
-                            label: 'vis_2_widgets_material_pincode_oid',
+                            label: 'pincode_oid',
                             hidden: (data, index) => !!data[`pincode${index}`],
                         },
                         {
@@ -130,18 +130,18 @@ class Security extends Generic {
                             type: 'select',
                             options: ['submit', 'backspace'],
                             default: 'submit',
-                            label: 'vis_2_widgets_material_pincode_return_button',
+                            label: 'pincode_return_button',
                             hidden: (data, index) => !!data[`pincode-oid${index}`] && !!data[`pincode${index}`],
                         },
                         {
                             name: 'timerSeconds',
                             type: 'number',
-                            label: 'vis_2_widgets_material_timer_seconds',
+                            label: 'timer_seconds',
                         },
                         {
                             name: 'timerSeconds-oid',
                             type: 'id',
-                            label: 'vis_2_widgets_material_timer_seconds_oid',
+                            label: 'timer_seconds_oid',
                         },
                     ],
                 },
@@ -190,9 +190,15 @@ class Security extends Generic {
                         const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
+                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                            }
                         }
                     } else {
                         object.common.icon = parentObject.common.icon;
+                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                        }
                     }
                 }
                 objects[i] = { common: object.common, _id: object._id };
@@ -233,15 +239,16 @@ class Security extends Generic {
         }
 
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
-            <DialogTitle>{I18n.t('vis_2_widgets_material_enter_pin')}</DialogTitle>
+            <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
             <DialogContent>
                 <div className={this.props.classes.pinInput}>
                     <TextField
                         variant="outlined"
                         fullWidth
+                        type="password"
                         inputProps={{
                             readOnly: true,
-                            style:{
+                            style: {
                                 textAlign: 'center',
                             },
                         }}
@@ -306,13 +313,13 @@ class Security extends Generic {
             onClose={onClose}
             className={this.props.classes.timerDialog}
         >
-            <DialogTitle>{I18n.t('vis_2_widgets_material_lock_after', this.state.timerSeconds)}</DialogTitle>
+            <DialogTitle>{Generic.t('lock_after', this.state.timerSeconds)}</DialogTitle>
             <DialogContent>
                 <div className={this.props.classes.timerSeconds}>
                     {this.state.timerSeconds}
                 </div>
                 <div>
-                    <Button onClick={onClose} variant="contained">{I18n.t('vis_2_widgets_material_lock_cancel')}</Button>
+                    <Button onClick={onClose} variant="contained">{Generic.t('lock_cancel')}</Button>
                 </div>
             </DialogContent>
         </Dialog>;
@@ -329,7 +336,7 @@ class Security extends Generic {
             this.setState({ timerSeconds: _timerSeconds });
             if (!_timerSeconds) {
                 if (!this.state.rxData[`oid${i}`]) {
-                    this.setState({ message: I18n.t('vis_2_widgets_material_no_oid') });
+                    this.setState({ message: Generic.t('no_oid') });
                 } else {
                     this.props.socket.setState(this.state.rxData[`oid${i}`], true);
                 }
@@ -392,7 +399,7 @@ class Security extends Generic {
                         }
                     }}
                 >
-                    {this.state.rxData.disarmText || I18n.t('vis_2_widgets_material_unlock')}
+                    {this.state.rxData.disarmText || Generic.t('unlock')}
                 </Button>
             </div> : <div className={this.props.classes.unlockedButtons}>
                 {buttons.map((button, index) =>
@@ -404,7 +411,7 @@ class Security extends Generic {
                             if (this.state.rxData[`timerSeconds${button.i}`]) {
                                 this.startTimer(button.i);
                             } else if (!button.oid) {
-                                this.setState({ message: I18n.t('vis_2_widgets_material_no_oid') });
+                                this.setState({ message: Generic.t('no_oid') });
                             } else {
                                 this.props.socket.setState(button.oid, true);
                             }
@@ -425,7 +432,7 @@ class Security extends Generic {
                     {lockedButton.name}
                 </> : <>
                     <RemoveModeratorIcon />
-                    {this.state.rxData.securityOffText || I18n.t('vis_2_widgets_material_security_off')}
+                    {this.state.rxData.securityOffText || Generic.t('security_off')}
                 </>}
             </span>}
             style={{

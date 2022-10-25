@@ -43,6 +43,13 @@
     "del": "^6.1.1"
   },
   "main": "main.js",
+  "files": [
+    "admin/",
+    "img/",
+    "io-package.json",
+    "LICENSE",
+    "widgets/"
+  ],
   "scripts": {
     "check": "tsc --noEmit -p tsconfig.check.json",
     "lint": "eslint",

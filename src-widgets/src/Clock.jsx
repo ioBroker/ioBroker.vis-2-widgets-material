@@ -69,31 +69,31 @@ class Clock extends Generic {
         return {
             id: 'tplMaterial2Clock',
             visSet: 'vis-2-widgets-material',
-            visWidgetLabel: 'vis_2_widgets_material_clock',  // Label of widget
+            visWidgetLabel: 'clock',  // Label of widget
             visName: 'Clock',
             visAttrs: [{
                 name: 'common',
                 fields: [
                     {
                         name: 'type',
-                        label: 'vis_2_widgets_material_type',
+                        label: 'type',
                         type: 'select',
                         options: [
                             {
                                 value: 'analog',
-                                label: 'vis_2_widgets_material_analog',
+                                label: 'analog',
                             },
                             {
                                 value: 'analog2',
-                                label: 'vis_2_widgets_material_analog2',
+                                label: 'analog2',
                             },
                             {
                                 value: 'digital',
-                                label: 'vis_2_widgets_material_digital',
+                                label: 'digital',
                             },
                             {
                                 value: 'digital2',
-                                label: 'vis_2_widgets_material_digital2',
+                                label: 'digital2',
                             },
                         ],
                         default: 'analog',
@@ -101,50 +101,50 @@ class Clock extends Generic {
                     {
                         name: 'backgroundColor',
                         hidden: 'data.type === "digital" || data.type === "digital2"',
-                        label: 'vis_2_widgets_material_background',
+                        label: 'background',
                         type: 'color',
                     },
                     {
                         name: 'ticksColor',
                         hidden: 'data.type === "digital" || data.type === "digital2"',
-                        label: 'vis_2_widgets_material_color',
+                        label: 'color',
                         type: 'color',
                     },
                     {
                         name: 'handsColor',
                         hidden: 'data.type === "digital" || data.type === "digital2"',
-                        label: 'vis_2_widgets_material_hands_color',
+                        label: 'hands_color',
                         type: 'color',
                     },
                     {
                         name: 'secondHandColor',
                         hidden: 'data.type === "digital" || data.type === "digital2"',
-                        label: 'vis_2_widgets_material_seconds_hand_color',
+                        label: 'seconds_hand_color',
                         type: 'color',
                     },
                     {
                         name: 'withSeconds',
-                        label: 'vis_2_widgets_material_with_seconds',
+                        label: 'with_seconds',
                         type: 'checkbox',
                         default: true,
                     },
                     {
                         name: 'showNumbers',
                         hidden: 'data.type === "digital" || data.type === "digital2"',
-                        label: 'vis_2_widgets_material_show_numbers',
+                        label: 'show_numbers',
                         type: 'checkbox',
                         default: true,
                     },
                     {
                         name: 'blinkDelimiter',
-                        label: 'vis_2_widgets_material_blink',
+                        label: 'blink',
                         hidden: '(data.type !== "digital" && data.type !== "digital2") || data.withSeconds',
                         type: 'checkbox',
                         default: true,
                     },
                     {
                         name: 'hoursFormat',
-                        label: 'vis_2_widgets_material_am_pm',
+                        label: 'am_pm',
                         hidden: 'data.type !== "digital" && data.type !== "digital2"',
                         type: 'select',
                         options: ['24', '12'],
@@ -171,23 +171,29 @@ class Clock extends Generic {
         const data = this.state.rxData || {};
         const time = new Date();
         let timeout;
-        this.setState({ time });
-        if (data.withSeconds || (data.type === 'digital' && data.blinkDelimiter)) {
+        if (data.withSeconds || ((data.type === ' ' || data.type === 'digital2') && data.blinkDelimiter)) {
             timeout = 1000 - time.getMilliseconds();
         } else {
             timeout = (1000 - time.getMilliseconds()) + 1000 * (60 - time.getSeconds());
         }
         this.timeInterval = setTimeout(this.nextTick, timeout);
+        this.setState({ time });
     };
 
     onRxDataChanged() {
         this.timeInterval && clearTimeout(this.timeInterval);
-        this.timeInterval = setTimeout(this.nextTick, 1000 - new Date().getMilliseconds());
+        this.timeInterval = setTimeout(() => {
+            this.timeInterval = null;
+            this.nextTick();
+        }, 1000 - new Date().getMilliseconds());
     }
 
     async componentDidMount() {
         super.componentDidMount();
-        this.timeInterval = setTimeout(this.nextTick, 1000 - new Date().getMilliseconds());
+        this.timeInterval = this.timeInterval || setTimeout(() => {
+            this.timeInterval = null;
+            this.nextTick();
+        }, 1000 - new Date().getMilliseconds());
 
         this.recalculateWidth();
     }
@@ -195,13 +201,17 @@ class Clock extends Generic {
     recalculateWidth() {
         if (this.refContainer.current) {
             let size = this.refContainer.current.clientWidth;
-            if (this.state.rxData.type !== 'digital') {
+            if (this.state.rxData.type !== 'digital' && this.state.rxData.type !== 'digital2') {
                 if (size > this.refContainer.current.clientHeight) {
                     size = this.refContainer.current.clientHeight;
                 }
             }
 
-            const timeFormat = this.getDigitalClockText(true);
+            const time = this.getDigitalClockText(true);
+            let timeFormat = time.digits.join(':');
+            if (time.ampm) {
+                timeFormat += ` ${time.ampm}`;
+            }
             if (size !== this.state.width || this.state.height !== this.refContainer.current.clientHeight || this.state.timeFormat !== timeFormat) {
                 let fontSize = this.refContainer.current.clientHeight;
                 if (fontSize && this.state.rxData.type === 'digital' && !this.state.rxStyle['font-size']) {
@@ -389,41 +399,48 @@ class Clock extends Generic {
 
     getDigitalClockText(replaceWithZero) {
         const data = this.state.rxData || {};
-        let text;
+        const digits = [];
         if (replaceWithZero) {
-            text = '00:00';
+            digits.push('00');
+            digits.push('00');
             if (data.withSeconds) {
-                text += ':00';
+                digits.push('00');
             }
-            if (data.hoursFormat === '12') {
-                text += ' pm';
-            }
-        } else {
-            const time = new Date();
-            text = time.getHours().toString().padStart(2, '0');
-            if (data.hoursFormat === '12') {
-                text = (time.getHours() % 12).toString().padStart(2, '0');
-            }
-
-            if (!data.withSeconds && data.blinkDelimiter && time.getSeconds() % 2 === 0) {
-                text += ' ';
-            } else {
-                text += ':';
-            }
-            text += time.getMinutes().toString().padStart(2, '0');
-
-            if (data.withSeconds) {
-                text += `:${time.getSeconds().toString().padStart(2, '0')}`;
-            }
-            if (data.hoursFormat === '12') {
-                text += time.getHours() > 11 ? ' pm' : ' am';
-            }
+            return { ampm: data.hoursFormat === '12' ? 'pm' : undefined, digits };
         }
 
-        return text;
+        const time = new Date();
+        if (data.hoursFormat === '12') {
+            digits.push(time.getHours() % 12).toString().padStart(2, '0');
+        } else {
+            digits.push(time.getHours().toString().padStart(2, '0'));
+        }
+
+        digits.push(time.getMinutes().toString().padStart(2, '0'));
+
+        if (data.withSeconds) {
+            digits.push(time.getSeconds().toString().padStart(2, '0'));
+        }
+        return {
+            ampm: data.hoursFormat === '12' ? (time.getHours() > 11 ? 'pm' : 'am') : undefined,
+            digits,
+            hideDelimiter: !data.withSeconds && data.blinkDelimiter && time.getSeconds() % 2 === 0,
+        };
     }
 
     renderDigitalClock() {
+        const time = this.getDigitalClockText();
+        const timeDiv = [
+            <span key="hours">{time.digits[0]}</span>,
+            <span key="delimiter1" style={{ opacity: time.hideDelimiter ? 0 : 1 }}>:</span>,
+            <span key="minutes">{time.digits[1]}</span>,
+            time.digits.length > 2 ? <span key="delimiter2" style={{ opacity: time.hideDelimiter ? 0 : 1 }}>:</span> : null,
+            time.digits.length > 2 ? <span key="seconds">{time.digits[2]}</span> : null,
+            time.ampm ? <span key="ampm" style={{ fontSize: '50%' }}>
+                &nbsp;
+                {time.ampm}
+            </span> : null,
+        ];
         return <div
             style={{
                 display: 'inline-block',
@@ -431,28 +448,13 @@ class Clock extends Generic {
                 fontSize: this.state.rxStyle['font-size'] || this.state.fontSize,
             }}
         >
-            {this.getDigitalClockText()}
+            {timeDiv}
         </div>;
     }
 
     renderDigitalClock2() {
         const data = this.state.rxData || {};
-        const time = new Date();
-        let text = time.getHours().toString().padStart(2, '0');
-        if (data.hoursFormat === '12') {
-            text = (time.getHours() % 12).toString().padStart(2, '0');
-        }
-
-        if (!data.withSeconds && data.blinkDelimiter && time.getSeconds() % 2 === 0) {
-            text += ' ';
-        } else {
-            text += ':';
-        }
-        text += time.getMinutes().toString().padStart(2, '0');
-
-        if (data.withSeconds) {
-            text += `:${time.getSeconds().toString().padStart(2, '0')}`;
-        }
+        const time = this.getDigitalClockText();
 
         const svgHeight = (this.state.height / this.state.width) * 100;
         let fontSize = data.withSeconds ? 28 : (data.blinkDelimiter ? 36 : 42);
@@ -475,16 +477,16 @@ class Clock extends Generic {
                 textAnchor="middle"
                 fontFamily={data.withSeconds || !data.blinkDelimiter ? undefined : 'monospace'}
             >
-                {text}
+                {`${time.digits[0]}${time.hideDelimiter ? ' ' : ':'}${time.digits[1]}${time.digits[2] ? `:${time.digits[2]}` : ''}`}
             </text>
-            {data.hoursFormat === '12' ?
+            {time.ampm ?
                 <text
                     x="50%"
                     y="50%"
                     transform={`translate(${data.withSeconds ? 28 : (data.blinkDelimiter ? 30 : 20)}, 17)`}
                     fontSize={data.withSeconds ? fontSize / 3 : (data.blinkDelimiter ? fontSize / 4 : fontSize / 3)}
                 >
-                    {time.getHours() > 11 ? 'PM' : 'AM'}
+                    {time.ampm === 'pm' ? 'PM' : 'AM'}
                 </text>
                 : null}
         </svg>;
@@ -514,6 +516,11 @@ class Clock extends Generic {
                     this.resizeLocked = !this.props.isRelative;
                     break;
             }
+
+            this.timeInterval = this.timeInterval || setTimeout(() => {
+                this.timeInterval = null;
+                this.nextTick();
+            }, 1000 - new Date().getMilliseconds());
         }
 
         const content = <div
