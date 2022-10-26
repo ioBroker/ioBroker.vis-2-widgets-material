@@ -167,11 +167,25 @@ class Switches extends Generic {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
+                            hidden: '!!data.iconSmall',
+                        },
+                        {
+                            name: 'iconSmall',
+                            type: 'icon64',
+                            label: 'small_icon',
+                            hidden: '!!data.icon',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
                             label: 'icon_active',
+                            hidden: '!!data.iconEnabledSmall',
+                        },
+                        {
+                            name: 'iconEnabledSmall',
+                            type: 'icon64',
+                            label: 'small_icon_active',
+                            hidden: '!!data.iconEnabled',
                         },
                         {
                             name: 'color',
@@ -247,7 +261,7 @@ class Switches extends Generic {
                     object.common.states = states;
                 }
 
-                if (!this.state.rxData[`icon${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                if (!this.state.rxData[`icon${index}`] && !this.state.rxData[`iconSmall${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`oid${index}`].split('.');
 
                     // read channel
@@ -297,15 +311,10 @@ class Switches extends Generic {
     getStateIcon(index) {
         let icon = '';
         if (this.isOn(index)) {
-            if (this.state.rxData[`iconEnabled${index}`]) {
-                icon = this.state.rxData[`iconEnabled${index}`];
-            } else if (this.state.rxData[`icon${index}`]) {
-                icon = this.state.rxData[`icon${index}`];
-            }
-        } else if (this.state.rxData[`icon${index}`]) {
-            icon = this.state.rxData[`icon${index}`];
+            icon = this.state.rxData[`iconEnabled${index}`] || this.state.rxData[`iconEnabledSmall${index}`];
         }
 
+        icon = icon || this.state.rxData[`icon${index}`] || this.state.rxData[`iconSmall${index}`];
         icon = icon || this.state.objects[index].common.icon;
 
         if (icon) {

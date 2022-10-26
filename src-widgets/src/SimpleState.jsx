@@ -198,16 +198,27 @@ class SimpleState extends Generic {
                         {
                             name: 'icon',
                             type: 'image',
-                            hidden: '!!data.noIcon',
+                            hidden: '!!data.noIcon || !!data.iconSmall',
                             label: 'icon',
                         },
                         {
+                            name: 'iconSmall',
+                            type: 'icon64',
+                            label: 'small_icon',
+                            hidden: '!!data.noIcon || !!data.icon',
+                        },
+                        {
                             name: 'iconEnabled',
-                            hidden: '!!data.noIcon',
+                            hidden: '!!data.noIcon || !!data.iconEnabledSmall',
                             type: 'image',
                             label: 'icon_active',
                         },
                         {
+                            name: 'iconEnabledSmall',
+                            type: 'icon64',
+                            label: 'small_icon_active',
+                            hidden: '!!data.noIcon || !!data.iconEnabled',
+                        },                        {
                             name: 'color',
                             type: 'color',
                             label: 'color',
@@ -246,6 +257,13 @@ class SimpleState extends Generic {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
+                            hidden: (data, i) => !!data[`iconSmall${i}`],
+                        },
+                        {
+                            name: 'iconSmall',
+                            type: 'icon64',
+                            label: 'small_icon',
+                            hidden: (data, i) => !!data[`icon${i}`],
                         },
                         {
                             name: 'color',
@@ -349,7 +367,7 @@ class SimpleState extends Generic {
             if (this.state.rxData[`value${i}`] === value) {
                 return {
                     color: this.state.rxData[`color${i}`],
-                    icon: this.state.rxData[`icon${i}`],
+                    icon: this.state.rxData[`icon${i}`] || this.state.rxData[`iconSmall${i}`],
                     title: this.state.rxData[`title${i}`],
                 };
             }
@@ -376,14 +394,11 @@ class SimpleState extends Generic {
         }
         if (!icon) {
             if (this.isOn()) {
-                if (this.state.rxData.iconEnabled) {
-                    icon = this.state.rxData.iconEnabled;
-                }
-            } else if (this.state.rxData.icon) {
-                icon = this.state.rxData.icon;
+                icon = this.state.rxData.iconEnabled || this.state.rxData.iconEnabledSmall;
             }
         }
 
+        icon = icon || this.state.rxData.icon || this.state.rxData.iconSmall;
         icon = icon || this.state.object.common.icon;
 
         if (icon) {
@@ -541,9 +556,7 @@ class SimpleState extends Generic {
             startAngle={0}
             step={1}
             endAngle={360}
-            handle1={{
-                value,
-            }}
+            handle1={{ value }}
         >
             <div
                 key={`_${value}`}

@@ -138,5 +138,7 @@
   "markers": "Markierungen",
   "no_user_interactions": "Keine Mausinteraktionen",
   "refresh_interval": "Aktualisierungsintervall",
-  "refresh_interval_tooltip": "Aktualisierungsintervall-Tooltip"
+  "refresh_interval_tooltip": "Aktualisierungsintervall-Tooltip",
+  "small_icon": "Kleines Symbol",
+  "small_icon_active": "Kleines aktives Symbol"
 }

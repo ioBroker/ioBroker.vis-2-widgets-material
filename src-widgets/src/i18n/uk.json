@@ -138,5 +138,7 @@
   "markers": "Маркери",
   "no_user_interactions": "Без взаємодії з мишкою",
   "refresh_interval": "Інтервал оновлення",
-  "refresh_interval_tooltip": "Спливаюча підказка інтервалу оновлення"
+  "refresh_interval_tooltip": "Спливаюча підказка інтервалу оновлення",
+  "small_icon": "Маленький значок",
+  "small_icon_active": "Маленький активний значок"
 }

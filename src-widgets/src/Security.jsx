@@ -111,6 +111,12 @@ class Security extends Generic {
                             label: 'icon',
                         },
                         {
+                            name: 'iconSmall',
+                            type: 'icon64',
+                            label: 'small_icon',
+                            hidden: '!!data.icon',
+                        },
+                        {
                             name: 'pincode',
                             label: 'pincode',
                             onChange: async (field, data, changeData /* , socket */) => {

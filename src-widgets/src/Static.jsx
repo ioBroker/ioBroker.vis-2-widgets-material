@@ -89,11 +89,25 @@ class Static extends Generic {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
+                            hidden: '!!data.iconSmall',
+                        },
+                        {
+                            name: 'iconSmall',
+                            type: 'icon64',
+                            label: 'small_icon',
+                            hidden: '!!data.icon',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
                             label: 'icon_active',
+                            hidden: '!!data.iconEnabledSmall',
+                        },
+                        {
+                            name: 'iconEnabledSmall',
+                            type: 'icon64',
+                            label: 'small_icon_active',
+                            hidden: '!!data.iconEnabled',
                         },
                         {
                             name: 'color',
@@ -146,7 +160,7 @@ class Static extends Generic {
                 }
                 object.common = object.common || {};
                 object.isChart = !!(defaultHistory && object.common.custom && object.common.custom[defaultHistory]);
-                if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                if (!this.state.rxData[`icon${i}`] && !this.state.rxData[`iconSmall${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`oid${i}`].split('.');
 
                     // read channel
@@ -194,10 +208,9 @@ class Static extends Generic {
         let icon = '';
         const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (isEnabled) {
-            icon = this.state.rxData[`iconEnabled${key}`] || this.state.rxData[`icon${key}`];
-        } else {
-            icon = this.state.rxData[`icon${key}`];
+            icon = this.state.rxData[`iconEnabled${key}`] || this.state.rxData[`iconEnabledSmall${key}`];
         }
+        icon = icon || this.state.rxData[`icon${key}`] || this.state.rxData[`iconSmall${key}`];
 
         if (!icon) {
             icon = this.state.objects[key].common.icon;

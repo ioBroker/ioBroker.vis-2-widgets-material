@@ -138,5 +138,7 @@
   "markers": "标记",
   "no_user_interactions": "没有鼠标交互",
   "refresh_interval": "刷新间隔",
-  "refresh_interval_tooltip": "刷新间隔工具提示"
+  "refresh_interval_tooltip": "刷新间隔工具提示",
+  "small_icon": "小图标",
+  "small_icon_active": "小活动图标"
 }

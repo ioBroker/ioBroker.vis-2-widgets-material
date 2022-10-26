@@ -138,5 +138,7 @@
   "markers": "Markeringen",
   "no_user_interactions": "Geen muisinteracties",
   "refresh_interval": "Vernieuwingsinterval",
-  "refresh_interval_tooltip": "Knopinfo voor interval vernieuwen"
+  "refresh_interval_tooltip": "Knopinfo voor interval vernieuwen",
+  "small_icon": "Klein icoon",
+  "small_icon_active": "Klein actief pictogram"
 }

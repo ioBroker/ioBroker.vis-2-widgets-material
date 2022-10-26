@@ -138,5 +138,7 @@
   "markers": "Markery",
   "no_user_interactions": "Brak interakcji myszy",
   "refresh_interval": "Częstotliwość odświeżania",
-  "refresh_interval_tooltip": "Podpowiedź interwału odświeżania"
+  "refresh_interval_tooltip": "Podpowiedź interwału odświeżania",
+  "small_icon": "Mała ikona",
+  "small_icon_active": "Mała aktywna ikona"
 }

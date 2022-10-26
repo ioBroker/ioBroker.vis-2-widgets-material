@@ -138,5 +138,7 @@
   "markers": "Маркеры",
   "no_user_interactions": "Нет взаимодействия с мышью",
   "refresh_interval": "Интервал обновления",
-  "refresh_interval_tooltip": "Подсказка интервала обновления"
+  "refresh_interval_tooltip": "Подсказка интервала обновления",
+  "small_icon": "Маленькая иконка",
+  "small_icon_active": "Маленький активный значок"
 }

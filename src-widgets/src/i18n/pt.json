@@ -138,5 +138,7 @@
   "markers": "Marcadores",
   "no_user_interactions": "Sem interações do mouse",
   "refresh_interval": "Intervalo de atualização",
-  "refresh_interval_tooltip": "Dica de ferramenta de intervalo de atualização"
+  "refresh_interval_tooltip": "Dica de ferramenta de intervalo de atualização",
+  "small_icon": "Ícone pequeno",
+  "small_icon_active": "Pequeno ícone ativo"
 }

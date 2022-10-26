@@ -138,5 +138,7 @@
   "markers": "Marqueurs",
   "no_user_interactions": "Aucune interaction avec la souris",
   "refresh_interval": "Intervalle de rafraîchissement",
-  "refresh_interval_tooltip": "Info-bulle de l'intervalle d'actualisation"
+  "refresh_interval_tooltip": "Info-bulle de l'intervalle d'actualisation",
+  "small_icon": "Petite icône",
+  "small_icon_active": "Petite icône active"
 }
