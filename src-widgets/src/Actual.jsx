@@ -569,7 +569,7 @@ class Actual extends Generic {
 
         let mainIcon = this.state.rxData['icon-main'] || this.state.objects?.main?.common?.icon;
         if (mainIcon) {
-            mainIcon = <Icon src={mainIcon} style={{ width: 20 }} className={this.props.classes.mainIcon} />;
+            mainIcon = <Icon src={mainIcon} style={{ width: 24 }} className={this.props.classes.mainIcon} />;
         } else if (this.state.objects?.main?.common?.role?.includes('temperature') || this.state.objects?.main?.common?.unit?.includes('°')) {
             mainIcon = <ThermostatIcon className={this.props.classes.mainIcon} />;
         } else {

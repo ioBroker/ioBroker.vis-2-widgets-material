@@ -4,7 +4,7 @@ import { withStyles } from '@mui/styles';
 import {
     Button, Chip, Dialog, DialogContent, DialogTitle, TextField,
 } from '@mui/material';
-import { Message as DialogMessage } from '@iobroker/adapter-react-v5';
+import {Icon, Message as DialogMessage} from '@iobroker/adapter-react-v5';
 import {
     Backspace, Check, RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon,
 } from '@mui/icons-material';
@@ -424,7 +424,7 @@ class Security extends Generic {
                         }}
                     >
                         <span className={this.props.classes.lockButton}>
-                            {button.icon ? <img className={this.props.classes.icon} src={button.icon} alt="" /> : null}
+                            {button.icon ? <Icon className={this.props.classes.icon} src={button.icon} alt="" /> : null}
                             {button.name}
                         </span>
                     </Button>)}

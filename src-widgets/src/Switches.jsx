@@ -18,7 +18,7 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { Utils } from '@iobroker/adapter-react-v5';
+import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 
@@ -318,9 +318,9 @@ class Switches extends Generic {
         icon = icon || this.state.objects[index].common.icon;
 
         if (icon) {
-            icon = <img
+            icon = <Icon
                 src={icon}
-                alt=""
+                style={{ width: 40, height: 40 }}
                 className={this.props.classes.iconCustom}
             />;
         } else if (this.isOn(index)) {
