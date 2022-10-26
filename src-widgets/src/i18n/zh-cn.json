@@ -129,5 +129,14 @@
   "actual_value_with_chart": "带图表的实际值",
   "main_object": "主要对象",
   "secondary_object": "次要对象",
-  "temperature_oid": "设定温度ID"
+  "temperature_oid": "设定温度ID",
+  "delete_to_use_constant_url": "删除它以使用常量 URL",
+  "delete_to_use_oid": "删除它以使用 OID",
+  "full_refresh": "完全刷新",
+  "full_refresh_interval_tooltip": "完整刷新间隔工具提示",
+  "hide_full": "隐藏全屏按钮",
+  "markers": "标记",
+  "no_user_interactions": "没有鼠标交互",
+  "refresh_interval": "刷新间隔",
+  "refresh_interval_tooltip": "刷新间隔工具提示"
 }

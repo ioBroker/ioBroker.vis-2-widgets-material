@@ -129,5 +129,14 @@
   "actual_value_with_chart": "Valore effettivo con grafico",
   "main_object": "Oggetto principale",
   "secondary_object": "Oggetto secondario",
-  "temperature_oid": "Impostare l'ID della temperatura"
+  "temperature_oid": "Impostare l'ID della temperatura",
+  "delete_to_use_constant_url": "Eliminalo per utilizzare l'URL costante",
+  "delete_to_use_oid": "Eliminalo per utilizzare l'OID",
+  "full_refresh": "Aggiornamento completo",
+  "full_refresh_interval_tooltip": "Descrizione comando intervallo di aggiornamento completo",
+  "hide_full": "Pulsante Nascondi schermo intero",
+  "markers": "Marcatori",
+  "no_user_interactions": "Nessuna interazione con il mouse",
+  "refresh_interval": "Intervallo di aggiornamento",
+  "refresh_interval_tooltip": "Descrizione comando intervallo di aggiornamento"
 }

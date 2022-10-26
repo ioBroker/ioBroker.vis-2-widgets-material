@@ -129,5 +129,14 @@
   "actual_value_with_chart": "Фактическое значение с диаграммой",
   "main_object": "Основной объект",
   "secondary_object": "Второстепенный объект",
-  "temperature_oid": "Установить идентификатор температуры"
+  "temperature_oid": "Установить идентификатор температуры",
+  "delete_to_use_constant_url": "Удалите его, чтобы использовать постоянный URL",
+  "delete_to_use_oid": "Удалите его, чтобы использовать OID",
+  "full_refresh": "Полное обновление",
+  "full_refresh_interval_tooltip": "Полная подсказка интервала обновления",
+  "hide_full": "Скрыть полноэкранную кнопку",
+  "markers": "Маркеры",
+  "no_user_interactions": "Нет взаимодействия с мышью",
+  "refresh_interval": "Интервал обновления",
+  "refresh_interval_tooltip": "Подсказка интервала обновления"
 }

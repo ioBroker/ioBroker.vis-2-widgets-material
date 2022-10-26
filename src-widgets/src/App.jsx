@@ -60,7 +60,7 @@ class App extends WidgetDemoApp {
                 systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Camera',
-                    url: 'https://loremflickr.com/200/300',
+                    url: 'https://loremflickr.com/320/240',
                     refreshInterval: 1000,
                     showRefreshTime: true,
                 }}

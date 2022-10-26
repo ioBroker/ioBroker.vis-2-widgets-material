@@ -129,5 +129,14 @@
   "actual_value_with_chart": "Фактичне значення з діаграмою",
   "main_object": "Основний об'єкт",
   "secondary_object": "Другорядний об'єкт",
-  "temperature_oid": "Ідентифікатор встановленої температури"
+  "temperature_oid": "Ідентифікатор встановленої температури",
+  "delete_to_use_constant_url": "Видаліть його, щоб використовувати постійну URL-адресу",
+  "delete_to_use_oid": "Видаліть його, щоб використовувати OID",
+  "full_refresh": "Повне оновлення",
+  "full_refresh_interval_tooltip": "Підказка про повний інтервал оновлення",
+  "hide_full": "Кнопка «Сховати повноекранний режим».",
+  "markers": "Маркери",
+  "no_user_interactions": "Без взаємодії з мишкою",
+  "refresh_interval": "Інтервал оновлення",
+  "refresh_interval_tooltip": "Спливаюча підказка інтервалу оновлення"
 }

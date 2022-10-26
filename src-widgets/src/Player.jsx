@@ -27,7 +27,13 @@ const styles = theme => ({
     seek: { display: 'flex', alignItems: 'center', gap: 10 },
     buttons: { display: 'flex' },
     mode: { display: 'flex' },
-    title:  { fontSize: '140%' },
+    title:  {
+        fontSize: '140%',
+        minHeight: 29.6,
+    },
+    artist:  {
+        minHeight: 21.6,
+    },
     zIndex: { zIndex: 1 },
     player: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
     seekSlider: {
@@ -256,8 +262,8 @@ class Player extends Generic {
 
         let coverUrl = this.getPropertyValue('cover');
 
-        if (coverUrl.startsWith('/')) {
-            coverUrl = `../${coverUrl}`;
+        if (coverUrl?.startsWith('/')) {
+            coverUrl = `..${coverUrl}`;
         }
 
         return <Card
@@ -299,14 +305,14 @@ class Player extends Generic {
                             onLoad={() => {
                                 const img = this.coverRef.current;
                                 const colorThief = new ColorThief();
-                                const coverColor = colorThief.getColor(img);
-                                this.setState({ coverColor });
+                                const _coverColor = colorThief.getColor(img);
+                                this.setState({ coverColor: _coverColor });
                             }}
                         />
                         <div style={{
                             width: '70%',
                             height: '100%',
-                            backgroundImage: `url(${this.getPropertyValue('cover')})`,
+                            backgroundImage: `url(${coverUrl})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
@@ -382,12 +388,20 @@ class Player extends Generic {
         }
 
         const playerState = this.getPropertyValue('state');
+        let playerTitle = this.getPropertyValue('title');
+        let playerArtist = this.getPropertyValue('artist');
+        if (!playerTitle && this.props.editMode) {
+            playerTitle = '---';
+        }
+        if (!playerArtist && this.props.editMode) {
+            playerArtist = '---';
+        }
 
         const content = <div className={this.props.classes.content}>
             <div className={this.props.classes.zIndex}>
                 <div className={this.props.classes.player}>
-                    {this.state.rxData.title && this.state.rxData.title !== 'nothing_selected' ? <div className={this.props.classes.title}>{this.getPropertyValue('title')}</div> : null}
-                    {this.state.rxData.artist && this.state.rxData.artist !== 'nothing_selected' ? <div>{this.getPropertyValue('artist')}</div> : null}
+                    {this.state.rxData.title && this.state.rxData.title !== 'nothing_selected' ? <div className={this.props.classes.title}>{playerTitle}</div> : null}
+                    {this.state.rxData.artist && this.state.rxData.artist !== 'nothing_selected' ? <div className={this.props.classes.artist}>{playerArtist}</div> : null}
                     {(this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected') || (this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected') ? <div className={this.props.classes.mode}>
                         {this.state.rxData.repeat && this.state.rxData.volume !== 'nothing_selected' ? <IconButton
                             color={this.getPropertyValue('repeat') ? 'primary' : undefined}

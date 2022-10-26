@@ -129,5 +129,14 @@
   "actual_value_with_chart": "Werkelijke waarde met grafiek",
   "main_object": "Hoofdobject",
   "secondary_object": "Secundair object",
-  "temperature_oid": "Temperatuur-ID instellen"
+  "temperature_oid": "Temperatuur-ID instellen",
+  "delete_to_use_constant_url": "Verwijder het om een constante URL te gebruiken",
+  "delete_to_use_oid": "Verwijder het om OID te gebruiken",
+  "full_refresh": "Volledige verversing",
+  "full_refresh_interval_tooltip": "Knopinfo voor volledige vernieuwingsinterval",
+  "hide_full": "Knop voor volledig scherm verbergen",
+  "markers": "Markeringen",
+  "no_user_interactions": "Geen muisinteracties",
+  "refresh_interval": "Vernieuwingsinterval",
+  "refresh_interval_tooltip": "Knopinfo voor interval vernieuwen"
 }

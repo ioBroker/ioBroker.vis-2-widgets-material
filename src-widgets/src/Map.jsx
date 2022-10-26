@@ -63,21 +63,20 @@ const MapContent = props => {
 };
 
 const mapThemes = {
-    '': {
+    default: {
         url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        title: 'openstreetmap.de',
     },
     darkmatter: {
         url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
         attribution: '<a href="https://carto.com/attributions">CARTO</a>',
-    },
-    openstreetmapde: {
-        url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        title: 'Dark matter',
     },
     stadiaosmbright: {
         url: 'https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png',
         attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+        title: 'Stadia OSM Bright',
     },
     // jawgstreets: {
     //     url: '',
@@ -92,6 +91,7 @@ const mapThemes = {
         attribution: 'Tiles &copy; Esri &mdash; ' +
             'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, ' +
             'Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        title: 'Esri World Imagery',
     },
 };
 
@@ -175,8 +175,8 @@ class Map extends Generic {
                             name: 'theme',
                             label: 'theme',
                             type: 'select',
-                            options: Object.keys(mapThemes),
-                            default: '',
+                            options: Object.keys(mapThemes).map(theme => ({ value: theme, label: mapThemes[theme].title })),
+                            default: 'default',
                             noTranslation: true,
                         },
                         {
@@ -192,14 +192,27 @@ class Map extends Generic {
                         {
                             name: 'defaultZoom',
                             label: 'default_zoom',
-                            default: 15,
+                            default: 12,
                             type: 'slider',
                             min: 1,
                             max: 25,
                         },
                         {
+                            name: 'noUserInteractions',
+                            label: 'no_user_interactions',
+                            default: false,
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'hideZoomButtons',
                             label: 'hide_zoom',
+                            default: false,
+                            type: 'checkbox',
+                            hidden: 'data["noUserInteractions"]',
+                        },
+                        {
+                            name: 'hideFullScreenButton',
+                            label: 'hide_full',
                             default: false,
                             type: 'checkbox',
                         },
@@ -207,6 +220,7 @@ class Map extends Generic {
                 },
                 {
                     name: 'markers',
+                    label: 'markers',
                     indexFrom: 1,
                     indexTo: 'markersCount',
                     fields: [
@@ -369,8 +383,8 @@ class Map extends Generic {
             }
             const mrk = {
                 i,
-                longitude: parseFloat(position?.split(';')[0]) || this.getPropertyValue(`longitude${i}`) || 0,
-                latitude: parseFloat(position?.split(';')[1]) || this.getPropertyValue(`latitude${i}`) || 0,
+                longitude: parseFloat(position?.split(';')[0]) || parseFloat(this.getPropertyValue(`longitude${i}`)) || 0,
+                latitude:  parseFloat(position?.split(';')[1]) || parseFloat(this.getPropertyValue(`latitude${i}`))  || 0,
                 radius,
                 name: this.state.rxData[`name${i}`],
                 color: this.state.rxData[`color${i}`],
@@ -379,12 +393,16 @@ class Map extends Generic {
             if (mrk.icon && mrk.icon.startsWith('_PRJ_NAME')) {
                 mrk.icon = mrk.icon.replace('_PRJ_NAME', `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`);
             }
+            if (!mrk.longitude && !mrk.latitude) {
+                mrk.longitude = 8.40435;
+                mrk.latitude  = 49.013506;
+            }
 
             markers.push(mrk);
         }
 
-        let tilesUrl = mapThemes[''].url;
-        let tilesAttribution = mapThemes[''].attribution;
+        let tilesUrl;
+        let tilesAttribution;
         if (this.state.rxData.theme && mapThemes[this.state.rxData.theme]) {
             tilesUrl = mapThemes[this.state.rxData.theme].url;
             tilesAttribution = mapThemes[this.state.rxData.theme].attribution;
@@ -392,6 +410,20 @@ class Map extends Generic {
             tilesUrl = this.state.rxData.themeUrl;
             tilesAttribution = this.state.rxData.themeAttribution;
         }
+
+        tilesUrl = tilesUrl || mapThemes.default.url;
+        tilesAttribution = tilesAttribution || mapThemes.default.attribution;
+
+        const noInteractions = this.state.rxData.noUserInteractions ? {
+            doubleClickZoom: false,
+            closePopupOnClick: false,
+            dragging: false,
+            zoomSnap: false,
+            zoomDelta: false,
+            trackResize: false,
+            touchZoom: false,
+            scrollWheelZoom: false,
+        } : {};
 
         return <>
             <style>
@@ -407,16 +439,17 @@ class Map extends Generic {
             <MapContainer
                 className={this.props.classes.mapContainer}
                 scrollWheelZoom
-                key={`${tilesUrl}`}
+                key={`${tilesUrl}_${!!this.state.rxData.noUserInteractions}`}
                 zoom={this.state.rxData.defaultZoom || 18}
                 center={[0, 0]}
                 zoomControl={false}
+                {...noInteractions}
             >
                 <TileLayer
                     attribution={tilesAttribution}
                     url={tilesUrl}
                 />
-                {!this.state.rxData.hideZoomButtons ? <ZoomControl position="bottomright" /> : null}
+                {!this.state.rxData.hideZoomButtons && !this.state.rxData.noUserInteractions ? <ZoomControl position="bottomright" /> : null}
                 {
                     markers.map((marker, index) => {
                         const history = this.state.history[marker.i]?.map(position => {
@@ -511,7 +544,7 @@ class Map extends Generic {
             {this.renderMap()}
         </>;
 
-        const iconFull = <IconButton onClick={() => this.setState({ dialog: true })}><OpenInFullIcon /></IconButton>;
+        const iconFull = this.state.rxData.hideFullScreenButton ? null : <IconButton onClick={() => this.setState({ dialog: true })}><OpenInFullIcon /></IconButton>;
 
         return this.wrapContent(
             content,

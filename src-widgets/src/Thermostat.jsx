@@ -430,7 +430,7 @@ class Thermostat extends Generic {
                         }
 
                         return MyButtonIcon ?
-                            <Tooltip key={i} title={Generic.t(`${mode}`).replace('vis_2_widgets_material_', '')}>
+                            <Tooltip key={i} title={Generic.t(mode).replace('vis_2_widgets_material_', '')}>
                                 <IconButton
                                     color={currentValueStr === modeIndex ? 'primary' : 'grey'}
                                     onClick={() => {

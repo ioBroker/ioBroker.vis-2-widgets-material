@@ -78,17 +78,20 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
 ![Security control](img/material-security-2.png)
 
 ### Player
+![Player](img/material-player.png)
 
 ### Map
+![Player](img/material-map-1.png)
 
 ### Camera
+![Player](img/material-camera-1.png)
 
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-* (bluefox) Worked in i18n
+* (bluefox) Worked on i18n
 
 ### 0.1.2 (2022-10-21)
 * (bluefox) initial commit

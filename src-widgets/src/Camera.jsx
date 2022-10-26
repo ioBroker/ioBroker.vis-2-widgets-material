@@ -74,17 +74,23 @@ class Camera extends Generic {
                             name: 'url',
                             label: 'url',
                             hidden: data => !!data['url-oid'],
+                            default: 'https://loremflickr.com/320/240/germany',
+                            tooltip: 'delete_to_use_oid',
                         },
                         {
                             name: 'url-oid',
                             label: 'url_oid',
                             hidden: data => !!data.url,
+                            default: '',
+                            noInit: true,
+                            tooltip: 'delete_to_use_constant_url',
                         },
                         {
                             name: 'refreshInterval',
                             type: 'number',
-                            default: 1000,
-                            label: 'refresh_seconds',
+                            default: 2000,
+                            label: 'refresh_interval',
+                            tooltip: 'refresh_interval_tooltip',
                         },
                         {
                             name: 'fullUrl',
@@ -94,7 +100,8 @@ class Camera extends Generic {
                         {
                             name: 'fullRefreshInterval',
                             type: 'number',
-                            label: 'full_refresh_seconds',
+                            label: 'full_refresh',
+                            tooltip: 'full_refresh_interval_tooltip',
                         },
                         {
                             name: 'showRefreshTime',

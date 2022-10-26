@@ -129,5 +129,14 @@
   "actual_value_with_chart": "Actual value with chart",
   "main_object": "Main object",
   "secondary_object": "Secondary object",
-  "temperature_oid": "Set temperature ID"
+  "temperature_oid": "Set temperature ID",
+  "markers": "Markers",
+  "hide_full": "Hide full screen button",
+  "no_user_interactions": "No mouse interactions",
+  "refresh_interval_tooltip": "Refresh interval tooltip",
+  "full_refresh_interval_tooltip": "Full refresh interval tooltip",
+  "refresh_interval": "Refresh interval",
+  "full_refresh": "Full refresh",
+  "delete_to_use_oid": "Delete it to use OID",
+  "delete_to_use_constant_url": "Delete it to use constant URL"
 }
