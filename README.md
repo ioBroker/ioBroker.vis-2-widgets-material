@@ -91,7 +91,7 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.1.3 (2022-10-26)
 * (bluefox) First beta version
 
 ### 0.1.2 (2022-10-21)
