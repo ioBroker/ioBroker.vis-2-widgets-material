@@ -3,7 +3,7 @@
     "private": true,
     "version": "0.1.5",
     "dependencies": {
-        "@emotion/react": "^11.10.4",
+        "@emotion/react": "^11.10.5",
         "@emotion/styled": "^11.10.4",
         "@iobroker/adapter-react-v5": "^3.2.3",
         "@iobroker/vis-2-widgets-react-dev": "^0.3.6",
