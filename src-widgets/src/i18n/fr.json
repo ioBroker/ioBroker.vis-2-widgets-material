@@ -140,5 +140,11 @@
   "refresh_interval": "Intervalle de rafraîchissement",
   "refresh_interval_tooltip": "Info-bulle de l'intervalle d'actualisation",
   "small_icon": "Petite icône",
-  "small_icon_active": "Petite icône active"
+  "small_icon_active": "Petite icône active",
+  "html": "Modèle HTML",
+  "html_template": "Modèle HTML",
+  "invalid_pin": "NIP invalide",
+  "reset": "Réinitialiser",
+  "enter": "Entrer",
+  "close": "Proche"
 }

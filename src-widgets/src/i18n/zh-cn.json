@@ -140,5 +140,11 @@
   "refresh_interval": "刷新间隔",
   "refresh_interval_tooltip": "刷新间隔工具提示",
   "small_icon": "小图标",
-  "small_icon_active": "小活动图标"
+  "small_icon_active": "小活动图标",
+  "html": "HTML 模板",
+  "html_template": "HTML 模板",
+  "invalid_pin": "密码无效",
+  "reset": "重置",
+  "enter": "进入",
+  "close": "关"
 }

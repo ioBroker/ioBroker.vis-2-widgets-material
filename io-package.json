@@ -94,13 +94,15 @@
           "Actual",
           "Static",
           "Switches",
+          "Blinds",
           "Clock",
           "SimpleState",
           "ViewInWidget",
           "Camera",
           "Security",
           "Player",
-          "Map"
+          "Map",
+          "Html"
         ]
       }
     },

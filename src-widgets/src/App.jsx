@@ -17,6 +17,8 @@ import Camera from './Camera';
 import Map from './Map';
 import Player from './Player';
 import Security from './Security';
+import Html from './Html';
+import Blinds from './Blinds';
 
 const styles = theme => ({
     app: {
@@ -123,6 +125,19 @@ class App extends WidgetDemoApp {
                     pincode2: '1234',
                     timerSeconds2: 2,
                     pincodeReturnButton2: 'backspace',
+                }}
+            />,
+            Html: <Html
+                key="Html"
+                socket={this.socket}
+                style={{
+                    width: 400,
+                    height: 180,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'HTML',
+                    html: '<div>Hallo<b',
                 }}
             />,
             clock: <Clock
@@ -248,13 +263,25 @@ class App extends WidgetDemoApp {
                     name: 'Actual temperature',
                 }}
             />,
-
+            blinds: <Blinds
+                key="Blinds"
+                socket={this.socket}
+                themeType={this.state.themeType}
+                style={{
+                    width: 400,
+                    height: 200,
+                }}
+                systemConfig={this.state.systemConfig}
+                data={{
+                    name: 'Blinds',
+                }}
+            />,
         };
+
         return <div className={this.props.classes.app}>
             <div>
-                {Object.keys(widgets).map(key => <div style={{ display: 'flex', alignItems: 'center' }}>
+                {Object.keys(widgets).map(key => <div key={key} style={{ display: 'flex', alignItems: 'center' }}>
                     <Checkbox
-                        key={key}
                         checked={!this.state.disabled[key]}
                         onChange={e => {
                             const disabled = JSON.parse(JSON.stringify(this.state.disabled));

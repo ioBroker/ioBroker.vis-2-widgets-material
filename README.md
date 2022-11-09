@@ -86,6 +86,14 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
 ### Camera
 ![Player](img/material-camera-1.png)
 
+### Html Template
+![Player](img/material-html-1.png)
+
+### Blinds
+
+### Color Lamp
+
+
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**

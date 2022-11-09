@@ -140,5 +140,11 @@
   "delete_to_use_oid": "Delete it to use OID",
   "delete_to_use_constant_url": "Delete it to use constant URL",
   "small_icon": "Small icon",
-  "small_icon_active": "Small active icon"
+  "small_icon_active": "Small active icon",
+  "html": "HTML template",
+  "html_template": "HTML template",
+  "invalid_pin": "Invalid PIN",
+  "reset": "Reset",
+  "enter": "Enter",
+  "close": "Close"
 }

@@ -140,5 +140,11 @@
   "refresh_interval": "Vernieuwingsinterval",
   "refresh_interval_tooltip": "Knopinfo voor interval vernieuwen",
   "small_icon": "Klein icoon",
-  "small_icon_active": "Klein actief pictogram"
+  "small_icon_active": "Klein actief pictogram",
+  "html": "HTML-sjabloon",
+  "html_template": "HTML-sjabloon",
+  "invalid_pin": "Ongeldige pincode",
+  "reset": "Resetten",
+  "enter": "Binnenkomen",
+  "close": "Dichtbij"
 }

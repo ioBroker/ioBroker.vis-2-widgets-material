@@ -140,5 +140,11 @@
   "refresh_interval": "Częstotliwość odświeżania",
   "refresh_interval_tooltip": "Podpowiedź interwału odświeżania",
   "small_icon": "Mała ikona",
-  "small_icon_active": "Mała aktywna ikona"
+  "small_icon_active": "Mała aktywna ikona",
+  "html": "Szablon HTML",
+  "html_template": "Szablon HTML",
+  "invalid_pin": "Nieprawidłowy PIN",
+  "reset": "Resetowanie",
+  "enter": "Wchodzić",
+  "close": "Blisko"
 }

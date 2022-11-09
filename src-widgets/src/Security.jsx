@@ -4,7 +4,7 @@ import { withStyles } from '@mui/styles';
 import {
     Button, Chip, Dialog, DialogContent, DialogTitle, TextField,
 } from '@mui/material';
-import {Icon, Message as DialogMessage} from '@iobroker/adapter-react-v5';
+import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
 import {
     Backspace, Check, RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon,
 } from '@mui/icons-material';
@@ -251,14 +251,15 @@ class Security extends Generic {
                     <TextField
                         variant="outlined"
                         fullWidth
-                        type="password"
+                        type={this.state.invalidPin ? 'text' : 'password'}
                         inputProps={{
                             readOnly: true,
                             style: {
                                 textAlign: 'center',
+                                color: this.state.invalidPin ? '#ff3e3e' : 'inherit',
                             },
                         }}
-                        value={this.state.pinInput}
+                        value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.pinInput}
                     />
                 </div>
                 <div className={this.props.classes.pinGrid}>
@@ -274,6 +275,9 @@ class Security extends Generic {
                             return <Button
                                 variant="outlined"
                                 key={button}
+                                title={button === 'R' ?
+                                    (this.state.pinInput ? Generic.t('reset') : Generic.t('close')) :
+                                    (button === pincodeReturnButton ? 'enter' : '')}
                                 onClick={() => {
                                     if (button === 'submit') {
                                         if (this.state.pinInput === pincode) {
@@ -286,7 +290,11 @@ class Security extends Generic {
                                     } else if (button === 'backspace') {
                                         this.setState({ pinInput: this.state.pinInput.slice(0, -1) });
                                     } else if (button === 'R') {
-                                        this.setState({ pinInput: '' });
+                                        if (!this.state.pinInput) {
+                                            this.setState({ dialog: false });
+                                        } else {
+                                            this.setState({ pinInput: '' });
+                                        }
                                     } else {
                                         const pinInput = this.state.pinInput + button;
                                         this.setState({ pinInput });
@@ -297,7 +305,7 @@ class Security extends Generic {
                                     }
                                 }}
                             >
-                                {buttonTitle}
+                                {buttonTitle === 'R' ? (this.state.pinInput ? 'R' : 'x') : buttonTitle}
                             </Button>;
                         })
                     }

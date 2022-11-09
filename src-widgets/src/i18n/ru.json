@@ -88,7 +88,7 @@
   "lock_after": "Постановка на охрану через %s секунд(у)",
   "lock_cancel": "Отмена",
   "longitude": "Долгота",
-  "map": "карта",
+  "map": "Карта",
   "markers_count": "Количество маркеров",
   "mute": "Выкл. звук",
   "next": "Следующий",
@@ -126,7 +126,7 @@
   "chart_time_interval": "Интервал графика",
   "chart_update_interval": "Интервал обновления графика",
   "seconds": "Секунды",
-  "actual_value_with_chart": "Фактическое значение с диаграммой",
+  "actual_value_with_chart": "Актуальное значение с историей",
   "main_object": "Основной объект",
   "secondary_object": "Второстепенный объект",
   "temperature_oid": "Установить идентификатор температуры",
@@ -140,5 +140,11 @@
   "refresh_interval": "Интервал обновления",
   "refresh_interval_tooltip": "Подсказка интервала обновления",
   "small_icon": "Маленькая иконка",
-  "small_icon_active": "Маленький активный значок"
+  "small_icon_active": "Маленький активный значок",
+  "html": "HTML-шаблон",
+  "html_template": "HTML-шаблон",
+  "invalid_pin": "Неверный PIN",
+  "reset": "Сбросить",
+  "enter": "Ввести",
+  "close": "Закрыть"
 }

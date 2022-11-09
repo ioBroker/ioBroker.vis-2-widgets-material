@@ -246,8 +246,12 @@ class Player extends Generic {
         }
     }
 
-    static getTimeString = seconds =>
-        `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
+    static getTimeString = seconds => {
+        if (seconds === undefined || seconds === null) {
+            return '-:-';
+        }
+        return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
+    };
 
     getColor() {
         return (this.state.rxData.color ? Color(this.state.rxData.color).rgb().color : null) || this.state.coverColor;

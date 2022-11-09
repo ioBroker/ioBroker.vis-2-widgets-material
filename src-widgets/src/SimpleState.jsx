@@ -16,7 +16,7 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import {Icon, Utils} from '@iobroker/adapter-react-v5';
+import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
@@ -633,7 +633,10 @@ class SimpleState extends Generic {
                         {this.state.object.common.states && value !== undefined && value !== null ?
                             <div
                                 key={` ${stateTitle || value}`}
-                                className={Utils.clsx(this.props.classes.value, !color ? (this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight) : null)}
+                                className={Utils.clsx(
+                                    this.props.classes.value,
+                                    !color ? (this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight) : null,
+                                )}
                                 style={{ color }}
                             >
                                 {stateTitle || value}

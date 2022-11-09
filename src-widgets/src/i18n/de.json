@@ -140,5 +140,11 @@
   "refresh_interval": "Aktualisierungsintervall",
   "refresh_interval_tooltip": "Aktualisierungsintervall-Tooltip",
   "small_icon": "Kleines Symbol",
-  "small_icon_active": "Kleines aktives Symbol"
+  "small_icon_active": "Kleines aktives Symbol",
+  "html": "HTML-Vorlage",
+  "html_template": "HTML-Vorlage",
+  "invalid_pin": "Ungültige PIN",
+  "reset": "Löschen",
+  "enter": "Eingeben",
+  "close": "Schliessen"
 }

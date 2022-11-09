@@ -140,5 +140,11 @@
   "refresh_interval": "Intervalo de atualização",
   "refresh_interval_tooltip": "Dica de ferramenta de intervalo de atualização",
   "small_icon": "Ícone pequeno",
-  "small_icon_active": "Pequeno ícone ativo"
+  "small_icon_active": "Pequeno ícone ativo",
+  "html": "Modelo HTML",
+  "html_template": "Modelo HTML",
+  "invalid_pin": "PIN inválido",
+  "reset": "Redefinir",
+  "enter": "Digitar",
+  "close": "Perto"
 }

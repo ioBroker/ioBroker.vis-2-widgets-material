@@ -359,7 +359,7 @@ class Thermostat extends Generic {
             handleSize = 8;
         }
 
-        console.log(this.state.min, this.state.max, tempValue);
+        // console.log(this.state.min, this.state.max, tempValue);
 
         const chartButton = this.state.isChart ? <IconButton
             className={this.state.rxData.name ? '' : this.props.classes.moreButton}

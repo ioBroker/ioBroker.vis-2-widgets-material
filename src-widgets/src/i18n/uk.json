@@ -140,5 +140,11 @@
   "refresh_interval": "Інтервал оновлення",
   "refresh_interval_tooltip": "Спливаюча підказка інтервалу оновлення",
   "small_icon": "Маленький значок",
-  "small_icon_active": "Маленький активний значок"
+  "small_icon_active": "Маленький активний значок",
+  "html": "Шаблон HTML",
+  "html_template": "Шаблон HTML",
+  "invalid_pin": "Недійсний PIN",
+  "reset": "Скинути",
+  "enter": "Введіть",
+  "close": "Закрити"
 }
