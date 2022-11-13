@@ -11,7 +11,7 @@ const del = require('del');
 const adapterName = require('./package.json').name.replace('iobroker.', '');
 
 const SRC = 'src-widgets/';
-const src = __dirname + '/' + SRC;
+const src = `${__dirname}/${SRC}`;
 
 function npmInstall() {
     return new Promise((resolve, reject) => {
@@ -32,7 +32,7 @@ function npmInstall() {
         child.on('exit', (code /* , signal */) => {
             // code 1 is strange error that cannot be explained. Everything is installed but error :(
             if (code && code !== 1) {
-                reject('Cannot install: ' + code);
+                reject(`Cannot install: ${code}`);
             } else {
                 console.log(`"${cmd} in ${cwd} finished.`);
                 // command succeeded
@@ -42,36 +42,39 @@ function npmInstall() {
     });
 }
 
-function buildRules() {
-    const version = JSON.parse(fs.readFileSync(__dirname + '/package.json').toString('utf8')).version;
-    const data    = JSON.parse(fs.readFileSync(src + 'package.json').toString('utf8'));
+function buildWidgets() {
+    const version = JSON.parse(fs.readFileSync(`${__dirname}/package.json`).toString('utf8')).version;
+    const data    = JSON.parse(fs.readFileSync(`${src}package.json`).toString('utf8'));
 
     data.version = version;
 
-    fs.writeFileSync(src + 'package.json', JSON.stringify(data, null, 4));
+    fs.writeFileSync(`${src}package.json`, JSON.stringify(data, null, 4));
 
     return new Promise((resolve, reject) => {
         const options = {
             stdio: 'pipe',
-            cwd: src
+            cwd: src,
+            env: {
+                CI: 'true',
+            }
         };
 
         console.log(options.cwd);
 
-        let script = src + 'node_modules/@craco/craco/bin/craco.js';
+        let script = `${src}node_modules/@craco/craco/dist/bin/craco.js`;
         if (!fs.existsSync(script)) {
-            script = __dirname + '/node_modules/@craco/craco/bin/craco.js';
+            script = `${__dirname}/node_modules/@craco/craco/dist/bin/craco.js`;
         }
         if (!fs.existsSync(script)) {
-            console.error('Cannot find execution file: ' + script);
-            reject('Cannot find execution file: ' + script);
+            console.error(`Cannot find execution file: ${script}`);
+            reject(`Cannot find execution file: ${script}`);
         } else {
             const child = cp.fork(script, ['build'], options);
             child.stdout.on('data', data => console.log(data.toString()));
             child.stderr.on('data', data => console.log(data.toString()));
             child.on('close', code => {
                 console.log(`child process exited with code ${code}`);
-                code ? reject('Exit code: ' + code) : resolve();
+                code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
     });
@@ -81,7 +84,7 @@ gulp.task('widget-0-clean', () => del([`${SRC}build/**/*`, `widgets/**/*`]));
 
 gulp.task('widget-1-npm', async () => npmInstall());
 
-gulp.task('widget-2-compile', async () => buildRules());
+gulp.task('widget-2-compile', async () => buildWidgets());
 
 gulp.task('widget-3-copy', () => Promise.all([
     gulp.src([`${SRC}build/*.js`]).pipe(gulp.dest(`widgets/${adapterName}`)),
