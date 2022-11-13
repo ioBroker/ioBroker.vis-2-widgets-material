@@ -5,7 +5,7 @@
     "dependencies": {
         "@emotion/react": "^11.10.5",
         "@emotion/styled": "^11.10.5",
-        "@iobroker/adapter-react-v5": "^3.2.5",
+        "@iobroker/adapter-react-v5": "^3.2.7",
         "@iobroker/vis-2-widgets-react-dev": "^0.3.6",
         "@mui/icons-material": "^5.10.9",
         "@mui/material": "^5.10.13",
@@ -25,7 +25,17 @@
         "react-circular-slider-svg": "^0.2.0",
         "react-dom": "^18.2.0",
         "react-leaflet": "^4.1.0",
-        "react-scripts": "^5.0.1"
+        "react-scripts": "^5.0.1",
+        "@craco/craco": "^7.0.0",
+        "craco-esbuild": "^0.5.2",
+        "craco-module-federation": "^1.1.0",
+        "eslint": "^8.27.0",
+        "eslint-config-airbnb": "^19.0.4",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-jsx-a11y": "^6.6.1",
+        "eslint-plugin-react": "^7.31.10",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "sass": "^1.56.1"
     },
     "scripts": {
         "start": "set PORT=4173 && craco start",
@@ -38,18 +48,6 @@
     },
     "eslintConfig": {
         "extends": "react-app"
-    },
-    "devDependencies": {
-        "@craco/craco": "^6.4.5",
-        "craco-esbuild": "^0.5.2",
-        "craco-module-federation": "^1.1.0",
-        "eslint": "^8.27.0",
-        "eslint-config-airbnb": "^19.0.4",
-        "eslint-plugin-import": "^2.26.0",
-        "eslint-plugin-jsx-a11y": "^6.6.1",
-        "eslint-plugin-react": "^7.31.10",
-        "eslint-plugin-react-hooks": "^4.6.0",
-        "sass": "^1.55.0"
     },
     "homepage": ".",
     "browserslist": [
