@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.1.5",
+    "version": "0.2.0",
     "news": {
+      "0.2.0": {
+        "en": "Implemented the blinds widget",
+        "de": "Implementiert die Blinds Widget",
+        "ru": "Внедрил виджет слепых",
+        "pt": "Implementado o widget blinds",
+        "nl": "Vertaling:",
+        "fr": "Implémenté les stores widget",
+        "it": "Implementato il widget delle tende",
+        "es": "Implementado el widget de persianas",
+        "pl": "Poprawiono ślepe widgety",
+        "uk": "Реалізовано віджет жалюзі",
+        "zh-cn": "执行盲目目标"
+      },
       "0.1.5": {
         "en": "First beta version",
         "de": "Erste Beta-Version",
@@ -107,7 +120,8 @@
       }
     },
     "restartAdapters": [
-      "vis", "vis-2-beta"
+      "vis",
+      "vis-2-beta"
     ]
   },
   "native": {},
