@@ -102,6 +102,9 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Implemented the blinds widget
+
 ### 0.1.5 (2022-10-27)
 * (bluefox) First beta version
 
