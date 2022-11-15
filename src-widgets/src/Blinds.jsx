@@ -2,20 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-} from '@mui/material';
-
-import {
-    Close as CloseIcon,
-} from '@mui/icons-material';
-
 import { Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
+import DialogBlinds from './Components/DialogBlinds';
 
 const styles = () => ({
     cardContent: {
@@ -45,6 +35,8 @@ const styles = () => ({
         backgroundPosition: 'center bottom',
         width: '100%',
         position: 'absolute',
+        transitionProperty: 'height',
+        transitionDuration: '0.3s',
     },
     blindBlind1: {
         height: '100%',
@@ -74,22 +66,33 @@ const styles = () => ({
         boxSizing: 'border-box',
         borderStyle: 'solid',
         background: 'linear-gradient(45deg, rgba(221, 231, 243, 0.7) 0%, rgba(120, 132, 146, 0.7) 52%, rgba(166, 178, 190, 0.7) 68%, rgba(201, 206, 210, 0.7) 100%)',
+        transitionProperty: 'transform',
+        transitionDuration: '0.3s',
+        transformOrigin: '0 100%',
+    },
+    blindBlind4_left: {
+        transformOrigin: '0 0',
+    },
+    blindBlind4_right: {
+        transformOrigin: '100% 0',
+    },
+    blindBlind4_top: {
+        transformOrigin: '0 100%',
+    },
+    blindBlind4_bottom: {
+        transformOrigin: '0 0',
     },
     blindBlind4Opened_left: {
         transform: 'skew(0deg, 10deg) scale(0.9, 1)',
-        transformOrigin: '0 0',
     },
     blindBlind4Opened_right: {
         transform: 'skew(0deg, -10deg) scale(0.9, 1)',
-        transformOrigin: '100% 0',
     },
     blindBlind4Opened_top: {
         transform: 'skew(-10deg, 0deg) scale(1, 0.9)',
-        transformOrigin: '0 100%',
     },
     blindBlind4Opened_bottom: {
         transform: 'skew(10deg, 0deg) scale(1, 0.9)',
-        transformOrigin: '0 0',
     },
     blindBlind4_tilted: {
         transform: 'skew(-10deg, 0deg) scale(1, 0.9)',
@@ -154,17 +157,23 @@ class Blinds extends Generic {
                             type: 'id',
                             default: '',
                             label: 'blinds_position_oid',
+                            noInit: true,
                             onChange: async (field, data, changeData, socket) => {
                                 const object = await socket.getObject(data[field.name]);
                                 if (object && object.common) {
                                     let changed = false;
-                                    if (object.common.min !== undefined && object.common.min !== data.min) {
-                                        data.min = object.common.min;
-                                        changed = true;
-                                    }
-                                    if (object.common.max !== undefined && object.common.max !== data.max) {
-                                        data.max = object.common.max;
-                                        changed = true;
+
+                                    // try to find stop button
+                                    const id = object._id.split('.');
+                                    id.pop();
+                                    const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                    if (states) {
+                                        Object.values(states).forEach(state => {
+                                            if (state?.common?.role?.includes('stop')) {
+                                                data.blinds_stop_oid = state._id;
+                                                changed = true;
+                                            }
+                                        });
                                     }
 
                                     changed && changeData(data);
@@ -172,24 +181,36 @@ class Blinds extends Generic {
                             },
                         },
                         {
+                            name: 'oid_stop',
+                            type: 'id',
+                            default: '',
+                            label: 'blinds_stop_oid',
+                            noInit: true,
+                            hidden: data => !data.oid,
+                        },
+                        {
                             label: 'show_value',
                             type: 'checkbox',
                             name: 'showValue',
+                            hidden: data => !data.oid,
                             default: true,
                         },
                         {
                             label: 'min_position',
                             type: 'number',
+                            hidden: data => !data.oid,
                             name: 'min',
                         },
                         {
                             label: 'max_position',
                             type: 'number',
+                            hidden: data => !data.oid,
                             name: 'max',
                         },
                         {
                             label: 'invert_position',
                             type: 'checkbox',
+                            hidden: data => !data.oid,
                             name: 'invert',
                         },
                     ],
@@ -201,14 +222,16 @@ class Blinds extends Generic {
                     indexTo: 'sashCount',
                     fields: [
                         {
-                            name: 'slideSensorOid',
+                            name: 'slideSensor_oid',
                             type: 'id',
                             label: 'slide_sensor_oid',
+                            noInit: true,
                         },
                         {
-                            name: 'slideHandleOid',
+                            name: 'slideHandle_oid',
                             type: 'id',
                             label: 'handle_sensor_oid',
+                            noInit: true,
                         },
                         {
                             name: 'slideType',
@@ -230,6 +253,61 @@ class Blinds extends Generic {
                             min: 0.1,
                             max: 4,
                             step: 0.1,
+                            hidden: data => data.sashCount < 2,
+                        },
+                        {
+                            name: 'slidePos_oid',
+                            type: 'id',
+                            default: '',
+                            label: 'blinds_position_oid',
+                            hidden: data => !!data.oid,
+                            noInit: true,
+                            onChange: async (field, data, changeData, socket) => {
+                                const object = await socket.getObject(data[field.name]);
+                                const index = field.name.match(/(\d+)$/)[1];
+                                if (object && object.common) {
+                                    let changed = false;
+                                    // try to find stop button
+                                    const id = object._id.split('.');
+                                    id.pop();
+                                    const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                    if (states) {
+                                        Object.values(states).forEach(state => {
+                                            if (state?.common?.role?.includes('stop')) {
+                                                data[`slideStop_oid${index}`] = state._id;
+                                                changed = true;
+                                            }
+                                        });
+                                    }
+                                    changed && changeData(data);
+                                }
+                            },
+                        },
+                        {
+                            name: 'slideStop_oid',
+                            type: 'id',
+                            default: '',
+                            label: 'blinds_stop_oid',
+                            noInit: true,
+                            hidden: (data, index) => !!data.oid || !data[`slidePos_oid${index}`],
+                        },
+                        {
+                            label: 'min_position',
+                            type: 'number',
+                            hidden: (data, index) => !!data.oid || !data[`slidePos_oid${index}`],
+                            name: 'slideMin',
+                        },
+                        {
+                            label: 'max_position',
+                            type: 'number',
+                            hidden: (data, index) => !!data.oid || !data[`slidePos_oid${index}`],
+                            name: 'slideMax',
+                        },
+                        {
+                            label: 'invert_position',
+                            type: 'checkbox',
+                            hidden: (data, index) => !!data.oid || !data[`slidePos_oid${index}`],
+                            name: 'slideInvert',
                         },
                     ],
                 },
@@ -257,52 +335,20 @@ class Blinds extends Generic {
         this.lastRxData = actualRxData;
         const objects = {};
 
+        const _object = this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected' ? (await this.props.socket.getObject(this.state.rxData.oid)) : null;
+        objects.main = _object?.common || {};
+
         // try to find icons for all OIDs
-        for (let index = 1; index <= this.state.rxData.count; index++) {
-            if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
+        for (let index = 1; index <= this.state.rxData.sashCount; index++) {
+            if (this.state.rxData[`slidePos_oid${index}`] && this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected') {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`oid${index}`]);
+                const object = await this.props.socket.getObject(this.state.rxData[`slidePos_oid${index}`]);
                 if (!object) {
-                    objects[index] = { common: {} };
+                    objects[index] = { };
                     continue;
                 }
-                object.common = object.common || {};
-                if (object.common.type === 'number') {
-                    if (object.common.max === undefined) {
-                        object.common.max = 100;
-                    }
-                    if (object.common.min === undefined) {
-                        object.common.min = 0;
-                    }
-                }
-                if (object.common.states && Array.isArray(object.common.states)) {
-                    // convert to {'state1': 'state1', 'state2': 'state2', ...}
-                    const states = {};
-                    object.common.states.forEach(state => states[state] = state);
-                    object.common.states = states;
-                }
 
-                if (!this.state.rxData[`icon${index}`] && !this.state.rxData[`iconSmall${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData[`oid${index}`].split('.');
-
-                    // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
-                        if (grandParentObject?.common?.icon) {
-                            object.common.icon = grandParentObject.common.icon;
-                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                            }
-                        }
-                    } else {
-                        object.common.icon = parentObject.common.icon;
-                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                        }
-                    }
-                }
-                objects[index] = { common: object.common, _id: object._id };
+                objects[index] = object?.common || {};
             }
         }
 
@@ -320,30 +366,124 @@ class Blinds extends Generic {
         await this.propertiesUpdate();
     }
 
-    renderBlindsDialog() {
-        const index = this.state.showBlindsDialog;
-        if (index !== null) {
-            return <Dialog
-                fullWidth
-                maxWidth="sm"
-                open={!0}
-                onClose={() => this.setState({ showBlindsDialog: null })}
-            >
-                <DialogTitle>
-                    {this.state.rxData[`title${index}`] || this.state.objects[index].common.name}
-                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showBlindsDialog: null })}><CloseIcon /></IconButton>
-                </DialogTitle>
-                <DialogContent>
+    getMinMaxPosition(index) {
+        const stopOid     = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
+        let   positionOid = index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
+        let   invert      = index && !this.state.rxData.oid ? this.state.rxData[`slideInvert${index}`] : this.state.rxData.invert;
 
-                </DialogContent>
-            </Dialog>;
+        if (index && (positionOid === 'nothing_selected' || !positionOid)) {
+            positionOid = this.state.rxData.oid;
+            invert      = this.state.rxData.invert;
+        }
+
+        let min;
+        let max;
+
+        if (!index) {
+            min = parseFloat(this.state.rxData.min);
+            if (Number.isNaN(min)) {
+                min = this.state.objects.main?.min;
+                if (Number.isNaN(min)) {
+                    min = 0;
+                }
+            }
+            max = parseFloat(this.state.rxData.max);
+            if (Number.isNaN(max)) {
+                max = this.state.objects.main?.max;
+                if (Number.isNaN(max)) {
+                    max = 100;
+                }
+            }
+        } else {
+            min = parseFloat(this.state.rxData[`slideMin${index}`]);
+            if (Number.isNaN(min)) {
+                min = parseFloat(this.state.objects[index]?.min);
+                if (Number.isNaN(min)) {
+                    min = parseFloat(this.state.rxData.min);
+                    if (Number.isNaN(min)) {
+                        min = parseFloat(this.state.objects.main?.min);
+                        if (Number.isNaN(min)) {
+                            min = 0;
+                        }
+                    }
+                }
+            }
+            max = parseFloat(this.state.rxData[`slideMa${index}`]);
+            if (Number.isNaN(max)) {
+                max = parseFloat(this.state.objects[index]?.max);
+                if (Number.isNaN(max)) {
+                    max = parseFloat(this.state.rxData.max);
+                    if (Number.isNaN(max)) {
+                        max = parseFloat(this.state.objects.main?.max);
+                        if (Number.isNaN(max)) {
+                            max = 100;
+                        }
+                    }
+                }
+            }
+        }
+
+        let shutterPos = this.state.values[`${positionOid}.val`];
+        if (shutterPos === undefined || shutterPos === null) {
+            shutterPos = 0;
+        } else {
+            if (shutterPos < min) {
+                shutterPos = min;
+            }
+            if (shutterPos > max) {
+                shutterPos = max;
+            }
+
+            console.log(`[${index}]shutterPos: ${shutterPos}, positionOid: ${positionOid}, min: ${min}, max: ${max}, invert: ${invert}`);
+            shutterPos = Math.round((100 * (shutterPos - min)) / (max - min));
+        }
+        if (invert) {
+            shutterPos = 100 - shutterPos;
+        }
+
+        return {
+            min,
+            max,
+            shutterPos,
+            invert,
+            stopOid,
+            positionOid,
+            customOid: positionOid !== this.state.rxData.oid,
+            hasControl: positionOid !== 'nothing_selected' && positionOid,
+        };
+    }
+
+    renderBlindsDialog() {
+        if (this.state.showBlindsDialog !== null) {
+            const data = this.getMinMaxPosition(this.state.showBlindsDialog === true ? 0 : this.state.showBlindsDialog);
+
+            return <DialogBlinds
+                onClose={() => {
+                    this.lastClick = Date.now();
+                    this.setState({ showBlindsDialog: null });
+                }}
+                onStop={data.stopOid && data.stopOid !== 'nothing_selected' ? () => this.props.socket.setState(data.stopOid, { val: true, ack: false }) : null}
+                onValueChange={value => {
+                    // calculate real value
+                    if (data.invert) {
+                        value = 100 - value;
+                    }
+
+                    value = ((data.max - data.min) / 100) * value + data.min;
+
+                    this.props.socket.setState(data.positionOid, { val: value, ack: false });
+                }}
+                startValue={data.shutterPos}
+                type={DialogBlinds.types.blinds}
+            />;
         }
 
         return null;
     }
 
     renderOneWindow(index, options) {
-        const shutterPos = options.shutterPos || 0;
+        const data = this.getMinMaxPosition(index);
+
         let handlePos = null;
         let slidePos = null;
         if (options.handleOid) {
@@ -364,16 +504,16 @@ class Blinds extends Generic {
         }
         if (options.slideOid) {
             slidePos = this.state.values[`${options.slideOid}.val`];
-            if (!options.handleOid) {
-                handlePos = slidePos;
-            }
             if (slidePos === 2 || slidePos === '2') {
                 slidePos = 2;
             }
             if (slidePos === '1' || slidePos === true || slidePos === 'true' || slidePos === 'open' || slidePos === 'opened') {
-                handlePos = 1;
+                slidePos = 1;
             } else if (slidePos === '2' || slidePos === 'tilt' || slidePos === 'tilted') {
                 slidePos = 2;
+            }
+            if (!options.handleOid) {
+                handlePos = slidePos;
             }
         }
         let divHandle = null;
@@ -382,13 +522,18 @@ class Blinds extends Generic {
             if (bbWidth < 1) {
                 bbWidth = 1;
             }
-            const style = { borderWidth: bbWidth };
+            const style = {
+                borderWidth: bbWidth,
+                transitionProperty: 'transform',
+                transitionDuration: '0.3s',
+            };
             if (options.type === 'left' || options.type === 'right') {
                 style.top = '50%';
                 style.width = options.borderWidth;
                 style.height = '10%';
             } else if (options.type === 'top' || options.type === 'bottom') {
                 style.left = '50%';
+                // noinspection JSSuspiciousNameCombination
                 style.height = options.borderWidth;
                 style.width = '10%';
             }
@@ -398,18 +543,27 @@ class Blinds extends Generic {
                 style.top = `calc(100% - ${bbWidth * 2 + options.borderWidth}px)`;
             }
             if (handlePos) {
-                const w = Math.round(bbWidth + options.borderWidth / 2);
-                if (options.type === 'right' || options.type === 'bottom') {
+                if (options.type === 'right') {
+                    const w = Math.round(bbWidth + options.borderWidth / 2);
+                    style.transformOrigin = `${w}px ${w}px`;
+                    style.top = `calc(50% + ${w}px)`;
+                    if (handlePos === 1) {
+                        style.transform = 'rotate(-90deg)';
+                    } else if (handlePos === 2) {
+                        style.transform = 'rotate(180deg)';
+                    }
+                } else if (options.type === 'bottom') {
+                    const w = Math.round(bbWidth + options.borderWidth / 2);
                     style.transformOrigin = `${w}px ${w}px`;
                     if (handlePos === 1) {
-                        style.transform = 'rotate(-90)';
+                        style.transform = 'rotate(-90deg)';
                     } else if (handlePos === 2) {
-                        style.transform = 'rotate(180)';
+                        style.transform = 'rotate(180deg)';
                     }
                 } else if (handlePos === 1) {
-                    style.transform = 'rotate(90)';
+                    style.transform = 'rotate(90deg)';
                 } else if (handlePos === 2) {
-                    style.transform = 'rotate(180)';
+                    style.transform = 'rotate(180deg)';
                 }
             }
 
@@ -431,12 +585,22 @@ class Blinds extends Generic {
                 flex: options.flex || 1,
             }}
         >
-            <div className={this.props.classes.blindBlind2} style={{ borderWidth: options.borderWidth }}>
+            <div
+                className={this.props.classes.blindBlind2}
+                style={{ borderWidth: options.borderWidth }}
+                onClick={data.customOid ? e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.lastClick = Date.now();
+                    this.setState({ showBlindsDialog: index });
+                } : undefined}
+            >
                 <div className={this.props.classes.blindBlind3}>
-                    <div style={{ height: `${shutterPos}%` }} className={this.props.classes.blindBlind} />
+                    <div style={{ height: `${100 - data.shutterPos}%` }} className={this.props.classes.blindBlind} />
                     <div
                         className={Utils.clsx(
                             this.props.classes.blindBlind4,
+                            options.type && this.props.classes[`blindBlind4_${options.type}`],
                             slidePos === 1 && options.type && this.props.classes[`blindBlind4Opened_${options.type}`],
                             slidePos === 2 && options.type && this.props.classes.blindBlind4_tilted,
                         )}
@@ -449,7 +613,7 @@ class Blinds extends Generic {
         </div>;
     }
 
-    renderWindow(shutterPos, size) {
+    renderWindows(size) {
         /*
         $div.find('.hq-blind-blind2').each(function (id) {
             id++;
@@ -502,12 +666,11 @@ class Blinds extends Generic {
         const windows = [];
         for (let i = 1; i <= this.state.rxData.sashCount; i++) {
             const options = {
-                slideOid:  this.state.rxData[`slideSensorOid${i}`],
-                handleOid: this.state.rxData[`slideHandleOid${i}`],
+                slideOid:  this.state.rxData[`slideSensor_oid${i}`],
+                handleOid: this.state.rxData[`slideHandle_oid${i}`],
                 type:      this.state.rxData[`slideType${i}`],
                 flex:      this.state.rxData[`slideRatio${i}`],
                 borderWidth,
-                shutterPos,
                 size,
             };
             windows.push(this.renderOneWindow(i, options));
@@ -545,53 +708,48 @@ class Blinds extends Generic {
         if (!this.refCardContent.current) {
             setTimeout(() => this.forceUpdate(), 50);
         } else {
-            height = this.refCardContent.current.offsetHeight;
+            height = this.refCardContent.current.offsetHeight; // take 10° for opened slash
+            // if one of the slashes could be opened, find length of it
+            let length = 0;
+            for (let i = 1; i <= this.state.rxData.sashCount; i++) {
+                if (this.state.rxData[`slideSensor_oid${i}`] || this.state.rxData[`slideHandle_oid${i}`]) {
+                    if (length < this.state.rxData[`slideRatio${i}`]) {
+                        length = this.state.rxData[`slideRatio${i}`];
+                    }
+                }
+            }
+
             width = this.refCardContent.current.offsetWidth;
-        }
 
-        let min = parseFloat(this.state.rxData.min);
-        if (this.state.rxData.min === undefined || this.state.rxData.min === null || this.state.rxData.min === '' || Number.isNaN(min)) {
-            min = 0;
-        }
-        let max = parseFloat(this.state.rxData.max);
-        if (this.state.rxData.max === undefined || this.state.rxData.max === null || this.state.rxData.max === '' || Number.isNaN(max)) {
-            max = 100;
-        }
-
-        // get position
-        let shutterPos = 0;
-        if (this.state.rxData.oid) {
-            shutterPos = this.state.values[`${this.state.rxData.oid}.val`];
-            if (shutterPos === undefined || shutterPos === null) {
-                shutterPos = 0;
-            } else {
-                if (shutterPos < min) {
-                    shutterPos = min;
-                }
-                if (shutterPos > max) {
-                    shutterPos = max;
-                }
-
-                shutterPos = Math.round((100 * (shutterPos - min)) / (max - min));
-            }
-            if (this.state.rxData.invert) {
-                shutterPos = 100 - shutterPos;
+            if (length) {
+                const oneWidth = (width / this.state.rxData.sashCount) * length;
+                height -= 0.12 * oneWidth;
             }
         }
+
+        const data = this.getMinMaxPosition(0);
 
         const content = <div
             ref={this.refCardContent}
             className={this.props.classes.cardContent}
+            style={{ cursor: data.hasControl ? 'pointer' : undefined }}
+            onClick={data.hasControl ? e => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (!this.lastClick || Date.now() - this.lastClick > 300) {
+                    this.setState({ showBlindsDialog: true });
+                }
+            } : undefined}
         >
             {height ? this.renderBlindsDialog() : null}
-            {height ? this.renderWindow(shutterPos, { height, width }) : null}
+            {height ? this.renderWindows({ height, width }) : null}
         </div>;
 
         return this.wrapContent(
             content,
-            this.state.rxData.showValue ?
+            this.state.rxData.showValue && data.hasControl ?
                 <span>
-                    {shutterPos}
+                    {data.shutterPos}
                     %
                 </span> : null,
             { height: 'calc(100% - 40px)' },

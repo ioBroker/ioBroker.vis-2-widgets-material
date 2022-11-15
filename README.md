@@ -90,6 +90,9 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
 ![Player](img/material-html-1.png)
 
 ### Blinds
+![Blinds](img/material-blinds-1.png)
+
+![Player](img/material-blinds-2.png)
 
 ### Color Lamp
 
