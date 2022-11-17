@@ -390,7 +390,7 @@ class Security extends Generic {
                 oid: this.state.rxData[`oid${i}`],
                 name: this.state.rxData[`name${i}`],
                 color: this.state.rxData[`color${i}`],
-                icon: this.state.rxData[`icon${i}`] || this.state.objects[i]?.common?.icon,
+                icon: this.state.rxData[`icon${i}`] || this.state.rxData[`iconSmall${i}`] || this.state.objects[i]?.common?.icon,
             });
             if (this.getPropertyValue(`oid${i}`)) {
                 locked = true;
