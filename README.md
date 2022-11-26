@@ -96,6 +96,7 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
 
 ### Color Lamp
 
+### Time picker
 
 <!--
     Placeholder for the next version (at the beginning of the line):

@@ -241,6 +241,10 @@ class SimpleState extends Generic {
                             default: 0,
                             hidden: '!data.withNumber',
                         },
+                        {
+                            name: 'unit',
+                            label: 'unit',
+                        },
                     ],
                 },
                 {
@@ -494,7 +498,7 @@ class SimpleState extends Generic {
                                     onClick={() => this.setOnOff(false)}
                                     startIcon={isLamp ? <LightbulbIconOff /> : null}
                                 >
-                                    {isLamp ? Generic.t('OFF').replace('vis_2_widgets_material_', '') : this.state.object.common.min + (this.state.object.common.unit || '') }
+                                    {isLamp ? Generic.t('OFF').replace('vis_2_widgets_material_', '') : this.state.object.common.min + (this.state.rxData.unit || this.state.object.common.unit || '') }
                                 </Button>
                                 <Button
                                     style={{ width: '50%' }}
@@ -503,7 +507,7 @@ class SimpleState extends Generic {
                                     onClick={() => this.setOnOff(true)}
                                     startIcon={isLamp ? <LightbulbIconOn color="primary" /> : null}
                                 >
-                                    {isLamp ? Generic.t('ON').replace('vis_2_widgets_material_', '') : this.state.object.common.max + (this.state.object.common.unit || '')}
+                                    {isLamp ? Generic.t('ON').replace('vis_2_widgets_material_', '') : this.state.object.common.max + (this.state.rxData.unit || this.state.object.common.unit || '')}
                                 </Button>
                             </div>
                             <div style={{ width: '100%' }}>
@@ -536,7 +540,7 @@ class SimpleState extends Generic {
             return null;
         }
         if (value < object.common.min || value > object.common.max) {
-            return value + (this.state.object.common?.unit || '');
+            return value + (this.state.rxData.unit || this.state.object.common?.unit || '');
         }
 
         const size = this.state.rxData.circleSize || this.refDiv.current?.offsetHeight || 80;
@@ -563,7 +567,7 @@ class SimpleState extends Generic {
                 style={{ fontSize: Math.round(size / 10), fontWeight: 'bold' }}
                 className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
             >
-                {value + (this.state.object.common?.unit || '')}
+                {value + (this.state.rxData.unit || this.state.object.common?.unit || '')}
             </div>
         </CircularSliderWithChildren>;
     }

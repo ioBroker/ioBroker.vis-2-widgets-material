@@ -434,7 +434,7 @@ class Blinds extends Generic {
                 shutterPos = max;
             }
 
-            console.log(`[${index}]shutterPos: ${shutterPos}, positionOid: ${positionOid}, min: ${min}, max: ${max}, invert: ${invert}`);
+            // console.log(`[${index}]shutterPos: ${shutterPos}, positionOid: ${positionOid}, min: ${min}, max: ${max}, invert: ${invert}`);
             shutterPos = Math.round((100 * (shutterPos - min)) / (max - min));
         }
         if (invert) {
