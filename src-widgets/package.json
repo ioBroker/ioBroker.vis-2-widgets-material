@@ -16,7 +16,7 @@
         "echarts": "^5.4.1",
         "echarts-for-react": "^3.0.2",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
-        "eslint-plugin-only-warn": "^1.0.3",
+        "eslint-plugin-only-warn": "^1.1.0",
         "leaflet": "^1.9.3",
         "moment": "^2.29.4",
         "node-sass": "^8.0.0",
