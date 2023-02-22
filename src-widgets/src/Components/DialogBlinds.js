@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 bluefox <dogafox@gmail.com>
+ * Copyright 2018-2023 bluefox <dogafox@gmail.com>
  *
  * Licensed under the Creative Commons Attribution-NonCommercial License, Version 4.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { darken } from '@mui/material/styles';
 import { withStyles } from '@mui/styles';
 
 import {
-    Dialog, DialogContent, DialogTitle, IconButton, Button, Fab,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Button,
+    Fab,
 } from '@mui/material';
+
+import { darken } from '@mui/system';
 
 import {
     Stop as IconStop,
     KeyboardDoubleArrowUp as IconUp,
     KeyboardDoubleArrowDown as IconDown,
-    Lightbulb as IconLamp, Close as CloseIcon,
+    Lightbulb as IconLamp,
+    Close as CloseIcon,
 } from '@mui/icons-material';
 
 import { I18n, Utils } from '@iobroker/adapter-react-v5';
