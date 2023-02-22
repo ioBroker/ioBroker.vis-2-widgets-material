@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "news": {
+      "0.2.2": {
+        "en": "Update packages",
+        "de": "Pakete aktualisieren",
+        "ru": "Обновление пакетов",
+        "pt": "Pacotes de atualização",
+        "nl": "Update pakketten",
+        "fr": "Mettre à jour les paquets",
+        "it": "Pacchetti di aggiornamento",
+        "es": "Paquetes de actualización",
+        "pl": "Pakiet update",
+        "uk": "Пакети оновлень",
+        "zh-cn": "最新一揽子计划"
+      },
       "0.2.1": {
         "en": "Implemented the blinds widget",
         "de": "Implementiert die Blinds Widget",
