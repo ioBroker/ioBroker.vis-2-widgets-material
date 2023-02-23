@@ -116,9 +116,12 @@
     "readme": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/blob/master/README.md",
     "loglevel": "info",
     "mode": "once",
+    "singleton": true,
     "adminUI": {
       "config": "none"
     },
+    "nogit": true,
+
     "onlyWWW": true,
     "type": "visualization-widgets",
     "connectionType": "cloud",
