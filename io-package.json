@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "news": {
+      "0.2.4": {
+        "en": "Made this adapter singleton",
+        "de": "Dieser Adapter Singleton",
+        "ru": "Сделано этот адаптер одинтон",
+        "pt": "Feito este singleton adaptador",
+        "nl": "Maakte deze adapter singleton",
+        "fr": "Made this adaptateur singleton",
+        "it": "Fatto questo adattatore singoloton",
+        "es": "Hecho este adaptador singleton",
+        "pl": "Ten adapter jednotonowy",
+        "uk": "Виготовлений цей адаптер однотонний",
+        "zh-cn": "变通单"
+      },
       "0.2.2": {
         "en": "Update packages",
         "de": "Pakete aktualisieren",
