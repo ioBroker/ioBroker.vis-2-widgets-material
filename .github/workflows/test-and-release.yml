@@ -22,20 +22,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 14
-      - run: npm i
-      - run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
-
   # Deploys the final package to NPM
   deploy:
-    needs: [build]
-
     # Trigger this step only when a commit on master is tagged with a version number
     if: |
       contains(github.event.head_commit.message, '[skip ci]') == false &&
@@ -71,6 +59,9 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+
+      - name: build
+        run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
 
       - name: Publish package to npm
         run: |
