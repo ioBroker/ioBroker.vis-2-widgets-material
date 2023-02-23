@@ -265,7 +265,7 @@ gulp.task('widget-3-copy', () => Promise.all([
                 fs.rmdirSync(`widgets/${adapterName}/static/media`)
             }
             resolve();
-        }, 500)
+        }, 4000)
     )
 ]));
 
