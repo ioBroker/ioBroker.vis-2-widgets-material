@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "news": {
+      "0.2.3": {
+        "en": "Made this adapter singleton",
+        "de": "Dieser Adapter Singleton",
+        "ru": "Сделано этот адаптер одинтон",
+        "pt": "Feito este singleton adaptador",
+        "nl": "Maakte deze adapter singleton",
+        "fr": "Made this adaptateur singleton",
+        "it": "Fatto questo adattatore singoloton",
+        "es": "Hecho este adaptador singleton",
+        "pl": "Ten adapter jednotonowy",
+        "uk": "Виготовлений цей адаптер однотонний",
+        "zh-cn": "变通单"
+      },
       "0.2.2": {
         "en": "Update packages",
         "de": "Pakete aktualisieren",
@@ -80,19 +93,6 @@
         "pl": "Pierwsza wersja beta",
         "uk": "Перша версія бета",
         "zh-cn": "第一版"
-      },
-      "0.1.2": {
-        "en": "initial commit",
-        "de": "erster auftrag",
-        "ru": "первоначальный коммит",
-        "pt": "commit inicial",
-        "nl": ".",
-        "fr": "initial commit",
-        "it": "commit iniziale",
-        "es": "inicial",
-        "pl": "wstępny proces",
-        "uk": "початкова комісія",
-        "zh-cn": "初步承诺"
       }
     },
     "title": "Vis 2 Widgets Material",
@@ -121,7 +121,6 @@
       "config": "none"
     },
     "nogit": true,
-
     "onlyWWW": true,
     "type": "visualization-widgets",
     "connectionType": "cloud",
