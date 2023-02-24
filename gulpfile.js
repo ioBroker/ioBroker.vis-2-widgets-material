@@ -108,6 +108,21 @@ function buildWidgets() {
     });
 }
 
+function collectFilesRecursive(dir, _files) {
+    _files = _files || [];
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+        const stat = fs.statSync(`${dir}/${file}`);
+        if (stat.isDirectory()) {
+            _files = collectFilesRecursive(`${dir}/${file}`, _files);
+        } else {
+            _files.push(`${dir}/${file}`);
+        }
+    }
+
+    return _files;
+}
+
 gulp.task('widget-0-clean', done => {
     deleteFoldersRecursive(`${src}/build`);
     deleteFoldersRecursive(`${__dirname}/widgets`);
@@ -264,6 +279,11 @@ gulp.task('widget-3-copy', () => Promise.all([
             ) {
                 fs.rmdirSync(`widgets/${adapterName}/static/media`)
             }
+
+            // print all files in widgets
+            const files = collectFilesRecursive(`${__dirname}/widgets`);
+            files.forEach(file => console.log(file));
+
             resolve();
         }, 4000)
     )
