@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "news": {
+      "0.2.6": {
+        "en": "Made this adapter singleton",
+        "de": "Dieser Adapter Singleton",
+        "ru": "Сделано этот адаптер одинтон",
+        "pt": "Feito este singleton adaptador",
+        "nl": "Maakte deze adapter singleton",
+        "fr": "Made this adaptateur singleton",
+        "it": "Fatto questo adattatore singoloton",
+        "es": "Hecho este adaptador singleton",
+        "pl": "Ten adapter jednotonowy",
+        "uk": "Виготовлений цей адаптер однотонний",
+        "zh-cn": "变通单"
+      },
       "0.2.5": {
         "en": "Made this adapter singleton",
         "de": "Dieser Adapter Singleton",
@@ -69,19 +82,6 @@
         "zh-cn": "第一版"
       },
       "0.1.4": {
-        "en": "First beta version",
-        "de": "Erste Beta-Version",
-        "ru": "Первая бета-версия",
-        "pt": "Primeira versão beta",
-        "nl": "Eerste beta versie",
-        "fr": "Première version bêta",
-        "it": "Prima versione beta",
-        "es": "Primera versión beta",
-        "pl": "Pierwsza wersja beta",
-        "uk": "Перша версія бета",
-        "zh-cn": "第一版"
-      },
-      "0.1.3": {
         "en": "First beta version",
         "de": "Erste Beta-Version",
         "ru": "Первая бета-версия",

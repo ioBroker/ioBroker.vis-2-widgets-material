@@ -103,7 +103,7 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.2.6 (2023-02-24)
 * (bluefox) Made this adapter singleton
 
 ### 0.2.2 (2023-02-22)
