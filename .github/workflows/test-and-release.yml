@@ -22,16 +22,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: npm install
-      - run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
+#  build:
+#    if: github.event_name == 'push'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-node@v3
+#        with:
+#          node-version: 16
+#      - run: npm install
+#      - run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
 
   # Deploys the final package to NPM
   deploy:
