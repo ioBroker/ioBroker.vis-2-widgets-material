@@ -277,12 +277,15 @@ gulp.task('widget-3-copy', () => Promise.all([
             if (fs.existsSync(`widgets/${adapterName}/static/media`) &&
                 !fs.readdirSync(`widgets/${adapterName}/static/media`).length
             ) {
-                fs.rmdirSync(`widgets/${adapterName}/static/media`)
+                fs.rmdirSync(`widgets/${adapterName}/static/media`);
             }
 
+            const filesS = collectFilesRecursive(`${__dirname}/src-widgets/build`);
+            filesS.forEach(file => console.log(`f: ${file}`));
+
             // print all files in widgets
-            const files = collectFilesRecursive(`${__dirname}/widgets`);
-            files.forEach(file => console.log(file));
+            const filesD = collectFilesRecursive(`${__dirname}/widgets`);
+            filesD.forEach(file => console.log(`d: ${file}`));
 
             resolve();
         }, 4000)
