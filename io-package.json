@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.7",
+    "version": "0.2.8",
     "news": {
-      "0.2.7": {
+      "0.2.8": {
         "en": "Made this adapter singleton",
         "de": "Dieser Adapter Singleton",
         "ru": "Сделано этот адаптер одинтон",
