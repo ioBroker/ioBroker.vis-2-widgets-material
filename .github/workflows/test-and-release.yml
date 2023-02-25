@@ -24,23 +24,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [ 16.x ]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: build
-        run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
+          node-version: 16
+      - run: npm install
+      - run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
 
   # Deploys the final package to NPM
   deploy:
