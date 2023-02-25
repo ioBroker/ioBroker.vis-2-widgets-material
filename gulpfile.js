@@ -87,7 +87,7 @@ function buildWidgets() {
             }
         };
 
-        console.log(options.cwd);
+        console.log(`Build in: ${options.cwd}`);
 
         let script = `${src}node_modules/@craco/craco/dist/bin/craco.js`;
         if (!fs.existsSync(script)) {
@@ -97,6 +97,8 @@ function buildWidgets() {
             console.error(`Cannot find execution file: ${script}`);
             reject(`Cannot find execution file: ${script}`);
         } else {
+            console.log(`Start build process...${script} in ${options.cwd}`);
+
             const child = cp.fork(script, ['build'], options);
             child.stdout.on('data', data => console.log(data.toString()));
             child.stderr.on('data', data => console.warn(data.toString()));
