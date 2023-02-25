@@ -23,6 +23,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
