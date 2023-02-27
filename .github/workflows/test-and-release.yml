@@ -41,18 +41,15 @@ jobs:
       github.event_name == 'push' &&
       startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16
 
       - name: Install Dependencies
         run: npm install
@@ -78,8 +75,7 @@ jobs:
         run: |
           npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npm whoami
-          echo "Publishing on CI does not work yet"
-        # npm publish
+          npm publish
 
       - name: Create Github Release
         uses: actions/create-release@v1

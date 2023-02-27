@@ -87,9 +87,9 @@ function buildWidgets() {
         const options = {
             stdio: 'pipe',
             cwd: src,
-            env: {
+            /*env: { // with this flag widgets could not be built... Why???
                 CI: 'true',
-            }
+            }*/
         };
 
         console.log(`Build in: ${options.cwd}`);
