@@ -69,13 +69,18 @@ function buildWidgets() {
 
     fs.writeFileSync(`${src}package.json`, JSON.stringify(data, null, 4));
 
-    // we have bug, that federation requires version number in @mui/material/styles, so we have to change it
-    // read version of @mui/material and write it to @mui/material/styles
-    const muiStyleVersion = require(`${src}node_modules/@mui/material/styles/package.json`);
-    if (!muiStyleVersion.version) {
-        const muiVersion = require(`${src}node_modules/@mui/material/package.json`);
-        muiStyleVersion.version = muiVersion.version;
-        fs.writeFileSync(`${src}node_modules/@mui/material/styles/package.json`, JSON.stringify(muiStyleVersion, null, 2));
+    try {
+        // we have bug, that federation requires version number in @mui/material/styles, so we have to change it
+        // read version of @mui/material and write it to @mui/material/styles
+        const muiStyleVersion = require(`${src}node_modules/@mui/material/styles/package.json`);
+        if (!muiStyleVersion.version) {
+            const muiVersion = require(`${src}node_modules/@mui/material/package.json`);
+            muiStyleVersion.version = muiVersion.version;
+            fs.writeFileSync(`${src}node_modules/@mui/material/styles/package.json`, JSON.stringify(muiStyleVersion, null, 2));
+        }
+    } catch (e) {
+        console.error(`Cannot read mui version: ${e}`);
+        return Promise.reject(`Cannot read mui version: ${e}`);
     }
 
     return new Promise((resolve, reject) => {
