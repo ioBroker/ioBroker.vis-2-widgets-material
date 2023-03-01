@@ -10,7 +10,7 @@
         "@mui/icons-material": "^5.11.11",
         "@mui/material": "^5.11.10",
         "@mui/styles": "^5.11.9",
-        "@mui/system": "^5.11.9",
+        "@mui/system": "^5.11.11",
         "color": "^4.2.3",
         "colorthief": "^2.3.2",
         "date-fns": "^2.29.3",
