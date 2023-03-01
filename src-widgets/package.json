@@ -12,7 +12,7 @@
         "@mui/styles": "^5.11.11",
         "@mui/system": "^5.11.11",
         "color": "^4.2.3",
-        "colorthief": "^2.3.2",
+        "colorthief": "^2.4.0",
         "date-fns": "^2.29.3",
         "echarts": "^5.4.1",
         "echarts-for-react": "^3.0.2",
