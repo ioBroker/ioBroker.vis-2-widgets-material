@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.9",
+    "version": "0.2.10",
     "news": {
+      "0.2.10": {
+        "en": "update packages",
+        "de": "update-pakete",
+        "ru": "обновление пакетов",
+        "pt": "pacotes de atualização",
+        "nl": "vertaling:",
+        "fr": "mettre à jour les paquets",
+        "it": "pacchetti di aggiornamento",
+        "es": "actualizar paquetes",
+        "pl": "pakiet aktualizacji",
+        "uk": "оновлення пакетів",
+        "zh-cn": "更新包"
+      },
       "0.2.9": {
         "en": "Made this adapter singleton",
         "de": "Dieser Adapter Singleton",
@@ -69,19 +82,6 @@
         "zh-cn": "最新一揽子计划"
       },
       "0.2.1": {
-        "en": "Implemented the blinds widget",
-        "de": "Implementiert die Blinds Widget",
-        "ru": "Внедрил виджет слепых",
-        "pt": "Implementado o widget blinds",
-        "nl": "Vertaling:",
-        "fr": "Implémenté les stores widget",
-        "it": "Implementato il widget delle tende",
-        "es": "Implementado el widget de persianas",
-        "pl": "Poprawiono ślepe widgety",
-        "uk": "Реалізовано віджет жалюзі",
-        "zh-cn": "执行盲目目标"
-      },
-      "0.2.0": {
         "en": "Implemented the blinds widget",
         "de": "Implementiert die Blinds Widget",
         "ru": "Внедрил виджет слепых",
