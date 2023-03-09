@@ -94,7 +94,7 @@ function buildWidgets() {
         }
     } catch (e) {
         console.error(`Cannot read mui version: ${e}`);
-        return Promise.reject(`Cannot read mui version: ${e}`);
+        // return Promise.reject(`Cannot read mui version: ${e}`);
     }
 
     return new Promise((resolve, reject) => {
