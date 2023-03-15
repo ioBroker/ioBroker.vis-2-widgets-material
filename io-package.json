@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.11",
+    "version": "0.2.12",
     "news": {
+      "0.2.12": {
+        "en": "update packages",
+        "de": "update-pakete",
+        "ru": "обновление пакетов",
+        "pt": "pacotes de atualização",
+        "nl": "vertaling:",
+        "fr": "mettre à jour les paquets",
+        "it": "pacchetti di aggiornamento",
+        "es": "actualizar paquetes",
+        "pl": "pakiet aktualizacji",
+        "uk": "оновлення пакетів",
+        "zh-cn": "更新包"
+      },
       "0.2.11": {
         "en": "update packages",
         "de": "update-pakete",
@@ -80,19 +93,6 @@
         "pl": "Ten adapter jednotonowy",
         "uk": "Виготовлений цей адаптер однотонний",
         "zh-cn": "变通单"
-      },
-      "0.2.2": {
-        "en": "Update packages",
-        "de": "Pakete aktualisieren",
-        "ru": "Обновление пакетов",
-        "pt": "Pacotes de atualização",
-        "nl": "Update pakketten",
-        "fr": "Mettre à jour les paquets",
-        "it": "Pacchetti di aggiornamento",
-        "es": "Paquetes de actualización",
-        "pl": "Pakiet update",
-        "uk": "Пакети оновлень",
-        "zh-cn": "最新一揽子计划"
       }
     },
     "title": "Vis 2 Widgets Material",
