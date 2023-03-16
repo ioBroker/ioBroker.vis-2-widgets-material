@@ -131,7 +131,7 @@ class Actual extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'name',
+                            name: 'widgetTitle',
                             label: 'name',
                         },
                         {
@@ -502,7 +502,7 @@ class Actual extends Generic {
             onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
-                {this.state.rxData.name}
+                {this.state.rxData.widgetTitle}
                 <IconButton
                     style={{ float: 'right' }}
                     onClick={() => this.setState({ showDialog: false })}

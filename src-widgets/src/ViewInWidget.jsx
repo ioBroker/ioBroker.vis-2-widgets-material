@@ -32,7 +32,7 @@ class ViewInWidget extends Generic {
                 name: 'common',
                 fields: [
                     {
-                        name: 'name',
+                        name: 'widgetTitle',
                         label: 'name',
                     },
                     {
@@ -128,10 +128,10 @@ class ViewInWidget extends Generic {
             style={{
                 overflow: 'hidden',
                 position: 'absolute',
-                top: this.state.rxData.name ? 53 : 16,
+                top: this.state.rxData.widgetTitle ? 53 : 16,
                 left: 8,
                 width: 'calc(100% - 16px)',
-                height: this.state.rxData.name ? 'calc(100% - 100px)' : 'calc(100% - 64px)',
+                height: this.state.rxData.widgetTitle ? 'calc(100% - 100px)' : 'calc(100% - 64px)',
                 textAlign: 'center',
                 lineHeight: this.state.height ? `${this.state.height}px` : undefined,
                 fontFamily: this.state.rxStyle['font-family'],

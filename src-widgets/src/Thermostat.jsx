@@ -110,7 +110,7 @@ class Thermostat extends Generic {
                 name: 'common',
                 fields: [
                     {
-                        name: 'name',
+                        name: 'widgetTitle',
                         label: 'name',
                     },
                     {
@@ -243,7 +243,7 @@ class Thermostat extends Generic {
             onClose={() => this.setState({ showDialog: false })}
         >
             <DialogTitle>
-                {this.state.rxData.name}
+                {this.state.rxData.widgetTitle}
                 <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDialog: false })}><IconClose /></IconButton>
             </DialogTitle>
             <DialogContent>
@@ -312,7 +312,7 @@ class Thermostat extends Generic {
             if (size > this.refContainer.current.clientHeight) {
                 size = this.refContainer.current.clientHeight;
             }
-            if (this.state.rxData.name) {
+            if (this.state.rxData.widgetTitle) {
                 size -= 64; // header
             }
             size -= 20; // mode buttons
@@ -362,7 +362,7 @@ class Thermostat extends Generic {
         // console.log(this.state.min, this.state.max, tempValue);
 
         const chartButton = this.state.isChart ? <IconButton
-            className={this.state.rxData.name ? '' : this.props.classes.moreButton}
+            className={this.state.rxData.widgetTitle ? '' : this.props.classes.moreButton}
             onClick={() => this.setState({ showDialog: true })}
         >
             <MoreVertIcon />
@@ -371,7 +371,7 @@ class Thermostat extends Generic {
         actualTemp = actualTemp !== null ? this.formatValue(actualTemp) : null;
 
         const content = <div ref={this.refContainer} style={{ width: '100%', height: '100%' }} className={this.props.classes.circleDiv}>
-            {this.state.rxData.name ? null : chartButton}
+            {this.state.rxData.widgetTitle ? null : chartButton}
             {this.state.width && this.state.tempObject ?
                 <CircularSliderWithChildren
                     minValue={this.state.min}
@@ -484,7 +484,7 @@ class Thermostat extends Generic {
             {this.renderDialog()}
         </div>;
 
-        return this.wrapContent(content, this.state.rxData.name ? chartButton : null, { textAlign: 'center' });
+        return this.wrapContent(content, this.state.rxData.widgetTitle ? chartButton : null, { textAlign: 'center' });
     }
 }
 

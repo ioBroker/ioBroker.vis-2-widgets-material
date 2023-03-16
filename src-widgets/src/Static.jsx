@@ -64,7 +64,7 @@ class Static extends Generic {
                         {
                             label: 'name',
                             noButton: true,
-                            name: 'name',
+                            name: 'widgetTitle',
                         },
                         {
                             name: 'count',
@@ -296,7 +296,7 @@ class Static extends Generic {
             onClose={() => this.setState({ showDialog: null })}
         >
             <DialogTitle>
-                {this.state.rxData.name}
+                {this.state.rxData.widgetTitle}
                 <IconButton
                     style={{ float: 'right' }}
                     onClick={() => this.setState({ showDialog: null })}

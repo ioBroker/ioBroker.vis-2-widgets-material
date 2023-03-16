@@ -97,7 +97,7 @@ class Switches extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'name',
+                            name: 'widgetTitle',
                             label: 'name',
                         },
                         {

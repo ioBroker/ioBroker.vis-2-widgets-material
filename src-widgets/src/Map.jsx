@@ -162,7 +162,7 @@ class Map extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'name',
+                            name: 'widgetTitle',
                             label: 'name',
                         },
                         {
@@ -525,7 +525,7 @@ class Map extends Generic {
             onClose={() => this.setState({ dialog: false })}
         >
             <DialogTitle className={this.props.classes.dialogTitle}>
-                {this.state.rxData.name}
+                {this.state.rxData.widgetTitle}
                 <IconButton onClick={() => this.setState({ dialog: false })}>
                     <CloseIcon />
                 </IconButton>
@@ -548,7 +548,7 @@ class Map extends Generic {
 
         return this.wrapContent(
             content,
-            this.state.rxData.name ? iconFull : <div style={{ display: 'flex', width: '100%' }}>
+            this.state.rxData.widgetTitle ? iconFull : <div style={{ display: 'flex', width: '100%' }}>
                 <div style={{ flex: 1 }} />
                 {iconFull}
             </div>,

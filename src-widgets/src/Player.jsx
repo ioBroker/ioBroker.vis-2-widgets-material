@@ -114,7 +114,7 @@ class Player extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'name',
+                            name: 'widgetTitle',
                             label: 'name',
                         },
                         {
@@ -347,7 +347,7 @@ class Player extends Generic {
                     ...cardContentStyle,
                 }}
             >
-                {this.state.rxData.name ? <div style={{
+                {this.state.rxData.widgetTitle ? <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     width: '100%',
@@ -362,7 +362,7 @@ class Player extends Generic {
                             ...headerStyle,
                         }}
                     >
-                        {this.state.rxData.name}
+                        {this.state.rxData.widgetTitle}
                     </div>
                     {addToHeader || null}
                 </div> : (addToHeader || null)}

@@ -153,7 +153,7 @@ class SimpleState extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'name',
+                            name: 'widgetTitle',
                             label: 'name',
                         },
                         {
@@ -603,7 +603,7 @@ class SimpleState extends Generic {
 
         const content = <>
             {this.renderDimmerDialog()}
-            <div style={{ width: '100%', height: this.state.rxData.name ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)' }} ref={this.refDiv}>
+            <div style={{ width: '100%', height: this.state.rxData.widgetTitle ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)' }} ref={this.refDiv}>
                 <div
                     className={this.props.classes.buttonDiv}
                     style={{

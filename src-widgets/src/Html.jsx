@@ -17,7 +17,7 @@ class Html extends Generic {
                         {
                             label: 'name',
                             noButton: true,
-                            name: 'name',
+                            name: 'widgetTitle',
                         },
                         {
                             name: 'html',

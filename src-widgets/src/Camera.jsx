@@ -67,7 +67,7 @@ class Camera extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'name',
+                            name: 'widgetTitle',
                             label: 'name',
                         },
                         {
@@ -207,7 +207,7 @@ class Camera extends Generic {
             onClose={this.closeDialog}
         >
             <DialogTitle className={this.props.classes.dialogTitle}>
-                {this.state.rxData.name}
+                {this.state.rxData.widgetTitle}
                 <div style={{ flex: 1 }} />
                 <IconButton onClick={this.closeDialog}>
                     <CloseIcon />
