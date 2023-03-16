@@ -291,6 +291,7 @@ gulp.task('widget-3-copy', () => Promise.all([
         `${SRC}build/static/js/vendors-node_modules_echarts-for-react_lib_core_js-node_modules_echarts_core_js-*.chunk.*`,
         `${SRC}build/static/js/vendors-node_modules_echarts_lib*.*`,
         `${SRC}build/static/js/vendors-node_modules_iobroker_vis-2-widgets-react-dev_index_jsx*.*`,
+        `${SRC}build/static/js/vendors-node_modules_iobroker_vis-2-widgets-react-dev_node_modules_babel_runtime_helpers*.*`,
         `${SRC}build/static/js/vendors-node_modules_leaflet*.*`,
         `${SRC}build/static/js/vendors-node_modules_moment*.*`,
         `${SRC}build/static/js/vendors-node_modules_react-circular*.*`,
