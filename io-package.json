@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.2.12",
+    "version": "0.2.13",
     "news": {
+      "0.2.13": {
+        "en": "BREAKING CHANGE: The names of widgets must be entered anew \nupdate packages",
+        "de": "BREAKING CHANGE: Die Namen der Widgets müssen neu eingegeben werden\nupdate-pakete",
+        "ru": "ИЗМЕНЕНИЕ ЗАВТРА: Имена виджетов должны быть введены\nобновление пакетов",
+        "pt": "Muita coisa: Os nomes dos widgets devem ser introduzidos de novo\npacotes de atualização",
+        "nl": "BREAKING CHANGE: De namen van widgets moeten in het nieuwe\nvertaling:",
+        "fr": "Merci. Les noms des widgets doivent être entrés à nouveau\nmettre à jour les paquets",
+        "it": "CAMBIO DI BREAKING: I nomi dei widget devono essere inseriti di nuovo\npacchetti di aggiornamento",
+        "es": "Cambiando: Los nombres de los widgets deben ser introducidos de nuevo\nactualizar paquetes",
+        "pl": "BREAKING CHANGE: (ang.). Nazwy widgetów muszą być wprowadzone na nowo\npakiet aktualizacji",
+        "uk": "БРЕАКІНГ ЗМІН: Назви віджетів необхідно вводити\nоновлення пакетів",
+        "zh-cn": "BREAKREANGE: 必须加入新目标的名字。\n更新包"
+      },
       "0.2.12": {
         "en": "update packages",
         "de": "update-pakete",
@@ -69,19 +82,6 @@
         "zh-cn": "变通单"
       },
       "0.2.6": {
-        "en": "Made this adapter singleton",
-        "de": "Dieser Adapter Singleton",
-        "ru": "Сделано этот адаптер одинтон",
-        "pt": "Feito este singleton adaptador",
-        "nl": "Maakte deze adapter singleton",
-        "fr": "Made this adaptateur singleton",
-        "it": "Fatto questo adattatore singoloton",
-        "es": "Hecho este adaptador singleton",
-        "pl": "Ten adapter jednotonowy",
-        "uk": "Виготовлений цей адаптер однотонний",
-        "zh-cn": "变通单"
-      },
-      "0.2.5": {
         "en": "Made this adapter singleton",
         "de": "Dieser Adapter Singleton",
         "ru": "Сделано этот адаптер одинтон",
