@@ -104,6 +104,9 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
 -->
 ## Changelog
 ### **WORK IN PROGRESS**
+* (bluefox) update packages
+
+### **WORK IN PROGRESS**
 * (bluefox) BREAKING CHANGE: The names of widgets must be entered anew 
 * (bluefox) update packages
 
