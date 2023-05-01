@@ -8,7 +8,7 @@
         "@iobroker/adapter-react-v5": "^4.0.25",
         "@iobroker/vis-2-widgets-react-dev": "^0.3.19",
         "@mui/icons-material": "^5.11.16",
-        "@mui/material": "^5.11.15",
+        "@mui/material": "^5.12.2",
         "@mui/styles": "^5.11.13",
         "@mui/system": "^5.11.15",
         "color": "^4.2.3",
