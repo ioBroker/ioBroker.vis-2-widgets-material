@@ -13,7 +13,7 @@
         "@mui/system": "^5.11.15",
         "color": "^4.2.3",
         "colorthief": "^2.4.0",
-        "date-fns": "^2.29.3",
+        "date-fns": "^2.30.0",
         "echarts": "^5.4.2",
         "echarts-for-react": "^3.0.2",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
