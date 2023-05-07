@@ -117,13 +117,15 @@ function startIoBroker() {
     });
 }
 
-function stopIoBroker() {
-    return new Promise(resolve => {
+async function stopIoBroker() {
+    await setup.stopCustomAdapter('vis-2-beta', 0);
+    await setup.stopCustomAdapter('web', 0);
+
+    await new Promise(resolve =>
         setup.stopController(normalTerminated => {
             console.log(`Adapter normal terminated: ${normalTerminated}`);
             resolve();
-        });
-    });
+        }));
 }
 
 async function startPuppeteer() {
@@ -146,7 +148,7 @@ describe('vis-2-widgets-material', () => {
         this.timeout(180000);
         // install js-controller, web and vis-2-beta
         await startIoBroker();
-        await checkIsVisUploadedAsync(100);
+        await checkIsVisUploadedAsync();
         const result = await startPuppeteer();
         browser = result.browser;
         page = result.page;
@@ -155,18 +157,14 @@ describe('vis-2-widgets-material', () => {
         await page.waitForSelector( '#create-new-project', { timeout: 30000 } );
     });
 
-    it(`Check if vis-2-beta adapter started`, async (done) => {
-        await checkIsVisUploadedAsync();
+    it(`Check if vis-2-beta adapter started`, async () => {
         expect(1).to.equal(1);
-        done();
+        return Promise.resolve();
     }).timeout(120000);
 
     after(async function () {
         this.timeout(10000);
         browser.close();
-
-        await setup.stopCustomAdapter('vis-2-beta', 0);
-        await setup.stopCustomAdapter('web', 0);
 
         return stopIoBroker();
     });

@@ -34,7 +34,7 @@
     "gulp": "^4.0.2",
     "mocha": "^10.2.0",
     "puppeteer": "^20.1.1",
-    "@iobroker/legacy-testing": "^0.2.5"
+    "@iobroker/legacy-testing": "^0.2.6"
   },
   "main": "main.js",
   "files": [
