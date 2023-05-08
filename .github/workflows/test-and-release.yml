@@ -56,6 +56,8 @@ jobs:
 
   # Deploys the final package to NPM
   deploy:
+    needs: [adapter-tests]
+
     # Trigger this step only when a commit on master is tagged with a version number
     if: |
       contains(github.event.head_commit.message, '[skip ci]') == false &&
