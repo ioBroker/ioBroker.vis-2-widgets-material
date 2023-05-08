@@ -23,24 +23,25 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
-      - run: npm install
+          node-version: 18.x
+      - run: npm i
       - run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
 
   # Runs adapter tests on all supported node versions and OSes
   adapter-tests:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
+
     needs: [build]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
@@ -69,13 +70,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Use Node.js 18
+      - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: npm install
+          node-version: 18.x
 
       - name: Extract the version and commit body from the tag
         id: extract_release
@@ -91,8 +89,8 @@ jobs:
           BODY="${BODY//$'\r'/'%0D'}"
           echo "::set-output name=BODY::$BODY"
 
-      - name: Create a clean build
-        run: npm run build
+      - name: Install Dependencies
+        run: npm install
 
       - name: Publish package to npm
         run: |
