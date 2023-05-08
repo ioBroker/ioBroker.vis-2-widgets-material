@@ -10,19 +10,19 @@ describe('vis-2-widgets-material', () => {
         await helper.createProject();
 
         // open widgets
-        //await helper.palette.openWidgetSet(null, adapterName);
+        await helper.palette.openWidgetSet(null, adapterName);
         await helper.screenshot(null, '02_widgets_opened');
     });
 
     it('Check all widgets', async function (){
         this.timeout(60000);
         return Promise.resolve();
-        // const widgets = await helper.palette.getListOfWidgets(null, adapterName);
-        // for (let w = 0; w < widgets.length; w++) {
-        //     const wid = await helper.palette.addWidget(null, widgets[w], true);
-        //     await helper.screenshot(null, `10_${widgets[w]}`);
-        //     await helper.view.deleteWidget(null, wid);
-        // }
+        const widgets = await helper.palette.getListOfWidgets(null, adapterName);
+        for (let w = 0; w < widgets.length; w++) {
+            const wid = await helper.palette.addWidget(null, widgets[w], true);
+            await helper.screenshot(null, `10_${widgets[w]}`);
+            await helper.view.deleteWidget(null, wid);
+        }
     });
 
     after(async function () {
