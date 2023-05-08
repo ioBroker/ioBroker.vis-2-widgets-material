@@ -46,6 +46,8 @@ jobs:
         run: npm test
 
       - name: Archive screenshots
+        if: always()
+        # if: failure()
         uses: actions/upload-artifact@v3
         with:
           path: tmp/screenshots/**/*.png
