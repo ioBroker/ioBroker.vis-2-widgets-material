@@ -8,7 +8,7 @@ name: Test and Release
 on:
   push:
     branches:
-      - master
+      - '*'
     tags:
       # normal versions
       - "v?[0-9]+.[0-9]+.[0-9]+"
@@ -22,44 +22,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-      - run: npm i
-      - run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
-
   # Runs adapter tests on all supported node versions and OSes
   adapter-tests:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
 
-    needs: [build]
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
 
       - name: Install Dependencies
-        run: npm install
+        run: npm i
+
+      - name: Build
+        run: npm run build
 
       - name: Run local tests
         run: npm test
-  #      - name: Run unit tests
-  #        run: npm run test:unit
-  #      - name: Run integration tests # (linux/osx)
-  #        if: startsWith(runner.OS, 'windows') == false
-  #        run: DEBUG=testing:* npm run test:integration
-  #      - name: Run integration tests # (windows)
-  #        if: startsWith(runner.OS, 'windows')
-  #        run: set DEBUG=testing:* & npm run test:integration
+
+      - name: Archive screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: tmp/screenshots/**/*.png
+          retention-days: 3
 
   # Deploys the final package to NPM
   deploy:
@@ -81,6 +71,9 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Install Dependencies
+        run: npm i
+
       - name: Extract the version and commit body from the tag
         id: extract_release
         # The body may be multiline, therefore we need to escape some characters
@@ -95,9 +88,8 @@ jobs:
           BODY="${BODY//$'\r'/'%0D'}"
           echo "::set-output name=BODY::$BODY"
 
-      - name: Install Dependencies
-        run: npm install
-
+      #      - name: Create a clean build
+      #        run: npm run build
       - name: Publish package to npm
         run: |
           npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
@@ -116,16 +108,16 @@ jobs:
           prerelease: ${{ contains(steps.extract_release.outputs.VERSION, '-') }}
           body: ${{ steps.extract_release.outputs.BODY }}
 
-#      - name: Notify Sentry.io about the release
-#        run: |
-#          npm i -g @sentry/cli
-#          export SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-#          export SENTRY_URL=https://sentry.iobroker.net
-#          export SENTRY_ORG=iobroker
-#          export SENTRY_PROJECT=iobroker-admin
-#          export SENTRY_VERSION=iobroker.admin@${{ steps.extract_release.outputs.VERSION }}
-#          sentry-cli releases new $SENTRY_VERSION
-#          sentry-cli releases finalize $SENTRY_VERSION
+        #      - name: Notify Sentry.io about the release
+        #        run: |
+        #          npm i -g @sentry/cli
+        #          export SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+        #          export SENTRY_URL=https://sentry.iobroker.net
+        #          export SENTRY_ORG=iobroker
+        #          export SENTRY_PROJECT=iobroker-admin
+        #          export SENTRY_VERSION=iobroker.admin@${{ steps.extract_release.outputs.VERSION }}
+        #          sentry-cli releases new $SENTRY_VERSION
+        #          sentry-cli releases finalize $SENTRY_VERSION
 
         # Add the following line BEFORE finalize if repositories are connected in Sentry
         # sentry-cli releases set-commits $SENTRY_VERSION --auto
