@@ -77,21 +77,23 @@ const styles = theme => ({
 const mediaTypes = ['title', 'artist', 'cover', 'state', 'duration', 'elapsed', 'prev', 'next', 'volume', 'mute', 'repeat', 'shuffle'];
 
 const loadStates = async (field, data, changeData, socket) => {
-    const object = await socket.getObject(data[field.name]);
-    if (object && object.common) {
-        const id = data[field.name].split('.');
-        id.pop();
-        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
-        if (states) {
-            const currentMediaTypes = [...mediaTypes];
-            Object.values(states).forEach(state => {
-                const role = state?.common?.role?.match(/^(media\.mode|media|button|level)\.(.*)$/)?.[2];
-                if (role && currentMediaTypes.includes(role) && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
-                    currentMediaTypes.splice(currentMediaTypes.indexOf(role), 1);
-                    data[role] = state._id;
-                }
-            });
-            changeData(data);
+    if (data[field.name]) {
+        const object = await socket.getObject(data[field.name]);
+        if (object && object.common) {
+            const id = data[field.name].split('.');
+            id.pop();
+            const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+            if (states) {
+                const currentMediaTypes = [...mediaTypes];
+                Object.values(states).forEach(state => {
+                    const role = state?.common?.role?.match(/^(media\.mode|media|button|level)\.(.*)$/)?.[2];
+                    if (role && currentMediaTypes.includes(role) && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                        currentMediaTypes.splice(currentMediaTypes.indexOf(role), 1);
+                        data[role] = state._id;
+                    }
+                });
+                changeData(data);
+            }
         }
     }
 };

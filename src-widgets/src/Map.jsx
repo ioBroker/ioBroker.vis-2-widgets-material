@@ -96,51 +96,53 @@ const mapThemes = {
 };
 
 async function detectNameAndColor(field, data, changeData, socket) {
-    const object = await socket.getObject(data[field.name]);
-    let changed = false;
-    let parentChannel;
-    let parentDevice;
-    if (object && object.common && object.common.color) {
-        data[`color${field.index}`] = object.common.color;
-        changed = true;
-    } else if (object) {
-        // try to detect parent
-        parentChannel = await this.getParentObject(data[field.name]);
-        if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
-            if (parentChannel.common?.color) {
-                data[`name${field.index}`] = parentChannel.common.color;
-                changed = true;
-            } else {
-                parentDevice = await this.getParentObject(data[field.name], true);
-                if (parentDevice.common?.color) {
-                    data[`name${field.index}`] = parentDevice.common.color;
+    if (data[field.name]) {
+        const object = await socket.getObject(data[field.name]);
+        let changed = false;
+        let parentChannel;
+        let parentDevice;
+        if (object && object.common && object.common.color) {
+            data[`color${field.index}`] = object.common.color;
+            changed = true;
+        } else if (object) {
+            // try to detect parent
+            parentChannel = await this.getParentObject(data[field.name]);
+            if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
+                if (parentChannel.common?.color) {
+                    data[`name${field.index}`] = parentChannel.common.color;
                     changed = true;
+                } else {
+                    parentDevice = await this.getParentObject(data[field.name], true);
+                    if (parentDevice.common?.color) {
+                        data[`name${field.index}`] = parentDevice.common.color;
+                        changed = true;
+                    }
                 }
             }
         }
-    }
-    if (object && object.common && object.common.name) {
-        changed = true;
-        data[`name${field.index}`] = typeof object.common.name === 'object' ? object.common.name[Generic.getLanguage()] : object.common.name;
-    } else if (object) {
-        // try to detect parent
-        parentChannel = parentChannel || (await this.getParentObject(data[field.name]));
-        if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
-            if (parentChannel.common?.name) {
-                data[`name${field.index}`] = typeof parentChannel.common.name === 'object' ?
-                    parentChannel.common.name[Generic.getLanguage()] : parentChannel.common.name;
-                changed = true;
-            } else {
-                parentDevice = parentDevice || (await this.getParentObject(data[field.name], true));
-                if (parentDevice.common?.name) {
-                    data[`name${field.index}`] = typeof parentDevice.common.name === 'object' ?
-                        parentDevice.common.name[Generic.getLanguage()] : parentDevice.common.name;
+        if (object && object.common && object.common.name) {
+            changed = true;
+            data[`name${field.index}`] = typeof object.common.name === 'object' ? object.common.name[Generic.getLanguage()] : object.common.name;
+        } else if (object) {
+            // try to detect parent
+            parentChannel = parentChannel || (await this.getParentObject(data[field.name]));
+            if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
+                if (parentChannel.common?.name) {
+                    data[`name${field.index}`] = typeof parentChannel.common.name === 'object' ?
+                        parentChannel.common.name[Generic.getLanguage()] : parentChannel.common.name;
                     changed = true;
+                } else {
+                    parentDevice = parentDevice || (await this.getParentObject(data[field.name], true));
+                    if (parentDevice.common?.name) {
+                        data[`name${field.index}`] = typeof parentDevice.common.name === 'object' ?
+                            parentDevice.common.name[Generic.getLanguage()] : parentDevice.common.name;
+                        changed = true;
+                    }
                 }
             }
         }
+        changed && changeData(data);
     }
-    changed && changeData(data);
 }
 
 class Map extends Generic {

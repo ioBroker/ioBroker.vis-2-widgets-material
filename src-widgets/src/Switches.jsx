@@ -105,10 +105,6 @@ class Switches extends Generic {
                             type: 'number',
                             default: 2,
                             label: 'count',
-                            onChange: (field, data, changeData) => {
-                                changeData(data);
-                            },
-                            // component: MyField
                         },
                         {
                             name: 'type',

@@ -159,24 +159,26 @@ class Blinds extends Generic {
                             label: 'blinds_position_oid',
                             noInit: true,
                             onChange: async (field, data, changeData, socket) => {
-                                const object = await socket.getObject(data[field.name]);
-                                if (object && object.common) {
-                                    let changed = false;
+                                if (data[field.name]) {
+                                    const object = await socket.getObject(data[field.name]);
+                                    if (object && object.common) {
+                                        let changed = false;
 
-                                    // try to find stop button
-                                    const id = object._id.split('.');
-                                    id.pop();
-                                    const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
-                                    if (states) {
-                                        Object.values(states).forEach(state => {
-                                            if (state?.common?.role?.includes('stop')) {
-                                                data.blinds_stop_oid = state._id;
-                                                changed = true;
-                                            }
-                                        });
+                                        // try to find stop button
+                                        const id = object._id.split('.');
+                                        id.pop();
+                                        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                        if (states) {
+                                            Object.values(states).forEach(state => {
+                                                if (state?.common?.role?.includes('stop')) {
+                                                    data.blinds_stop_oid = state._id;
+                                                    changed = true;
+                                                }
+                                            });
+                                        }
+
+                                        changed && changeData(data);
                                     }
-
-                                    changed && changeData(data);
                                 }
                             },
                         },
@@ -263,23 +265,25 @@ class Blinds extends Generic {
                             hidden: data => !!data.oid,
                             noInit: true,
                             onChange: async (field, data, changeData, socket) => {
-                                const object = await socket.getObject(data[field.name]);
-                                const index = field.name.match(/(\d+)$/)[1];
-                                if (object && object.common) {
-                                    let changed = false;
-                                    // try to find stop button
-                                    const id = object._id.split('.');
-                                    id.pop();
-                                    const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
-                                    if (states) {
-                                        Object.values(states).forEach(state => {
-                                            if (state?.common?.role?.includes('stop')) {
-                                                data[`slideStop_oid${index}`] = state._id;
-                                                changed = true;
-                                            }
-                                        });
+                                if (data[field.name]) {
+                                    const object = await socket.getObject(data[field.name]);
+                                    const index = field.name.match(/(\d+)$/)[1];
+                                    if (object && object.common) {
+                                        let changed = false;
+                                        // try to find stop button
+                                        const id = object._id.split('.');
+                                        id.pop();
+                                        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                        if (states) {
+                                            Object.values(states).forEach(state => {
+                                                if (state?.common?.role?.includes('stop')) {
+                                                    data[`slideStop_oid${index}`] = state._id;
+                                                    changed = true;
+                                                }
+                                            });
+                                        }
+                                        changed && changeData(data);
                                     }
-                                    changed && changeData(data);
                                 }
                             },
                         },

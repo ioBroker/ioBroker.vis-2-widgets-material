@@ -168,25 +168,27 @@ class SimpleState extends Generic {
                             type: 'id',
                             label: 'oid',
                             onChange: async (field, data, changeData, socket) => {
-                                const object = await socket.getObject(data.oid);
-                                if (object && object.common.states) {
-                                    if (Array.isArray(object.common.states)) {
-                                        // convert to {'state1': 'state1', 'state2': 'state2', ...}
-                                        const states = {};
-                                        object.common.states.forEach(state => states[state] = state);
-                                        object.common.states = states;
+                                if (data.oid) {
+                                    const object = await socket.getObject(data.oid);
+                                    if (object && object.common.states) {
+                                        if (Array.isArray(object.common.states)) {
+                                            // convert to {'state1': 'state1', 'state2': 'state2', ...}
+                                            const states = {};
+                                            object.common.states.forEach(state => states[state] = state);
+                                            object.common.states = states;
+                                        }
+                                        data.values_count = Object.keys(object.common.states).length;
+                                        data.withStates = true;
+                                        data.withNumber = false;
+                                        Object.keys(object.common.states).forEach((state, index) =>
+                                            data[`value${index + 1}`] = object.common.states[state]);
+                                        changeData(data);
+                                    } else {
+                                        data.withNumber = object.common.type === 'number';
+                                        data.withStates = false;
+                                        data.values_count = 0;
+                                        changeData(data);
                                     }
-                                    data.values_count = Object.keys(object.common.states).length;
-                                    data.withStates = true;
-                                    data.withNumber = false;
-                                    Object.keys(object.common.states).forEach((state, index) =>
-                                        data[`value${index + 1}`] = object.common.states[state]);
-                                    changeData(data);
-                                } else {
-                                    data.withNumber = object.common.type === 'number';
-                                    data.withStates = false;
-                                    data.values_count = 0;
-                                    changeData(data);
                                 }
                             },
                         },

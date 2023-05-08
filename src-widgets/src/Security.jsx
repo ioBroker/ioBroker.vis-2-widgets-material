@@ -77,21 +77,23 @@ class Security extends Generic {
                             type: 'id',
                             label: 'oid',
                             onChange: async (field, data, changeData, socket) => {
-                                const object = await socket.getObject(data[field.name]);
-                                let changed = false;
-                                if (object && object.common) {
-                                    if (object.common.color && data[`color${field.index}`] !== object.common.color) {
-                                        data[`color${field.index}`] = object.common.color;
-                                        changed = true;
-                                    }
-                                    if (object.common.name) {
-                                        const name = object.common.name && typeof object.common.name === 'object' ? object.common.name[this.getLanguage()] : object.common.name;
-                                        if (data[`name${field.index}`] !== name) {
-                                            data[`name${field.index}`] = name;
+                                if (data[field.name]) {
+                                    const object = await socket.getObject(data[field.name]);
+                                    let changed = false;
+                                    if (object && object.common) {
+                                        if (object.common.color && data[`color${field.index}`] !== object.common.color) {
+                                            data[`color${field.index}`] = object.common.color;
                                             changed = true;
                                         }
+                                        if (object.common.name) {
+                                            const name = object.common.name && typeof object.common.name === 'object' ? object.common.name[this.getLanguage()] : object.common.name;
+                                            if (data[`name${field.index}`] !== name) {
+                                                data[`name${field.index}`] = name;
+                                                changed = true;
+                                            }
+                                        }
+                                        changed && changeData(data);
                                     }
-                                    changed && changeData(data);
                                 }
                             },
                         },
@@ -120,7 +122,7 @@ class Security extends Generic {
                             name: 'pincode',
                             label: 'pincode',
                             onChange: async (field, data, changeData /* , socket */) => {
-                                data[`pincode${field.index}`] = data[`pincode${field.index}`].replace(/[^0-9]/g, '');
+                                data[`pincode${field.index}`] = (data[`pincode${field.index}`] || '').replace(/[^0-9]/g, '');
                                 changeData(data);
                             },
                             hidden: (data, index) => !!data[`pincode-oid${index}`],

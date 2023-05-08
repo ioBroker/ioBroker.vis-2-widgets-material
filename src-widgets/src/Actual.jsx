@@ -121,8 +121,8 @@ class Actual extends Generic {
             id: 'tplMaterial2Actual',
             visSet: 'vis-2-widgets-material',
 
-            visSetLabel: 'set_label', // Label of widget set
-            visSetColor: '#0783ff', // Color of widget set
+            visSetLabel: 'set_label', // Label of this widget set
+            visSetColor: '#0783ff', // Color of this widget set
 
             visWidgetLabel: 'actual_value_with_chart',  // Label of widget
             visName: 'Actual values',
