@@ -585,16 +585,12 @@ class SimpleState extends Generic {
             }, 50);
         }
 
-        if (!this.state.object._id) {
-            return null;
-        }
-
         const icon = this.getStateIcon();
         const color = this.getColor();
         const stateTitle = this.state.object.common.states && this.getValueData()?.title;
 
         let value;
-        if (this.state.object.common.type === 'number' || this.state.object.common.states) {
+        if (this.state.object._id && (this.state.object.common.type === 'number' || this.state.object.common.states)) {
             value = this.state.values[`${this.state.object._id}.val`];
             if (this.state.object.common.states && this.state.object.common.states[value] !== undefined) {
                 value = this.state.object.common.states[value];
