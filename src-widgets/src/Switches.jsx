@@ -10,12 +10,17 @@ import {
     Slider,
     Switch,
     IconButton,
+    Select,
+    MenuItem,
+    TextField,
+    InputAdornment, InputLabel, FormControl,
 } from '@mui/material';
 
 import {
     Lightbulb as LightbulbIconOn,
     LightbulbOutlined as LightbulbIconOff,
     Close as CloseIcon,
+    RoomService, Check,
 } from '@mui/icons-material';
 
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
@@ -58,6 +63,7 @@ const styles = () => ({
         justifyContent: 'space-between',
         width: '100%',
         alignItems: 'center',
+        gap: 16,
     },
     allButtonsTitle:{
         display: 'flex',
@@ -76,12 +82,22 @@ const styles = () => ({
         maxWidth: 40,
         maxHeight: 40,
     },
+    controlElement: {
+        maxWidth: '50%',
+    },
+    selectLabel: {
+        top: 12,
+        left: -13,
+    },
 });
 
 class Switches extends Generic {
     constructor(props) {
         super(props);
         this.state.showDimmerDialog = null;
+        this.state.inputValue = '';
+        this.state.showSetButton = [];
+        this.state.inputValues = [];
         // this.state.values = {};
         this.state.objects = {};
     }
@@ -112,8 +128,8 @@ class Switches extends Generic {
                             label: 'type',
                             options: [
                                 {
-                                    value: 'switches',
-                                    label: 'switches',
+                                    value: 'lines',
+                                    label: 'lines',
                                 },
                                 {
                                     value: 'buttons',
@@ -160,33 +176,71 @@ class Switches extends Generic {
                             label: 'oid',
                         },
                         {
+                            name: 'type',
+                            type: 'select',
+                            label: 'type',
+                            options: [
+                                {
+                                    value: 'auto',
+                                    label: 'auto',
+                                },
+                                {
+                                    value: 'switch',
+                                    label: 'switch',
+                                },
+                                {
+                                    value: 'button',
+                                    label: 'button',
+                                },
+                                {
+                                    value: 'info',
+                                    label: 'info',
+                                },
+                                {
+                                    value: 'input',
+                                    label: 'input',
+                                },
+                                {
+                                    value: 'slider',
+                                    label: 'slider',
+                                },
+                                {
+                                    value: 'select',
+                                    label: 'select',
+                                },
+                            ],
+                            hidden: '!data["oid" + index]',
+                            default: 'auto',
+                        },
+                        {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
-                            hidden: '!!data.iconSmall',
+                            hidden: '!!data["iconSmall" + index]',
                         },
                         {
                             name: 'iconSmall',
                             type: 'icon64',
                             label: 'small_icon',
-                            hidden: '!!data.icon',
+                            hidden: '!!data["icon" + index]',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
                             label: 'icon_active',
-                            hidden: '!!data.iconEnabledSmall',
+                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index]',
                         },
                         {
                             name: 'iconEnabledSmall',
                             type: 'icon64',
                             label: 'small_icon_active',
-                            hidden: '!!data.iconEnabled',
+                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index]',
                         },
                         {
                             name: 'color',
                             type: 'color',
                             label: 'color',
+                            hidden: '!data["oid" + index]',
                         },
                         {
                             name: 'colorEnabled',
@@ -204,7 +258,6 @@ class Switches extends Generic {
                             type: 'text',
                             noButton: true,
                             label: 'unit',
-                            hidden: 'data.type !== "buttons"',
                         },
                     ],
                 },
@@ -242,6 +295,33 @@ class Switches extends Generic {
                     continue;
                 }
                 object.common = object.common || {};
+                let widgetType = this.state.rxData[`type${index}`];
+
+                if (widgetType === 'auto') {
+                    // not writable => info
+                    if (object.common.write === false) {
+                        widgetType = 'info';
+                    } else
+                    // with states => select
+                    if (object.common.states && object.common.write !== false) {
+                        widgetType = 'select';
+                    } else
+                    // number writable max => slider
+                    if (object.common.type === 'number' && object.common.max !== undefined) {
+                        widgetType = 'slider';
+                    } else
+                    // boolean writable => switch
+                    if (object.common.type === 'boolean' && object.common.write !== false) {
+                        widgetType = 'switch';
+                    } else
+                    // boolean not readable => button
+                    if (object.common.type === 'boolean' && object.common.read === false) {
+                        widgetType = 'button';
+                    } else {
+                        widgetType = 'input';
+                    }
+                }
+
                 if (object.common.type === 'number') {
                     if (object.common.max === undefined) {
                         object.common.max = 100;
@@ -256,6 +336,8 @@ class Switches extends Generic {
                     object.common.states.forEach(state => states[state] = state);
                     object.common.states = states;
                 }
+
+                object.common.unit = object.common.unit || this.state.rxData[`unit${index}`];
 
                 if (!this.state.rxData[`icon${index}`] && !this.state.rxData[`iconSmall${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`oid${index}`].split('.');
@@ -277,7 +359,12 @@ class Switches extends Generic {
                         }
                     }
                 }
-                objects[index] = { common: object.common, _id: object._id };
+
+                objects[index] = {
+                    common: object.common,
+                    _id: object._id,
+                    widgetType,
+                };
             }
         }
 
@@ -296,6 +383,10 @@ class Switches extends Generic {
     }
 
     isOn(index, values) {
+        if (!this.state.objects[index] || this.state.objects[index].widgetType === 'button') {
+            return false;
+        }
+
         values = values || this.state.values;
         if (this.state.objects[index].common.type === 'number') {
             return values[`${this.state.objects[index]._id}.val`] !== this.state.objects[index].common.min;
@@ -335,8 +426,14 @@ class Switches extends Generic {
     }
 
     changeSwitch = index => {
-        if (this.state.rxData.type !== 'switches' && (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states)) {
-            this.setState({ showDimmerDialog: index });
+        if (
+            this.state.objects[index].widgetType === 'slider' ||
+            this.state.objects[index].widgetType === 'input' ||
+            this.state.objects[index].widgetType === 'select'
+        ) {
+            this.setState({ showDimmerDialog: index, inputValue: this.state.values[`${this.state.objects[index]._id}.val`] });
+        } else if (this.state.objects[index].widgetType === 'button') {
+            this.props.socket.setState(this.state.rxData[`oid${index}`], true);
         } else {
             const values = JSON.parse(JSON.stringify(this.state.values));
             const oid = `${this.state.objects[index]._id}.val`;
@@ -349,6 +446,10 @@ class Switches extends Generic {
             this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
         }
     };
+
+    buttonPressed(index) {
+        this.props.socket.setState(this.state.rxData[`oid${index}`], true);
+    }
 
     setOnOff(index, isOn) {
         const values = JSON.parse(JSON.stringify(this.state.values));
@@ -370,6 +471,164 @@ class Switches extends Generic {
         const index = this.state.showDimmerDialog;
         if (index !== null) {
             const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
+            let control;
+            if (this.state.objects[index].widgetType === 'select') {
+                let buttons;
+                if (this.state.objects[index].common.states) {
+                    buttons = Object.keys(this.state.objects[index].common.states)
+                        .map((state, i) =>
+                            <Button
+                                variant="contained"
+                                key={`${state}_${i}`}
+                                className={curValue !== state ? this.props.classes.buttonInactive : ''}
+                                color={curValue === state ? 'primary' : 'grey'}
+                                onClick={() => this.controlSpecificState(index, state)}
+                            >
+                                {this.state.objects[index].common.states[state]}
+                            </Button>);
+                } else if (this.state.objects[index].common.type === 'number') {
+                    buttons = [];
+                    const min = this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
+                    const max = this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
+                    const step = this.state.objects[index].common.step === undefined ? ((max - min) / 10) : this.state.objects[index].common.step;
+                    buttons = [];
+                    for (let i = min; i <= max; i += step) {
+                        buttons.push(<Button
+                            variant="contained"
+                            key={i}
+                            className={curValue !== i ? this.props.classes.buttonInactive : ''}
+                            color={curValue === i ? 'primary' : 'grey'}
+                            onClick={() => this.controlSpecificState(index, i)}
+                        >
+                            {i + (this.state.objects[index].common.unit || '')}
+                        </Button>);
+                    }
+                }
+                control = <div style={{ width: '100%', textAlign: 'center' }}>
+                    {buttons}
+                </div>;
+            } else if (this.state.objects[index].widgetType === 'slider') {
+                control = <>
+                    <div style={{ width: '100%', marginBottom: 20 }}>
+                        <Button
+                            style={{ width: '50%' }}
+                            color="grey"
+                            className={curValue === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
+                            onClick={() => this.setOnOff(index, false)}
+                        >
+                            <LightbulbIconOff />
+                            {Generic.t('OFF').replace('vis_2_widgets_material_', '')}
+                        </Button>
+                        <Button
+                            style={{ width: '50%' }}
+                            className={curValue === this.state.objects[index].common.max ? '' : this.props.classes.buttonInactive}
+                            color="primary"
+                            onClick={() => this.setOnOff(index, true)}
+                        >
+                            <LightbulbIconOn />
+                            {Generic.t('ON').replace('vis_2_widgets_material_', '')}
+                        </Button>
+                    </div>
+                    <div style={{ width: '100%' }}>
+                        <Slider
+                            size="small"
+                            value={curValue}
+                            valueLabelDisplay="auto"
+                            min={this.state.objects[index].common.min}
+                            max={this.state.objects[index].common.max}
+                            onChange={(event, value) => {
+                                const values = JSON.parse(JSON.stringify(this.state.values));
+                                const oid = `${this.state.objects[index]._id}.val`;
+                                values[oid] = value;
+                                this.setState({ values });
+                                this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                            }}
+                        />
+                    </div>
+                </>;
+            } else {
+                control = <div style={{ display: 'flex', gap: 16 }}>
+                    <TextField
+                        fullWidth
+                        variant="standard"
+                        // label={this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
+                        value={this.state.inputValue === undefined || this.state.inputValue === null ? '' : this.state.inputValue}
+                        InputProps={{
+                            endAdornment: this.state.objects[index].common.unit ?
+                                <InputAdornment position="end">{this.state.objects[index].common.unit}</InputAdornment>
+                                :
+                                undefined,
+                        }}
+                        onKeyUp={event => {
+                            if (event.keyCode === 13) {
+                                const values = JSON.parse(JSON.stringify(this.state.values));
+                                const oid = `${this.state.objects[index]._id}.val`;
+                                values[oid] = this.state.inputValue;
+                                this.setState({ values, showDimmerDialog: null });
+                                if (this.state.objects[index].common.type === 'number') {
+                                    this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                } else if (this.state.objects[index].common.type === 'boolean') {
+                                    this.props.socket.setState(
+                                        this.state.rxData[`oid${index}`],
+                                        values[oid] === 'true' ||
+                                        values[oid] === true ||
+                                        values[oid] === 1 ||
+                                        values[oid] === '1' ||
+                                        values[oid] === 'on' ||
+                                        values[oid] === 'ON' ||
+                                        values[oid] === 'On' ||
+                                        values[oid] === 'ein' ||
+                                        values[oid] === 'EIN' ||
+                                        values[oid] === 'Ein' ||
+                                        values[oid] === 'an' ||
+                                        values[oid] === 'AN' ||
+                                        values[oid] === 'An',
+                                    );
+                                } else {
+                                    this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                }
+                            }
+                        }}
+                        onChange={event => this.setState({ inputValue: event.target.value })}
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        title={Generic.t('Set')}
+                        onClick={() => {
+                            const values = JSON.parse(JSON.stringify(this.state.values));
+                            const oid = `${this.state.objects[index]._id}.val`;
+                            values[oid] = this.state.inputValue;
+                            this.setState({ values, showDimmerDialog: null });
+                            if (this.state.objects[index].common.type === 'number') {
+                                this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                            } else if (this.state.objects[index].common.type === 'boolean') {
+                                this.props.socket.setState(
+                                    this.state.rxData[`oid${index}`],
+                                    values[oid] === 'true' ||
+                                    values[oid] === true ||
+                                    values[oid] === 1 ||
+                                    values[oid] === '1' ||
+                                    values[oid] === 'on' ||
+                                    values[oid] === 'ON' ||
+                                    values[oid] === 'On' ||
+                                    values[oid] === 'ein' ||
+                                    values[oid] === 'EIN' ||
+                                    values[oid] === 'Ein' ||
+                                    values[oid] === 'an' ||
+                                    values[oid] === 'AN' ||
+                                    values[oid] === 'An',
+                                );
+                            } else {
+                                this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                            }
+                        }}
+                    >
+                        <Check />
+                    </Button>
+                </div>;
+            }
+
             return <Dialog
                 fullWidth
                 maxWidth="sm"
@@ -381,62 +640,239 @@ class Switches extends Generic {
                     <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}><CloseIcon /></IconButton>
                 </DialogTitle>
                 <DialogContent>
-                    {this.state.objects[index].common.states ?
-                        <div style={{ width: '100%', textAlign: 'center' }}>
-                            {Object.keys(this.state.objects[index].common.states).map((state, i) =>
-                                <Button
-                                    key={`${state}_${i}`}
-                                    className={curValue !== state ? this.props.classes.buttonInactive : ''}
-                                    color={curValue === state ? 'primary' : 'grey'}
-                                    onClick={() => this.controlSpecificState(index, state)}
-                                >
-                                    {this.state.objects[index].common.states[state]}
-                                </Button>)}
-                        </div>
-                        :
-                        <>
-                            <div style={{ width: '100%', marginBottom: 20 }}>
-                                <Button
-                                    style={{ width: '50%' }}
-                                    color="grey"
-                                    className={curValue === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
-                                    onClick={() => this.setOnOff(index, false)}
-                                >
-                                    <LightbulbIconOff />
-                                    {Generic.t('OFF').replace('vis_2_widgets_material_', '')}
-                                </Button>
-                                <Button
-                                    style={{ width: '50%' }}
-                                    className={curValue === this.state.objects[index].common.max ? '' : this.props.classes.buttonInactive}
-                                    color="primary"
-                                    onClick={() => this.setOnOff(index, true)}
-                                >
-                                    <LightbulbIconOn />
-                                    {Generic.t('ON').replace('vis_2_widgets_material_', '')}
-                                </Button>
-                            </div>
-                            <div style={{ width: '100%' }}>
-                                <Slider
-                                    size="small"
-                                    value={curValue}
-                                    valueLabelDisplay="auto"
-                                    min={this.state.objects[index].common.min}
-                                    max={this.state.objects[index].common.max}
-                                    onChange={(event, value) => {
-                                        const values = JSON.parse(JSON.stringify(this.state.values));
-                                        const oid = `${this.state.objects[index]._id}.val`;
-                                        values[oid] = value;
-                                        this.setState({ values });
-                                        this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
-                                    }}
-                                />
-                            </div>
-                        </>}
+                    {control}
                 </DialogContent>
             </Dialog>;
         }
 
         return null;
+    }
+
+    renderLine(index) {
+        if (this.state.objects[index].widgetType === 'button') {
+            return <Button onClick={() => this.buttonPressed(index)}>
+                <RoomService />
+            </Button>;
+        }
+        if (this.state.objects[index].widgetType === 'switch') {
+            return <Switch
+                checked={this.isOn(index)}
+                onChange={() => this.changeSwitch(index)}
+            />;
+        }
+        let value = this.state.values[`${this.state.objects[index]._id}.val`];
+
+        if (this.state.objects[index].widgetType === 'slider') {
+            const min = this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
+            const max = this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
+            return [
+                <Slider
+                    key="slider"
+                    className={this.props.classes.controlElement}
+                    size="small"
+                    valueLabelDisplay="auto"
+                    value={value === undefined || value === null ? min : value}
+                    onChange={(event, newValue) => {
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        const oid = `${this.state.objects[index]._id}.val`;
+                        values[oid] = newValue;
+                        this.setState({ values });
+                        this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                    }}
+                    min={min}
+                    max={max}
+                />,
+                <div style={{ width: 45 }}>
+                    {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
+                </div>,
+            ];
+        }
+        if (this.state.objects[index].widgetType === 'input') {
+            return [
+                <TextField
+                    key="input"
+                    fullWidth
+                    onFocus={() => {
+                        const showSetButton = [...this.state.showSetButton];
+                        showSetButton[index] = true;
+                        const inputValues = [];
+                        inputValues[index] = value === null || value === undefined ? '' : value;
+                        this.setState({ showSetButton, inputValues });
+                    }}
+                    onKeyUp={e => {
+                        if (e.keyCode === 13) {
+                            const values = JSON.parse(JSON.stringify(this.state.values));
+                            const oid = `${this.state.objects[index]._id}.val`;
+                            values[oid] = this.state.inputValues[index];
+                            this.setState({ values });
+                            if (this.state.objects[index].common.type === 'number') {
+                                this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                            } else if (this.state.objects[index].common.type === 'boolean') {
+                                this.props.socket.setState(
+                                    this.state.rxData[`oid${index}`],
+                                    values[oid] === 'true' ||
+                                    values[oid] === true ||
+                                    values[oid] === 1 ||
+                                    values[oid] === '1' ||
+                                    values[oid] === 'on' ||
+                                    values[oid] === 'ON' ||
+                                    values[oid] === 'On' ||
+                                    values[oid] === 'ein' ||
+                                    values[oid] === 'EIN' ||
+                                    values[oid] === 'Ein' ||
+                                    values[oid] === 'an' ||
+                                    values[oid] === 'AN' ||
+                                    values[oid] === 'An',
+                                );
+                            } else {
+                                this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                            }
+                        }
+                    }}
+                    onBlur={() => {
+                        setTimeout(() => {
+                            const showSetButton = [...this.state.showSetButton];
+                            showSetButton[index] = false;
+                            this.setState({ showSetButton });
+                        }, 100);
+                    }}
+                    variant="standard"
+                    label={this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
+                    value={!this.state.showSetButton[index] ? (value === null || value === undefined ? '' : value) : this.state.inputValues[index]}
+                    InputProps={{
+                        endAdornment: this.state.objects[index].common.unit ?
+                            <InputAdornment position="end">{this.state.objects[index].common.unit}</InputAdornment>
+                            :
+                            undefined,
+                    }}
+                    onChange={event => {
+                        const inputValues = [];
+                        inputValues[index] = event.target.value;
+                        this.setState({ inputValues });
+                    }}
+                />,
+                this.state.showSetButton[index] ? <Button
+                    key="button"
+                    variant="contained"
+                    onClick={() => {
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        const oid = `${this.state.objects[index]._id}.val`;
+                        values[oid] = this.state.inputValues[index];
+                        const showSetButton = [...this.state.showSetButton];
+                        showSetButton[index] = false;
+                        this.setState({ values, showSetButton });
+                        if (this.state.objects[index].common.type === 'number') {
+                            this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                        } else if (this.state.objects[index].common.type === 'boolean') {
+                            this.props.socket.setState(
+                                this.state.rxData[`oid${index}`],
+                                values[oid] === 'true' ||
+                                values[oid] === true ||
+                                values[oid] === 1 ||
+                                values[oid] === '1' ||
+                                values[oid] === 'on' ||
+                                values[oid] === 'ON' ||
+                                values[oid] === 'On' ||
+                                values[oid] === 'ein' ||
+                                values[oid] === 'EIN' ||
+                                values[oid] === 'Ein' ||
+                                values[oid] === 'an' ||
+                                values[oid] === 'AN' ||
+                                values[oid] === 'An',
+                            );
+                        } else {
+                            this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                        }
+                    }}
+                >
+                    <Check />
+                </Button> : null,
+            ];
+        }
+        if (this.state.objects[index].widgetType === 'select') {
+            let states;
+            if (this.state.objects[index].common.states) {
+                states = Object.keys(this.state.objects[index].common.states).map(state => ({ label: state, value: this.state.objects[index].common.states[state] }));
+            } else if (this.state.objects[index].common.type === 'boolean') {
+                states = [
+                    { label: Generic.t('ON'), value: true },
+                    { label: Generic.t('OFF'), value: false },
+                ];
+            } else if (this.state.objects[index].common.type === 'number') {
+                const min = this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
+                const max = this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
+                const step = this.state.objects[index].common.step === undefined ? ((max - min) / 10) : this.state.objects[index].common.step;
+                states = [];
+                for (let i = min; i <= max; i += step) {
+                    states.push({ label: i + (this.state.objects[index].common.unit || ''), value: i });
+                }
+            } else {
+                states = [];
+            }
+
+            return <FormControl fullWidth>
+                <InputLabel
+                    classes={{ root: states.find(item => item.value === value) ? this.props.classes.selectLabel : undefined }}
+                >
+                    {this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
+                </InputLabel>
+                <Select
+                    variant="standard"
+                    value={value !== undefined ? value : ''}
+                    onChange={event => {
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        const oid = `${this.state.objects[index]._id}.val`;
+                        values[oid] = event.target.value;
+                        this.setState({ values });
+                        this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                    }}
+                >
+                    {states.map(state => <MenuItem key={state.value} value={state.value}>{state.label}</MenuItem>)}
+                </Select>
+            </FormControl>;
+        }
+
+        if (this.state.objects[index].common.type === 'number') {
+            value = this.formatValue(value);
+        }
+
+        return <div>{value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}</div>;
+    }
+
+    renderButton(index, icon) {
+        let value = this.state.values[`${this.state.objects[index]._id}.val`];
+        if (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states) {
+            if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
+                value = this.state.objects[index].common.states[value];
+            } else {
+                value = this.formatValue(value);
+            }
+        }
+
+        return <div
+            key={index}
+            className={this.props.classes.buttonDiv}
+            style={{
+                width: this.state.rxData.buttonsWidth || undefined,
+                height: this.state.rxData.buttonsHeight || undefined,
+            }}
+        >
+            <Button
+                onClick={() => this.changeSwitch(index)}
+                color={!this.state.objects[index].common.states && this.isOn(index) ? 'primary' : 'grey'}
+                className={Utils.clsx(this.props.classes.button, !this.isOn(index) && this.props.classes.buttonInactive)}
+            >
+                {icon ? <div className={this.props.classes.iconButton}>{icon}</div> : null}
+                <div className={this.props.classes.text}>
+                    {this.state.rxData[`title${index}`] || this.state.objects[index].common.name || ''}
+                </div>
+                {value !== undefined && value !== null ?
+                    <div className={this.props.classes.value}>
+                        {value}
+                        {this.state.rxData[`unit${index}`] || this.state.objects[index].common.unit || ''}
+                    </div> : null}
+            </Button>
+        </div>;
     }
 
     renderWidgetBody(props) {
@@ -449,16 +885,25 @@ class Switches extends Generic {
                 await this.propertiesUpdate();
             }, 50);
         }
+        let allSwitchValue = null;
+        let intermediate;
 
-        const allSwitchValue = Object.keys(this.state.objects).every(index => this.isOn(index));
-        const intermediate = this.state.rxData.type === 'switches' && !!Object.keys(this.state.objects).find(index => this.isOn(index) !== allSwitchValue);
+        if (this.state.rxData.type === 'lines' && Object.keys(this.state.objects).find(index => this.state.objects[index].widgetType === 'switch')) {
+            allSwitchValue = Object.keys(this.state.objects)
+                .filter(index => this.state.objects[index].widgetType === 'switch')
+                .every(index => this.isOn(index));
+
+            intermediate = !!Object.keys(this.state.objects)
+                .filter(index => this.state.objects[index].widgetType === 'switch')
+                .find(index => this.isOn(index) !== allSwitchValue);
+        }
 
         const icons = Object.keys(this.state.objects).map(index => this.getStateIcon(index));
         const anyIcon = icons.find(icon => icon);
 
         const content = <>
             {this.renderDimmerDialog()}
-            {this.state.rxData.type === 'switches' ?
+            {this.state.rxData.type === 'lines' ?
                 Object.keys(this.state.objects).map((index, i) => {
                     if (!this.state.objects[index]) {
                         return null;
@@ -472,14 +917,11 @@ class Switches extends Generic {
                             {anyIcon ? <span className={this.props.classes.iconSwitch}>
                                 {icons[i]}
                             </span> : null}
-                            <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
+                            {this.state.objects[index].widgetType !== 'input' && this.state.objects[index].widgetType !== 'select' ? <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
                                 {this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
-                            </span>
+                            </span> : null}
                         </span>
-                        <Switch
-                            checked={this.isOn(index)}
-                            onChange={() => this.changeSwitch(index)}
-                        />
+                        {this.renderLine(index)}
                     </div>;
                 })
                 :
@@ -489,58 +931,44 @@ class Switches extends Generic {
                         if (!this.state.objects[index]) {
                             return null;
                         }
-                        let value;
-                        if (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states) {
-                            value = this.state.values[`${this.state.objects[index]._id}.val`];
-                            if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
-                                value = this.state.objects[index].common.states[value];
-                            } else {
-                                value = this.formatValue(value);
-                            }
-                        }
-
-                        return <div
-                            key={index}
-                            className={this.props.classes.buttonDiv}
-                            style={{
-                                width: this.state.rxData.buttonsWidth || undefined,
-                                height: this.state.rxData.buttonsHeight || undefined,
-                            }}
-                        >
-                            <Button
-                                onClick={() => this.changeSwitch(index)}
-                                color={!this.state.objects[index].common.states && this.isOn(index) ? 'primary' : 'grey'}
-                                className={Utils.clsx(this.props.classes.button, !this.isOn(index) && this.props.classes.buttonInactive)}
-                            >
-                                {anyIcon ? <div className={this.props.classes.iconButton}>
-                                    {icons[i]}
-                                </div> : null}
-                                <div className={this.props.classes.text}>
-                                    {this.state.rxData[`title${index}`] || this.state.objects[index].common.name || ''}
-                                </div>
-                                {value !== undefined && value !== null ?
-                                    <div className={this.props.classes.value}>
-                                        {value}
-                                        {this.state.rxData[`unit${index}`] || this.state.objects[index].common.unit || ''}
-                                    </div> : null}
-                            </Button>
-                        </div>;
+                        return this.renderButton(index, anyIcon ? icons[i] : null);
                     })}
                 </div>}
         </>;
 
-        const addToHeader = this.state.rxData.allSwitch && Object.keys(this.state.objects).length > 1 ? <Switch
+        let addToHeader = this.state.rxData.allSwitch && Object.keys(this.state.objects).length > 1 && allSwitchValue !== null ? <Switch
             checked={allSwitchValue}
             className={intermediate ? this.props.classes.intermediate : ''}
-            onChange={() => {
+            onChange={async () => {
                 const values = JSON.parse(JSON.stringify(this.state.values));
-                Object.keys(values).forEach(key => {
-                    values[key] = !allSwitchValue;
-                    this.props.socket.setState(this.state.rxData[`oid${key}`], !allSwitchValue);
-                });
+
+                const keys = Object.keys(this.state.objects);
+
+                for (let i = 0; i <= keys.length; i++) {
+                    if (this.state.objects[keys[i]] && this.state.objects[keys[i]]._id && this.state.objects[keys[i]].widgetType === 'switch') {
+                        const oid = `${this.state.objects[keys[i]]._id}.val`;
+                        if (this.state.objects[keys[i]].common.type === 'boolean') {
+                            values[oid] = !allSwitchValue;
+                            await this.props.socket.setState(this.state.objects[keys[i]]._id, values[oid]);
+                        } else if (this.state.objects[keys[i]].common.type === 'number') {
+                            values[oid] = allSwitchValue ? this.state.objects[keys[i]].common.min : this.state.objects[keys[i]].common.max;
+                            await this.props.socket.setState(this.state.objects[keys[i]]._id, values[oid]);
+                        } else {
+                            values[oid] = !allSwitchValue;
+                            await this.props.socket.setState(this.state.objects[keys[i]]._id, values[oid] ? 'true' : 'false');
+                        }
+                    }
+                }
+
                 this.setState({ values });
             }}
         /> : null;
+
+        if (!this.state.rxData.widgetTitle && addToHeader) {
+            addToHeader = <div style={{ textAlign: 'right', width: '100%' }}>
+                {addToHeader}
+            </div>;
+        }
 
         return this.wrapContent(content, addToHeader);
     }
