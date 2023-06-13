@@ -2,6 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
+import ReactEchartsCore from 'echarts-for-react/lib/core';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import {
+    TimelineComponent,
+} from 'echarts/components';
+import { SVGRenderer } from 'echarts/renderers';
+
 import {
     Button,
     Dialog,
@@ -13,7 +21,10 @@ import {
     Select,
     MenuItem,
     TextField,
-    InputAdornment, InputLabel, FormControl,
+    CircularProgress,
+    InputAdornment,
+    InputLabel,
+    FormControl,
 } from '@mui/material';
 
 import {
@@ -26,6 +37,11 @@ import {
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
+// import ObjectChart from './ObjectChart';
+
+const HISTORY = ['influxdb', 'sql', 'history'];
+
+echarts.use([TimelineComponent, LineChart, SVGRenderer]);
 
 const styles = () => ({
     intermediate: {
@@ -64,6 +80,7 @@ const styles = () => ({
         width: '100%',
         alignItems: 'center',
         gap: 16,
+        position: 'relative',
     },
     allButtonsTitle:{
         display: 'flex',
@@ -100,6 +117,11 @@ class Switches extends Generic {
         this.state.inputValues = [];
         // this.state.values = {};
         this.state.objects = {};
+        this.state.historyData = {};
+        this.state.chartWidth = {};
+        this.state.chartHeight = {};
+        this.history = {};
+        this.refs = {};
     }
 
     static getWidgetInfo() {
@@ -259,6 +281,36 @@ class Switches extends Generic {
                             noButton: true,
                             label: 'unit',
                         },
+                        {
+                            name: 'step',
+                            label: 'values_step',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "select"',
+                        },
+                        {
+                            name: 'hideChart',
+                            type: 'checkbox',
+                            label: 'hide_chart',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info"',
+                        },
+                        {
+                            name: 'chartPeriod',
+                            type: 'select',
+                            options: [
+                                { value: 10, label: '10_minutes' },
+                                { value: 30, label: '30_minutes' },
+                                { value: 60, label: '1_hour' },
+                                { value: 120, label: '2_hours' },
+                                { value: 180, label: '3_hours' },
+                                { value: 360, label: '6_hours' },
+                                { value: 720, label: '12_hours' },
+                                { value: 1440, label: '1_day' },
+                                { value: 2880, label: '2_days' },
+                                { value: 10080, label: '1_week' },
+                            ],
+                            default: 60,
+                            label: 'chart_period',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["hideChart" + index]',
+                        },
                     ],
                 },
             ],
@@ -278,6 +330,9 @@ class Switches extends Generic {
 
     async propertiesUpdate() {
         const actualRxData = JSON.stringify(this.state.rxData);
+
+        this.systemConfig = this.systemConfig || (await this.props.socket.getObject('system.config'));
+
         if (this.lastRxData === actualRxData) {
             return;
         }
@@ -347,16 +402,10 @@ class Switches extends Generic {
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
                         const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
-                            object.common.icon = grandParentObject.common.icon;
-                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                            }
+                            object.common.icon = Generic.getObjectIcon(grandParentObject, grandParentObject._id);
                         }
                     } else {
-                        object.common.icon = parentObject.common.icon;
-                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                        }
+                        object.common.icon = Generic.getObjectIcon(parentObject, parentObject._id);
                     }
                 }
 
@@ -429,11 +478,24 @@ class Switches extends Generic {
         if (
             this.state.objects[index].widgetType === 'slider' ||
             this.state.objects[index].widgetType === 'input' ||
-            this.state.objects[index].widgetType === 'select'
+            this.state.objects[index].widgetType === 'select' ||
+            this.state.objects[index].widgetType === 'info'
         ) {
+            if (this.state.objects[index].widgetType === 'info') {
+                this.updateChartInterval = this.updateChartInterval || setInterval(() =>
+                    this.updateCharts(), 60000);
+
+                this.updateCharts(index)
+                    .catch(e => window.alert(`Cannot read history: ${e}`));
+            }
+
             this.setState({ showDimmerDialog: index, inputValue: this.state.values[`${this.state.objects[index]._id}.val`] });
         } else if (this.state.objects[index].widgetType === 'button') {
-            this.props.socket.setState(this.state.rxData[`oid${index}`], true);
+            if (this.state.objects[index].common.max !== undefined) {
+                this.props.socket.setState(this.state.rxData[`oid${index}`], this.state.objects[index].common.max);
+            } else {
+                this.props.socket.setState(this.state.rxData[`oid${index}`], true);
+            }
         } else {
             const values = JSON.parse(JSON.stringify(this.state.values));
             const oid = `${this.state.objects[index]._id}.val`;
@@ -463,11 +525,11 @@ class Switches extends Generic {
         const values = JSON.parse(JSON.stringify(this.state.values));
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = value;
-        this.setState({ values });
+        this.setState({ values, showDimmerDialog: null });
         this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
     }
 
-    renderDimmerDialog() {
+    renderControlDialog() {
         const index = this.state.showDimmerDialog;
         if (index !== null) {
             const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
@@ -490,7 +552,8 @@ class Switches extends Generic {
                     buttons = [];
                     const min = this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
                     const max = this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
-                    const step = this.state.objects[index].common.step === undefined ? ((max - min) / 10) : this.state.objects[index].common.step;
+                    const step = parseInt(this.state.rxData[`step${index}`], 10) ||
+                        (this.state.objects[index].common.step === undefined ? ((max - min) / 10) : this.state.objects[index].common.step);
                     buttons = [];
                     for (let i = min; i <= max; i += step) {
                         buttons.push(<Button
@@ -504,7 +567,17 @@ class Switches extends Generic {
                         </Button>);
                     }
                 }
-                control = <div style={{ width: '100%', textAlign: 'center' }}>
+                control = <div
+                    style={{
+                        width: '100%',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 4,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
                     {buttons}
                 </div>;
             } else if (this.state.objects[index].widgetType === 'slider') {
@@ -514,7 +587,10 @@ class Switches extends Generic {
                             style={{ width: '50%' }}
                             color="grey"
                             className={curValue === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
-                            onClick={() => this.setOnOff(index, false)}
+                            onClick={() => {
+                                this.setOnOff(index, false);
+                                this.setState({ showDimmerDialog: null });
+                            }}
                         >
                             <LightbulbIconOff />
                             {Generic.t('OFF').replace('vis_2_widgets_material_', '')}
@@ -523,7 +599,10 @@ class Switches extends Generic {
                             style={{ width: '50%' }}
                             className={curValue === this.state.objects[index].common.max ? '' : this.props.classes.buttonInactive}
                             color="primary"
-                            onClick={() => this.setOnOff(index, true)}
+                            onClick={() => {
+                                this.setOnOff(index, true);
+                                this.setState({ showDimmerDialog: null });
+                            }}
                         >
                             <LightbulbIconOn />
                             {Generic.t('ON').replace('vis_2_widgets_material_', '')}
@@ -546,6 +625,50 @@ class Switches extends Generic {
                         />
                     </div>
                 </>;
+            } else if (this.state.objects[index].widgetType === 'info') {
+                if (this.refs[index]) {
+                    setTimeout(() => this.checkChartWidth(), 50);
+                    // draw chart
+                    control = <div
+                        style={{
+                            width: '100%',
+                            minWidth: 500,
+                            height: '100%',
+                            minHeight: 300,
+                        }}
+                        ref={this.refs[index]}
+                    >
+                        {this.drawChart(index, {
+                            width: this.state.chartWidth[index],
+                            height: this.state.chartHeight[index],
+                            position: 'relative',
+                            top: undefined,
+                            right: undefined,
+                            maxWidth: undefined,
+                        })}
+                        {/*
+                         <ObjectChart
+                            t={key => Generic.t(key)}
+                            lang={Generic.getLanguage()}
+                            socket={this.props.socket}
+                            obj={this.state.objects[index]}
+                            unit={this.state.objects[index].common.unit}
+                            title={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name)}
+                            objLineType="line"
+                            objColor={this.props.theme.palette.primary.main}
+                            objBackgroundColor={this.props.theme.palette.primary.main}
+                            themeType={this.props.themeType}
+                            defaultHistory={this.history[index]}
+                            noToolbar
+                            systemConfig={this.systemConfig}
+                            dateFormat={this.systemConfig.common.dateFormat}
+                            chartTitle=""
+                        />
+                        */}
+                    </div>;
+                } else {
+                    control = <CircularProgress />;
+                }
             } else {
                 control = <div style={{ display: 'flex', gap: 16 }}>
                     <TextField
@@ -633,7 +756,12 @@ class Switches extends Generic {
                 fullWidth
                 maxWidth="sm"
                 open={!0}
-                onClose={() => this.setState({ showDimmerDialog: null })}
+                onClose={() => {
+                    this.updateChartInterval && clearInterval(this.updateChartInterval);
+                    this.updateChartInterval = null;
+
+                    this.setState({ showDimmerDialog: null });
+                }}
             >
                 <DialogTitle>
                     {this.state.rxData[`title${index}`] || this.state.objects[index].common.name}
@@ -682,7 +810,7 @@ class Switches extends Generic {
                     min={min}
                     max={max}
                 />,
-                <div style={{ width: 45 }}>
+                <div key="value" style={{ width: 45 }}>
                     {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
                 </div>,
             ];
@@ -801,10 +929,14 @@ class Switches extends Generic {
             } else if (this.state.objects[index].common.type === 'number') {
                 const min = this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
                 const max = this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
-                const step = this.state.objects[index].common.step === undefined ? ((max - min) / 10) : this.state.objects[index].common.step;
+                const step = parseInt(this.state.rxData[`step${index}`], 10) ||
+                    (this.state.objects[index].common.step === undefined ? ((max - min) / 10) : this.state.objects[index].common.step);
                 states = [];
                 for (let i = min; i <= max; i += step) {
                     states.push({ label: i + (this.state.objects[index].common.unit || ''), value: i });
+                    if (value > i && value < i + step) {
+                        states.push({ label: value + (this.state.objects[index].common.unit || ''), value });
+                    }
                 }
             } else {
                 states = [];
@@ -836,7 +968,308 @@ class Switches extends Generic {
             value = this.formatValue(value);
         }
 
-        return <div>{value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}</div>;
+        // info
+        this.checkHistory(index)
+            .catch(e => window.alert(`Cannot check history: ${e}`));
+
+        if (this.refs[index]) {
+            setTimeout(() => this.checkChartWidth(), 50);
+            return <div style={{ flexGrow: 1, textAlign: 'right' }} ref={this.refs[index]}>
+                {this.drawChart(index)}
+                {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
+            </div>;
+        }
+
+        return <div>
+            {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
+        </div>;
+    }
+
+    checkChartWidth() {
+        Object.keys(this.refs).forEach(i => {
+            if (this.refs[i] && this.refs[i].current) {
+                const width = this.refs[i].current.offsetWidth;
+                const height = this.refs[i].current.offsetHeight;
+                if (width !== this.state.chartWidth[i] || height !== this.state.chartHeight[i]) {
+                    const chartWidth = { ...this.state.chartWidth };
+                    const chartHeight = { ...this.state.chartHeight };
+                    chartWidth[i] = width;
+                    chartHeight[i] = height;
+                    this.setState({ chartWidth, chartHeight });
+                }
+            }
+        });
+    }
+
+    drawChart(index, style) {
+        if (this.state.historyData[index] && this.state.chartWidth[index]) {
+            const _style = {
+                height: 37,
+                width: this.state.chartWidth[index],
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                maxWidth: 200,
+                ...style,
+            };
+
+            return <ReactEchartsCore
+                className={this.props.classes.chart}
+                echarts={echarts}
+                option={this.state.historyData[index]}
+                notMerge
+                lazyUpdate
+                theme={this.props.themeType === 'dark' ? 'dark' : ''}
+                style={_style}
+                opts={{ renderer: 'svg' }}
+            />;
+        }
+
+        return null;
+    }
+
+    async checkHistory(index, doNotRequestData) {
+        const custom = this.state.objects[index].common.custom;
+
+        if (!custom || this.state.rxData[`hideChart${index}`]) {
+            this.state.objects[index].common.history = false;
+
+            if (this.refs[index]) {
+                delete this.refs[index];
+            }
+            if (this.history[index]) {
+                delete this.history[index];
+            }
+            if (!Object.keys(this.history).length) {
+                this.updateChartInterval && clearInterval(this.updateChartInterval);
+                this.updateChartInterval = null;
+            }
+            if (this.state.historyData[index]) {
+                setTimeout(() => {
+                    const historyData = { ...this.state.historyData };
+                    delete historyData[index];
+                    this.setState({ historyData });
+                }, 100);
+            }
+            return;
+        }
+
+        // we check it already
+        if (this.state.objects[index].common.history) {
+            return;
+        }
+
+        // remember that it is checked
+        this.state.objects[index].common.history = true;
+
+        let historyInstance;
+        // first check default history and if it is alive
+        if (custom[this.systemConfig.common.defaultHistory]) {
+            const alive = await this.props.socket.getState(`system.adapter.${this.systemConfig.common.defaultHistory}.alive`);
+            if (alive?.val) {
+                historyInstance = this.systemConfig.common.defaultHistory;
+            }
+        }
+
+        if (!historyInstance) {
+            // find the first live history instance
+            historyInstance = Object.keys(custom).find(async instance => {
+                if (instance === this.systemConfig.common.defaultHistory) {
+                    return false;
+                }
+                const adapter = instance.split('.')[0];
+                if (HISTORY.includes(adapter)) {
+                    const alive = await this.props.socket.getState(`system.adapter.${instance}.alive`);
+                    if (alive?.val) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        if (historyInstance) {
+            this.refs[index] = this.refs[index] || React.createRef();
+            // try to read history for last hour
+            this.history[index] = historyInstance;
+            if (!doNotRequestData) {
+                this.updateChartInterval = this.updateChartInterval || setInterval(() =>
+                    this.updateCharts(), 60000);
+
+                this.updateCharts(index)
+                    .catch(e => window.alert(`Cannot read history: ${e}`));
+            }
+        }
+    }
+
+    async updateCharts(index) {
+        let indexesToUpdate = Object.keys(this.history);
+        if (index !== undefined) {
+            indexesToUpdate = [index];
+        } else {
+            indexesToUpdate = Object.keys(this.history);
+        }
+        for (let i = 0; i < indexesToUpdate.length; i++) {
+            (_index => {
+                this.props.socket.getHistory(this.state.objects[_index]._id, {
+                    instance: this.history[_index],
+                    start: Date.now() - (parseInt(this.state.rxData[`chartPeriod${_index}`], 10) || 60) * 60000,
+                    aggregate: 'minmax',
+                    step: 60000,
+                })
+                    .then(result => {
+                        // console.log(`Result: ${JSON.stringify(result)}`);
+                        if (result) {
+                            const historyData = { ...this.state.historyData };
+                            const data = [];
+                            let min = result[0].val || 0;
+                            let max = result[0].val || 0;
+                            for (let j = 0; j < result.length; j++) {
+                                const item = result[j];
+                                if (min > item.val) {
+                                    min = item.val;
+                                }
+                                if (max < item.val) {
+                                    max = item.val;
+                                }
+                                data.push([item.ts, item.val]);
+                            }
+
+                            const withGrid = this.state.rxData.type !== 'lines';
+
+                            const serie = {
+                                type: 'line',
+                                showSymbol: false,
+                                data,
+                                lineStyle: {
+                                    color: this.props.theme.palette.primary.main,
+                                    opacity: 0.3,
+                                },
+                                areaStyle: {
+                                    opacity: 0.1,
+                                },
+                            };
+
+                            const yAxis = {
+                                type: 'value',
+                                show: withGrid,
+                                boundaryGap: [0, '100%'],
+                                splitLine: {
+                                    show: withGrid,
+                                },
+                                min,
+                                max,
+                            };
+                            let tooltip;
+
+                            if (withGrid) {
+                                yAxis.axisTick = {
+                                    alignWithLabel: true,
+                                };
+                                yAxis.axisLabel = {
+                                    formatter: value => {
+                                        let text;
+                                        if (this.systemConfig.common.isFloatComma) {
+                                            text = value.toString().replace(',', '.') + (this.state.objects[_index].common.unit || '');
+                                        } else {
+                                            text = value + (this.state.objects[_index].common.unit || '');
+                                        }
+
+                                        return text;
+                                    },
+                                    showMaxLabel: true,
+                                    showMinLabel: true,
+                                };
+                                delete yAxis.min;
+                                delete yAxis.max;
+
+                                if (this.state.objects[_index].common.type === 'boolean') {
+                                    serie.step = 'end';
+                                    yAxis.axisLabel.showMaxLabel = false;
+                                    yAxis.axisLabel.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+                                    yAxis.max = 1.5;
+                                    yAxis.interval = 1;
+                                    // widthAxis = 50;
+                                } else
+                                if (this.state.objects[_index].common.type === 'number' && this.state.objects[_index].common.states) {
+                                    serie.step = 'end';
+                                    yAxis.axisLabel.showMaxLabel = false;
+                                    yAxis.axisLabel.formatter = value => (this.state.objects[_index].common.states[value] !== undefined ? this.state.objects[_index].common.states[value] : value);
+                                    const keys = Object.keys(this.state.objects[_index].common.states);
+                                    keys.sort();
+                                    yAxis.max = parseFloat(keys[keys.length - 1]) + 0.5;
+                                    yAxis.interval = 1;
+                                    // let max = '';
+                                    // for (let i = 0; i < keys.length; i++) {
+                                    //     if (typeof this.state.objects[_index].common.states[keys[i]] === 'string' && this.state.objects[_index].common.states[keys[i]].length > max.length) {
+                                    //         max = this.state.objects[_index].common.states[keys[i]];
+                                    //     }
+                                    // }
+                                    // widthAxis = ((max.length * 9) || 50) + 12;
+                                } else if (this.state.objects[_index].common.type === 'number') {
+                                    if (this.state.objects[_index].common.min !== undefined && this.state.objects[_index].common.max !== undefined) {
+                                        yAxis.max = this.state.objects[_index].common.max;
+                                        yAxis.min = this.state.objects[_index].common.min;
+                                    } else
+                                    if (this.state.objects[_index].common.unit === '%') {
+                                        yAxis.max = 100;
+                                        yAxis.min = 0;
+                                    }
+                                }
+
+                                tooltip = {
+                                    trigger: 'axis',
+                                    formatter: params => {
+                                        params = params[0];
+                                        const date = new Date(params.value[0]);
+                                        let value = params.value[1];
+                                        if (value !== null && this.systemConfig.common.isFloatComma) {
+                                            value = value.toString().replace('.', ',');
+                                        }
+                                        return `${params.exact === false ? 'i' : ''}${date.toLocaleString()}.${date.getMilliseconds().toString().padStart(3, '0')}: ` +
+                                            `${value}${this.state.objects[_index].common.unit || ''}`;
+                                    },
+                                    axisPointer: {
+                                        animation: true,
+                                    },
+                                };
+                            }
+
+                            historyData[_index] = {
+                                backgroundColor: 'transparent',
+                                grid: withGrid ? { top: 10, right: 0 } : {
+                                    left: 2,
+                                    right: 2,
+                                    top: 2,
+                                    bottom: 2,
+                                },
+                                animation: false,
+                                xAxis: {
+                                    type: 'time',
+                                    show: withGrid,
+                                },
+                                yAxis,
+                                series: [serie],
+                                tooltip,
+                            };
+
+                            const newState = { historyData };
+                            if (this.refs[_index] &&
+                                this.refs[_index].current &&
+                                this.refs[_index].current.offsetWidth &&
+                                (this.state.chartWidth[_index] !== this.refs[_index].current.offsetWidth ||
+                                this.state.chartHeight[_index] !== this.refs[_index].current.offsetHeight)
+                            ) {
+                                newState.chartWidth = { ...this.state.chartWidth };
+                                newState.chartHeight = { ...this.state.chartHeight };
+                                newState.chartWidth[_index] = this.refs[_index].current.offsetWidth;
+                                newState.chartHeight[_index] = this.refs[_index].current.offsetHeight;
+                            }
+                            this.setState(newState);
+                        }
+                    });
+            })(indexesToUpdate[i]);
+        }
     }
 
     renderButton(index, icon) {
@@ -847,6 +1280,11 @@ class Switches extends Generic {
             } else {
                 value = this.formatValue(value);
             }
+        }
+
+        if (this.state.objects[index].widgetType === 'info') {
+            this.checkHistory(index)
+                .catch(e => console.error(`Cannot read history: ${e}`));
         }
 
         return <div
@@ -861,6 +1299,7 @@ class Switches extends Generic {
                 onClick={() => this.changeSwitch(index)}
                 color={!this.state.objects[index].common.states && this.isOn(index) ? 'primary' : 'grey'}
                 className={Utils.clsx(this.props.classes.button, !this.isOn(index) && this.props.classes.buttonInactive)}
+                disabled={this.state.objects[index].widgetType === 'info' && (!this.history[index] || this.state.rxData[`hideChart${index}`])}
             >
                 {icon ? <div className={this.props.classes.iconButton}>{icon}</div> : null}
                 <div className={this.props.classes.text}>
@@ -902,7 +1341,7 @@ class Switches extends Generic {
         const anyIcon = icons.find(icon => icon);
 
         const content = <>
-            {this.renderDimmerDialog()}
+            {this.renderControlDialog()}
             {this.state.rxData.type === 'lines' ?
                 Object.keys(this.state.objects).map((index, i) => {
                     if (!this.state.objects[index]) {

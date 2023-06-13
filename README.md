@@ -98,6 +98,9 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
 
 ### Time picker
 
+
+## Todo
+- Change font of buttons
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**

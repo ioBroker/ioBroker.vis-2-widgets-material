@@ -582,6 +582,7 @@ class ObjectChart extends Component {
             color: this.props.objColor || '#f5ba4d',
             areaStyle: {},
         };
+
         const yAxis = [
             {
                 type: 'value',
