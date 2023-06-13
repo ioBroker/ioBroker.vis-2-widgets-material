@@ -111,7 +111,7 @@ const styles = () => ({
 class Switches extends Generic {
     constructor(props) {
         super(props);
-        this.state.showDimmerDialog = null;
+        this.state.showControlDialog = null;
         this.state.inputValue = '';
         this.state.showSetButton = [];
         this.state.inputValues = [];
@@ -280,6 +280,7 @@ class Switches extends Generic {
                             type: 'text',
                             noButton: true,
                             label: 'unit',
+                            hidden: 'data["type" + index] === "button" || data["type" + index] === "switch"',
                         },
                         {
                             name: 'step',
@@ -427,6 +428,14 @@ class Switches extends Generic {
         await this.propertiesUpdate();
     }
 
+    async componentWillUnmount() {
+        this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
+        this.updateDialogChartInterval = null;
+
+        this.updateChartInterval && clearInterval(this.updateChartInterval);
+        this.updateChartInterval = null;
+    }
+
     async onRxDataChanged() {
         await this.propertiesUpdate();
     }
@@ -482,14 +491,14 @@ class Switches extends Generic {
             this.state.objects[index].widgetType === 'info'
         ) {
             if (this.state.objects[index].widgetType === 'info') {
-                this.updateChartInterval = this.updateChartInterval || setInterval(() =>
+                this.updateDialogChartInterval = this.updateDialogChartInterval || setInterval(() =>
                     this.updateCharts(), 60000);
 
                 this.updateCharts(index)
                     .catch(e => window.alert(`Cannot read history: ${e}`));
             }
 
-            this.setState({ showDimmerDialog: index, inputValue: this.state.values[`${this.state.objects[index]._id}.val`] });
+            this.setState({ showControlDialog: index, inputValue: this.state.values[`${this.state.objects[index]._id}.val`] });
         } else if (this.state.objects[index].widgetType === 'button') {
             if (this.state.objects[index].common.max !== undefined) {
                 this.props.socket.setState(this.state.rxData[`oid${index}`], this.state.objects[index].common.max);
@@ -525,12 +534,12 @@ class Switches extends Generic {
         const values = JSON.parse(JSON.stringify(this.state.values));
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = value;
-        this.setState({ values, showDimmerDialog: null });
+        this.setState({ values, showControlDialog: null });
         this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
     }
 
     renderControlDialog() {
-        const index = this.state.showDimmerDialog;
+        const index = this.state.showControlDialog;
         if (index !== null) {
             const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
             let control;
@@ -589,7 +598,7 @@ class Switches extends Generic {
                             className={curValue === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
                             onClick={() => {
                                 this.setOnOff(index, false);
-                                this.setState({ showDimmerDialog: null });
+                                this.setState({ showControlDialog: null });
                             }}
                         >
                             <LightbulbIconOff />
@@ -601,7 +610,7 @@ class Switches extends Generic {
                             color="primary"
                             onClick={() => {
                                 this.setOnOff(index, true);
-                                this.setState({ showDimmerDialog: null });
+                                this.setState({ showControlDialog: null });
                             }}
                         >
                             <LightbulbIconOn />
@@ -627,7 +636,9 @@ class Switches extends Generic {
                 </>;
             } else if (this.state.objects[index].widgetType === 'info') {
                 if (this.refs[index]) {
+                    // update width and height of chart container
                     setTimeout(() => this.checkChartWidth(), 50);
+
                     // draw chart
                     control = <div
                         style={{
@@ -687,7 +698,7 @@ class Switches extends Generic {
                                 const values = JSON.parse(JSON.stringify(this.state.values));
                                 const oid = `${this.state.objects[index]._id}.val`;
                                 values[oid] = this.state.inputValue;
-                                this.setState({ values, showDimmerDialog: null });
+                                this.setState({ values, showControlDialog: null });
                                 if (this.state.objects[index].common.type === 'number') {
                                     this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                                 } else if (this.state.objects[index].common.type === 'boolean') {
@@ -722,7 +733,7 @@ class Switches extends Generic {
                             const values = JSON.parse(JSON.stringify(this.state.values));
                             const oid = `${this.state.objects[index]._id}.val`;
                             values[oid] = this.state.inputValue;
-                            this.setState({ values, showDimmerDialog: null });
+                            this.setState({ values, showControlDialog: null });
                             if (this.state.objects[index].common.type === 'number') {
                                 this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                             } else if (this.state.objects[index].common.type === 'boolean') {
@@ -757,15 +768,15 @@ class Switches extends Generic {
                 maxWidth="sm"
                 open={!0}
                 onClose={() => {
-                    this.updateChartInterval && clearInterval(this.updateChartInterval);
-                    this.updateChartInterval = null;
+                    this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
+                    this.updateDialogChartInterval = null;
 
-                    this.setState({ showDimmerDialog: null });
+                    this.setState({ showControlDialog: null });
                 }}
             >
                 <DialogTitle>
                     {this.state.rxData[`title${index}`] || this.state.objects[index].common.name}
-                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}><CloseIcon /></IconButton>
+                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showControlDialog: null })}><CloseIcon /></IconButton>
                 </DialogTitle>
                 <DialogContent>
                     {control}
@@ -974,7 +985,11 @@ class Switches extends Generic {
 
         if (this.refs[index]) {
             setTimeout(() => this.checkChartWidth(), 50);
-            return <div style={{ flexGrow: 1, textAlign: 'right' }} ref={this.refs[index]}>
+            return <div
+                style={{ flexGrow: 1, textAlign: 'right', cursor: 'pointer' }}
+                ref={this.refs[index]}
+                onClick={() => this.setState({ showControlDialog: true })}
+            >
                 {this.drawChart(index)}
                 {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
             </div>;
@@ -1043,6 +1058,8 @@ class Switches extends Generic {
             if (!Object.keys(this.history).length) {
                 this.updateChartInterval && clearInterval(this.updateChartInterval);
                 this.updateChartInterval = null;
+                this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
+                this.updateDialogChartInterval = null;
             }
             if (this.state.historyData[index]) {
                 setTimeout(() => {
