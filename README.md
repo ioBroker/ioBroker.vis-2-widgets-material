@@ -32,7 +32,7 @@
 ![Digital2](img/material-clock-digital-2.png)
 
 ### Simple state
-With this widget you can control one device. Boolean or number.
+With this widget, you can control one device. Boolean or number.
 - Number
 
 ![Simple state](img/material-simple-state-1.png)
@@ -48,7 +48,7 @@ Not as button: View could be shown in full size, and you can control elements in
 
 ![View in widget - button](img/material-view-in-widget-2.png)
 
-As button: You can show small thumbnail of view and by pressing on it, it will be shown in full size.
+As button: You can show a small thumbnail of view and by pressing on it, it will be shown in full size.
 
 ### Thermostat
 ![Thermostat](img/material-thermostat-1.png)
@@ -72,8 +72,8 @@ Additionally, it can show a history if you activated it.
 
 You can define the delay in seconds.
 
-By activation the defined ID will be written with number of delay seconds 
-and after the delay is over the defined ID will be set to 0 and alarm ID be set to true.
+By activation, the defined ID will be written with number of the delay seconds, 
+and after the delay is over, the defined ID will be set to 0, and the alarm ID be set to true.
 
 ![Security control](img/material-security-2.png)
 
@@ -107,7 +107,7 @@ and after the delay is over the defined ID will be set to 0 and alarm ID be set 
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.3.0 (2023-06-13)
 * (bluefox) Improved buttons widget
 
 ### 0.2.13 (2023-03-22)
