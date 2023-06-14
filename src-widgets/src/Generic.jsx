@@ -70,7 +70,6 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
         return src || null;
     }
 
-
     wrapContent(content, addToHeader, cardContentStyle, headerStyle, onCardClick) {
         return super.wrapContent(content, addToHeader, cardContentStyle, headerStyle, onCardClick, { Card, CardContent });
     }

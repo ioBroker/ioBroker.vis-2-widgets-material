@@ -656,6 +656,8 @@ class Switches extends Generic {
                             top: undefined,
                             right: undefined,
                             maxWidth: undefined,
+                            userSelect: undefined,
+                            pointerEvents: undefined,
                         })}
                         {/*
                          <ObjectChart
@@ -986,9 +988,13 @@ class Switches extends Generic {
         if (this.refs[index]) {
             setTimeout(() => this.checkChartWidth(), 50);
             return <div
-                style={{ flexGrow: 1, textAlign: 'right', cursor: 'pointer' }}
+                style={{
+                    flexGrow: 1,
+                    textAlign: 'right',
+                    cursor: 'pointer',
+                }}
                 ref={this.refs[index]}
-                onClick={() => this.setState({ showControlDialog: true })}
+                onClick={() => this.setState({ showControlDialog: index })}
             >
                 {this.drawChart(index)}
                 {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
@@ -1025,6 +1031,8 @@ class Switches extends Generic {
                 right: 0,
                 top: 0,
                 maxWidth: 200,
+                userSelect: 'none',
+                pointerEvents: 'none',
                 ...style,
             };
 

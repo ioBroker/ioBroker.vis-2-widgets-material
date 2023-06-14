@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "0.3.0",
     "news": {
-      "0.3.0": {
-        "en": "Improved buttons widget",
-        "de": "Verbesserte Tasten Widget",
-        "ru": "Улучшенный виджет кнопок",
-        "pt": "Melhor widget de botões",
-        "nl": "Improviserende knoppen",
-        "fr": "Boutons améliorés widget",
-        "it": "Pulsante migliorato widget",
-        "es": "Widget de botones mejorados",
-        "pl": "Improving buttons widgets",
-        "uk": "Покращені кнопки віджет",
-        "zh-cn": "B. 改善但县的匮乏"
-      },
       "0.2.13": {
         "en": "BREAKING CHANGE: The names of widgets must be entered anew \nupdate packages",
         "de": "BREAKING CHANGE: Die Namen der Widgets müssen neu eingegeben werden\nupdate-pakete",
