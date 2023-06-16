@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "news": {
+      "0.4.0": {
+        "en": "Added button texts for switches widget\nRemoved static widget, as it replaced by switches widget",
+        "de": "Schaltfläche Texte für Schalter Widget hinzugefügt\nEntfernte statische Widget, wie es durch Schalter Widget ersetzt",
+        "ru": "Добавлены кнопки для коммутаторов виджет\nУдаленный статический виджет, как он заменен коммутатором виджет",
+        "pt": "Textos de botão adicionados para widget de interruptores\nWidget estático removido, como substituído por interruptores widget",
+        "nl": "Vermeldde knopsystemen voor wisselgeld\nVerwijderde statische wedget, zoals het vervangen is door wisselaars",
+        "fr": "Ajout de textes de bouton pour les commutateurs widget\nSupprimé widget statique, comme il a remplacé par des commutateurs widget",
+        "it": "Testi di pulsante aggiunti per widget di switch\nWidget statico rimosso, come sostituito da widget switch",
+        "es": "Textos de botón añadido para interruptores widget\nWidget estático eliminado, ya que reemplazado por interruptores widget",
+        "pl": "Wszystko przycisku\nPrzemieniono statyczne widgety, ponieważ zastąpiono je widget",
+        "uk": "Додано тексти кнопок для віджетів\nВидалення статичного віджету, як він замінюється перемикачами",
+        "zh-cn": "改用目标的加德顿案文\n取消静态目标,因为改用目标"
+      },
       "0.3.1": {
         "en": "Improved buttons widget",
         "de": "Verbesserte Tasten Widget",
@@ -69,19 +82,6 @@
         "zh-cn": "更新包"
       },
       "0.2.9": {
-        "en": "Made this adapter singleton",
-        "de": "Dieser Adapter Singleton",
-        "ru": "Сделано этот адаптер одинтон",
-        "pt": "Feito este singleton adaptador",
-        "nl": "Maakte deze adapter singleton",
-        "fr": "Made this adaptateur singleton",
-        "it": "Fatto questo adattatore singoloton",
-        "es": "Hecho este adaptador singleton",
-        "pl": "Ten adapter jednotonowy",
-        "uk": "Виготовлений цей адаптер однотонний",
-        "zh-cn": "变通单"
-      },
-      "0.2.8": {
         "en": "Made this adapter singleton",
         "de": "Dieser Adapter Singleton",
         "ru": "Сделано этот адаптер одинтон",
