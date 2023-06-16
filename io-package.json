@@ -133,7 +133,6 @@
         "components": [
           "Thermostat",
           "Actual",
-          "Static",
           "Switches",
           "Blinds",
           "Clock",

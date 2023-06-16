@@ -187,5 +187,16 @@
   "2_days": "2 dagen",
   "1_week": "1 week",
   "lines": "Rijen",
-  "values_step": "Waarden stap"
+  "values_step": "Waarden stap",
+  "button_icon": "Knop icoon",
+  "button_image": "Knop afbeelding",
+  "button_text": "Knop tekst",
+  "info_inactive_text": "Inactieve infotekst",
+  "info_active_text": "Actieve infotekst",
+  "info_inactive_icon": "Inactief info-icoon",
+  "info_active_icon": "Actief info-icoon",
+  "info_inactive_image": "Inactieve info-afbeelding",
+  "info_active_image": "Actief info-beeld",
+  "info_active_color": "Actieve infokleur",
+  "info_inactive_color": "Inactieve infokleur"
 }
