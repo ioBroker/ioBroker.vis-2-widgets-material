@@ -187,5 +187,16 @@
   "2_days": "2 días",
   "1_week": "1 semana",
   "lines": "filas",
-  "values_step": "Paso de valores"
+  "values_step": "Paso de valores",
+  "button_icon": "icono de botón",
+  "button_image": "Imagen del botón",
+  "button_text": "Botón de texto",
+  "info_inactive_text": "Texto informativo inactivo",
+  "info_active_text": "Texto informativo activo",
+  "info_inactive_icon": "Icono de información inactivo",
+  "info_active_icon": "Icono de información activo",
+  "info_inactive_image": "Imagen de información inactiva",
+  "info_active_image": "Info-imagen activa",
+  "info_active_color": "Info-color activo",
+  "info_inactive_color": "Info-color inactivo"
 }

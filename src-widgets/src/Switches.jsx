@@ -312,6 +312,75 @@ class Switches extends Generic {
                             label: 'chart_period',
                             hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["hideChart" + index]',
                         },
+                        {
+                            name: 'buttonText',
+                            type: 'text',
+                            noButton: true,
+                            label: 'button_text',
+                            hidden: 'data.type !== "lines" || !data["oid" + index] || data["type" + index] !== "button" || !!data["buttonIcon" + index] || !!data["buttonImage" + index]',
+                        },
+                        {
+                            name: 'buttonIcon',
+                            type: 'icon64',
+                            label: 'button_icon',
+                            hidden: 'data.type !== "lines" || !data["oid" + index] || data["type" + index] !== "button" || !!data["buttonText" + index] || !!data["buttonImage" + index]',
+                        },
+                        {
+                            name: 'buttonImage',
+                            type: 'image',
+                            label: 'button_image',
+                            hidden: 'data.type !== "lines" || !data["oid" + index] || data["type" + index] !== "button" || !!data["buttonText" + index] || !!data["buttonIcon" + index]',
+                        },
+                        {
+                            name: 'infoInactiveText',
+                            type: 'text',
+                            noButton: true,
+                            label: 'info_inactive_text',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["infoInactiveIcon" + index] || !!data["infoInactiveImage" + index]',
+                        },
+                        {
+                            name: 'infoActiveText',
+                            type: 'text',
+                            noButton: true,
+                            label: 'info_active_text',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["infoActiveIcon" + index] || !!data["infoActiveImage" + index]',
+                        },
+                        {
+                            name: 'infoInactiveIcon',
+                            type: 'icon64',
+                            label: 'info_inactive_icon',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["infoInactiveText" + index] || !!data["infoInactiveImage" + index]',
+                        },
+                        {
+                            name: 'infoActiveIcon',
+                            type: 'icon64',
+                            label: 'info_active_icon',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["infoActiveText" + index] || !!data["infoActiveImage" + index]',
+                        },
+                        {
+                            name: 'infoInactiveImage',
+                            type: 'image',
+                            label: 'info_inactive_image',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["infoInactiveIcon" + index] || !!data["infoInactiveText" + index]',
+                        },
+                        {
+                            name: 'infoActiveImage',
+                            type: 'image',
+                            label: 'info_active_image',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["infoActiveIcon" + index] || !!data["infoActiveText" + index]',
+                        },
+                        {
+                            name: 'infoInactiveColor',
+                            type: 'color',
+                            label: 'info_inactive_color',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info"',
+                        },
+                        {
+                            name: 'infoActiveColor',
+                            type: 'color',
+                            label: 'info_active_color',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info"',
+                        },
                     ],
                 },
             ],
@@ -791,8 +860,11 @@ class Switches extends Generic {
 
     renderLine(index) {
         if (this.state.objects[index].widgetType === 'button') {
+            const icon = this.state.rxData[`buttonIcon${index}`] || this.state.rxData[`buttonImage${index}`];
+            const text = this.state.rxData[`buttonText${index}`];
+
             return <Button onClick={() => this.buttonPressed(index)}>
-                <RoomService />
+                {text || (icon ? <Icon src={icon} style={{ width: 24, height: 24 }} /> : <RoomService />)}
             </Button>;
         }
         if (this.state.objects[index].widgetType === 'switch') {
@@ -828,6 +900,7 @@ class Switches extends Generic {
                 </div>,
             ];
         }
+
         if (this.state.objects[index].widgetType === 'input') {
             return [
                 <TextField
@@ -930,6 +1003,7 @@ class Switches extends Generic {
                 </Button> : null,
             ];
         }
+
         if (this.state.objects[index].widgetType === 'select') {
             let states;
             if (this.state.objects[index].common.states) {
@@ -985,7 +1059,48 @@ class Switches extends Generic {
         this.checkHistory(index)
             .catch(e => window.alert(`Cannot check history: ${e}`));
 
-        if (this.refs[index]) {
+        if (value === null || value === undefined) {
+            value = '--';
+        }
+
+        let icon;
+        let text;
+        let color;
+        let val = false;
+        if (this.state.objects[index].common.type === 'boolean' || value === true || value === 'true' || value === false || value === 'false') {
+            if (value === true || value === 'true' || value === 1 || value === '1' || value === 'on' || value === 'ON' || value === 'On' || value === 'ein' || value === 'EIN' || value === 'Ein' || value === 'an' || value === 'AN' || value === 'An') {
+                val = true;
+            }
+            if (val) {
+                const diffColors = this.state.rxData[`infoActiveColor${index}`] && this.state.rxData[`infoInactiveColor${index}`] && this.state.rxData[`infoActiveColor${index}`] !== this.state.rxData[`infoInactiveColor${index}`];
+                icon = this.state.rxData[`infoActiveIcon${index}`] || this.state.rxData[`infoActiveImage${index}`];
+                if (!icon && diffColors) {
+                    icon = this.state.rxData[`infoInactiveIcon${index}`] || this.state.rxData[`infoInactiveImage${index}`];
+                }
+
+                text = this.state.rxData[`infoActiveText${index}`];
+                if (!text && diffColors) {
+                    text = this.state.rxData[`infoInactiveText${index}`];
+                }
+                color = this.state.rxData[`infoActiveColor${index}`] || this.state.rxData[`infoInactiveColor${index}`];
+            } else {
+                icon = this.state.rxData[`infoInactiveIcon${index}`] || this.state.rxData[`infoInactiveImage${index}`];
+                text = this.state.rxData[`infoInactiveText${index}`];
+                color = this.state.rxData[`infoInactiveColor${index}`];
+            }
+        }
+
+        let staticElem;
+        if (text) {
+            staticElem = <span style={{ color }}>{text}</span>;
+        } else if (icon) {
+            staticElem = <Icon src={icon} style={{ width: 24, height: 24, color }} />;
+        } else {
+            staticElem = value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '');
+        }
+
+        // todo: history for booleans
+        if (this.refs[index] && this.state.objects[index].common.type === 'number') {
             setTimeout(() => this.checkChartWidth(), 50);
             return <div
                 style={{
@@ -997,12 +1112,12 @@ class Switches extends Generic {
                 onClick={() => this.setState({ showControlDialog: index })}
             >
                 {this.drawChart(index)}
-                {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
+                {staticElem}
             </div>;
         }
 
         return <div>
-            {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
+            {staticElem}
         </div>;
     }
 

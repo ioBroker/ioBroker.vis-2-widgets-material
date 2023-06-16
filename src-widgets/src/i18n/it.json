@@ -187,5 +187,16 @@
   "2_days": "2 giorni",
   "1_week": "1 settimana",
   "lines": "Righe",
-  "values_step": "Passo dei valori"
+  "values_step": "Passo dei valori",
+  "button_icon": "Icona del pulsante",
+  "button_image": "Immagine del pulsante",
+  "button_text": "Testo del pulsante",
+  "info_inactive_text": "Testo informativo inattivo",
+  "info_active_text": "Testo informativo attivo",
+  "info_inactive_icon": "Icona info inattiva",
+  "info_active_icon": "Icona info attiva",
+  "info_inactive_image": "Info-immagine inattiva",
+  "info_active_image": "Info-immagine attiva",
+  "info_active_color": "Info-colore attivo",
+  "info_inactive_color": "Info-colore inattivo"
 }

@@ -187,5 +187,16 @@
   "2_days": "2 dias",
   "1_week": "1 semana",
   "lines": "Linhas",
-  "values_step": "Etapa de valores"
+  "values_step": "Etapa de valores",
+  "button_icon": "Ícone de botão",
+  "button_image": "Imagem do botão",
+  "button_text": "Botão de texto",
+  "info_inactive_text": "Texto informativo inativo",
+  "info_active_text": "Texto informativo ativo",
+  "info_inactive_icon": "ícone de informação inativo",
+  "info_active_icon": "ícone de informação ativa",
+  "info_inactive_image": "imagem de informação inativa",
+  "info_active_image": "imagem de informação ativa",
+  "info_active_color": "Informação-cor ativa",
+  "info_inactive_color": "Cor de informação inativa"
 }

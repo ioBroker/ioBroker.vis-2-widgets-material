@@ -187,5 +187,16 @@
   "2_days": "2 Tage",
   "1_week": "1 Woche",
   "lines": "Reihen",
-  "values_step": "Werteschritt"
+  "values_step": "Werteschritt",
+  "button_icon": "Schaltflächensymbol",
+  "button_image": "Schaltflächenbild",
+  "button_text": "Schaltflächentext",
+  "info_inactive_text": "Inaktiver Infotext",
+  "info_active_text": "Aktiver Infotext",
+  "info_inactive_icon": "Inaktives Info-Symbol",
+  "info_active_icon": "Aktives Info-Symbol",
+  "info_inactive_image": "Inaktives Infobild",
+  "info_active_image": "Aktives Infobild",
+  "info_active_color": "Aktive Infofarbe",
+  "info_inactive_color": "Inaktive Infofarbe"
 }

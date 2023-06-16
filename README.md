@@ -107,6 +107,10 @@ and after the delay is over, the defined ID will be set to 0, and the alarm ID b
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added button texts for switches widget
+* (bluefox) Removed static widget, as it replaced by switches widget
+
 ### 0.3.1 (2023-06-14)
 * (bluefox) Improved buttons widget
 

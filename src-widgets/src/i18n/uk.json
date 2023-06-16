@@ -187,5 +187,16 @@
   "2_days": "2 дні",
   "1_week": "1 тиждень",
   "lines": "рядки",
-  "values_step": "Крок значень"
+  "values_step": "Крок значень",
+  "button_icon": "Значок кнопки",
+  "button_image": "Зображення кнопки",
+  "button_text": "Текст кнопки",
+  "info_inactive_text": "Неактивний інфо-текст",
+  "info_active_text": "Активний інфо-текст",
+  "info_inactive_icon": "Неактивний інформаційний значок",
+  "info_active_icon": "Значок активної інформації",
+  "info_inactive_image": "Неактивне інфо-зображення",
+  "info_active_image": "Активний інфо-імідж",
+  "info_active_color": "Активний інфо-колір",
+  "info_inactive_color": "Неактивний інформаційний колір"
 }

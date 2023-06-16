@@ -8,7 +8,7 @@ import { Checkbox } from '@mui/material';
 import Thermostat from './Thermostat';
 import Actual from './Actual';
 import Switches from './Switches';
-import Static from './Static';
+// import Static from './Static';
 import SimpleState from './SimpleState';
 import Clock from './Clock';
 import ViewInWidget from './ViewInWidget';
@@ -157,24 +157,24 @@ class App extends WidgetDemoApp {
                     hoursFormat: '12',
                 }}
             />,
-            static: <Static
-                key="Static"
-                socket={this.socket}
-                themeType={this.state.themeType}
-                style={{
-                    width: 400,
-                    height: 160,
-                }}
-                systemConfig={this.state.systemConfig}
-                data={{
-                    name: 'Static information',
-                    count: 2,
-                    oid1: 'javascript.0.thermostat.actual',
-                    oid2: 'javascript.0.numberWithStates',
-                    title1: 'Number',
-                    title2: 'States',
-                }}
-            />,
+            // static: <Static
+            //     key="Static"
+            //     socket={this.socket}
+            //     themeType={this.state.themeType}
+            //     style={{
+            //         width: 400,
+            //         height: 160,
+            //     }}
+            //     systemConfig={this.state.systemConfig}
+            //     data={{
+            //         name: 'Static information',
+            //         count: 2,
+            //         oid1: 'javascript.0.thermostat.actual',
+            //         oid2: 'javascript.0.numberWithStates',
+            //         title1: 'Number',
+            //         title2: 'States',
+            //     }}
+            // />,
             simplestate: <SimpleState
                 key="SimpleState"
                 socket={this.socket}

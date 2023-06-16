@@ -187,5 +187,16 @@
   "2_days": "2天",
   "1_week": "1周",
   "lines": "行数",
-  "values_step": "价值步骤"
+  "values_step": "价值步骤",
+  "button_icon": "按钮图标",
+  "button_image": "按钮图片",
+  "button_text": "按钮文字",
+  "info_inactive_text": "无效信息文本",
+  "info_active_text": "活动信息文本",
+  "info_inactive_icon": "非活动信息图标",
+  "info_active_icon": "活动信息图标",
+  "info_inactive_image": "无效信息图像",
+  "info_active_image": "活动信息图片",
+  "info_active_color": "活动信息颜色",
+  "info_inactive_color": "非活动信息颜色"
 }

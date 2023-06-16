@@ -187,5 +187,16 @@
   "2_days": "2 dni",
   "1_week": "1 tydzień",
   "lines": "Wydziwianie",
-  "values_step": "Krok wartości"
+  "values_step": "Krok wartości",
+  "button_icon": "Ikona przycisku",
+  "button_image": "Obraz przycisku",
+  "button_text": "Przycisk tekstowy",
+  "info_inactive_text": "Nieaktywny tekst informacyjny",
+  "info_active_text": "Aktywny tekst informacyjny",
+  "info_inactive_icon": "Nieaktywna ikona informacyjna",
+  "info_active_icon": "Aktywna ikona informacyjna",
+  "info_inactive_image": "Nieaktywny obraz informacyjny",
+  "info_active_image": "Aktywny obraz informacyjny",
+  "info_active_color": "Aktywny kolor informacji",
+  "info_inactive_color": "Nieaktywny kolor informacji"
 }
