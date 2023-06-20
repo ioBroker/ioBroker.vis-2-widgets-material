@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "news": {
+      "0.5.0": {
+        "en": "Added widget to switch the theme\nImproved HTML widget to show iframe and image",
+        "de": "Hinzugefügt Widget, um das Thema zu wechseln\nVerbesserte HTML Widget iframe und Bild anzeigen",
+        "ru": "Добавлен виджет для переключения темы\nУлучшенный виджет HTML, чтобы показать iframe и изображение",
+        "pt": "Adicionado widget para mudar o tema\nMelhor widget HTML para mostrar iframe e imagem",
+        "nl": "Voegde widget toe om het thema te verwisselen\nImproviseren HTML Widget tonen alsrame en beeld",
+        "fr": "Ajout du widget pour changer le thème\nUn widget HTML amélioré pour afficher iframe et image",
+        "it": "Aggiunto widget per cambiare il tema\nWidget HTML migliorato per mostrare iframe e immagine",
+        "es": "Añadido widget para cambiar el tema\nWidget HTML mejorado para mostrar iframe e imagen",
+        "pl": "Widget przełącza tematykę\nPoprawa HTML widget by pokazać iframe oraz obraz",
+        "uk": "Додано віджет для перемикання теми\nПокращений HTML віджет, щоб показати iframe і зображення",
+        "zh-cn": "重新确定这个主题的预计目标\nB. 改善HTML wid目标以图示和图像"
+      },
       "0.4.0": {
         "en": "Added button texts for switches widget\nRemoved static widget, as it replaced by switches widget",
         "de": "Schaltfläche Texte für Schalter Widget hinzugefügt\nEntfernte statische Widget, wie es durch Schalter Widget ersetzt",
@@ -80,19 +93,6 @@
         "pl": "pakiet aktualizacji",
         "uk": "оновлення пакетів",
         "zh-cn": "更新包"
-      },
-      "0.2.9": {
-        "en": "Made this adapter singleton",
-        "de": "Dieser Adapter Singleton",
-        "ru": "Сделано этот адаптер одинтон",
-        "pt": "Feito este singleton adaptador",
-        "nl": "Maakte deze adapter singleton",
-        "fr": "Made this adaptateur singleton",
-        "it": "Fatto questo adattatore singoloton",
-        "es": "Hecho este adaptador singleton",
-        "pl": "Ten adapter jednotonowy",
-        "uk": "Виготовлений цей адаптер однотонний",
-        "zh-cn": "变通单"
       }
     },
     "title": "Vis 2 Widgets Material",
