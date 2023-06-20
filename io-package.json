@@ -142,7 +142,8 @@
           "Security",
           "Player",
           "Map",
-          "Html"
+          "Html",
+          "ThemeSwitcher"
         ]
       }
     },

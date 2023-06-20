@@ -16,6 +16,7 @@ module.exports = makeFederation(
         './Player': './src/Player',
         './Map': './src/Map',
         './Html': './src/Html',
+        './ThemeSwitcher': './src/ThemeSwitcher',
         './translations': './src/translations',
     }
 );
