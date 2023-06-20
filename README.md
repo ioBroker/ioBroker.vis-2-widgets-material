@@ -60,11 +60,6 @@ Additionally, it can show a history if you activated it.
 
 ![Actual value with chart](img/material-actual-value-2.png)
 
-### Static information
-![Static information](img/material-static-info-1.png)
-
-![Static information](img/material-static-info-2.png)
-
 ### Security control
 ![Security control](img/material-security-0.png)
 
@@ -89,6 +84,9 @@ and after the delay is over, the defined ID will be set to 0, and the alarm ID b
 ### Html Template
 ![Player](img/material-html-1.png)
 
+Html template can be used to show any html code.
+Additionally, you can show image or iframe with this widget too.
+
 ### Blinds
 ![Blinds](img/material-blinds-1.png)
 
@@ -107,6 +105,10 @@ and after the delay is over, the defined ID will be set to 0, and the alarm ID b
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added widget to switch the theme
+* (bluefox) Improved HTML widget to show iframe and image
+
 ### 0.4.0 (2023-06-16)
 * (bluefox) Added button texts for switches widget
 * (bluefox) Removed static widget, as it replaced by switches widget

@@ -19,6 +19,7 @@ import Player from './Player';
 import Security from './Security';
 import Html from './Html';
 import Blinds from './Blinds';
+import ThemeSwitcher from './ThemeSwitcher';
 
 const styles = theme => ({
     app: {
@@ -155,6 +156,19 @@ class App extends WidgetDemoApp {
                     showNumbers: true,
                     blinkDelimiter: true,
                     hoursFormat: '12',
+                }}
+            />,
+            themeSwitcher: <ThemeSwitcher
+                key="ThemeSwitcher"
+                themeType={this.state.themeType}
+                themeName={this.state.themeName}
+                style={{
+                    width: 48,
+                    height: 48,
+                }}
+                data={{
+                    type: 'variable',
+                    themeName: 'light',
                 }}
             />,
             // static: <Static

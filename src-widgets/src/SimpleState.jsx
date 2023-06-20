@@ -1,3 +1,4 @@
+// ------------------- deprecated, use Switches.jsx instead -------------------
 import React from 'react';
 import { withStyles } from '@mui/styles';
 
