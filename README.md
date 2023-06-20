@@ -105,7 +105,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### 0.5.0 (2023-06-20)
+### **WORK IN PROGRESS**
 * (bluefox) Added widget to switch the theme
 * (bluefox) Improved HTML widget to show iframe and image
 
