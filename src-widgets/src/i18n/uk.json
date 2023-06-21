@@ -221,5 +221,6 @@
   "image_url": "URL зображення",
   "image_oid": "Об'єкт зображення",
   "object_fit": "Спосіб заповнення зображення",
-  "allow_user_interactions": "Дозволити взаємодію користувача"
+  "allow_user_interactions": "Дозволити взаємодію користувача",
+  "theme_switcher": "Перемикач тем"
 }

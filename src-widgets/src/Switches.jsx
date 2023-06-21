@@ -121,7 +121,7 @@ class Switches extends Generic {
         this.state.chartWidth = {};
         this.state.chartHeight = {};
         this.history = {};
-        this.refs = {};
+        this._refs = {}; // this.refs name does not work (I don't know why)
     }
 
     static getWidgetInfo() {
@@ -704,7 +704,7 @@ class Switches extends Generic {
                     </div>
                 </>;
             } else if (this.state.objects[index].widgetType === 'info') {
-                if (this.refs[index]) {
+                if (this._refs[index]) {
                     // update width and height of chart container
                     setTimeout(() => this.checkChartWidth(), 50);
 
@@ -716,7 +716,7 @@ class Switches extends Generic {
                             height: '100%',
                             minHeight: 300,
                         }}
-                        ref={this.refs[index]}
+                        ref={this._refs[index]}
                     >
                         {this.drawChart(index, {
                             width: this.state.chartWidth[index],
@@ -1100,7 +1100,7 @@ class Switches extends Generic {
         }
 
         // todo: history for booleans
-        if (this.refs[index] && this.state.objects[index].common.type === 'number') {
+        if (this._refs[index] && this.state.objects[index].common.type === 'number') {
             setTimeout(() => this.checkChartWidth(), 50);
             return <div
                 style={{
@@ -1108,7 +1108,7 @@ class Switches extends Generic {
                     textAlign: 'right',
                     cursor: 'pointer',
                 }}
-                ref={this.refs[index]}
+                ref={this._refs[index]}
                 onClick={() => this.setState({ showControlDialog: index })}
             >
                 {this.drawChart(index)}
@@ -1122,10 +1122,10 @@ class Switches extends Generic {
     }
 
     checkChartWidth() {
-        Object.keys(this.refs).forEach(i => {
-            if (this.refs[i] && this.refs[i].current) {
-                const width = this.refs[i].current.offsetWidth;
-                const height = this.refs[i].current.offsetHeight;
+        Object.keys(this._refs).forEach(i => {
+            if (this._refs[i] && this._refs[i].current) {
+                const width = this._refs[i].current.offsetWidth;
+                const height = this._refs[i].current.offsetHeight;
                 if (width !== this.state.chartWidth[i] || height !== this.state.chartHeight[i]) {
                     const chartWidth = { ...this.state.chartWidth };
                     const chartHeight = { ...this.state.chartHeight };
@@ -1172,8 +1172,8 @@ class Switches extends Generic {
         if (!custom || this.state.rxData[`hideChart${index}`]) {
             this.state.objects[index].common.history = false;
 
-            if (this.refs[index]) {
-                delete this.refs[index];
+            if (this._refs[index]) {
+                this._refs[index] = null;
             }
             if (this.history[index]) {
                 delete this.history[index];
@@ -1229,7 +1229,8 @@ class Switches extends Generic {
         }
 
         if (historyInstance) {
-            this.refs[index] = this.refs[index] || React.createRef();
+            this._refs[index] = this._refs[index] || React.createRef();
+
             // try to read history for last hour
             this.history[index] = historyInstance;
             if (!doNotRequestData) {
@@ -1394,16 +1395,16 @@ class Switches extends Generic {
                             };
 
                             const newState = { historyData };
-                            if (this.refs[_index] &&
-                                this.refs[_index].current &&
-                                this.refs[_index].current.offsetWidth &&
-                                (this.state.chartWidth[_index] !== this.refs[_index].current.offsetWidth ||
-                                this.state.chartHeight[_index] !== this.refs[_index].current.offsetHeight)
+                            if (this._refs[_index] &&
+                                this._refs[_index].current &&
+                                this._refs[_index].current.offsetWidth &&
+                                (this.state.chartWidth[_index] !== this._refs[_index].current.offsetWidth ||
+                                this.state.chartHeight[_index] !== this._refs[_index].current.offsetHeight)
                             ) {
                                 newState.chartWidth = { ...this.state.chartWidth };
                                 newState.chartHeight = { ...this.state.chartHeight };
-                                newState.chartWidth[_index] = this.refs[_index].current.offsetWidth;
-                                newState.chartHeight[_index] = this.refs[_index].current.offsetHeight;
+                                newState.chartWidth[_index] = this._refs[_index].current.offsetWidth;
+                                newState.chartHeight[_index] = this._refs[_index].current.offsetHeight;
                             }
                             this.setState(newState);
                         }

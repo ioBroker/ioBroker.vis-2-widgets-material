@@ -221,5 +221,6 @@
   "image_url": "URL dell'immagine",
   "image_oid": "Oggetto immagine",
   "object_fit": "Metodo di riempimento dell'immagine",
-  "allow_user_interactions": "Consenti le interazioni degli utenti"
+  "allow_user_interactions": "Consenti le interazioni degli utenti",
+  "theme_switcher": "Commutatore di temi"
 }

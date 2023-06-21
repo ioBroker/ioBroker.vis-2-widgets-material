@@ -221,5 +221,6 @@
   "image_url": "图片网址",
   "image_oid": "图像对象",
   "object_fit": "图片填充方式",
-  "allow_user_interactions": "允许用户交互"
+  "allow_user_interactions": "允许用户交互",
+  "theme_switcher": "主题切换器"
 }

@@ -221,5 +221,6 @@
   "image_url": "afbeelding URL",
   "image_oid": "Afbeeldingsvoorwerp",
   "object_fit": "Methode voor het vullen van afbeeldingen",
-  "allow_user_interactions": "Sta gebruikersinteracties toe"
+  "allow_user_interactions": "Sta gebruikersinteracties toe",
+  "theme_switcher": "Thema-wisselaar"
 }

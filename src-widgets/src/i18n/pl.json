@@ -221,5 +221,6 @@
   "image_url": "URL obrazu",
   "image_oid": "Obiekt obrazu",
   "object_fit": "Metoda wypełnienia obrazem",
-  "allow_user_interactions": "Zezwalaj na interakcje użytkownika"
+  "allow_user_interactions": "Zezwalaj na interakcje użytkownika",
+  "theme_switcher": "Przełącznik motywu"
 }

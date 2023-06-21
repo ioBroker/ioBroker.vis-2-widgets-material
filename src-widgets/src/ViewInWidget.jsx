@@ -90,7 +90,6 @@ class ViewInWidget extends Generic {
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
-        const VisView = this.props.VisView;
         const view = this.state.rxData.view;
 
         if (view === this.props.view) {
@@ -147,40 +146,7 @@ class ViewInWidget extends Generic {
                 style={!this.state.editMode ? { cursor: 'pointer' } : undefined}
                 onClick={!this.state.editMode && this.state.rxData.button ? () => this.onNavigate() : undefined}
             /> : null}
-            {view ? <VisView
-                key={`${this.props.id}_${view}`}
-                view={view}
-                activeView={view}
-                views={this.props.views}
-                can={this.props.can}
-                canStates={this.props.canStates}
-                user={this.props.user}
-                userGroups={this.props.userGroups}
-                allWidgets={this.props.allWidgets}
-                jQuery={this.props.jQuery}
-                visInWidget
-                $$={this.props.$$}
-                adapterName={this.props.adapterName}
-                instance={this.props.instance}
-                projectName={this.props.projectName}
-                socket={this.props.socket}
-                viewsActiveFilter={this.props.viewsActiveFilter}
-                setValue={this.props.setValue}
-                linkContext={this.props.linkContext}
-                formatUtils={this.props.formatUtils}
-                showWidgetNames={this.props.showWidgetNames}
-                dateFormat={this.props.dateFormat}
-                lang={this.props.lang}
-                themeType={this.props.themeType}
-                themeName={this.props.themeName}
-                theme={this.props.theme}
-                systemConfig={this.props.systemConfig}
-                container={this.props.container}
-                editMode={false}
-                runtime={this.props.runtime}
-                style={style}
-            />
-                : null}
+            {view ? this.getWidgetView(view, { style }) : null}
         </div>;
 
         return this.wrapContent(content, null);
