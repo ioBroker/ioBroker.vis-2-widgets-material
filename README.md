@@ -105,7 +105,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.5.3 (2023-06-21)
 * (bluefox) Corrected errors with view in widget
 
 ### 0.5.1 (2023-06-20)

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "news": {
+      "0.5.3": {
+        "en": "Corrected errors with view in widget",
+        "de": "Korrigierte Fehler mit Blick in Widget",
+        "ru": "Исправлены ошибки с просмотром в виджете",
+        "pt": "Erros corrigidos com vista para o widget",
+        "nl": "Gecorrigeerde fouten met uitzicht in Widget",
+        "fr": "Erreurs corrigées avec vue dans widget",
+        "it": "Errori corretti con vista in widget",
+        "es": "Errores corregidos con vista en widget",
+        "pl": "Nieprawidłowe błędy z widokiem na widget",
+        "uk": "Виправлені помилки з переглядом у віджеті",
+        "zh-cn": "令人发指的错误"
+      },
       "0.5.1": {
         "en": "Added widget to switch the theme\nImproved HTML widget to show iframe and image",
         "de": "Hinzugefügt Widget, um das Thema zu wechseln\nVerbesserte HTML Widget iframe und Bild anzeigen",
