@@ -8,9 +8,9 @@
         "@iobroker/adapter-react-v5": "^4.1.2",
         "@iobroker/vis-2-widgets-react-dev": "^0.4.0",
         "@mui/icons-material": "^5.11.16",
-        "@mui/material": "^5.13.5",
+        "@mui/material": "^5.13.6",
         "@mui/styles": "^5.13.2",
-        "@mui/system": "^5.13.5",
+        "@mui/system": "^5.13.6",
         "color": "^4.2.3",
         "colorthief": "^2.4.0",
         "date-fns": "^2.30.0",
@@ -36,7 +36,7 @@
         "eslint-plugin-jsx-a11y": "^6.7.1",
         "eslint-plugin-react": "^7.32.2",
         "eslint-plugin-react-hooks": "^4.6.0",
-        "sass": "^1.63.5"
+        "sass": "^1.63.6"
     },
     "scripts": {
         "start": "set PORT=4173 && craco start",

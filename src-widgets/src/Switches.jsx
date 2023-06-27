@@ -31,12 +31,15 @@ import {
     Lightbulb as LightbulbIconOn,
     LightbulbOutlined as LightbulbIconOff,
     Close as CloseIcon,
-    RoomService, Check,
+    RoomService,
+    Check,
 } from '@mui/icons-material';
 
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
+import BlindsBase, { STYLES } from './Components/BlindsBase';
+import WindowClosed from './Components/WindowClosed';
 // import ObjectChart from './ObjectChart';
 
 const HISTORY = ['influxdb', 'sql', 'history'];
@@ -106,9 +109,10 @@ const styles = () => ({
         top: 12,
         left: -13,
     },
+    ...STYLES,
 });
 
-class Switches extends Generic {
+class Switches extends BlindsBase {
     constructor(props) {
         super(props);
         this.state.showControlDialog = null;
@@ -230,6 +234,10 @@ class Switches extends Generic {
                                     value: 'select',
                                     label: 'select',
                                 },
+                                {
+                                    value: 'blinds',
+                                    label: 'blinds',
+                                },
                             ],
                             hidden: '!data["oid" + index]',
                             default: 'auto',
@@ -238,36 +246,37 @@ class Switches extends Generic {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
-                            hidden: '!!data["iconSmall" + index]',
+                            hidden: '!!data["iconSmall" + index] || data["type" + index] === "blinds"',
                         },
                         {
                             name: 'iconSmall',
                             type: 'icon64',
                             label: 'small_icon',
-                            hidden: '!!data["icon" + index]',
+                            hidden: '!!data["icon" + index] || data["type" + index] === "blinds"',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
                             label: 'icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index]',
+                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index] || data["type" + index] === "blinds"',
                         },
                         {
                             name: 'iconEnabledSmall',
                             type: 'icon64',
                             label: 'small_icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index]',
+                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index] || data["type" + index] === "blinds"',
                         },
                         {
                             name: 'color',
                             type: 'color',
                             label: 'color',
-                            hidden: '!data["oid" + index]',
+                            hidden: '!data["oid" + index] || data["type" + index] === "blinds"',
                         },
                         {
                             name: 'colorEnabled',
                             type: 'color',
                             label: 'color_active',
+                            hidden: 'data["type" + index] === "blinds"',
                         },
                         {
                             name: 'title',
@@ -479,6 +488,10 @@ class Switches extends Generic {
                     }
                 }
 
+                if (widgetType === 'blinds') {
+                    object.common.unit = '%';
+                }
+
                 objects[index] = {
                     common: object.common,
                     _id: object._id,
@@ -537,6 +550,8 @@ class Switches extends Generic {
                 style={{ width: 40, height: 40 }}
                 className={this.props.classes.iconCustom}
             />;
+        } else if (this.state.objects[index].widgetType === 'blinds') {
+            icon = <WindowClosed />;
         } else if (this.isOn(index)) {
             icon = <LightbulbIconOn color="primary" />;
         } else {
@@ -1052,6 +1067,12 @@ class Switches extends Generic {
         }
 
         if (this.state.objects[index].common.type === 'number') {
+            if (this.state.objects[index].widgetType === 'blinds') {
+                const options = this.getMinMaxPosition(1, index);
+                value = parseFloat(value);
+                value = ((value - options.min) / (options.max - options.min)) * 100;
+            }
+
             value = this.formatValue(value);
         }
 
@@ -1088,6 +1109,26 @@ class Switches extends Generic {
                 text = this.state.rxData[`infoInactiveText${index}`];
                 color = this.state.rxData[`infoInactiveColor${index}`];
             }
+        }
+
+        if (this.state.objects[index].widgetType === 'blinds') {
+            let height = 40; // take 10° for opened slash
+            const width = 40;
+            height -= 0.12 * width;
+            text = <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    cursor: 'pointer',
+                }}
+            >
+                <span>
+                    {value}
+                    %
+                </span>
+                {this.renderWindows({ height, width }, index)}
+            </div>;
         }
 
         let staticElem;
@@ -1419,6 +1460,12 @@ class Switches extends Generic {
             if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
                 value = this.state.objects[index].common.states[value];
             } else {
+                if (this.state.objects[index].widgetType === 'blinds') {
+                    const options = this.getMinMaxPosition(1, index);
+                    value = parseFloat(value);
+                    value = ((value - options.min) / (options.max - options.min)) * 100;
+                }
+
                 value = this.formatValue(value);
             }
         }
@@ -1426,6 +1473,13 @@ class Switches extends Generic {
         if (this.state.objects[index].widgetType === 'info') {
             this.checkHistory(index)
                 .catch(e => console.error(`Cannot read history: ${e}`));
+        }
+
+        if (this.state.objects[index].widgetType === 'blinds') {
+            let height = 40; // take 10° for opened slash
+            const width = 40;
+            height -= 0.12 * width;
+            icon = this.renderWindows({ height, width }, index);
         }
 
         return <div
@@ -1483,6 +1537,7 @@ class Switches extends Generic {
 
         const content = <>
             {this.renderControlDialog()}
+            {this.renderBlindsDialog()}
             {this.state.rxData.type === 'lines' ?
                 Object.keys(this.state.objects).map((index, i) => {
                     if (!this.state.objects[index]) {
