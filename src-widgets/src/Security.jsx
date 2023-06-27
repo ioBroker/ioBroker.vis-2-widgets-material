@@ -182,7 +182,7 @@ class Security extends Generic {
         for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
             if (this.state.rxData[`oid${i}`]) {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`oid${i}`]);
+                const object = await this.props.context.socket.getObject(this.state.rxData[`oid${i}`]);
                 if (!object) {
                     objects[i] = { common: {} };
                     continue;
@@ -193,9 +193,9 @@ class Security extends Generic {
                     const idArray = this.state.rxData[`oid${i}`].split('.');
 
                     // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -283,7 +283,7 @@ class Security extends Generic {
                                 onClick={() => {
                                     if (button === 'submit') {
                                         if (this.state.pinInput === pincode) {
-                                            this.props.socket.setState(lockedId, false);
+                                            this.props.context.socket.setState(lockedId, false);
                                             this.setState({ dialog: false });
                                         } else {
                                             this.setState({ pinInput: '', invalidPin: true });
@@ -301,7 +301,7 @@ class Security extends Generic {
                                         const pinInput = this.state.pinInput + button;
                                         this.setState({ pinInput });
                                         if (pincodeReturnButton === 'backspace' && pinInput === pincode) {
-                                            this.props.socket.setState(lockedId, false);
+                                            this.props.context.socket.setState(lockedId, false);
                                             this.setState({ dialog: false });
                                         }
                                     }
@@ -320,7 +320,7 @@ class Security extends Generic {
         const onClose = () => {
             this.setState({ timerDialog: false });
             if (this.state.rxData.timerSecondsOid) {
-                this.props.socket.setState(this.state.rxData.timerSecondsOid, -1);
+                this.props.context.socket.setState(this.state.rxData.timerSecondsOid, -1);
             }
             clearInterval(this.timerInterval);
         };
@@ -345,7 +345,7 @@ class Security extends Generic {
         const timerSeconds = this.state.rxData[`timerSeconds${i}`];
         this.setState({ timerSeconds, timerDialog: true });
         if (this.state.rxData[`timerSeconds-oid${i}`]) {
-            this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
+            this.props.context.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
         }
         this.timerInterval = setInterval(() => {
             const _timerSeconds = this.state.timerSeconds - 1;
@@ -354,10 +354,10 @@ class Security extends Generic {
                 if (!this.state.rxData[`oid${i}`]) {
                     this.setState({ message: Generic.t('no_oid') });
                 } else {
-                    this.props.socket.setState(this.state.rxData[`oid${i}`], true);
+                    this.props.context.socket.setState(this.state.rxData[`oid${i}`], true);
                 }
                 if (this.state.rxData[`timerSeconds-oid${i}`]) {
-                    this.props.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], 0);
+                    this.props.context.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], 0);
                 }
                 this.timerInterval && clearInterval(this.timerInterval);
                 this.setState({ timerDialog: false });
@@ -411,7 +411,7 @@ class Security extends Generic {
                         if (this.getPincode(lockedButton.i)) {
                             this.setState({ dialog: true, pinInput: '' });
                         } else {
-                            this.props.socket.setState(lockedButton.oid, false);
+                            this.props.context.socket.setState(lockedButton.oid, false);
                         }
                     }}
                 >
@@ -429,7 +429,7 @@ class Security extends Generic {
                             } else if (!button.oid) {
                                 this.setState({ message: Generic.t('no_oid') });
                             } else {
-                                this.props.socket.setState(button.oid, true);
+                                this.props.context.socket.setState(button.oid, true);
                             }
                         }}
                     >

@@ -215,9 +215,9 @@ class Player extends Generic {
 
     async propertiesUpdate() {
         try {
-            const volumeObject = await this.props.socket.getObject(this.state.rxData.volume);
+            const volumeObject = await this.props.context.socket.getObject(this.state.rxData.volume);
             if (volumeObject) {
-                const volume = await this.props.socket.getState(this.state.rxData.volume);
+                const volume = await this.props.context.socket.getState(this.state.rxData.volume);
                 this.setState({ volumeObject, volume: volume?.val || 0 });
             }
         } catch (e) {
@@ -420,7 +420,7 @@ class Player extends Generic {
                                 } else {
                                     newValue = 1;
                                 }
-                                this.props.socket.setState(this.state.rxData.repeat, newValue);
+                                this.props.context.socket.setState(this.state.rxData.repeat, newValue);
                             }}
                         >
                             {repeatIcon}
@@ -428,14 +428,14 @@ class Player extends Generic {
                         {this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected' ? <IconButton
                             color={this.getPropertyValue('shuffle') ? 'primary' : undefined}
                             onClick={() =>
-                                this.props.socket.setState(this.state.rxData.shuffle, !this.getPropertyValue('shuffle'))}
+                                this.props.context.socket.setState(this.state.rxData.shuffle, !this.getPropertyValue('shuffle'))}
                         >
                             <ShuffleRounded />
                         </IconButton> : null}
                     </div> : null}
                     <div className={this.props.classes.buttons}>
                         {this.state.rxData.prev && this.state.rxData.prev !== 'nothing_selected' ?
-                            <IconButton onClick={() => this.props.socket.setState(this.state.rxData.prev, true)}>
+                            <IconButton onClick={() => this.props.context.socket.setState(this.state.rxData.prev, true)}>
                                 <SkipPreviousRounded fontSize="large" />
                             </IconButton>
                             : null}
@@ -443,9 +443,9 @@ class Player extends Generic {
                             onClick={() => {
                                 const st = this.getPropertyValue('state');
                                 if (typeof st === 'string') {
-                                    this.props.socket.setState(this.state.rxData.state, st === 'play' ? 'pause' : 'play');
+                                    this.props.context.socket.setState(this.state.rxData.state, st === 'play' ? 'pause' : 'play');
                                 } else {
-                                    this.props.socket.setState(this.state.rxData.state, !st);
+                                    this.props.context.socket.setState(this.state.rxData.state, !st);
                                 }
                             }}
                         >
@@ -453,7 +453,7 @@ class Player extends Generic {
                                 <PauseRounded fontSize="large" /> :
                                 <PlayArrowRounded fontSize="large" />}
                         </IconButton>
-                        {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? <IconButton onClick={() => this.props.socket.setState(this.state.rxData.next, true)}>
+                        {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? <IconButton onClick={() => this.props.context.socket.setState(this.state.rxData.next, true)}>
                             <SkipNextRounded fontSize="large" />
                         </IconButton> : null}
                     </div>
@@ -483,7 +483,7 @@ class Player extends Generic {
                     valueLabelFormat={Player.getTimeString}
                     readOnly
                     // onChange={e =>
-                    //    this.props.socket.setState(this.state.rxData.elapsed, e.target.value)}
+                    //    this.props.context.socket.setState(this.state.rxData.elapsed, e.target.value)}
                 /> : null}
                 {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? Player.getTimeString(this.getPropertyValue('duration')) : null}
             </div>
@@ -491,7 +491,7 @@ class Player extends Generic {
                 <div className={this.props.classes.volume}>
                     {this.state.rxData.mute ?
                         <IconButton onClick={() =>
-                            this.props.socket.setState(this.state.rxData.mute, !this.getPropertyValue('mute'))}
+                            this.props.context.socket.setState(this.state.rxData.mute, !this.getPropertyValue('mute'))}
                         >
                             {this.getPropertyValue('mute') ?
                                 <VolumeMute /> :
@@ -512,7 +512,7 @@ class Player extends Generic {
                                 this.setVolumeTimer = setTimeout(
                                     () => {
                                         this.setVolumeTimer = null;
-                                        this.props.socket.setState(this.state.rxData.volume, this.state.volume);
+                                        this.props.context.socket.setState(this.state.rxData.volume, this.state.volume);
                                     },
                                     200,
                                 );

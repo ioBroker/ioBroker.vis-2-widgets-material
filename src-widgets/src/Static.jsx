@@ -153,7 +153,7 @@ class Static extends Generic {
         for (let i = 1; i <= this.state.rxData.count; i++) {
             if (this.state.rxData[`oid${i}`]) {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`oid${i}`]);
+                const object = await this.props.context.socket.getObject(this.state.rxData[`oid${i}`]);
                 if (!object) {
                     objects[i] = { common: {} };
                     continue;
@@ -164,9 +164,9 @@ class Static extends Generic {
                     const idArray = this.state.rxData[`oid${i}`].split('.');
 
                     // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -308,7 +308,7 @@ class Static extends Generic {
                 <ObjectChart
                     t={word => Generic.t(word)}
                     lang={Generic.getLanguage()}
-                    socket={this.props.socket}
+                    socket={this.props.context.socket}
                     obj={this.state.objects[index]}
                     chartTitle={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
                     title=""

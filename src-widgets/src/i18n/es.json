@@ -222,5 +222,7 @@
   "image_oid": "Objeto de imagen",
   "object_fit": "Método de relleno de imagen",
   "allow_user_interactions": "Permitir interacciones de usuario",
-  "theme_switcher": "Conmutador de temas"
+  "theme_switcher": "Conmutador de temas",
+  "height": "Altura",
+  "widget_id": "Mostrar widget"
 }

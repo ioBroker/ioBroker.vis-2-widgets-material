@@ -310,7 +310,7 @@ class SimpleState extends Generic {
             return;
         }
         // read object itself
-        let object = await this.props.socket.getObject(this.state.rxData.oid);
+        let object = await this.props.context.socket.getObject(this.state.rxData.oid);
         if (!object) {
             object = { common: {} };
         } else {
@@ -336,9 +336,9 @@ class SimpleState extends Generic {
             const idArray = this.state.rxData.oid.split('.');
 
             // read channel
-            const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+            const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
             if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                 if (grandParentObject?.common?.icon) {
                     object.common.icon = grandParentObject.common.icon;
                     if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -444,7 +444,7 @@ class SimpleState extends Generic {
                 values[oid] = !values[oid];
             }
             this.setState({ values });
-            this.props.socket.setState(this.state.rxData.oid, values[oid]);
+            this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
         }
     };
 
@@ -453,7 +453,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = isOn ? this.state.object.common.max : this.state.object.common.min;
         this.setState({ values });
-        this.props.socket.setState(this.state.rxData.oid, values[oid]);
+        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
     }
 
     controlSpecificState(value) {
@@ -461,7 +461,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = value;
         this.setState({ values });
-        this.props.socket.setState(this.state.rxData.oid, values[oid]);
+        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
     }
 
     renderDimmerDialog() {
@@ -525,7 +525,7 @@ class SimpleState extends Generic {
                                         const oid = `${this.state.object._id}.val`;
                                         values[oid] = value;
                                         this.setState({ values });
-                                        this.props.socket.setState(this.state.rxData.oid, values[oid]);
+                                        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
                                     }}
                                 />
                             </div>

@@ -222,5 +222,7 @@
   "image_oid": "Objeto de imagem",
   "object_fit": "Método de preenchimento de imagem",
   "allow_user_interactions": "Permitir interações do usuário",
-  "theme_switcher": "Alternador de tema"
+  "theme_switcher": "Alternador de tema",
+  "height": "Altura",
+  "widget_id": "Mostrar widget"
 }

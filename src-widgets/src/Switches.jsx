@@ -109,6 +109,13 @@ const styles = () => ({
         top: 12,
         left: -13,
     },
+    widgetContainer: {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'right',
+    },
     ...STYLES,
 });
 
@@ -126,6 +133,7 @@ class Switches extends BlindsBase {
         this.state.chartHeight = {};
         this.history = {};
         this._refs = {}; // this.refs name does not work (I don't know why)
+        this.widgetRef = {};
     }
 
     static getWidgetInfo() {
@@ -390,6 +398,20 @@ class Switches extends BlindsBase {
                             label: 'info_active_color',
                             hidden: '!data["oid" + index] || data["type" + index] !== "info"',
                         },
+                        {
+                            name: 'widget',
+                            type: 'widget',
+                            label: 'widget_id',
+                            hidden: '!!data["oid" + index]',
+                        },
+                        {
+                            name: 'height',
+                            type: 'slider',
+                            min: 40,
+                            max: 500,
+                            label: 'height',
+                            hidden: '!data["widget" + index]',
+                        },
                     ],
                 },
             ],
@@ -410,7 +432,7 @@ class Switches extends BlindsBase {
     async propertiesUpdate() {
         const actualRxData = JSON.stringify(this.state.rxData);
 
-        this.systemConfig = this.systemConfig || (await this.props.socket.getObject('system.config'));
+        this.systemConfig = this.systemConfig || (await this.props.context.socket.getObject('system.config'));
 
         if (this.lastRxData === actualRxData) {
             return;
@@ -423,7 +445,7 @@ class Switches extends BlindsBase {
         for (let index = 1; index <= this.state.rxData.count; index++) {
             if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`oid${index}`]);
+                const object = await this.props.context.socket.getObject(this.state.rxData[`oid${index}`]);
                 if (!object) {
                     objects[index] = { common: {} };
                     continue;
@@ -477,9 +499,9 @@ class Switches extends BlindsBase {
                     const idArray = this.state.rxData[`oid${index}`].split('.');
 
                     // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = Generic.getObjectIcon(grandParentObject, grandParentObject._id);
                         }
@@ -497,6 +519,15 @@ class Switches extends BlindsBase {
                     _id: object._id,
                     widgetType,
                 };
+                if (this.widgetRef[index]) {
+                    delete this.widgetRef[index];
+                }
+            } else if (this.state.rxData[`widget${index}`]) {
+                objects[index] = this.state.rxData[`widget${index}`];
+                this.widgetRef[index] = this.widgetRef[index] || React.createRef();
+            } else if (this.widgetRef[index]) {
+                delete this.widgetRef[index];
+                objects[index] = null;
             }
         }
 
@@ -523,26 +554,28 @@ class Switches extends BlindsBase {
     }
 
     isOn(index, values) {
-        if (!this.state.objects[index] || this.state.objects[index].widgetType === 'button') {
+        const obj = this.state.objects[index];
+        if (!obj || typeof obj === 'string' || obj.widgetType === 'button') {
             return false;
         }
 
         values = values || this.state.values;
-        if (this.state.objects[index].common.type === 'number') {
-            return values[`${this.state.objects[index]._id}.val`] !== this.state.objects[index].common.min;
+        if (obj.common.type === 'number') {
+            return values[`${this.state.objects[index]._id}.val`] !== obj.common.min;
         }
 
         return !!values[`${this.state.objects[index]._id}.val`];
     }
 
     getStateIcon(index) {
+        const obj = this.state.objects[index];
         let icon = '';
         if (this.isOn(index)) {
             icon = this.state.rxData[`iconEnabled${index}`] || this.state.rxData[`iconEnabledSmall${index}`];
         }
 
         icon = icon || this.state.rxData[`icon${index}`] || this.state.rxData[`iconSmall${index}`];
-        icon = icon || this.state.objects[index].common.icon;
+        icon = icon || obj?.common?.icon;
 
         if (icon) {
             icon = <Icon
@@ -550,7 +583,7 @@ class Switches extends BlindsBase {
                 style={{ width: 40, height: 40 }}
                 className={this.props.classes.iconCustom}
             />;
-        } else if (this.state.objects[index].widgetType === 'blinds') {
+        } else if (obj?.widgetType === 'blinds') {
             icon = <WindowClosed />;
         } else if (this.isOn(index)) {
             icon = <LightbulbIconOn color="primary" />;
@@ -562,9 +595,13 @@ class Switches extends BlindsBase {
     }
 
     getColor(index) {
+        const obj = this.state.objects[index];
+        if (typeof obj === 'string') {
+            return undefined;
+        }
         return this.isOn(index) ?
-            this.state.rxData[`colorEnabled${index}`] || this.state.objects[index].common.color
-            : this.state.rxData[`color${index}`] || this.state.objects[index].common.color;
+            this.state.rxData[`colorEnabled${index}`] || obj?.common.color
+            : this.state.rxData[`color${index}`] || obj?.common.color;
     }
 
     changeSwitch = index => {
@@ -585,9 +622,9 @@ class Switches extends BlindsBase {
             this.setState({ showControlDialog: index, inputValue: this.state.values[`${this.state.objects[index]._id}.val`] });
         } else if (this.state.objects[index].widgetType === 'button') {
             if (this.state.objects[index].common.max !== undefined) {
-                this.props.socket.setState(this.state.rxData[`oid${index}`], this.state.objects[index].common.max);
+                this.props.context.socket.setState(this.state.rxData[`oid${index}`], this.state.objects[index].common.max);
             } else {
-                this.props.socket.setState(this.state.rxData[`oid${index}`], true);
+                this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
             }
         } else {
             const values = JSON.parse(JSON.stringify(this.state.values));
@@ -598,12 +635,12 @@ class Switches extends BlindsBase {
                 values[oid] = !values[oid];
             }
             this.setState({ values });
-            this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+            this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
         }
     };
 
     buttonPressed(index) {
-        this.props.socket.setState(this.state.rxData[`oid${index}`], true);
+        this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
     }
 
     setOnOff(index, isOn) {
@@ -611,7 +648,7 @@ class Switches extends BlindsBase {
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = isOn ? this.state.objects[index].common.max : this.state.objects[index].common.min;
         this.setState({ values });
-        this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
     }
 
     controlSpecificState(index, value) {
@@ -619,7 +656,7 @@ class Switches extends BlindsBase {
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = value;
         this.setState({ values, showControlDialog: null });
-        this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
     }
 
     renderControlDialog() {
@@ -713,7 +750,7 @@ class Switches extends BlindsBase {
                                 const oid = `${this.state.objects[index]._id}.val`;
                                 values[oid] = value;
                                 this.setState({ values });
-                                this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
                             }}
                         />
                     </div>
@@ -747,7 +784,7 @@ class Switches extends BlindsBase {
                          <ObjectChart
                             t={key => Generic.t(key)}
                             lang={Generic.getLanguage()}
-                            socket={this.props.socket}
+                            socket={this.props.context.socket}
                             obj={this.state.objects[index]}
                             unit={this.state.objects[index].common.unit}
                             title={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name)}
@@ -786,9 +823,9 @@ class Switches extends BlindsBase {
                                 values[oid] = this.state.inputValue;
                                 this.setState({ values, showControlDialog: null });
                                 if (this.state.objects[index].common.type === 'number') {
-                                    this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                                 } else if (this.state.objects[index].common.type === 'boolean') {
-                                    this.props.socket.setState(
+                                    this.props.context.socket.setState(
                                         this.state.rxData[`oid${index}`],
                                         values[oid] === 'true' ||
                                         values[oid] === true ||
@@ -805,7 +842,7 @@ class Switches extends BlindsBase {
                                         values[oid] === 'An',
                                     );
                                 } else {
-                                    this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
                                 }
                             }
                         }}
@@ -821,9 +858,9 @@ class Switches extends BlindsBase {
                             values[oid] = this.state.inputValue;
                             this.setState({ values, showControlDialog: null });
                             if (this.state.objects[index].common.type === 'number') {
-                                this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                             } else if (this.state.objects[index].common.type === 'boolean') {
-                                this.props.socket.setState(
+                                this.props.context.socket.setState(
                                     this.state.rxData[`oid${index}`],
                                     values[oid] === 'true' ||
                                     values[oid] === true ||
@@ -840,7 +877,7 @@ class Switches extends BlindsBase {
                                     values[oid] === 'An',
                                 );
                             } else {
-                                this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
                             }
                         }}
                     >
@@ -874,6 +911,23 @@ class Switches extends BlindsBase {
     }
 
     renderLine(index) {
+        if (typeof this.state.objects[index] === 'string') {
+            const wid = this.state.rxData[`widget${index}`];
+            if (this.props.context.views[this.props.view] &&
+                this.props.context.views[this.props.view].widgets[wid] &&
+                this.getWidgetInWidget // todo: remove this condition after vis release
+            ) {
+                // come again when the ref is filled
+                if (!this.widgetRef[index].current) {
+                    setTimeout(() => this.forceUpdate(), 50);
+                }
+                return <div ref={this.widgetRef[index]} className={this.props.classes.widgetContainer}>
+                    {this.widgetRef[index].current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef[index] }) : null}
+                </div>;
+            }
+            return null;
+        }
+
         if (this.state.objects[index].widgetType === 'button') {
             const icon = this.state.rxData[`buttonIcon${index}`] || this.state.rxData[`buttonImage${index}`];
             const text = this.state.rxData[`buttonText${index}`];
@@ -905,7 +959,7 @@ class Switches extends BlindsBase {
                         const oid = `${this.state.objects[index]._id}.val`;
                         values[oid] = newValue;
                         this.setState({ values });
-                        this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
                     }}
                     min={min}
                     max={max}
@@ -935,9 +989,9 @@ class Switches extends BlindsBase {
                             values[oid] = this.state.inputValues[index];
                             this.setState({ values });
                             if (this.state.objects[index].common.type === 'number') {
-                                this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                             } else if (this.state.objects[index].common.type === 'boolean') {
-                                this.props.socket.setState(
+                                this.props.context.socket.setState(
                                     this.state.rxData[`oid${index}`],
                                     values[oid] === 'true' ||
                                     values[oid] === true ||
@@ -954,7 +1008,7 @@ class Switches extends BlindsBase {
                                     values[oid] === 'An',
                                 );
                             } else {
-                                this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
                             }
                         }
                     }}
@@ -991,9 +1045,9 @@ class Switches extends BlindsBase {
                         showSetButton[index] = false;
                         this.setState({ values, showSetButton });
                         if (this.state.objects[index].common.type === 'number') {
-                            this.props.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                         } else if (this.state.objects[index].common.type === 'boolean') {
-                            this.props.socket.setState(
+                            this.props.context.socket.setState(
                                 this.state.rxData[`oid${index}`],
                                 values[oid] === 'true' ||
                                 values[oid] === true ||
@@ -1010,7 +1064,7 @@ class Switches extends BlindsBase {
                                 values[oid] === 'An',
                             );
                         } else {
-                            this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
                         }
                     }}
                 >
@@ -1058,7 +1112,7 @@ class Switches extends BlindsBase {
                         const oid = `${this.state.objects[index]._id}.val`;
                         values[oid] = event.target.value;
                         this.setState({ values });
-                        this.props.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
                     }}
                 >
                     {states.map(state => <MenuItem key={state.value} value={state.value}>{state.label}</MenuItem>)}
@@ -1246,7 +1300,7 @@ class Switches extends BlindsBase {
         let historyInstance;
         // first check default history and if it is alive
         if (custom[this.systemConfig.common.defaultHistory]) {
-            const alive = await this.props.socket.getState(`system.adapter.${this.systemConfig.common.defaultHistory}.alive`);
+            const alive = await this.props.context.socket.getState(`system.adapter.${this.systemConfig.common.defaultHistory}.alive`);
             if (alive?.val) {
                 historyInstance = this.systemConfig.common.defaultHistory;
             }
@@ -1260,7 +1314,7 @@ class Switches extends BlindsBase {
                 }
                 const adapter = instance.split('.')[0];
                 if (HISTORY.includes(adapter)) {
-                    const alive = await this.props.socket.getState(`system.adapter.${instance}.alive`);
+                    const alive = await this.props.context.socket.getState(`system.adapter.${instance}.alive`);
                     if (alive?.val) {
                         return true;
                     }
@@ -1293,7 +1347,7 @@ class Switches extends BlindsBase {
         }
         for (let i = 0; i < indexesToUpdate.length; i++) {
             (_index => {
-                this.props.socket.getHistory(this.state.objects[_index]._id, {
+                this.props.context.socket.getHistory(this.state.objects[_index]._id, {
                     instance: this.history[_index],
                     start: Date.now() - (parseInt(this.state.rxData[`chartPeriod${_index}`], 10) || 60) * 60000,
                     aggregate: 'minmax',
@@ -1455,6 +1509,26 @@ class Switches extends BlindsBase {
     }
 
     renderButton(index, icon) {
+        if (this.state.rxData[`widget${index}`]) {
+            const wid = this.state.rxData[`widget${index}`];
+            if (this.props.context.views[this.props.view] &&
+                this.props.context.views[this.props.view].widgets[wid] &&
+                this.getWidgetInWidget // todo: remove this condition after vis release
+            ) {
+                if (!this.widgetRef[index].current) {
+                    setTimeout(() => this.forceUpdate(), 50);
+                }
+                return <div
+                    ref={this.widgetRef[index]}
+                    className={this.props.classes.widgetContainer}
+                    style={this.state.rxData[`height${index}`] ? { height: this.state.rxData[`widget${index}`] } : undefined}
+                >
+                    {this.widgetRef[index].current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef[index] }) : null}
+                </div>;
+            }
+            return null;
+        }
+
         let value = this.state.values[`${this.state.objects[index]._id}.val`];
         if (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states) {
             if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
@@ -1522,13 +1596,16 @@ class Switches extends BlindsBase {
         let allSwitchValue = null;
         let intermediate;
 
-        if (this.state.rxData.type === 'lines' && Object.keys(this.state.objects).find(index => this.state.objects[index].widgetType === 'switch')) {
+        if (this.state.rxData.type === 'lines' && Object.keys(this.state.objects)
+            .filter(index => this.state.objects[index] && typeof this.state.objects[index] !== 'string')
+            .find(index => this.state.objects[index].widgetType === 'switch')
+        ) {
             allSwitchValue = Object.keys(this.state.objects)
-                .filter(index => this.state.objects[index].widgetType === 'switch')
+                .filter(index => this.state.objects[index]?.widgetType === 'switch')
                 .every(index => this.isOn(index));
 
             intermediate = !!Object.keys(this.state.objects)
-                .filter(index => this.state.objects[index].widgetType === 'switch')
+                .filter(index => this.state.objects[index]?.widgetType === 'switch')
                 .find(index => this.isOn(index) !== allSwitchValue);
         }
 
@@ -1546,6 +1623,8 @@ class Switches extends BlindsBase {
                     // index from 1, i from 0
                     return <div
                         className={this.props.classes.cardsHolder}
+                        style={this.state.rxData[`widget${index}`] && this.state.rxData[`height${index}`] ?
+                            { height: this.state.rxData[`widget${index}`] } : undefined}
                         key={index}
                     >
                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -1584,13 +1663,13 @@ class Switches extends BlindsBase {
                         const oid = `${this.state.objects[keys[i]]._id}.val`;
                         if (this.state.objects[keys[i]].common.type === 'boolean') {
                             values[oid] = !allSwitchValue;
-                            await this.props.socket.setState(this.state.objects[keys[i]]._id, values[oid]);
+                            await this.props.context.socket.setState(this.state.objects[keys[i]]._id, values[oid]);
                         } else if (this.state.objects[keys[i]].common.type === 'number') {
                             values[oid] = allSwitchValue ? this.state.objects[keys[i]].common.min : this.state.objects[keys[i]].common.max;
-                            await this.props.socket.setState(this.state.objects[keys[i]]._id, values[oid]);
+                            await this.props.context.socket.setState(this.state.objects[keys[i]]._id, values[oid]);
                         } else {
                             values[oid] = !allSwitchValue;
-                            await this.props.socket.setState(this.state.objects[keys[i]]._id, values[oid] ? 'true' : 'false');
+                            await this.props.context.socket.setState(this.state.objects[keys[i]]._id, values[oid] ? 'true' : 'false');
                         }
                     }
                 }

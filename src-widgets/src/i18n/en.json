@@ -222,5 +222,7 @@
   "image_oid": "Image Object",
   "object_fit": "Image fill method",
   "allow_user_interactions": "Allow user interactions",
-  "theme_switcher": "Theme switcher"
+  "theme_switcher": "Theme switcher",
+  "height": "Height",
+  "widget_id": "Show widget"
 }

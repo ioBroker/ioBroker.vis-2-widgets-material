@@ -252,7 +252,7 @@ class Actual extends Generic {
         // try to find icons for all OIDs
         if (this.state.rxData['oid-main'] && this.state.rxData['oid-main'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.socket.getObject(this.state.rxData['oid-main']);
+            const object = await this.props.context.socket.getObject(this.state.rxData['oid-main']);
             if (!object) {
                 objects.main = { common: {} };
             } else {
@@ -261,9 +261,9 @@ class Actual extends Generic {
                     const idArray = this.state.rxData['oid-main'].split('.');
 
                     // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -283,7 +283,7 @@ class Actual extends Generic {
 
         if (this.state.rxData['oid-secondary'] && this.state.rxData['oid-secondary'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.socket.getObject(this.state.rxData['oid-secondary']);
+            const object = await this.props.context.socket.getObject(this.state.rxData['oid-secondary']);
             if (!object) {
                 objects.secondary = { common: {} };
             } else {
@@ -292,9 +292,9 @@ class Actual extends Generic {
                     const idArray = this.state.rxData['oid-secondary'].split('.');
 
                     // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -383,10 +383,10 @@ class Actual extends Generic {
         };
 
         let chart;
-        return this.props.socket.getHistory(id, options)
+        return this.props.context.socket.getHistory(id, options)
             .then(_chart => {
                 chart = _chart;
-                return this.props.socket.getState(id);
+                return this.props.context.socket.getState(id);
             })
             .then(state => {
                 // sort
@@ -514,7 +514,7 @@ class Actual extends Generic {
                 <ObjectChart
                     t={key => Generic.t(key)}
                     lang={Generic.getLanguage()}
-                    socket={this.props.socket}
+                    socket={this.props.context.socket}
                     obj={this.state.objects.main || this.state.objects.secondary}
                     obj2={this.state.objects.main ? this.state.objects.secondary : null}
                     unit={this.state.objects.main ?

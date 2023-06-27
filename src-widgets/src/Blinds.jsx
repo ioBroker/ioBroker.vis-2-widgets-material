@@ -248,14 +248,14 @@ class Blinds extends BlindsBase {
         this.lastRxData = actualRxData;
         const objects = {};
 
-        const _object = this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected' ? (await this.props.socket.getObject(this.state.rxData.oid)) : null;
+        const _object = this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected' ? (await this.props.context.socket.getObject(this.state.rxData.oid)) : null;
         objects.main = _object?.common || {};
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
             if (this.state.rxData[`slidePos_oid${index}`] && this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected') {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`slidePos_oid${index}`]);
+                const object = await this.props.context.socket.getObject(this.state.rxData[`slidePos_oid${index}`]);
                 if (!object) {
                     objects[index] = { };
                     continue;
