@@ -20,6 +20,7 @@ import Security from './Security';
 import Html from './Html';
 import Blinds from './Blinds';
 import ThemeSwitcher from './ThemeSwitcher';
+import Wizard from './Wizard';
 
 const styles = theme => ({
     app: {
@@ -53,6 +54,18 @@ class App extends WidgetDemoApp {
 
     renderWidget() {
         const widgets = {
+            wizard: Wizard.getWidgetInfo().customPalette(
+                this.socket,
+                {
+                    test: {
+
+                    },
+                },
+                project => {
+                    console.log(project);
+                },
+                'test',
+            ),
             camera: <Camera
                 key="Camera"
                 socket={this.socket}

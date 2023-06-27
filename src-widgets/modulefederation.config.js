@@ -17,6 +17,7 @@ module.exports = makeFederation(
         './Map': './src/Map',
         './Html': './src/Html',
         './ThemeSwitcher': './src/ThemeSwitcher',
+        './Wizard': './src/Wizard',
         './translations': './src/translations',
     }
 );
