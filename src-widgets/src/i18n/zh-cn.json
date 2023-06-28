@@ -224,5 +224,8 @@
   "allow_user_interactions": "允许用户交互",
   "theme_switcher": "主题切换器",
   "height": "高度",
-  "widget_id": "显示小部件"
+  "widget_id": "显示小部件",
+  "hide": "隐藏",
+  "hide_tooltip": "出于测试目的，暂时隐藏此项目",
+  "vertical_orientation": "垂直方向"
 }

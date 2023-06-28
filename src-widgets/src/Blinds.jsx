@@ -12,6 +12,7 @@ const styles = () => ({
         alignItems: 'center',
         width: '100%',
         overflow: 'hidden',
+        height: '100%',
     },
     ...STYLES,
 });

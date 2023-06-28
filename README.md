@@ -107,6 +107,7 @@ Additionally, you can show image or iframe with this widget too.
 ## Changelog
 ### **WORK IN PROGRESS**
 * (bluefox) Added blinds to switches widget
+* (bluefox) Allowed to place widgets in widgets
 
 ### 0.5.3 (2023-06-21)
 * (bluefox) Corrected errors with view in widget

@@ -224,5 +224,8 @@
   "allow_user_interactions": "Zezwalaj na interakcje użytkownika",
   "theme_switcher": "Przełącznik motywu",
   "height": "Wysokość",
-  "widget_id": "Pokaż widżet"
+  "widget_id": "Pokaż widżet",
+  "hide": "Ukrywać",
+  "hide_tooltip": "Do celów testowych, aby tymczasowo ukryć ten przedmiot",
+  "vertical_orientation": "Orientacja pionowa"
 }

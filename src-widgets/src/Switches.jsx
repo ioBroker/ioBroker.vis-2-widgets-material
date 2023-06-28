@@ -114,7 +114,12 @@ const styles = () => ({
         height: '100%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'right',
+    },
+    buttonsContainer: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     ...STYLES,
 });
@@ -177,6 +182,13 @@ class Switches extends BlindsBase {
                             type: 'checkbox',
                             default: true,
                             label: 'show_all_switch',
+                            hidden: 'data.type !== "lines"',
+                        },
+                        {
+                            name: 'vertical',
+                            type: 'checkbox',
+                            label: 'vertical_orientation',
+                            hidden: 'data.type !== "buttons"',
                         },
                         {
                             label: 'buttons_width',
@@ -208,6 +220,7 @@ class Switches extends BlindsBase {
                             name: 'oid',
                             type: 'id',
                             label: 'oid',
+                            hidden: 'data["widget" + index]',
                         },
                         {
                             name: 'type',
@@ -251,40 +264,45 @@ class Switches extends BlindsBase {
                             default: 'auto',
                         },
                         {
+                            name: 'noIcon',
+                            type: 'checkbox',
+                            label: 'no_icon',
+                        },
+                        {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
-                            hidden: '!!data["iconSmall" + index] || data["type" + index] === "blinds"',
+                            hidden: '!!data["iconSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
                         },
                         {
                             name: 'iconSmall',
                             type: 'icon64',
                             label: 'small_icon',
-                            hidden: '!!data["icon" + index] || data["type" + index] === "blinds"',
+                            hidden: '!!data["icon" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
                             label: 'icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index] || data["type" + index] === "blinds"',
+                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
                         },
                         {
                             name: 'iconEnabledSmall',
                             type: 'icon64',
                             label: 'small_icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index] || data["type" + index] === "blinds"',
+                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
                         },
                         {
                             name: 'color',
                             type: 'color',
                             label: 'color',
-                            hidden: '!data["oid" + index] || data["type" + index] === "blinds"',
+                            hidden: '!data["oid" + index] || data["type" + index] === "blinds" || data["widget" + index]',
                         },
                         {
                             name: 'colorEnabled',
                             type: 'color',
                             label: 'color_active',
-                            hidden: 'data["type" + index] === "blinds"',
+                            hidden: 'data["type" + index] === "blinds" || data["widget" + index]',
                         },
                         {
                             name: 'title',
@@ -297,7 +315,7 @@ class Switches extends BlindsBase {
                             type: 'text',
                             noButton: true,
                             label: 'unit',
-                            hidden: 'data["type" + index] === "button" || data["type" + index] === "switch"',
+                            hidden: 'data["type" + index] === "button" || data["type" + index] === "switch" || data["widget" + index]',
                         },
                         {
                             name: 'step',
@@ -412,6 +430,20 @@ class Switches extends BlindsBase {
                             label: 'height',
                             hidden: '!data["widget" + index]',
                         },
+                        {
+                            name: 'position',
+                            type: 'slider',
+                            min: 0,
+                            max: 500,
+                            label: 'position',
+                            hidden: '!data["widget" + index]',
+                        },
+                        {
+                            name: 'hide',
+                            type: 'checkbox',
+                            label: 'hide',
+                            tooltip: 'hide_tooltip',
+                        },
                     ],
                 },
             ],
@@ -495,6 +527,9 @@ class Switches extends BlindsBase {
 
                 object.common.unit = object.common.unit || this.state.rxData[`unit${index}`];
 
+                if (this.state.rxData[`noIcon${index}`]) {
+                    object.common.icon = null;
+                } else
                 if (!this.state.rxData[`icon${index}`] && !this.state.rxData[`iconSmall${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`oid${index}`].split('.');
 
@@ -570,6 +605,9 @@ class Switches extends BlindsBase {
     getStateIcon(index) {
         const obj = this.state.objects[index];
         let icon = '';
+        if (this.state.rxData[`noIcon${index}`]) {
+            return null;
+        }
         if (this.isOn(index)) {
             icon = this.state.rxData[`iconEnabled${index}`] || this.state.rxData[`iconEnabledSmall${index}`];
         }
@@ -910,22 +948,45 @@ class Switches extends BlindsBase {
         return null;
     }
 
+    renderWidgetInWidget(index, asButton) {
+        const wid = this.state.rxData[`widget${index}`];
+        const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
+        if (widget && this.getWidgetInWidget) { // todo: remove this condition after vis release
+            // come again when the ref is filled
+            if (!this.widgetRef[index].current) {
+                setTimeout(() => this.forceUpdate(), 50);
+            }
+            const style = asButton ? { justifyContent: 'center' } : { margin: 8, justifyContent: 'right' };
+            style.height = this.state.rxData[`height${index}`];
+            if (!style.height) {
+                // try to determine the height of child widget
+                style.height = widget.style?.height || undefined;
+            }
+            if (asButton) {
+                if (this.state.rxData.buttonsWidth && !this.state.rxData.vertical) {
+                    style.width = this.state.rxData.buttonsWidth;
+                }
+                if (this.state.rxData.buttonsHeight && this.state.rxData.vertical) {
+                    style.height = this.state.rxData.buttonsHeight;
+                }
+            } else {
+                style.marginRight = this.state.rxData[`position${index}`];
+            }
+
+            return <div
+                ref={this.widgetRef[index]}
+                className={this.props.classes.widgetContainer}
+                style={style}
+            >
+                {this.widgetRef[index].current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef[index] }) : null}
+            </div>;
+        }
+        return null;
+    }
+
     renderLine(index) {
         if (typeof this.state.objects[index] === 'string') {
-            const wid = this.state.rxData[`widget${index}`];
-            if (this.props.context.views[this.props.view] &&
-                this.props.context.views[this.props.view].widgets[wid] &&
-                this.getWidgetInWidget // todo: remove this condition after vis release
-            ) {
-                // come again when the ref is filled
-                if (!this.widgetRef[index].current) {
-                    setTimeout(() => this.forceUpdate(), 50);
-                }
-                return <div ref={this.widgetRef[index]} className={this.props.classes.widgetContainer}>
-                    {this.widgetRef[index].current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef[index] }) : null}
-                </div>;
-            }
-            return null;
+            return this.renderWidgetInWidget(index);
         }
 
         if (this.state.objects[index].widgetType === 'button') {
@@ -1510,23 +1571,7 @@ class Switches extends BlindsBase {
 
     renderButton(index, icon) {
         if (this.state.rxData[`widget${index}`]) {
-            const wid = this.state.rxData[`widget${index}`];
-            if (this.props.context.views[this.props.view] &&
-                this.props.context.views[this.props.view].widgets[wid] &&
-                this.getWidgetInWidget // todo: remove this condition after vis release
-            ) {
-                if (!this.widgetRef[index].current) {
-                    setTimeout(() => this.forceUpdate(), 50);
-                }
-                return <div
-                    ref={this.widgetRef[index]}
-                    className={this.props.classes.widgetContainer}
-                    style={this.state.rxData[`height${index}`] ? { height: this.state.rxData[`widget${index}`] } : undefined}
-                >
-                    {this.widgetRef[index].current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef[index] }) : null}
-                </div>;
-            }
-            return null;
+            return this.renderWidgetInWidget(index, true);
         }
 
         let value = this.state.values[`${this.state.objects[index]._id}.val`];
@@ -1595,31 +1640,31 @@ class Switches extends BlindsBase {
         }
         let allSwitchValue = null;
         let intermediate;
+        let items = Object.keys(this.state.objects)
+            .filter(index => this.state.objects[index] && !this.state.rxData[`hide${index}`]);
 
-        if (this.state.rxData.type === 'lines' && Object.keys(this.state.objects)
-            .filter(index => this.state.objects[index] && typeof this.state.objects[index] !== 'string')
+        if (this.state.rxData.type === 'lines' && items
+            .filter(index => typeof this.state.objects[index] !== 'string')
             .find(index => this.state.objects[index].widgetType === 'switch')
         ) {
-            allSwitchValue = Object.keys(this.state.objects)
+            allSwitchValue = items
                 .filter(index => this.state.objects[index]?.widgetType === 'switch')
                 .every(index => this.isOn(index));
 
-            intermediate = !!Object.keys(this.state.objects)
+            intermediate = !!items
                 .filter(index => this.state.objects[index]?.widgetType === 'switch')
                 .find(index => this.isOn(index) !== allSwitchValue);
         }
 
-        const icons = Object.keys(this.state.objects).map(index => this.getStateIcon(index));
+        const icons = items.map(index => this.getStateIcon(index));
         const anyIcon = icons.find(icon => icon);
 
         const content = <>
             {this.renderControlDialog()}
             {this.renderBlindsDialog()}
             {this.state.rxData.type === 'lines' ?
-                Object.keys(this.state.objects).map((index, i) => {
-                    if (!this.state.objects[index]) {
-                        return null;
-                    }
+                // LINES
+                items.map((index, i) => {
                     // index from 1, i from 0
                     return <div
                         className={this.props.classes.cardsHolder}
@@ -1639,26 +1684,21 @@ class Switches extends BlindsBase {
                     </div>;
                 })
                 :
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                    {Object.keys(this.state.objects).map((index, i) => {
+                // BUTTONS
+                <div className={this.props.classes.buttonsContainer} style={{ flexWrap: this.state.rxData.vertical ? 'wrap' : 'nowrap' }}>
+                    {items.map((index, i) =>
                         // index from 1, i from 0
-                        if (!this.state.objects[index]) {
-                            return null;
-                        }
-                        return this.renderButton(index, anyIcon ? icons[i] : null);
-                    })}
+                        this.renderButton(index, anyIcon ? icons[i] : null))}
                 </div>}
         </>;
 
-        let addToHeader = this.state.rxData.allSwitch && Object.keys(this.state.objects).length > 1 && allSwitchValue !== null ? <Switch
+        let addToHeader = this.state.rxData.allSwitch && items.length > 1 && allSwitchValue !== null ? <Switch
             checked={allSwitchValue}
             className={intermediate ? this.props.classes.intermediate : ''}
             onChange={async () => {
                 const values = JSON.parse(JSON.stringify(this.state.values));
 
-                const keys = Object.keys(this.state.objects);
-
-                for (let i = 0; i <= keys.length; i++) {
+                for (let i = 0; i <= items.length; i++) {
                     if (this.state.objects[keys[i]] && this.state.objects[keys[i]]._id && this.state.objects[keys[i]].widgetType === 'switch') {
                         const oid = `${this.state.objects[keys[i]]._id}.val`;
                         if (this.state.objects[keys[i]].common.type === 'boolean') {

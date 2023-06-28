@@ -224,5 +224,8 @@
   "allow_user_interactions": "Consenti le interazioni degli utenti",
   "theme_switcher": "Commutatore di temi",
   "height": "Altezza",
-  "widget_id": "Mostra widget"
+  "widget_id": "Mostra widget",
+  "hide": "Nascondere",
+  "hide_tooltip": "A scopo di test, per nascondere temporaneamente questo elemento",
+  "vertical_orientation": "Orientamento verticale"
 }

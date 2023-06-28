@@ -370,7 +370,11 @@ class Thermostat extends Generic {
 
         actualTemp = actualTemp !== null ? this.formatValue(actualTemp) : null;
 
-        const content = <div ref={this.refContainer} style={{ width: '100%', height: '100%' }} className={this.props.classes.circleDiv}>
+        const content = <div
+            ref={this.refContainer}
+            style={{ width: '100%', height: '100%' }}
+            className={this.props.classes.circleDiv}
+        >
             {this.state.rxData.widgetTitle ? null : chartButton}
             {this.state.width && this.state.tempObject ?
                 <CircularSliderWithChildren

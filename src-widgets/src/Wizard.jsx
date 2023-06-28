@@ -16,11 +16,8 @@ const allObjects = async socket => {
         .concat(Object.values(channels))
         .concat(Object.values(devices))
         .concat(Object.values(enums))
-        .reduce((obj, item) => (
-            obj[item._id] = {
-                common: item.common,
-                type: item.type,
-            }, obj), {});
+        // eslint-disable-next-line
+        .reduce((obj, item) => (obj[item._id] = { common: item.common, type: item.type }, obj), {});
 };
 
 const DeviceDetector = async socket => {
@@ -61,7 +58,9 @@ const DeviceDetector = async socket => {
         ignoreIndicators,
         excludedTypes,
     };
+
     console.log('controls');
+
     list.forEach(id => {
         options.id = id;
         const controls = detector.detect(options);

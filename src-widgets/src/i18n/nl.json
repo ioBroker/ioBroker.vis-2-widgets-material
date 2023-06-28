@@ -224,5 +224,8 @@
   "allow_user_interactions": "Sta gebruikersinteracties toe",
   "theme_switcher": "Thema-wisselaar",
   "height": "Hoogte",
-  "widget_id": "Toon widget"
+  "widget_id": "Toon widget",
+  "hide": "Verbergen",
+  "hide_tooltip": "Voor testdoeleinden, om dit item tijdelijk te verbergen",
+  "vertical_orientation": "Verticale oriëntatie"
 }
