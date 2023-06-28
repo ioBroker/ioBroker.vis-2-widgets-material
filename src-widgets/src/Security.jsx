@@ -21,9 +21,28 @@ const styles = () => ({
     unlockedButtons: {
         display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center', flex: 1,
     },
-    lockButton: { display: 'flex', gap: 8, alignItems: 'center' },
-    icon: { height: 20 },
-    status: { display: 'flex', alignItems: 'center' },
+    lockButton: {
+        display: 'flex',
+        gap: 8,
+        alignItems: 'center',
+    },
+    icon: {
+        height: 20,
+    },
+    status: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+    noCardContainer: {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    noCardLocked: {
+        width: '100%',
+        textAlign: 'right',
+    },
 });
 
 class Security extends Generic {
@@ -410,52 +429,58 @@ class Security extends Generic {
             {this.renderUnlockDialog()}
             {this.renderTimerDialog()}
             {this.renderMessageDialog()}
-            {locked ? <div className={this.props.classes.lockedButton}>
-                <Button
-                    variant="contained"
-                    onClick={() => {
-                        if (this.getPincode(lockedButton.i)) {
-                            this.setState({ dialog: true, pinInput: '' });
-                        } else {
-                            this.props.context.socket.setState(lockedButton.oid, false);
-                        }
-                    }}
-                >
-                    {this.state.rxData.disarmText || Generic.t('unlock')}
-                </Button>
-            </div> : <div className={this.props.classes.unlockedButtons}>
-                {buttons.map((button, index) =>
+            {locked ?
+                <div className={this.props.classes.lockedButton}>
                     <Button
                         variant="contained"
-                        key={index}
-                        style={{ backgroundColor: button.color }}
                         onClick={() => {
-                            if (this.state.rxData[`timerSeconds${button.i}`]) {
-                                this.startTimer(button.i);
-                            } else if (!button.oid) {
-                                this.setState({ message: Generic.t('no_oid') });
+                            if (this.getPincode(lockedButton.i)) {
+                                this.setState({ dialog: true, pinInput: '' });
                             } else {
-                                this.props.context.socket.setState(button.oid, true);
+                                this.props.context.socket.setState(lockedButton.oid, false);
                             }
                         }}
                     >
-                        <span className={this.props.classes.lockButton}>
-                            {button.icon ? <Icon className={this.props.classes.icon} src={button.icon} alt="" /> : null}
-                            {button.name}
-                        </span>
-                    </Button>)}
-            </div>}
+                        {this.state.rxData.disarmText || Generic.t('unlock')}
+                    </Button>
+                </div>
+                :
+                <div className={this.props.classes.unlockedButtons}>
+                    {buttons.map((button, index) =>
+                        <Button
+                            variant="contained"
+                            key={index}
+                            style={{ backgroundColor: button.color }}
+                            onClick={() => {
+                                if (this.state.rxData[`timerSeconds${button.i}`]) {
+                                    this.startTimer(button.i);
+                                } else if (!button.oid) {
+                                    this.setState({ message: Generic.t('no_oid') });
+                                } else {
+                                    this.props.context.socket.setState(button.oid, true);
+                                }
+                            }}
+                        >
+                            <span className={this.props.classes.lockButton}>
+                                {button.icon ? <Icon className={this.props.classes.icon} src={button.icon} alt="" /> : null}
+                                {button.name}
+                            </span>
+                        </Button>)}
+                </div>}
         </>;
 
         const lockedChip = <Chip
             label={<span className={this.props.classes.status}>
-                {locked ? <>
-                    <SecurityIcon />
-                    {lockedButton.name}
-                </> : <>
-                    <RemoveModeratorIcon />
-                    {this.state.rxData.securityOffText || Generic.t('security_off')}
-                </>}
+                {locked ?
+                    <>
+                        <SecurityIcon />
+                        {lockedButton.name}
+                    </>
+                    :
+                    <>
+                        <RemoveModeratorIcon />
+                        {this.state.rxData.securityOffText || Generic.t('security_off')}
+                    </>}
             </span>}
             style={{
                 backgroundColor: locked ? 'orange' : 'green',
@@ -464,7 +489,10 @@ class Security extends Generic {
         />;
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            return content;
+            return <div className={this.props.classes.noCardContainer}>
+                <div className={this.props.classes.noCardLocked}>{lockedChip}</div>
+                {content}
+            </div>;
         }
 
         return this.wrapContent(content, lockedChip, {

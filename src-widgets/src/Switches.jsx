@@ -955,7 +955,7 @@ class Switches extends BlindsBase {
     renderWidgetInWidget(index, asButton) {
         const wid = this.state.rxData[`widget${index}`];
         const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
-        if (widget && this.getWidgetInWidget) { // todo: remove this condition after vis release
+        if (widget && wid !== this.props.id && this.getWidgetInWidget) { // todo: remove this condition after vis release
             // come again when the ref is filled
             if (!this.widgetRef[index].current) {
                 setTimeout(() => this.forceUpdate(), 50);
@@ -1720,6 +1720,10 @@ class Switches extends BlindsBase {
                 this.setState({ values });
             }}
         /> : null;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
 
         if (!this.state.rxData.widgetTitle && addToHeader) {
             addToHeader = <div style={{ textAlign: 'right', width: '100%' }}>

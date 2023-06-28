@@ -20,6 +20,7 @@ const styles = theme => ({
         flexDirection: 'column',
         justifyContent: 'center',
         width: '100%',
+        height: '100%',
         boxSizing: 'border-box',
         position: 'relative',
     },
@@ -527,6 +528,12 @@ class Player extends Generic {
                     /> : null}
                 </div> : null}
         </div>;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return <div style={{ width: '100%', height: '100%' }}>
+                {content}
+            </div>;
+        }
 
         return this.wrapContent(content, null, {
             boxSizing: 'border-box',

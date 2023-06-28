@@ -171,7 +171,6 @@ class Map extends Generic {
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'markersCount',
@@ -190,12 +189,12 @@ class Map extends Generic {
                         {
                             name: 'themeUrl',
                             label: 'theme_url',
-                            hidden: data => data.theme,
+                            hidden: data => data.theme && data.theme !== 'default',
                         },
                         {
                             name: 'themeAttribution',
                             label: 'theme_attribution',
-                            hidden: data => data.theme,
+                            hidden: data => data.theme && data.theme !== 'default',
                         },
                         {
                             name: 'defaultZoom',
@@ -552,7 +551,33 @@ class Map extends Generic {
             {this.renderMap()}
         </>;
 
-        const iconFull = this.state.rxData.hideFullScreenButton ? null : <IconButton onClick={() => this.setState({ dialog: true })}><OpenInFullIcon /></IconButton>;
+        const iconFull = this.state.rxData.hideFullScreenButton ? null :
+            <IconButton onClick={() => this.setState({ dialog: true })}>
+                <OpenInFullIcon
+                    style={{
+                        color: (this.state.rxData.noCard || props.widget.usedInWidget) &&
+                            (!this.state.rxData.theme ||
+                                this.state.rxData.theme === 'default' ||
+                                this.state.rxData.theme === 'stadiaosmbright') ? '#111' : undefined,
+                    }}
+                />
+            </IconButton>;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return <div style={{ width: '100%', height: '100%' }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        zIndex: 500,
+                    }}
+                >
+                    {iconFull}
+                </div>
+                {content}
+            </div>;
+        }
 
         return this.wrapContent(
             content,
