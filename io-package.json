@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.5.3",
+    "version": "0.6.0",
     "news": {
+      "0.6.0": {
+        "en": "Added blinds to switches widget\nAllowed to place widgets in widgets",
+        "de": "Blinds hinzugefügt, um Widget zu wechseln\nErlaubt, Widgets in Widgets zu platzieren",
+        "ru": "Добавлены жалюзи для переключателей виджета\nРазрешено размещать виджеты в виджетах",
+        "pt": "Adicionado blinds para switches widget\nPermitiram colocar widgets em widgets",
+        "nl": "Vertaling:\nGenoemd om wedgetten in Widgets te plaatsen",
+        "fr": "Ajout des stores aux commutateurs widget\nPermet de placer des widgets dans des widgets",
+        "it": "Aggiunta di tende per interruttori widget\nPermesso di inserire widget in widgets",
+        "es": "Persianas agregadas para interruptores widget\nPermitido colocar widgets en widgets",
+        "pl": "Dodać ślepe na przełączanie widgetów\nWszystko na miejscu widgets in widgets",
+        "uk": "Додано жалюзі для вимикачів віджет\nДопускається розміщення віджетів у віджетах",
+        "zh-cn": "增加盲人,以改用目标\n允许在迫在眉睫的植被中种植。"
+      },
       "0.5.3": {
         "en": "Corrected errors with view in widget",
         "de": "Korrigierte Fehler mit Blick in Widget",
@@ -69,19 +82,6 @@
         "zh-cn": "BREAKREANGE: 必须加入新目标的名字。\n更新包"
       },
       "0.2.12": {
-        "en": "update packages",
-        "de": "update-pakete",
-        "ru": "обновление пакетов",
-        "pt": "pacotes de atualização",
-        "nl": "vertaling:",
-        "fr": "mettre à jour les paquets",
-        "it": "pacchetti di aggiornamento",
-        "es": "actualizar paquetes",
-        "pl": "pakiet aktualizacji",
-        "uk": "оновлення пакетів",
-        "zh-cn": "更新包"
-      },
-      "0.2.11": {
         "en": "update packages",
         "de": "update-pakete",
         "ru": "обновление пакетов",
