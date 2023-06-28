@@ -227,5 +227,11 @@
   "widget_id": "Pokaż widżet",
   "hide": "Ukrywać",
   "hide_tooltip": "Do celów testowych, aby tymczasowo ukryć ten przedmiot",
-  "vertical_orientation": "Orientacja pionowa"
+  "vertical_orientation": "Orientacja pionowa",
+  "without_card": "Bez ramy",
+  "read_only": "Tylko czytać",
+  "tooltip": "Podpowiedź",
+  "group_modes": "Dostosowanie trybu",
+  "no_text": "Bez tytułu",
+  "modes_count": "Liczą się tryby"
 }

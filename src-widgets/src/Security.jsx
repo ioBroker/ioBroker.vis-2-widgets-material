@@ -49,8 +49,14 @@ class Security extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'disarmText',
@@ -188,7 +194,7 @@ class Security extends Generic {
                     continue;
                 }
                 object.common = object.common || {};
-                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+                object.isChart = !!(object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]);
                 if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`oid${i}`].split('.');
 
@@ -456,6 +462,10 @@ class Security extends Generic {
                 color: locked ? 'black' : 'white',
             }}
         />;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
 
         return this.wrapContent(content, lockedChip, {
             boxSizing: 'border-box',

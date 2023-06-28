@@ -227,5 +227,11 @@
   "widget_id": "Toon widget",
   "hide": "Verbergen",
   "hide_tooltip": "Voor testdoeleinden, om dit item tijdelijk te verbergen",
-  "vertical_orientation": "Verticale oriëntatie"
+  "vertical_orientation": "Verticale oriëntatie",
+  "without_card": "Zonder lijst",
+  "read_only": "Alleen lezen",
+  "tooltip": "Knopinfo",
+  "group_modes": "Aanpassing van de modus",
+  "no_text": "Zonder titel",
+  "modes_count": "Modi tellen"
 }

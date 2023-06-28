@@ -131,8 +131,14 @@ class Actual extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'timeInterval',
@@ -185,6 +191,12 @@ class Actual extends Generic {
                             noButton: true,
                             hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
                         },
+                        {
+                            label: 'hide_chart',
+                            name: 'noChart',
+                            type: 'checkbox',
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                        },
                     ],
                 },
                 {
@@ -215,6 +227,12 @@ class Actual extends Generic {
                             type: 'text',
                             noButton: true,
                             hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'hide_chart',
+                            name: 'noChart-secondary',
+                            type: 'checkbox',
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
                         },
                     ],
                 },
@@ -312,29 +330,42 @@ class Actual extends Generic {
             }
         }
 
-        const isChart = (objects.main?.common?.custom && objects.main.common.custom[this.props.systemConfig?.common?.defaultHistory]) ||
-            (objects.secondary?.common?.custom && objects.secondary.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+        const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
-        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects) || isChart !== this.state.isChart) {
-            await this.setStateAsync({ objects, isChart });
-        }
+        const isChart = (!this.state.rxData.noChart && objects.main?.common?.custom && objects.main.common.custom[defaultHistory]) ||
+            (!this.state.rxData['noChart-secondary'] && objects.secondary?.common?.custom && objects.secondary.common.custom[defaultHistory]);
+
+        const newState = { objects, isChart };
 
         this.mainTimer && clearInterval(this.mainTimer);
         this.mainTimer = null;
+        let changed = false;
 
-        if (this.state.objects.main?.common?.custom && this.state.objects.main.common.custom[this.props.systemConfig?.common?.defaultHistory]) {
-            await this.readHistory(this.state.objects.main._id);
+        if (!this.state.rxData.noChart && objects.main?.common?.custom && objects.main.common.custom[defaultHistory]) {
+            await this.readHistory(objects.main._id);
             this.mainTimer = this.mainTimer || setInterval(async () => {
                 await this.readHistory(this.state.objects.main._id);
-                if (this.state.objects.secondary?.common?.custom && this.state.objects.secondary.common.custom[this.props.systemConfig?.common?.defaultHistory]) {
+                if (!this.state.rxData['noChart-secondary'] && this.state.objects.secondary?.common?.custom && this.state.objects.secondary.common.custom[defaultHistory]) {
                     await this.readHistory(this.state.objects.secondary._id);
                 }
             }, parseInt(this.state.rxData.updateInterval, 10) || 60000); // every minute by default
+        } else if (this.state[`chart-data-${this.state.rxData['oid-main']}`]) {
+            // delete chart data
+            newState[`chart-data-${this.state.rxData['oid-main']}`] = null;
+            changed = true;
         }
-        if (this.state.objects.secondary?.common?.custom && this.state.objects.secondary.common.custom[this.props.systemConfig?.common?.defaultHistory]) {
-            await this.readHistory(this.state.objects.secondary._id);
+        if (!this.state.rxData['noChart-secondary'] && objects.secondary?.common?.custom && objects.secondary.common.custom[defaultHistory]) {
+            await this.readHistory(objects.secondary._id);
             this.mainTimer = this.mainTimer || setInterval(() =>
                 this.readHistory(this.state.objects.secondary._id), parseInt(this.state.rxData.updateInterval, 10) || 60000); // every minute by default
+        } else if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) {
+            // delete chart data
+            newState[`chart-data-${this.state.rxData['oid-secondary']}`] = null;
+            changed = true;
+        }
+
+        if (changed || JSON.stringify(objects) !== JSON.stringify(this.state.objects) || isChart !== this.state.isChart) {
+            this.setState(newState);
         }
     }
 
@@ -369,9 +400,10 @@ class Actual extends Generic {
         now.setMilliseconds(0);
         const start = now.getTime();
         const end = Date.now();
+        const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
         const options = {
-            instance: this.props.systemConfig?.common?.defaultHistory || 'history.0',
+            instance: defaultHistory || 'history.0',
             start,
             end,
             step: 1800000, // 30 minutes
@@ -422,7 +454,7 @@ class Actual extends Generic {
 
     getOptions() {
         const series = [];
-        if (this.state[`chart-data-${this.state.rxData['oid-main']}`]) {
+        if (this.state[`chart-data-${this.state.rxData['oid-main']}`] && !this.state.rxData.noChart) {
             let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name) || '';
             if (!name) {
                 if (this.state.objects.secondary.common.role?.includes('temperature')) {
@@ -440,7 +472,7 @@ class Actual extends Generic {
                 name,
             });
         }
-        if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) {
+        if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`] && !this.state.rxData['noData-secondary']) {
             let name = this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name) || '';
             if (!name) {
                 if (this.state.objects.secondary.common.role?.includes('humidity')) {
@@ -532,10 +564,10 @@ class Actual extends Generic {
                     objBackgroundColor={this.state.objects.main ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'}
                     obj2BackgroundColor="rgba(77,134,255,0.14)"
                     themeType={this.props.themeType}
-                    defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
+                    defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
-                    systemConfig={this.props.systemConfig}
-                    dateFormat={this.props.systemConfig.common.dateFormat}
+                    systemConfig={this.props.context.systemConfig}
+                    dateFormat={this.props.context.systemConfig.common.dateFormat}
                     chartTitle=""
                 />
             </DialogContent>
@@ -612,14 +644,27 @@ class Actual extends Generic {
                     notMerge
                     lazyUpdate
                     theme={this.props.themeType === 'dark' ? 'dark' : ''}
-                    style={{ height: this.state.containerHeight - 42, width: '100%' }}
+                    style={{
+                        height: this.state.rxData.noCard || props.widget.usedInWidget ? this.state.containerHeight - 26 : this.state.containerHeight - 42,
+                        width: '100%',
+                    }}
                     opts={{ renderer: 'svg' }}
                 />
                 : null}
             {this.renderDialog()}
         </div>;
 
-        return this.wrapContent(content, null, { paddingLeft: 0, paddingRight: 0 }, { paddingLeft: 16 }, onCardClick);
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
+
+        return this.wrapContent(
+            content,
+            null,
+            { paddingLeft: 0, paddingRight: 0 },
+            { paddingLeft: 16 },
+            onCardClick,
+        );
     }
 }
 

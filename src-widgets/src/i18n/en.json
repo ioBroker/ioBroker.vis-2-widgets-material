@@ -227,5 +227,11 @@
   "widget_id": "Show widget",
   "hide": "Hide",
   "hide_tooltip": "For test purposes, to temporaly hide this item",
-  "vertical_orientation": "Vertical orientation"
+  "vertical_orientation": "Vertical orientation",
+  "without_card": "Without frame",
+  "read_only": "Read only",
+  "tooltip": "Tooltip",
+  "group_modes": "Mode customization",
+  "no_text": "Without title",
+  "modes_count": "Modes count"
 }

@@ -227,5 +227,11 @@
   "widget_id": "显示小部件",
   "hide": "隐藏",
   "hide_tooltip": "出于测试目的，暂时隐藏此项目",
-  "vertical_orientation": "垂直方向"
+  "vertical_orientation": "垂直方向",
+  "without_card": "无框",
+  "read_only": "只读",
+  "tooltip": "工具提示",
+  "group_modes": "模式定制",
+  "no_text": "无标题",
+  "modes_count": "模式计数"
 }

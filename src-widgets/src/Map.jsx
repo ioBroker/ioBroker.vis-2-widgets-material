@@ -164,8 +164,14 @@ class Map extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'markersCount',
@@ -290,7 +296,7 @@ class Map extends Generic {
 
     async propertiesUpdate() {
         const options = {
-            instance: this.props.systemConfig?.common?.defaultHistory || 'history.0',
+            instance: this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
             from: false,
             ack: false,
             q: false,
@@ -328,7 +334,7 @@ class Map extends Generic {
                     continue;
                 }
                 object.common = object.common || {};
-                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+                object.isChart = !!(object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]);
                 if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`position${i}`].split('.');
 

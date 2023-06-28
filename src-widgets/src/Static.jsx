@@ -62,9 +62,14 @@ class Static extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            label: 'name',
-                            noButton: true,
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
+                            label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'count',
@@ -147,7 +152,7 @@ class Static extends Generic {
 
         const objects = {};
 
-        const defaultHistory = this.props.systemConfig?.common?.defaultHistory;
+        const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
         // try to find icons for all OIDs
         for (let i = 1; i <= this.state.rxData.count; i++) {
@@ -313,10 +318,10 @@ class Static extends Generic {
                     chartTitle={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
                     title=""
                     themeType={this.props.themeType}
-                    defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
+                    defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
-                    systemConfig={this.props.systemConfig}
-                    dateFormat={this.props.systemConfig.common.dateFormat}
+                    systemConfig={this.props.context.systemConfig}
+                    dateFormat={this.props.context.systemConfig.common.dateFormat}
                 />
             </DialogContent>
         </Dialog>;
@@ -374,8 +379,7 @@ class Static extends Generic {
 }
 
 Static.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

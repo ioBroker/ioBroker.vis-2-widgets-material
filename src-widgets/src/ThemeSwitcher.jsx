@@ -177,8 +177,7 @@ class ThemeSwitcher extends Generic {
 }
 
 ThemeSwitcher.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

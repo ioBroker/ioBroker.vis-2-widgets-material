@@ -21,9 +21,14 @@ class Html extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            label: 'name',
-                            noButton: true,
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
+                            label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'html',
@@ -291,8 +296,7 @@ class Html extends Generic {
 }
 
 Html.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

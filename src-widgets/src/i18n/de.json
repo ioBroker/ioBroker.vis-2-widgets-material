@@ -227,5 +227,11 @@
   "widget_id": "Widget anzeigen",
   "hide": "Verstecken",
   "hide_tooltip": "Zu Testzwecken, um dieses Element vorübergehend auszublenden",
-  "vertical_orientation": "Vertikale Ausrichtung"
+  "vertical_orientation": "Vertikale Ausrichtung",
+  "without_card": "Ohne Rahmen",
+  "read_only": "Schreibgeschützt",
+  "tooltip": "Tooltip",
+  "group_modes": "Modusanpassung",
+  "no_text": "Ohne Titel",
+  "modes_count": "Modianzahl"
 }

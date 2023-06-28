@@ -35,8 +35,14 @@ class Blinds extends BlindsBase {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'sashCount',
@@ -316,6 +322,9 @@ class Blinds extends BlindsBase {
         }
 
         const data = this.getMinMaxPosition(0);
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            height -= 8;
+        }
 
         const content = <div
             ref={this.refCardContent}
@@ -333,6 +342,10 @@ class Blinds extends BlindsBase {
             {height ? this.renderWindows({ height, width }) : null}
         </div>;
 
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
+
         return this.wrapContent(
             content,
             this.state.rxData.showValue && data.hasControl ?
@@ -346,8 +359,7 @@ class Blinds extends BlindsBase {
 }
 
 Blinds.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

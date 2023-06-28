@@ -154,8 +154,14 @@ class SimpleState extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'values_count',
@@ -243,6 +249,11 @@ class SimpleState extends Generic {
                             max: 200,
                             default: 0,
                             hidden: '!data.withNumber',
+                        },
+                        {
+                            name: 'readOnly',
+                            type: 'checkbox',
+                            label: 'read_only',
                         },
                         {
                             name: 'unit',
@@ -559,7 +570,8 @@ class SimpleState extends Generic {
             minValue={object.common.min}
             maxValue={object.common.max}
             size={size}
-            arcColor={this.props.themeType === 'dark' ? '#fff' : '#000'}
+            arcColor={this.props.context.theme.palette.primary.main}
+            arcBackgroundColor={this.props.themeType === 'dark' ? '#DDD' : '#222'}
             startAngle={0}
             step={1}
             endAngle={360}
@@ -599,10 +611,22 @@ class SimpleState extends Generic {
                 value = this.formatValue(value);
             }
         }
+        let height;
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            height = '100%';
+        } else {
+            height = this.state.rxData.widgetTitle ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)';
+        }
 
         const content = <>
             {this.renderDimmerDialog()}
-            <div style={{ width: '100%', height: this.state.rxData.widgetTitle ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)' }} ref={this.refDiv}>
+            <div
+                style={{
+                    width: '100%',
+                    height,
+                }}
+                ref={this.refDiv}
+            >
                 <div
                     className={this.props.classes.buttonDiv}
                     style={{
@@ -612,6 +636,7 @@ class SimpleState extends Generic {
                 >
                     <Button
                         onClick={() => this.changeSwitch()}
+                        disabled={this.state.rxData.readOnly}
                         color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
                         className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
                     >
@@ -648,6 +673,10 @@ class SimpleState extends Generic {
                 </div>
             </div>
         </>;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
 
         return this.wrapContent(content, null);
     }
