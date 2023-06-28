@@ -1,7 +1,7 @@
 {
     "name": "iobroker.vis-2-widgets-material",
     "private": true,
-    "version": "0.4.0",
+    "version": "0.4.2",
     "dependencies": {
         "@craco/craco": "^7.1.0",
         "@emotion/react": "^11.11.1",

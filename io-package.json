@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "news": {
+      "0.6.1": {
+        "en": "Allowed usage without frame for all widgets",
+        "de": "Erlaubte Nutzung ohne Rahmen für alle Widgets",
+        "ru": "Разрешено использование без рамки для всех виджетов",
+        "pt": "Uso permitido sem moldura para todos os widgets",
+        "nl": "Vermogen zonder frame voor alle wedgets",
+        "fr": "Usage autorisé sans cadre pour tous les widgets",
+        "it": "Utilizzo consentito senza cornice per tutti i widget",
+        "es": "Permitido uso sin marco para todos los widgets",
+        "pl": "Wykorzystywanie bez ramki dla wszystkich widgetów",
+        "uk": "Допускається використання без рами для всіх віджетів",
+        "zh-cn": "允许在无任何框架的情况下使用所有植物目标"
+      },
       "0.6.0": {
         "en": "Added blinds to switches widget\nAllowed to place widgets in widgets",
         "de": "Blinds hinzugefügt, um Widget zu wechseln\nErlaubt, Widgets in Widgets zu platzieren",
@@ -80,19 +93,6 @@
         "pl": "BREAKING CHANGE: (ang.). Nazwy widgetów muszą być wprowadzone na nowo\npakiet aktualizacji",
         "uk": "БРЕАКІНГ ЗМІН: Назви віджетів необхідно вводити\nоновлення пакетів",
         "zh-cn": "BREAKREANGE: 必须加入新目标的名字。\n更新包"
-      },
-      "0.2.12": {
-        "en": "update packages",
-        "de": "update-pakete",
-        "ru": "обновление пакетов",
-        "pt": "pacotes de atualização",
-        "nl": "vertaling:",
-        "fr": "mettre à jour les paquets",
-        "it": "pacchetti di aggiornamento",
-        "es": "actualizar paquetes",
-        "pl": "pakiet aktualizacji",
-        "uk": "оновлення пакетів",
-        "zh-cn": "更新包"
       }
     },
     "title": "Vis 2 Widgets Material",
