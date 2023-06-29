@@ -348,7 +348,7 @@ class Actual extends Generic {
                 if (!this.state.rxData['noChart-secondary'] && this.state.objects.secondary?.common?.custom && this.state.objects.secondary.common.custom[defaultHistory]) {
                     await this.readHistory(this.state.objects.secondary._id);
                 }
-            }, parseInt(this.state.rxData.updateInterval, 10) || 60000); // every minute by default
+            }, (parseInt(this.state.rxData.updateInterval, 10) * 1000) || 60000); // every minute by default
         } else if (this.state[`chart-data-${this.state.rxData['oid-main']}`]) {
             // delete chart data
             newState[`chart-data-${this.state.rxData['oid-main']}`] = null;
@@ -357,7 +357,7 @@ class Actual extends Generic {
         if (!this.state.rxData['noChart-secondary'] && objects.secondary?.common?.custom && objects.secondary.common.custom[defaultHistory]) {
             await this.readHistory(objects.secondary._id);
             this.mainTimer = this.mainTimer || setInterval(() =>
-                this.readHistory(this.state.objects.secondary._id), parseInt(this.state.rxData.updateInterval, 10) || 60000); // every minute by default
+                this.readHistory(this.state.objects.secondary._id), (parseInt(this.state.rxData.updateInterval, 10) * 60) || 60000); // every minute by default
         } else if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) {
             // delete chart data
             newState[`chart-data-${this.state.rxData['oid-secondary']}`] = null;
