@@ -273,30 +273,31 @@ class Switches extends BlindsBase {
                             name: 'noIcon',
                             type: 'checkbox',
                             label: 'no_icon',
+                            hidden: 'data.type === "buttons" && !!data["widget" + index]',
                         },
                         {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
-                            hidden: '!!data["iconSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
+                            hidden: '!!data["iconSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'iconSmall',
                             type: 'icon64',
                             label: 'small_icon',
-                            hidden: '!!data["icon" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
+                            hidden: '!!data["icon" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
                             label: 'icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
+                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'iconEnabledSmall',
                             type: 'icon64',
                             label: 'small_icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index] || data["type" + index] === "blinds" || data["noIcon" + index]',
+                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'color',
@@ -314,7 +315,7 @@ class Switches extends BlindsBase {
                             name: 'title',
                             type: 'text',
                             label: 'title',
-                            noButton: true,
+                            hidden: 'data.type === "buttons" && !!data["widget" + index]',
                         },
                         {
                             name: 'unit',
@@ -427,6 +428,7 @@ class Switches extends BlindsBase {
                             type: 'widget',
                             label: 'widget_id',
                             hidden: '!!data["oid" + index]',
+                            checkUsage: true,
                         },
                         {
                             name: 'height',
