@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "news": {
+      "0.6.2": {
+        "en": "Allowed usage without frame for all widgets",
+        "de": "Erlaubte Nutzung ohne Rahmen für alle Widgets",
+        "ru": "Разрешено использование без рамки для всех виджетов",
+        "pt": "Uso permitido sem moldura para todos os widgets",
+        "nl": "Vermogen zonder frame voor alle wedgets",
+        "fr": "Usage autorisé sans cadre pour tous les widgets",
+        "it": "Utilizzo consentito senza cornice per tutti i widget",
+        "es": "Permitido uso sin marco para todos los widgets",
+        "pl": "Wykorzystywanie bez ramki dla wszystkich widgetów",
+        "uk": "Допускається використання без рами для всіх віджетів",
+        "zh-cn": "允许在无任何框架的情况下使用所有植物目标"
+      },
       "0.6.1": {
         "en": "Allowed usage without frame for all widgets",
         "de": "Erlaubte Nutzung ohne Rahmen für alle Widgets",
@@ -80,19 +93,6 @@
         "pl": "Improving buttons widgets",
         "uk": "Покращені кнопки віджет",
         "zh-cn": "B. 改善但县的匮乏"
-      },
-      "0.2.13": {
-        "en": "BREAKING CHANGE: The names of widgets must be entered anew \nupdate packages",
-        "de": "BREAKING CHANGE: Die Namen der Widgets müssen neu eingegeben werden\nupdate-pakete",
-        "ru": "ИЗМЕНЕНИЕ ЗАВТРА: Имена виджетов должны быть введены\nобновление пакетов",
-        "pt": "Muita coisa: Os nomes dos widgets devem ser introduzidos de novo\npacotes de atualização",
-        "nl": "BREAKING CHANGE: De namen van widgets moeten in het nieuwe\nvertaling:",
-        "fr": "Merci. Les noms des widgets doivent être entrés à nouveau\nmettre à jour les paquets",
-        "it": "CAMBIO DI BREAKING: I nomi dei widget devono essere inseriti di nuovo\npacchetti di aggiornamento",
-        "es": "Cambiando: Los nombres de los widgets deben ser introducidos de nuevo\nactualizar paquetes",
-        "pl": "BREAKING CHANGE: (ang.). Nazwy widgetów muszą być wprowadzone na nowo\npakiet aktualizacji",
-        "uk": "БРЕАКІНГ ЗМІН: Назви віджетів необхідно вводити\nоновлення пакетів",
-        "zh-cn": "BREAKREANGE: 必须加入新目标的名字。\n更新包"
       }
     },
     "title": "Vis 2 Widgets Material",
