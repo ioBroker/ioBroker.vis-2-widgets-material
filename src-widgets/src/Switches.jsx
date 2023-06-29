@@ -580,6 +580,40 @@ class Switches extends BlindsBase {
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
+        // inform view about, that this widget can include other widgets
+        this.props.registerRef && this.props.registerRef({
+            id: this.props.id,
+            uuid: this.props.uuid,
+            update: true,
+            canHaveWidgets: true,
+        });
+    }
+
+    onCommand(command, options) {
+        if (!super.onCommand(command, options)) {
+            if (command === 'include') {
+                console.log(`Widget ${options} added to ${this.props.id}`);
+                let found = false;
+                // find first completely free position
+                for (let index = 1; index <= this.state.rxData.count; index++) {
+                    if (!this.state.rxData[`oid${index}`] &&
+                        !this.state.rxData[`widget${index}`] &&
+                        !this.state.rxData[`title${index}`]
+                    ) {
+                        found = index;
+                        break;
+                    }
+                }
+                const project = JSON.parse(JSON.stringify(this.props.context.views));
+                const widget = project[this.props.view].widgets[this.props.id];
+                if (!found) {
+                    widget.data.count++;
+                    found = widget.data.count;
+                }
+                widget.data[`widget${found}`] = options;
+                this.props.context.changeProject(project);
+            }
+        }
     }
 
     async componentWillUnmount() {
