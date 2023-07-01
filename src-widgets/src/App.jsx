@@ -58,7 +58,7 @@ class App extends WidgetDemoApp {
                 this.socket,
                 {
                     test: {
-
+                        widgets: {},
                     },
                 },
                 project => {
