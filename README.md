@@ -105,7 +105,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.7.0 (2023-07-01)
 * (bluefox) Added washer widget
 
 ### 0.6.2 (2023-06-29)
