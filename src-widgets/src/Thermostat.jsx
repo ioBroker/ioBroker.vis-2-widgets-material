@@ -415,7 +415,7 @@ class Thermostat extends Generic {
         if (super.componentDidUpdate) {
             super.componentDidUpdate();
         }
-        if (this.refService.current) {
+        if (this.refService?.current) {
             let w = this.refService.current.clientWidth;
             let h = this.refService.current.clientHeight;
             let size = w;

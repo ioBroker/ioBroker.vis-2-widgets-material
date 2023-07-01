@@ -139,7 +139,8 @@ const WizardDialog = props => {
         })();
     }, [props.open]);
     return <Dialog
-        open={props.open}
+        key="materialWizardDialog"
+        open={!0}
         onClose={props.onClose}
     >
         <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
@@ -247,24 +248,11 @@ const WizardIcon = () => <svg
     />
 </svg>;
 
-const WizardDialog = props => {
-    DeviceDetector(props.socket);
-
-    return <Dialog
-        open={!0}
-        onClose={props.onClose}
-    >
-        <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
-        <DialogContent>
-        </DialogContent>
-    </Dialog>;
-};
-
 const WizardButton = props => {
     const [open, setOpen] = useState(false);
     const [states, setStates] = useState([]);
 
-    return <>
+    return [
         <Button
             key="materialWizardButton"
             onClick={() => setOpen(true)}
@@ -272,13 +260,13 @@ const WizardButton = props => {
             startIcon={<WizardIcon />}
         >
             {Generic.t('Wizard')}
-        </Button>
-        {open ? <WizardDialog
+        </Button>,
+        open ? <WizardDialog
             key="materialWizardDialog"
             onClose={() => setOpen(false)}
             {...props}
-        /> : null}
-    </>;
+        /> : null,
+    ];
 };
 
 class Wizard extends (window.visRxWidget || VisRxWidget) {
