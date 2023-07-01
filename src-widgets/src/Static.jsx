@@ -62,9 +62,14 @@ class Static extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            label: 'name',
-                            noButton: true,
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
+                            label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'count',
@@ -147,13 +152,13 @@ class Static extends Generic {
 
         const objects = {};
 
-        const defaultHistory = this.props.systemConfig?.common?.defaultHistory;
+        const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
         // try to find icons for all OIDs
         for (let i = 1; i <= this.state.rxData.count; i++) {
             if (this.state.rxData[`oid${i}`]) {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`oid${i}`]);
+                const object = await this.props.context.socket.getObject(this.state.rxData[`oid${i}`]);
                 if (!object) {
                     objects[i] = { common: {} };
                     continue;
@@ -164,9 +169,9 @@ class Static extends Generic {
                     const idArray = this.state.rxData[`oid${i}`].split('.');
 
                     // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -308,15 +313,15 @@ class Static extends Generic {
                 <ObjectChart
                     t={word => Generic.t(word)}
                     lang={Generic.getLanguage()}
-                    socket={this.props.socket}
+                    socket={this.props.context.socket}
                     obj={this.state.objects[index]}
                     chartTitle={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
                     title=""
                     themeType={this.props.themeType}
-                    defaultHistory={this.props.systemConfig?.common?.defaultHistory || 'history.0'}
+                    defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
-                    systemConfig={this.props.systemConfig}
-                    dateFormat={this.props.systemConfig.common.dateFormat}
+                    systemConfig={this.props.context.systemConfig}
+                    dateFormat={this.props.context.systemConfig.common.dateFormat}
                 />
             </DialogContent>
         </Dialog>;
@@ -374,8 +379,7 @@ class Static extends Generic {
 }
 
 Static.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

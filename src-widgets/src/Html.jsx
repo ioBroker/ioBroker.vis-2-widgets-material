@@ -8,6 +8,7 @@ class Html extends Generic {
         super(props);
 
         this.state.q = Date.now();
+        this.widgetRef = React.createRef();
     }
 
     static getWidgetInfo() {
@@ -21,40 +22,45 @@ class Html extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            label: 'name',
-                            noButton: true,
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
+                            label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'html',
                             type: 'html',
                             default: 'Admin Memory: <span style="color: #73b9ff">{system.adapter.admin.0.memHeapTotal.val}MB</span>',
                             label: 'html_template',
-                            hidden: data => !!data.iframe || !!data.image || !!data.image_oid || !!data.iframe_oid,
+                            hidden: data => !!data.iframe || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'iframe',
                             type: 'url',
                             label: 'iframe_url',
-                            hidden: data => !!data.html || !!data.image || !!data.image_oid || !!data.iframe_oid,
+                            hidden: data => !!data.html || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'iframe_oid',
                             type: 'id',
                             label: 'iframe_oid',
-                            hidden: data => !!data.html || !!data.image || !!data.image_oid || !!data.iframe,
+                            hidden: data => !!data.html || !!data.image || !!data.image_oid || !!data.iframe || !!data.widget,
                         },
                         {
                             name: 'image',
                             type: 'url',
                             label: 'image_url',
-                            hidden: data => !!data.iframe || !!data.html || !!data.image_oid || !!data.iframe_oid,
+                            hidden: data => !!data.iframe || !!data.html || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'image_oid',
                             type: 'id',
                             label: 'image_oid',
-                            hidden: data => !!data.iframe || !!data.html || !!data.image || !!data.iframe_oid,
+                            hidden: data => !!data.iframe || !!data.html || !!data.image || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'objectFit',
@@ -78,19 +84,19 @@ class Html extends Generic {
                             max: 180000,
                             step: 100,
                             label: 'refresh_interval',
-                            hidden: data => !!data.html,
+                            hidden: data => !!data.html || !!data.widget,
                         },
                         {
                             name: 'refreshOnWakeUp',
                             type: 'checkbox',
                             label: 'refresh_on_wake_up',
-                            hidden: data => !!data.html,
+                            hidden: data => !!data.html || !!data.widget,
                         },
                         {
                             name: 'refreshOnViewChange',
                             type: 'checkbox',
                             label: 'refresh_on_view_change',
-                            hidden: data => !!data.html,
+                            hidden: data => !!data.html || !!data.widget,
                         },
                         {
                             name: 'scrollX',
@@ -131,6 +137,12 @@ class Html extends Generic {
                             label: 'refresh_with_no_query',
                             default: true,
                             hidden: data => !data.image && !data.image_oid && !data.iframe && !data.iframe_oid,
+                        },
+                        {
+                            name: 'widget',
+                            type: 'widget',
+                            label: 'widget_id',
+                            hidden: data => !!data.image || !!data.image_oid || !!data.iframe || !!data.iframe_oid || !!data.html,
                         },
                     ],
                 },
@@ -219,9 +231,11 @@ class Html extends Generic {
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
+        const noCard = this.state.rxData.noCard || props.widget.usedInWidget;
+
         const style = {
             width: '100%',
-            height: this.state.rxData.widgetTitle ? 'calc(100% - 72px)' : 'calc(100% - 36px)',
+            height: !noCard && this.state.rxData.widgetTitle ? 'calc(100% - 72px)' : (noCard ? '100%' : 'calc(100% - 36px)'),
             border: '0',
         };
         Object.keys(this.state.rxStyle).forEach(key => {
@@ -238,32 +252,36 @@ class Html extends Generic {
             }
         });
 
+        let content;
+
         if (this.state.rxData.html) {
-            return this.wrapContent(<div
+            content = <div
                 // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: this.state.rxData.html }}
                 style={style}
-            />);
+            />;
         }
-        const key = this.state.rxData.refreshWithNoQuery ? this.state.q : 'element';
-
-        this.reinitInterval();
 
         if (this.state.rxData.iframe_oid || this.state.rxData.iframe) {
+            const key = this.state.rxData.refreshWithNoQuery ? this.state.q : 'element';
+            this.reinitInterval();
+
             style.overflowX = this.state.rxData.scrollX ? 'scroll' : 'hidden';
             style.overflowY = this.state.rxData.scrollY ? 'scroll' : 'hidden';
-
-            return this.wrapContent(<iframe
+            content = <iframe
                 key={key}
                 title={this.props.id}
                 seamless={this.state.rxData.seamless}
                 src={this.getUrl()}
                 style={style}
                 sandbox={this.state.rxData.noSandbox ? undefined : 'allow-scripts allow-same-origin allow-modals allow-forms allow-pointer-lock allow-popups'}
-            ></iframe>);
+            ></iframe>;
         }
 
         if (this.state.rxData.image || this.state.rxData.image_oid) {
+            const key = this.state.rxData.refreshWithNoQuery ? this.state.q : 'element';
+            this.reinitInterval();
+
             if (this.state.rxData.allowUserInteractions) {
                 style.touchCallout = 'none';
                 style.touchSelect = 'none';
@@ -274,25 +292,46 @@ class Html extends Generic {
 
             style.objectFit = this.state.rxData.objectFit;
 
-            return this.wrapContent(<img
+            content = <img
                 key={key}
                 src={this.getUrl()}
                 style={style}
                 alt={this.props.id}
-            />);
+            />;
         }
 
-        return this.wrapContent(<div
-            style={style}
-        >
-            ---
-        </div>);
+        if (this.state.rxData.widget) {
+            const wid = this.state.rxData.widget;
+            const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
+            if (widget && this.getWidgetInWidget && wid !== this.props.id) { // todo: remove this condition after vis release
+                // come again when the ref is filled
+                if (!this.widgetRef.current) {
+                    setTimeout(() => this.forceUpdate(), 50);
+                }
+                style.justifyContent = 'center';
+                style.display = 'flex';
+                style.alignItems = 'center';
+                content = <div
+                    ref={this.widgetRef}
+                    style={style}
+                >
+                    {this.widgetRef.current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef }) : null}
+                </div>;
+            }
+        }
+
+        content = content || <div style={style}>---</div>;
+
+        if (noCard) {
+            return content;
+        }
+
+        return this.wrapContent(content);
     }
 }
 
 Html.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

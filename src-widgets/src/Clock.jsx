@@ -75,6 +75,11 @@ class Clock extends Generic {
                 name: 'common',
                 fields: [
                     {
+                        name: 'noCard',
+                        label: 'without_card',
+                        type: 'checkbox',
+                    },
+                    {
                         name: 'type',
                         label: 'type',
                         type: 'select',
@@ -523,29 +528,39 @@ class Clock extends Generic {
             }, 1000 - new Date().getMilliseconds());
         }
 
-        const content = <div
-            style={{
-                width: 'calc(100% - 16px)',
-                height: 'calc(100% - 40px)',
-                textAlign: 'center',
-                lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-                fontFamily: this.state.rxStyle['font-family'],
-                fontShadow: this.state.rxStyle['font-shadow'],
-                fontStyle: this.state.rxStyle['font-style'],
-                fontWeight: this.state.rxStyle['font-weight'],
-                fontVariant: this.state.rxStyle['font-variant'],
-            }}
-            ref={this.refContainer}
-        >
+        const style = {
+            textAlign: 'center',
+            lineHeight: this.state.height ? `${this.state.height}px` : undefined,
+            fontFamily: this.state.rxStyle['font-family'],
+            fontShadow: this.state.rxStyle['font-shadow'],
+            fontStyle: this.state.rxStyle['font-style'],
+            fontWeight: this.state.rxStyle['font-weight'],
+            fontVariant: this.state.rxStyle['font-variant'],
+        };
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            style.width = 'calc(100% - 4px)';
+            style.height = 'calc(100% - 8px)';
+            style.margin = 'auto';
+        } else {
+            style.width = 'calc(100% - 16px)';
+            style.height = 'calc(100% - 40px)';
+        }
+
+        const content = <div style={style} ref={this.refContainer}>
             {clock}
         </div>;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
 
         return this.wrapContent(content, null);
     }
 }
 
 Clock.propTypes = {
-    systemConfig: PropTypes.object,
+    context: PropTypes.object,
     socket: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,

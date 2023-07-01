@@ -222,5 +222,16 @@
   "image_oid": "Afbeeldingsvoorwerp",
   "object_fit": "Methode voor het vullen van afbeeldingen",
   "allow_user_interactions": "Sta gebruikersinteracties toe",
-  "theme_switcher": "Thema-wisselaar"
+  "theme_switcher": "Thema-wisselaar",
+  "height": "Hoogte",
+  "widget_id": "Toon widget",
+  "hide": "Verbergen",
+  "hide_tooltip": "Voor testdoeleinden, om dit item tijdelijk te verbergen",
+  "vertical_orientation": "Verticale oriëntatie",
+  "without_card": "Zonder lijst",
+  "read_only": "Alleen lezen",
+  "tooltip": "Knopinfo",
+  "group_modes": "Aanpassing van de modus",
+  "no_text": "Zonder titel",
+  "modes_count": "Modi tellen"
 }

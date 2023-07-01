@@ -223,6 +223,17 @@
   "object_fit": "Image fill method",
   "allow_user_interactions": "Allow user interactions",
   "theme_switcher": "Theme switcher",
+  "height": "Height",
+  "widget_id": "Show widget",
+  "hide": "Hide",
+  "hide_tooltip": "For test purposes, to temporaly hide this item",
+  "vertical_orientation": "Vertical orientation",
+  "without_card": "Without frame",
+  "read_only": "Read only",
+  "tooltip": "Tooltip",
+  "group_modes": "Mode customization",
+  "no_text": "Without title",
+  "modes_count": "Modes count",
   "Wizard": "Wizard",
   "Add views": "Add views"
 }

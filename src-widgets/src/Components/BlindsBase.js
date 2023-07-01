@@ -224,7 +224,7 @@ class BlindsBase extends Generic {
                     this.lastClick = Date.now();
                     this.setState({ showBlindsDialog: null });
                 }}
-                onStop={data.stopOid && data.stopOid !== 'nothing_selected' ? () => this.props.socket.setState(data.stopOid, { val: true, ack: false }) : null}
+                onStop={data.stopOid && data.stopOid !== 'nothing_selected' ? () => this.props.context.socket.setState(data.stopOid, { val: true, ack: false }) : null}
                 onValueChange={value => {
                     // calculate real value
                     if (data.invert) {
@@ -233,7 +233,7 @@ class BlindsBase extends Generic {
 
                     value = ((data.max - data.min) / 100) * value + data.min;
 
-                    this.props.socket.setState(data.positionOid, { val: value, ack: false });
+                    this.props.context.socket.setState(data.positionOid, { val: value, ack: false });
                 }}
                 startValue={data.shutterPos}
                 type={DialogBlinds.types.blinds}

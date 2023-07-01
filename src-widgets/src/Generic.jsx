@@ -25,7 +25,7 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
         const parts = id.split('.');
         parts.pop();
         const parentOID = parts.join('.');
-        return this.props.socket.getObject(parentOID);
+        return this.props.context.socket.getObject(parentOID);
     }
 
     static getObjectIcon(obj, id, imagePrefix) {
@@ -76,8 +76,7 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
 }
 
 Generic.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

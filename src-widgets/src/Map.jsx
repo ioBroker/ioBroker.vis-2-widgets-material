@@ -164,6 +164,11 @@ class Map extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
                         },
@@ -184,12 +189,12 @@ class Map extends Generic {
                         {
                             name: 'themeUrl',
                             label: 'theme_url',
-                            hidden: data => data.theme,
+                            hidden: data => data.theme && data.theme !== 'default',
                         },
                         {
                             name: 'themeAttribution',
                             label: 'theme_attribution',
-                            hidden: data => data.theme,
+                            hidden: data => data.theme && data.theme !== 'default',
                         },
                         {
                             name: 'defaultZoom',
@@ -290,7 +295,7 @@ class Map extends Generic {
 
     async propertiesUpdate() {
         const options = {
-            instance: this.props.systemConfig?.common?.defaultHistory || 'history.0',
+            instance: this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
             from: false,
             ack: false,
             q: false,
@@ -307,7 +312,7 @@ class Map extends Generic {
                 this.state.objects[i]?.common?.custom &&
                 this.state.objects[i].common.custom[options.instance]
             ) {
-                const history = (await this.props.socket.getHistory(this.state.rxData[`position${i}`], options));
+                const history = (await this.props.context.socket.getHistory(this.state.rxData[`position${i}`], options));
                 newHistory[i] = history
                     .filter(position => position.val)
                     .sort((a, b) => (a.ts > b.ts ? 1 : -1));
@@ -322,20 +327,20 @@ class Map extends Generic {
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
             if (this.state.rxData[`position${i}`]) {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`position${i}`]);
+                const object = await this.props.context.socket.getObject(this.state.rxData[`position${i}`]);
                 if (!object) {
                     objects[i] = { common: {} };
                     continue;
                 }
                 object.common = object.common || {};
-                object.isChart = !!(object.common.custom && object.common.custom[this.props.systemConfig?.common?.defaultHistory]);
+                object.isChart = !!(object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]);
                 if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`position${i}`].split('.');
 
                     // read channel
-                    const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -546,7 +551,33 @@ class Map extends Generic {
             {this.renderMap()}
         </>;
 
-        const iconFull = this.state.rxData.hideFullScreenButton ? null : <IconButton onClick={() => this.setState({ dialog: true })}><OpenInFullIcon /></IconButton>;
+        const iconFull = this.state.rxData.hideFullScreenButton ? null :
+            <IconButton onClick={() => this.setState({ dialog: true })}>
+                <OpenInFullIcon
+                    style={{
+                        color: (this.state.rxData.noCard || props.widget.usedInWidget) &&
+                            (!this.state.rxData.theme ||
+                                this.state.rxData.theme === 'default' ||
+                                this.state.rxData.theme === 'stadiaosmbright') ? '#111' : undefined,
+                    }}
+                />
+            </IconButton>;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return <div style={{ width: '100%', height: '100%' }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        zIndex: 500,
+                    }}
+                >
+                    {iconFull}
+                </div>
+                {content}
+            </div>;
+        }
 
         return this.wrapContent(
             content,

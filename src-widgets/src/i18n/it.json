@@ -222,5 +222,16 @@
   "image_oid": "Oggetto immagine",
   "object_fit": "Metodo di riempimento dell'immagine",
   "allow_user_interactions": "Consenti le interazioni degli utenti",
-  "theme_switcher": "Commutatore di temi"
+  "theme_switcher": "Commutatore di temi",
+  "height": "Altezza",
+  "widget_id": "Mostra widget",
+  "hide": "Nascondere",
+  "hide_tooltip": "A scopo di test, per nascondere temporaneamente questo elemento",
+  "vertical_orientation": "Orientamento verticale",
+  "without_card": "Senza cornice",
+  "read_only": "Sola lettura",
+  "tooltip": "Descrizione comandi",
+  "group_modes": "Personalizzazione della modalità",
+  "no_text": "Senza titolo",
+  "modes_count": "Le modalità contano"
 }

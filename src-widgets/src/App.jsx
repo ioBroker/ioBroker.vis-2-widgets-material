@@ -68,12 +68,14 @@ class App extends WidgetDemoApp {
             ),
             camera: <Camera
                 key="Camera"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 style={{
                     width: 400,
                     height: 180,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Camera',
                     url: 'https://loremflickr.com/320/240',
@@ -83,12 +85,14 @@ class App extends WidgetDemoApp {
             />,
             map: <Map
                 key="Map"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 style={{
                     width: 400,
                     height: 420,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Map',
                     markersCount: 1,
@@ -99,12 +103,14 @@ class App extends WidgetDemoApp {
             />,
             player: <Player
                 key="Player"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 style={{
                     width: 400,
                     height: 420,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Player',
                     cover: 'sonos.0.root.192_168_1_102.current_cover',
@@ -121,12 +127,14 @@ class App extends WidgetDemoApp {
             />,
             security: <Security
                 key="Security"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 style={{
                     width: 400,
                     height: 180,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Security',
                     buttonsCount: 2,
@@ -143,12 +151,14 @@ class App extends WidgetDemoApp {
             />,
             Html: <Html
                 key="Html"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 style={{
                     width: 400,
                     height: 180,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'HTML',
                     html: '<div>Hallo<b',
@@ -156,13 +166,15 @@ class App extends WidgetDemoApp {
             />,
             clock: <Clock
                 key="Clock"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 themeType={this.state.themeType}
                 style={{
                     width: 160,
                     height: 420,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     type: 'digital',
                     withSeconds: true,
@@ -202,14 +214,16 @@ class App extends WidgetDemoApp {
             //         title2: 'States',
             //     }}
             // />,
-            simplestate: <SimpleState
+            simpleState: <SimpleState
                 key="SimpleState"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 style={{
                     width: 400,
                     height: 180,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'SimpleState',
                     values_count: 5,
@@ -222,13 +236,15 @@ class App extends WidgetDemoApp {
             />,
             switches: <Switches
                 key="Switches"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 themeType={this.state.themeType}
                 style={{
                     width: 400,
                     height: 180,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Switches',
                     count: 5,
@@ -246,13 +262,15 @@ class App extends WidgetDemoApp {
             />,
             thermostat: <Thermostat
                 key="Thermostat"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 themeType={this.state.themeType}
                 style={{
                     width: 600,
                     height: 650,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Thermostat',
                     'oid-mode': 'javascript.0.thermostat.mode',
@@ -263,13 +281,15 @@ class App extends WidgetDemoApp {
             />,
             actual: <Actual
                 key="Actual"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 themeType={this.state.themeType}
                 style={{
                     width: 400,
                     height: 200,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Actual temperature',
                     timeInterval: 6,
@@ -277,28 +297,32 @@ class App extends WidgetDemoApp {
                     'oid-humidity': 'system.adapter.admin.0.memHeapUsed',
                 }}
             />,
-            viewinwidget: <ViewInWidget
+            viewInWidget: <ViewInWidget
                 key="ViewInWidget"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 themeType={this.state.themeType}
                 style={{
                     width: 400,
                     height: 200,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Actual temperature',
                 }}
             />,
             blinds: <Blinds
                 key="Blinds"
-                socket={this.socket}
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
                 themeType={this.state.themeType}
                 style={{
                     width: 400,
                     height: 200,
                 }}
-                systemConfig={this.state.systemConfig}
                 data={{
                     name: 'Blinds',
                 }}

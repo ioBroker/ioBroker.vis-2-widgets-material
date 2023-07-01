@@ -32,8 +32,14 @@ class ViewInWidget extends Generic {
                 name: 'common',
                 fields: [
                     {
+                        name: 'noCard',
+                        label: 'without_card',
+                        type: 'checkbox',
+                    },
+                    {
                         name: 'widgetTitle',
                         label: 'name',
+                        hidden: '!!data.noCard',
                     },
                     {
                         name: 'view',
@@ -123,14 +129,16 @@ class ViewInWidget extends Generic {
             }
         }
 
+        const noCard = this.state.rxData.noCard || props.widget.usedInWidget;
+
         const content = <div
             style={{
                 overflow: 'hidden',
                 position: 'absolute',
-                top: this.state.rxData.widgetTitle ? 53 : 16,
+                top: !noCard && this.state.rxData.widgetTitle ? 53 : (noCard ? 0 : 16),
                 left: 8,
                 width: 'calc(100% - 16px)',
-                height: this.state.rxData.widgetTitle ? 'calc(100% - 100px)' : 'calc(100% - 64px)',
+                height: !noCard && this.state.rxData.widgetTitle ? 'calc(100% - 100px)' : (noCard ? '100%' : 'calc(100% - 64px)'),
                 textAlign: 'center',
                 lineHeight: this.state.height ? `${this.state.height}px` : undefined,
                 fontFamily: this.state.rxStyle['font-family'],
@@ -149,17 +157,19 @@ class ViewInWidget extends Generic {
             {view ? this.getWidgetView(view, { style }) : null}
         </div>;
 
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
+
         return this.wrapContent(content, null);
     }
 }
 
 ViewInWidget.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,
-    VisView: PropTypes.func,
 };
 
 export default withStyles(styles)(ViewInWidget);

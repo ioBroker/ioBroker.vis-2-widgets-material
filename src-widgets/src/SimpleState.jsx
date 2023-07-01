@@ -154,8 +154,14 @@ class SimpleState extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'values_count',
@@ -245,6 +251,11 @@ class SimpleState extends Generic {
                             hidden: '!data.withNumber',
                         },
                         {
+                            name: 'readOnly',
+                            type: 'checkbox',
+                            label: 'read_only',
+                        },
+                        {
                             name: 'unit',
                             label: 'unit',
                         },
@@ -310,7 +321,7 @@ class SimpleState extends Generic {
             return;
         }
         // read object itself
-        let object = await this.props.socket.getObject(this.state.rxData.oid);
+        let object = await this.props.context.socket.getObject(this.state.rxData.oid);
         if (!object) {
             object = { common: {} };
         } else {
@@ -336,9 +347,9 @@ class SimpleState extends Generic {
             const idArray = this.state.rxData.oid.split('.');
 
             // read channel
-            const parentObject = await this.props.socket.getObject(idArray.slice(0, -1).join('.'));
+            const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
             if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                const grandParentObject = await this.props.socket.getObject(idArray.slice(0, -2).join('.'));
+                const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                 if (grandParentObject?.common?.icon) {
                     object.common.icon = grandParentObject.common.icon;
                     if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -444,7 +455,7 @@ class SimpleState extends Generic {
                 values[oid] = !values[oid];
             }
             this.setState({ values });
-            this.props.socket.setState(this.state.rxData.oid, values[oid]);
+            this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
         }
     };
 
@@ -453,7 +464,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = isOn ? this.state.object.common.max : this.state.object.common.min;
         this.setState({ values });
-        this.props.socket.setState(this.state.rxData.oid, values[oid]);
+        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
     }
 
     controlSpecificState(value) {
@@ -461,7 +472,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = value;
         this.setState({ values });
-        this.props.socket.setState(this.state.rxData.oid, values[oid]);
+        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
     }
 
     renderDimmerDialog() {
@@ -525,7 +536,7 @@ class SimpleState extends Generic {
                                         const oid = `${this.state.object._id}.val`;
                                         values[oid] = value;
                                         this.setState({ values });
-                                        this.props.socket.setState(this.state.rxData.oid, values[oid]);
+                                        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
                                     }}
                                 />
                             </div>
@@ -559,7 +570,8 @@ class SimpleState extends Generic {
             minValue={object.common.min}
             maxValue={object.common.max}
             size={size}
-            arcColor={this.props.themeType === 'dark' ? '#fff' : '#000'}
+            arcColor={this.props.context.theme.palette.primary.main}
+            arcBackgroundColor={this.props.themeType === 'dark' ? '#DDD' : '#222'}
             startAngle={0}
             step={1}
             endAngle={360}
@@ -599,10 +611,22 @@ class SimpleState extends Generic {
                 value = this.formatValue(value);
             }
         }
+        let height;
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            height = '100%';
+        } else {
+            height = this.state.rxData.widgetTitle ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)';
+        }
 
         const content = <>
             {this.renderDimmerDialog()}
-            <div style={{ width: '100%', height: this.state.rxData.widgetTitle ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)' }} ref={this.refDiv}>
+            <div
+                style={{
+                    width: '100%',
+                    height,
+                }}
+                ref={this.refDiv}
+            >
                 <div
                     className={this.props.classes.buttonDiv}
                     style={{
@@ -612,6 +636,7 @@ class SimpleState extends Generic {
                 >
                     <Button
                         onClick={() => this.changeSwitch()}
+                        disabled={this.state.rxData.readOnly}
                         color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
                         className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
                     >
@@ -648,6 +673,10 @@ class SimpleState extends Generic {
                 </div>
             </div>
         </>;
+
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
 
         return this.wrapContent(content, null);
     }

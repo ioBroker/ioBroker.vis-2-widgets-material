@@ -12,6 +12,7 @@ const styles = () => ({
         alignItems: 'center',
         width: '100%',
         overflow: 'hidden',
+        height: '100%',
     },
     ...STYLES,
 });
@@ -34,8 +35,14 @@ class Blinds extends BlindsBase {
                     name: 'common',
                     fields: [
                         {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
+                            hidden: '!!data.noCard',
                         },
                         {
                             name: 'sashCount',
@@ -248,14 +255,14 @@ class Blinds extends BlindsBase {
         this.lastRxData = actualRxData;
         const objects = {};
 
-        const _object = this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected' ? (await this.props.socket.getObject(this.state.rxData.oid)) : null;
+        const _object = this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected' ? (await this.props.context.socket.getObject(this.state.rxData.oid)) : null;
         objects.main = _object?.common || {};
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
             if (this.state.rxData[`slidePos_oid${index}`] && this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected') {
                 // read object itself
-                const object = await this.props.socket.getObject(this.state.rxData[`slidePos_oid${index}`]);
+                const object = await this.props.context.socket.getObject(this.state.rxData[`slidePos_oid${index}`]);
                 if (!object) {
                     objects[index] = { };
                     continue;
@@ -315,6 +322,9 @@ class Blinds extends BlindsBase {
         }
 
         const data = this.getMinMaxPosition(0);
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            height -= 8;
+        }
 
         const content = <div
             ref={this.refCardContent}
@@ -332,6 +342,10 @@ class Blinds extends BlindsBase {
             {height ? this.renderWindows({ height, width }) : null}
         </div>;
 
+        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+            return content;
+        }
+
         return this.wrapContent(
             content,
             this.state.rxData.showValue && data.hasControl ?
@@ -345,8 +359,7 @@ class Blinds extends BlindsBase {
 }
 
 Blinds.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
+    context: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

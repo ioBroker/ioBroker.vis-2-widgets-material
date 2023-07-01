@@ -222,5 +222,16 @@
   "image_oid": "Objeto de imagen",
   "object_fit": "Método de relleno de imagen",
   "allow_user_interactions": "Permitir interacciones de usuario",
-  "theme_switcher": "Conmutador de temas"
+  "theme_switcher": "Conmutador de temas",
+  "height": "Altura",
+  "widget_id": "Mostrar widget",
+  "hide": "Esconder",
+  "hide_tooltip": "Con fines de prueba, para ocultar temporalmente este elemento",
+  "vertical_orientation": "Orientación vertical",
+  "without_card": "sin marco",
+  "read_only": "Solo lectura",
+  "tooltip": "Información sobre herramientas",
+  "group_modes": "Personalización del modo",
+  "no_text": "sin titulo",
+  "modes_count": "Cuenta de modos"
 }
