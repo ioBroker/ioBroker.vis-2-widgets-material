@@ -588,6 +588,7 @@ class Map extends Generic {
             {
                 boxSizing: 'border-box',
                 paddingBottom: 10,
+                height: '100%',
             },
         );
     }

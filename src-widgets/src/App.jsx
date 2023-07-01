@@ -20,6 +20,7 @@ import Security from './Security';
 import Html from './Html';
 import Blinds from './Blinds';
 import ThemeSwitcher from './ThemeSwitcher';
+import WasherDryer from './WasherDryer';
 import Wizard from './Wizard';
 
 const styles = theme => ({
@@ -325,6 +326,21 @@ class App extends WidgetDemoApp {
                 }}
                 data={{
                     name: 'Blinds',
+                }}
+            />,
+            washerDryer: <WasherDryer
+                key="WasherDryer"
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
+                themeType={this.state.themeType}
+                style={{
+                    width: 400,
+                    height: 200,
+                }}
+                data={{
+                    name: 'WasherDryer',
                 }}
             />,
         };

@@ -617,7 +617,13 @@ class Actual extends Generic {
             secondaryIcon = null;
         }
 
-        const content = <div style={{ width: '100%', height: '100%' }} ref={this.refContainer}>
+        const content = <div
+            style={{
+                width: '100%',
+                height: !this.state.rxData.noCard && !props.widget.usedInWidget && this.state.rxData.widgetTitle ? 'calc(100% - 32px)' : '100%',
+            }}
+            ref={this.refContainer}
+        >
             {mainValue !== undefined ?
                 <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name) || null}>
                     <div className={this.props.classes.mainDiv}>
@@ -645,7 +651,7 @@ class Actual extends Generic {
                     lazyUpdate
                     theme={this.props.themeType === 'dark' ? 'dark' : ''}
                     style={{
-                        height: this.state.rxData.noCard || props.widget.usedInWidget ? this.state.containerHeight - 26 : this.state.containerHeight - 42,
+                        height: this.state.containerHeight - 26,
                         width: '100%',
                     }}
                     opts={{ renderer: 'svg' }}
@@ -661,7 +667,12 @@ class Actual extends Generic {
         return this.wrapContent(
             content,
             null,
-            { paddingLeft: 0, paddingRight: 0 },
+            {
+                paddingLeft: 0,
+                paddingRight: 0,
+                paddingBottom: 0,
+                height: 'calc(100% - 16px)',
+            },
             { paddingLeft: 16 },
             onCardClick,
         );

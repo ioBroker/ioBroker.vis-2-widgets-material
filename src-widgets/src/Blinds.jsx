@@ -322,9 +322,7 @@ class Blinds extends BlindsBase {
         }
 
         const data = this.getMinMaxPosition(0);
-        if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            height -= 8;
-        }
+        height -= 8;
 
         const content = <div
             ref={this.refCardContent}
@@ -353,7 +351,6 @@ class Blinds extends BlindsBase {
                     {data.shutterPos}
                     %
                 </span> : null,
-            { height: 'calc(100% - 40px)' },
         );
     }
 }

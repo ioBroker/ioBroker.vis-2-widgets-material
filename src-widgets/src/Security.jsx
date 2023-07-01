@@ -498,6 +498,7 @@ class Security extends Generic {
         return this.wrapContent(content, lockedChip, {
             boxSizing: 'border-box',
             paddingBottom: 10,
+            height: '100%',
         });
     }
 }

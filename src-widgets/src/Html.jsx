@@ -165,11 +165,18 @@ class Html extends Generic {
         super.componentDidMount();
         this.reinitInterval();
 
-        if (this.state.rxData.refreshOnWakeUp) {
+        // inform view about, that this widget can include other widgets
+        this.props.askView && this.props.askView('update', {
+            id: this.props.id,
+            uuid: this.uuid,
+            canHaveWidgets: true,
+        });
+
+        if (this.state.rxData.refreshOnWakeUp && !this.state.rxData.widget) {
             this.wakeUpInstalled = true;
             window.vis.onWakeUp(() => this.refresh(), this.props.id);
         }
-        if (this.state.rxData.refreshOnViewChange) {
+        if (this.state.rxData.refreshOnViewChange && !this.state.rxData.widget) {
             this.viewChangeInstalled = true;
             window.vis.navChangeCallbacks.push({
                 cb: view => view === this.props.view && this.refresh(),
@@ -178,14 +185,31 @@ class Html extends Generic {
         }
     }
 
+    // eslint-disable-next-line
+    onCommand(command, options) {
+        const result = super.onCommand(command, options);
+        if (!result) {
+            if (command === 'include') {
+                const project = JSON.parse(JSON.stringify(this.props.context.views));
+                const widget = project[this.props.view].widgets[this.props.id];
+                widget.data.widget = options;
+                this.props.context.changeProject(project);
+                return true;
+            }
+        }
+
+        return result;
+    }
+
     reinitInterval() {
         const refreshInterval = parseInt(this.state.rxData.refreshInterval, 10);
-        if (refreshInterval !== this.lastRefreshInterval) {
+        if (refreshInterval !== this.lastRefreshInterval || this.state.rxData.widget !== this.lastWidget) {
             this.refreshInterval && clearInterval(this.refreshInterval);
             this.refreshInterval = null;
+            this.lastWidget = this.state.rxData.widget;
 
             this.lastRefreshInterval = refreshInterval;
-            if (refreshInterval) {
+            if (refreshInterval && !this.lastWidget) {
                 this.refreshInterval = setInterval(() => this.refresh(), refreshInterval);
             }
         }
@@ -235,7 +259,7 @@ class Html extends Generic {
 
         const style = {
             width: '100%',
-            height: !noCard && this.state.rxData.widgetTitle ? 'calc(100% - 72px)' : (noCard ? '100%' : 'calc(100% - 36px)'),
+            height: !noCard && this.state.rxData.widgetTitle ? 'calc(100% - 36px)' : '100%',
             border: '0',
         };
         Object.keys(this.state.rxStyle).forEach(key => {
@@ -301,6 +325,8 @@ class Html extends Generic {
         }
 
         if (this.state.rxData.widget) {
+            this.reinitInterval(); // disable interval
+
             const wid = this.state.rxData.widget;
             const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
             if (widget && this.getWidgetInWidget && wid !== this.props.id) { // todo: remove this condition after vis release

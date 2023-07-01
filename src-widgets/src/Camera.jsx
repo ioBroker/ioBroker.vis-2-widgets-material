@@ -277,6 +277,7 @@ class Camera extends Generic {
         return this.wrapContent(content, null, {
             boxSizing: 'border-box',
             paddingBottom: 10,
+            height: '100%',
         });
     }
 }

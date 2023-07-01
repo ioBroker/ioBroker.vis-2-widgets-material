@@ -225,8 +225,8 @@ class ObjectChart extends Component {
     }
 
     componentDidMount() {
-        this.props.context.socket.subscribeState(this.props.obj._id, this.onChange);
-        this.props.obj2 && this.props.context.socket.subscribeState(this.props.obj2._id, this.onChange);
+        this.props.socket.subscribeState(this.props.obj._id, this.onChange);
+        this.props.obj2 && this.props.socket.subscribeState(this.props.obj2._id, this.onChange);
         window.addEventListener('resize', this.onResize);
         this.prepareData()
             .then(() => !this.props.noToolbar && this.readHistoryRange())
@@ -247,8 +247,8 @@ class ObjectChart extends Component {
         this.maxYLenTimeout2 && clearTimeout(this.maxYLenTimeout2);
         this.maxYLenTimeout2 = null;
 
-        this.props.context.socket.unsubscribeState(this.props.obj._id, this.onChange);
-        this.props.obj2 && this.props.context.socket.unsubscribeState(this.props.obj2._id, this.onChange);
+        this.props.socket.unsubscribeState(this.props.obj._id, this.onChange);
+        this.props.obj2 && this.props.socket.unsubscribeState(this.props.obj2._id, this.onChange);
         window.removeEventListener('resize', this.onResize);
     }
 
@@ -300,7 +300,7 @@ class ObjectChart extends Component {
                     return Promise.resolve(this.props.systemConfig);
                 }
                 // read default history
-                return this.props.context.socket.getSystemConfig();
+                return this.props.socket.getSystemConfig();
             })
             .then(config => {
                 const defaultHistory = config && config.common && config.common.defaultHistory;
@@ -343,7 +343,7 @@ class ObjectChart extends Component {
         let customsInstances = this.props.customsInstances;
         const objects = this.props.objects  || {};
         if (!customsInstances) {
-            const instances = await this.props.context.socket.getAdapterInstances();
+            const instances = await this.props.socket.getAdapterInstances();
             customsInstances = instances.filter(it => {
                 objects[it._id] = it;
                 return it.common?.getHistory;
@@ -361,7 +361,7 @@ class ObjectChart extends Component {
 
         if (ids.length) {
             for (let i = 0; i < ids.length; i++) {
-                const alive = await this.props.context.socket.getState(ids[i]);
+                const alive = await this.props.socket.getState(ids[i]);
                 const item = list.find(it => ids[i].endsWith(`${it.id}.alive`));
                 if (item) {
                     item.alive = alive && alive.val;
@@ -376,7 +376,7 @@ class ObjectChart extends Component {
         const now = new Date();
         const oldest = new Date(2000, 0, 1);
 
-        return this.props.context.socket.getHistory(this.props.obj._id, {
+        return this.props.socket.getHistory(this.props.obj._id, {
             instance:  this.state.historyInstance,
             start:     oldest.getTime(),
             end:       now.getTime(),
@@ -438,7 +438,7 @@ class ObjectChart extends Component {
             // options.step = 60000;
         }
 
-        return this.props.context.socket.getHistory(id || this.props.obj._id, options)
+        return this.props.socket.getHistory(id || this.props.obj._id, options)
             .then(values => {
                 // merge range and chart
                 const chart = [];

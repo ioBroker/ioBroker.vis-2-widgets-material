@@ -35,6 +35,7 @@ const styles = theme => ({
         height: '100%',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
+        padding: 0,
     },
     buttonInactive: {
         opacity: 0.6,
@@ -557,7 +558,17 @@ class SimpleState extends Generic {
             return value + (this.state.rxData.unit || this.state.object.common?.unit || '');
         }
 
-        const size = this.state.rxData.circleSize || this.refDiv.current?.offsetHeight || 80;
+        let size = this.state.rxData.circleSize;
+        if (!size) {
+            size = this.refDiv.current?.offsetHeight;
+            if (size > this.refDiv.current?.offsetWidth) {
+                size = this.refDiv.current?.offsetWidth;
+            }
+        }
+        size = size || 80;
+        if (size < 60) {
+            return null;
+        }
 
         if (!this.refDiv.current) {
             this.updateTimer1 = this.updateTimer1 || setTimeout(() => {
@@ -569,7 +580,7 @@ class SimpleState extends Generic {
         return <CircularSliderWithChildren
             minValue={object.common.min}
             maxValue={object.common.max}
-            size={size}
+            size={size * 1.1}
             arcColor={this.props.context.theme.palette.primary.main}
             arcBackgroundColor={this.props.themeType === 'dark' ? '#DDD' : '#222'}
             startAngle={0}
@@ -579,7 +590,7 @@ class SimpleState extends Generic {
         >
             <div
                 key={`_${value}`}
-                style={{ fontSize: Math.round(size / 10), fontWeight: 'bold' }}
+                style={{ fontSize: Math.round(size / 8), fontWeight: 'bold' }}
                 className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
             >
                 {value + (this.state.rxData.unit || this.state.object.common?.unit || '')}
@@ -611,12 +622,8 @@ class SimpleState extends Generic {
                 value = this.formatValue(value);
             }
         }
-        let height;
-        if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            height = '100%';
-        } else {
-            height = this.state.rxData.widgetTitle ? 'calc(100% - 36px - 16px - 24px)' : 'calc(100% - 16px - 24px)';
-        }
+
+        const height = !this.state.rxData.noCard && !props.widget.usedInWidget && this.state.rxData.widgetTitle ? 'calc(100% - 36px)' : '100%';
 
         const content = <>
             {this.renderDimmerDialog()}

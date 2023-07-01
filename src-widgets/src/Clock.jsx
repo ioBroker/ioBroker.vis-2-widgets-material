@@ -538,14 +538,9 @@ class Clock extends Generic {
             fontVariant: this.state.rxStyle['font-variant'],
         };
 
-        if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            style.width = 'calc(100% - 4px)';
-            style.height = 'calc(100% - 8px)';
-            style.margin = 'auto';
-        } else {
-            style.width = 'calc(100% - 16px)';
-            style.height = 'calc(100% - 40px)';
-        }
+        style.width = 'calc(100% - 4px)';
+        style.height = 'calc(100% - 8px)';
+        style.margin = 'auto';
 
         const content = <div style={style} ref={this.refContainer}>
             {clock}

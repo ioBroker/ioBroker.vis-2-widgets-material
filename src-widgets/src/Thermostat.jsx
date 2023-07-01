@@ -522,9 +522,7 @@ class Thermostat extends Generic {
 
         const content = <div
             className={this.props.classes.circleDiv}
-            style={{
-                height: withTitle ? 'calc(100% - 68px)' : (this.state.rxData.noCard || props.widget.usedInWidget ? '100%' : 'calc(100% - 32px)'),
-            }}
+            style={{ height: withTitle ? 'calc(100% - 36px)' : '100%' }}
         >
             {/* if no header, draw button here */}
             {withTitle ? null : chartButton}
@@ -580,9 +578,7 @@ class Thermostat extends Generic {
                 : null}
             <div
                 className={this.props.classes.buttonsDiv}
-                style={{
-                    bottom: withCard ? 48 : 8,
-                }}
+                style={{ bottom: 8 }}
             >
                 {isWithModeButtons ?
                     this.state.modes.map(mode => {

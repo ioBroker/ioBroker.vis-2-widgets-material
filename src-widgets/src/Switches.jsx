@@ -191,9 +191,15 @@ class Switches extends BlindsBase {
                             hidden: 'data.type !== "lines"',
                         },
                         {
-                            name: 'vertical',
-                            type: 'checkbox',
-                            label: 'vertical_orientation',
+                            name: 'orientation',
+                            type: 'select',
+                            options: [
+                                { value: 'h', label: 'horizontal' },
+                                { value: 'v', label: 'vertical' },
+                                { value: 'f', label: 'flexible' },
+                            ],
+                            default: 'horizontal',
+                            label: 'orientation',
                             hidden: 'data.type !== "buttons"',
                         },
                         {
@@ -444,7 +450,7 @@ class Switches extends BlindsBase {
                             min: 0,
                             max: 500,
                             label: 'position',
-                            hidden: '!data["widget" + index]',
+                            hidden: '!data["widget" + index] || data.type !== "lines"',
                         },
                         {
                             name: 'hide',
@@ -581,18 +587,18 @@ class Switches extends BlindsBase {
         super.componentDidMount();
         await this.propertiesUpdate();
         // inform view about, that this widget can include other widgets
-        this.props.registerRef && this.props.registerRef({
+        this.props.askView && this.props.askView('update', {
             id: this.props.id,
-            uuid: this.props.uuid,
-            update: true,
+            uuid: this.uuid,
             canHaveWidgets: true,
         });
     }
 
+    // eslint-disable-next-line
     onCommand(command, options) {
-        if (!super.onCommand(command, options)) {
+        const result = super.onCommand(command, options);
+        if (!result) {
             if (command === 'include') {
-                console.log(`Widget ${options} added to ${this.props.id}`);
                 let found = false;
                 // find first completely free position
                 for (let index = 1; index <= this.state.rxData.count; index++) {
@@ -606,14 +612,18 @@ class Switches extends BlindsBase {
                 }
                 const project = JSON.parse(JSON.stringify(this.props.context.views));
                 const widget = project[this.props.view].widgets[this.props.id];
+                // if required add new widget
                 if (!found) {
                     widget.data.count++;
                     found = widget.data.count;
                 }
                 widget.data[`widget${found}`] = options;
                 this.props.context.changeProject(project);
+                return true;
             }
         }
+
+        return result;
     }
 
     async componentWillUnmount() {
@@ -997,20 +1007,26 @@ class Switches extends BlindsBase {
                 setTimeout(() => this.forceUpdate(), 50);
             }
             const style = asButton ? { justifyContent: 'center' } : { margin: 8, justifyContent: 'right' };
-            style.height = this.state.rxData[`height${index}`];
-            if (!style.height) {
-                // try to determine the height of child widget
-                style.height = widget.style?.height || undefined;
+            if (!this.state.rxData.orientation || this.state.rxData.orientation === 'h') {
+                if (asButton) {
+                    style.width = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || widget.style?.width || 120;
+                }
+            } else
+            if (this.state.rxData.orientation === 'v') {
+                style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
+            } else
+            if (this.state.rxData.orientation === 'f') {
+                if (asButton) {
+                    style.width = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || widget.style?.width || 120;
+                }
+                style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
             }
-            if (asButton) {
-                if (this.state.rxData.buttonsWidth && !this.state.rxData.vertical) {
-                    style.width = this.state.rxData.buttonsWidth;
-                }
-                if (this.state.rxData.buttonsHeight && this.state.rxData.vertical) {
-                    style.height = this.state.rxData.buttonsHeight;
-                }
-            } else {
+
+            if (!asButton) {
                 style.marginRight = this.state.rxData[`position${index}`];
+            } else if (this.state.selectedOne) {
+                style.border = '1px dashed gray';
+                style.boxSizing = 'border-box';
             }
 
             return <div
@@ -1642,12 +1658,27 @@ class Switches extends BlindsBase {
             icon = this.renderWindows({ height, width }, index);
         }
 
+        let buttonWidth;
+        let buttonHeight;
+        if (!this.state.rxData.orientation || this.state.rxData.orientation === 'h') {
+            buttonWidth = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || 120;
+        } else
+        if (this.state.rxData.orientation === 'v') {
+            buttonHeight = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || 80;
+        } else
+        if (this.state.rxData.orientation === 'f') {
+            buttonWidth = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || 120;
+            buttonHeight = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || 80;
+        }
+
         return <div
             key={index}
             className={this.props.classes.buttonDiv}
             style={{
-                width: this.state.rxData.buttonsWidth || undefined,
-                height: this.state.rxData.buttonsHeight || undefined,
+                width: buttonWidth || undefined,
+                height: buttonHeight || undefined,
+                border: this.state.selectedOne ? '1px dashed gray' : 'none',
+                boxSizing: 'border-box',
             }}
         >
             <Button
@@ -1724,7 +1755,7 @@ class Switches extends BlindsBase {
                 </div>)
                 :
                 // BUTTONS
-                <div className={this.props.classes.buttonsContainer} style={{ flexWrap: this.state.rxData.vertical ? 'wrap' : 'nowrap' }}>
+                <div className={this.props.classes.buttonsContainer} style={{ flexWrap: this.state.rxData.orientation && this.state.rxData.orientation !== 'h' ? 'wrap' : 'nowrap' }}>
                     {items.map((index, i) =>
                         // index from 1, i from 0
                         this.renderButton(index, anyIcon ? icons[i] : null))}
