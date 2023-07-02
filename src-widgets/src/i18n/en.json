@@ -235,5 +235,21 @@
   "no_text": "Without title",
   "modes_count": "Modes count",
   "Wizard": "Wizard",
-  "Add views": "Add views"
+  "Add views": "Add views",
+  "washer_dryer": "Washer, Dryer",
+  "wizard": "Wizard helper",
+  "stop": "stop",
+  "run": "run",
+  "brand_name": "Brand name",
+  "status_id": "Status ID",
+  "start_time_id": "Started time ID",
+  "end_time_id": "Finish time ID",
+  "washer_and_dryer": "Washer and dryer",
+  "washer": "Washer",
+  "dryer": "Dryer",
+  "brand_color": "Brand color",
+  "wash_or_dry_id": "Washer or dryer mode ID",
+  "wash_or_dry_tooltip": "Valus for dryer is \"true\"",
+  "dishwasher": "Dishwasher",
+  "inactive": "inactive"
 }

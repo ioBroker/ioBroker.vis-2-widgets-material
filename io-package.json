@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.6.2",
+    "version": "0.7.0",
     "news": {
+      "0.7.0": {
+        "en": "Added washer widget",
+        "de": "Washer Widget hinzugefügt",
+        "ru": "Добавлен виджет washer",
+        "pt": "Adicionado widget washer",
+        "nl": "Vervoegde wasser widget",
+        "fr": "Ajouté washer widget",
+        "it": "Aggiunto washer widget",
+        "es": "Widget de lavadora",
+        "pl": "Adddresser",
+        "uk": "Доданий віджет шайби",
+        "zh-cn": "死灰色"
+      },
       "0.6.2": {
         "en": "Allowed usage without frame for all widgets",
         "de": "Erlaubte Nutzung ohne Rahmen für alle Widgets",
@@ -80,19 +93,6 @@
         "pl": "Wszystko przycisku\nPrzemieniono statyczne widgety, ponieważ zastąpiono je widget",
         "uk": "Додано тексти кнопок для віджетів\nВидалення статичного віджету, як він замінюється перемикачами",
         "zh-cn": "改用目标的加德顿案文\n取消静态目标,因为改用目标"
-      },
-      "0.3.1": {
-        "en": "Improved buttons widget",
-        "de": "Verbesserte Tasten Widget",
-        "ru": "Улучшенный виджет кнопок",
-        "pt": "Melhor widget de botões",
-        "nl": "Improviserende knoppen",
-        "fr": "Boutons améliorés widget",
-        "it": "Pulsante migliorato widget",
-        "es": "Widget de botones mejorados",
-        "pl": "Improving buttons widgets",
-        "uk": "Покращені кнопки віджет",
-        "zh-cn": "B. 改善但县的匮乏"
       }
     },
     "title": "Vis 2 Widgets Material",
