@@ -1,6 +1,6 @@
 import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 import {
-    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle,
+    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Switch,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -122,6 +122,7 @@ const getNewWidgetIdNumber = project => {
 const WizardDialog = props => {
     const [states, setStates] = useState([]);
     const [checked, setChecked] = useState({});
+    const [onePage, setOnePage] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -143,9 +144,14 @@ const WizardDialog = props => {
         key="materialWizardDialog"
         open={!0}
         onClose={props.onClose}
+        fullWidth
     >
         <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
         <DialogContent>
+            <div>
+                <Switch checked={onePage} onChange={e => setOnePage(e.target.checked)} />
+                {Generic.t('One page')}
+            </div>
             {
                 states.map(room => <div key={room._id}>
                     <h2>{Generic.getText(room.common.name)}</h2>
@@ -168,27 +174,66 @@ const WizardDialog = props => {
         </DialogContent>
         <DialogActions>
             <Button
+                variant="contained"
+                onClick={() => props.onClose()}
+                color="grey"
+            >
+                {Generic.t('Cancel')}
+            </Button>
+            <Button
+                variant="contained"
                 onClick={() => {
                     const project = JSON.parse(JSON.stringify(props.project));
                     let newKey = getNewWidgetIdNumber(project);
                     states.forEach(room => {
-                        let viewId = uuidv4();
-                        const projectView = Object.keys(project).find(view => project[view].wizard?.id === room._id);
-                        if (projectView) {
-                            viewId = projectView;
-                        } else {
-                            project[viewId] = {
-                                name: Generic.getText(room.common.name),
-                                parentId: null,
-                                settings: {
-                                    style: {},
+                        let viewId = Generic.getText(room.common.name);
+                        let roomWidget;
+                        if (onePage) {
+                            roomWidget = {
+                                tpl: 'tplMaterial2Switches',
+                                data: {
+                                    widgetTitle: Generic.getText(room.common.name),
+                                    count: 0,
+                                    g_common: true,
+                                    type: 'lines',
+                                    allSwitch: false,
+                                    buttonsWidth: 120,
+                                    buttonsHeight: 80,
                                 },
-                                widgets: {},
-                                activeWidgets: {},
+                                style: {
+                                    left: '0px',
+                                    top: '0px',
+                                    width: '100%',
+                                    height: 120,
+                                    position: 'relative',
+                                },
                                 wizard: {
                                     id: room._id,
                                 },
                             };
+                            viewId = props.view;
+                        } else {
+                            const projectView = Object.keys(project).find(view => project[view].wizard?.id === room._id);
+                            if (projectView) {
+                                viewId = projectView;
+                            } else if (project[viewId]) {
+                                project[viewId].wizard = {
+                                    id: room._id,
+                                };
+                            } else {
+                                project[viewId] = {
+                                    name: Generic.getText(room.common.name),
+                                    parentId: null,
+                                    settings: {
+                                        style: {},
+                                    },
+                                    widgets: {},
+                                    activeWidgets: {},
+                                    wizard: {
+                                        id: room._id,
+                                    },
+                                };
+                            }
                         }
                         room.devices.forEach(device => {
                             const newId = `w${newKey.toString().padStart(6, 0)}`;
@@ -237,9 +282,23 @@ const WizardDialog = props => {
                                 }
                             });
                             widget.style.height = widget.data.count * 40 + 90;
-                            project[viewId].widgets[newId] = widget;
+                            if (onePage) {
+                                widget.usedInWidget = true;
+                                project[viewId].widgets[newId] = widget;
+                                roomWidget.data.count++;
+                                roomWidget.data[`widget${roomWidget.data.count}`] = newId;
+                                roomWidget.data[`noIcon${roomWidget.data.count}`] = true;
+                                roomWidget.data[`title${roomWidget.data.count}`] = Generic.getText(device.common.name);
+                            } else {
+                                project[viewId].widgets[newId] = widget;
+                            }
                             newKey++;
                         });
+                        if (onePage) {
+                            const newId = `w${newKey.toString().padStart(6, 0)}`;
+                            project[props.view].widgets[newId] = roomWidget;
+                            newKey++;
+                        }
                     });
                     props.changeProject(project);
                     props.onClose();
