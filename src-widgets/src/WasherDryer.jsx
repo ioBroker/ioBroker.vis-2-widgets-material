@@ -69,6 +69,64 @@ const styles = () => ({
             transform: 'rotate(360deg)',
         },
     },
+    body: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    header: {
+        width: '100%',
+        height: '15%',
+        display: 'flex',
+        justifyContent: 'right',
+        alignItems: 'center',
+    },
+    grayLed: {
+        borderRadius: '50%',
+        backgroundColor: '#999',
+        marginRight: '3%',
+        marginTop: '4%',
+    },
+    divider: {
+        width: '95%',
+        height: '1%',
+        borderBottom: '1px solid grey',
+    },
+    mainPart: {
+        width: '90%',
+        height: '69%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    centerText: {
+        position: 'absolute',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2,
+        textAlign: 'center',
+    },
+    centerCircle: {
+        position: 'absolute',
+        height: '100%',
+        width: '100%',
+        borderRadius: '50%',
+        zIndex: 0,
+        boxSizing: 'border-box',
+    },
+    footer: {
+        width: '100%',
+        height: '14%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    },
 });
 
 class WasherDryer extends Generic {
@@ -186,6 +244,12 @@ class WasherDryer extends Generic {
         }
     }
 
+    componentWillUnmount() {
+        super.componentWillUnmount();
+        this.updateInterval && clearInterval(this.updateInterval);
+        this.updateInterval = null;
+    }
+
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
@@ -211,7 +275,7 @@ class WasherDryer extends Generic {
                     }}
                 >
                     <svg
-                        viewBox="-82 -82 164 164"
+                        viewBox="-83 -83 166 166"
                         style={{
                             position: 'absolute',
                             top: 0,
@@ -230,14 +294,13 @@ class WasherDryer extends Generic {
                         />
                     </svg>
                     <svg
-                        viewBox="-82 -82 164 164"
+                        viewBox="-83 -83 166 166"
                         style={{
                             position: 'absolute',
                             top: 0,
                             left: 0,
                             width: '100%',
                             height: '100%',
-
                         }}
                     >
                         <path
@@ -253,47 +316,25 @@ class WasherDryer extends Generic {
         } else if (options.circle === 'short') {
             circle = <>
                 <div
-                    style={{
-                        position: 'absolute',
-                        height: '100%',
-                        width: '100%',
-                        borderRadius: '50%',
-                        border: `${options.wSize / 20}px solid ${options.backgroundColor}`,
-                        zIndex: 0,
-                        boxSizing: 'border-box',
-                    }}
+                    className={this.props.classes.centerCircle}
+                    style={{ border: `${options.wSize / 20}px solid ${options.backgroundColor}` }}
                 />
                 <div
-                    className={this.props.classes.rotatedItem}
+                    className={`${this.props.classes.centerCircle} ${this.props.classes.rotatedItem}`}
                     style={{
-                        position: 'absolute',
-                        height: '100%',
-                        width: '100%',
-                        borderRadius: '50%',
+                        zIndex: 1,
                         borderTop: `${options.wSize / 25}px solid ${options.color}`,
                         borderBottom: `${options.wSize / 25}px solid ${options.color}`,
                         borderLeft: `${options.wSize / 25}px solid ${options.color}`,
                         borderRight: `${options.wSize / 25}px solid transparent`, // transparent
-                        boxSizing: 'border-box',
-                        zIndex: 1,
                     }}
                 />
             </>;
         }
 
-        return <div
-            style={options.style}
-        >
+        return <div style={options.style}>
             {/* header */}
-            <div
-                style={{
-                    width: '100%',
-                    height: '15%',
-                    display: 'flex',
-                    justifyContent: 'right',
-                    alignItems: 'center',
-                }}
-            >
+            <div className={this.props.classes.header}>
                 <div
                     style={{
                         width: '30%',
@@ -315,24 +356,18 @@ class WasherDryer extends Generic {
                 <div style={{ flexGrow: 1 }} />
                 {/* gray button 1 */}
                 <div
+                    className={this.props.classes.grayLed}
                     style={{
                         width: options.wSize / 10,
                         height: options.wSize / 10,
-                        borderRadius: '50%',
-                        backgroundColor: '#999',
-                        marginRight: '3%',
-                        marginTop: '4%',
                     }}
                 />
                 {/* gray button 2 */}
                 <div
+                    className={this.props.classes.grayLed}
                     style={{
                         width: options.wSize / 10,
                         height: options.wSize / 10,
-                        borderRadius: '50%',
-                        backgroundColor: '#999',
-                        marginRight: '3%',
-                        marginTop: '4%',
                     }}
                 />
                 {/* red/green button 3 */}
@@ -348,70 +383,32 @@ class WasherDryer extends Generic {
                 />
             </div>
             {/* divider */}
-            <div
-                style={{
-                    width: '95%',
-                    height: '1%',
-                    borderBottom: '1px solid grey',
-                }}
-            />
+            <div className={this.props.classes.divider} />
             {/* main part */}
-            <div
-                style={{
-                    width: '90%',
-                    height: '69%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
+            <div className={this.props.classes.mainPart}>
                 <div
                     style={{
                         width: options.wSize / 1.8,
                         height: options.wSize / 1.8,
-                        borderRadius: '50%',
                         border: `${options.wSize / 15}px solid grey`,
+                        borderRadius: '50%',
                         position: 'relative',
                     }}
                 >
                     {circle}
                     <div
-                        style={{
-                            position: 'absolute',
-                            height: '100%',
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 2,
-                            fontSize: options.fontSize,
-                            textAlign: 'center',
-                        }}
+                        className={this.props.classes.centerText}
+                        style={{ fontSize: options.fontSize }}
                     >
                         {options.timeText || ''}
                     </div>
-
                 </div>
             </div>
             {/* divider */}
+            <div className={this.props.classes.divider} />
             <div
-                style={{
-                    width: '95%',
-                    height: '1%',
-                    borderBottom: '1px solid grey',
-                }}
-            />
-            <div
-                style={{
-                    width: '100%',
-                    height: '14%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: options.statusColor,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                }}
+                className={this.props.classes.footer}
+                style={{ color: options.statusColor }}
             >
                 {options.status}
             </div>
@@ -419,19 +416,9 @@ class WasherDryer extends Generic {
     }
 
     renderDishWasher(options) {
-        return <div
-            style={options.style}
-        >
+        return <div style={options.style}>
             {/* header */}
-            <div
-                style={{
-                    width: '100%',
-                    height: '15%',
-                    display: 'flex',
-                    justifyContent: 'right',
-                    alignItems: 'center',
-                }}
-            >
+            <div className={this.props.classes.header}>
                 {/* red/green button 3 */}
                 <div
                     style={{
@@ -464,23 +451,9 @@ class WasherDryer extends Generic {
                 <div style={{ width: '33%' }} />
             </div>
             {/* divider */}
-            <div
-                style={{
-                    width: '95%',
-                    height: '1%',
-                    borderBottom: '1px solid grey',
-                }}
-            />
+            <div className={this.props.classes.divider} />
             {/* main part */}
-            <div
-                style={{
-                    width: '90%',
-                    height: '69%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
+            <div className={this.props.classes.mainPart}>
                 <Dishes
                     style={{
                         width: '100%',
@@ -490,40 +463,17 @@ class WasherDryer extends Generic {
                     }}
                 />
                 <div
-                    style={{
-                        position: 'absolute',
-                        height: '100%',
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 2,
-                        fontSize: options.fontSize,
-                        textAlign: 'center',
-                    }}
+                    className={this.props.classes.centerText}
+                    style={{ fontSize: options.fontSize }}
                 >
                     {options.timeText || ''}
                 </div>
             </div>
             {/* divider */}
+            <div className={this.props.classes.divider} />
             <div
-                style={{
-                    width: '95%',
-                    height: '1%',
-                    borderBottom: '1px solid grey',
-                }}
-            />
-            <div
-                style={{
-                    width: '100%',
-                    height: '14%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: options.statusColor,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                }}
+                className={this.props.classes.footer}
+                style={{ color: options.statusColor }}
             >
                 {options.status}
             </div>
@@ -544,6 +494,7 @@ class WasherDryer extends Generic {
                 options.wSize = height / 1.3;
             }
         }
+
         options.style = {
             width: options.wSize,
             height: options.wSize * ratio,
@@ -559,7 +510,6 @@ class WasherDryer extends Generic {
         options.brandLen = this.state.rxData.brand?.length || 0;
 
         options.status = 'stop';
-        options.running;
         const mode = this.state.values[`${this.state.rxData['status-oid']}.val`];
         if (mode === true || mode === 'true') {
             options.running = true;
@@ -600,38 +550,52 @@ class WasherDryer extends Generic {
                 this.state.values[`${this.state.rxData['end-time-oid']}.val`] &&
                 this.state.values[`${this.state.rxData['start-time-oid']}.val`]
             ) {
-                const time = new Date(this.state.values[`${this.state.rxData['end-time-oid']}.val`]);
-                const totalTime = time.getTime() - new Date(this.state.values[`${this.state.rxData['start-time-oid']}.val`]).getTime();
-                const ms = time.getTime() - Date.now();
-                options.value = Math.round(((totalTime - ms) / totalTime) * 360);
-                const hours = Math.floor(ms / 1000 / 60 / 60);
-                const minutes = Math.floor((ms - hours * 1000 * 60 * 60) / 1000 / 60);
-                options.timeText = `${hours}:${minutes.toString().padStart(2, '0')}`;
-                options.circle = 'full';
+                const endTime = new Date(this.state.values[`${this.state.rxData['end-time-oid']}.val`]);
+                const startTime = new Date(this.state.values[`${this.state.rxData['start-time-oid']}.val`]);
+                const totalTime = endTime.getTime() - startTime.getTime();
+                const ms = endTime.getTime() - Date.now();
+                if (totalTime > 0) {
+                    options.value = Math.round(((totalTime - ms) / totalTime) * 360);
+                    const hours = Math.floor(ms / 1000 / 60 / 60);
+                    const minutes = Math.floor((ms - hours * 1000 * 60 * 60) / 1000 / 60);
+                    options.timeText = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                    options.circle = 'full';
+                } else if (endTime.getTime() > Date.now()) {
+                    const _ms = endTime.getTime() - Date.now();
+                    const hours = Math.floor(_ms / 1000 / 60 / 60);
+                    const minutes = Math.floor((_ms - hours * 1000 * 60 * 60) / 1000 / 60);
+                    options.timeText = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                }
             } else if (this.state.rxData['end-time-oid']) {
-                const time = new Date(this.state.values[`${this.state.rxData['end-time-oid']}.val`]);
-                const ms = time.getTime() - Date.now();
-                const hours = Math.floor(ms / 1000 / 60 / 60);
-                const minutes = Math.floor((ms - hours * 1000 * 60 * 60) / 1000 / 60);
-                options.timeText = `${hours}:${minutes.toString().padStart(2, '0')}`;
-                options.circle = 'short';
+                const endTime = new Date(this.state.values[`${this.state.rxData['end-time-oid']}.val`]);
+                const ms = endTime.getTime() - Date.now();
+                if (ms > 0) {
+                    const hours = Math.floor(ms / 1000 / 60 / 60);
+                    const minutes = Math.floor((ms - hours * 1000 * 60 * 60) / 1000 / 60);
+                    options.timeText = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                }
             }
+            options.circle = options.circle || 'short';
             options.fontSize = Math.round(options.wSize / 5);
         } else if (this.state.rxData['end-time-oid'] && this.state.values[`${this.state.rxData['end-time-oid']}.val`]) {
-            const time = new Date(this.state.values[`${this.state.rxData['end-time-oid']}.val`]);
-            if (Date.now() - time.getTime() > 0 && Date.now() - time.getTime() < 7200000) {
-                options.timeText = moment(time).fromNow();
+            const endTime = new Date(this.state.values[`${this.state.rxData['end-time-oid']}.val`]);
+            if (Date.now() - endTime.getTime() > 0 && Date.now() - endTime.getTime() < 7200000) {
+                options.timeText = moment(endTime).fromNow();
             }
             options.fontSize = Math.round(options.wSize / 10);
         }
 
+        if (options.timeText && !this.updateInterval) {
+            this.updateInterval = setInterval(() => this.forceUpdate(), 30000);
+        } else if (!options.timeText && this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+
         const content = <div
+            className={this.props.classes.body}
             style={{
-                width: '100%',
                 height: this.state.rxData.widgetTitle && !this.state.rxData.noCard && !props.widget.usedInWidget ? 'calc(100% - 36px)' : '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
             }}
             ref={this.refDiv}
         >
