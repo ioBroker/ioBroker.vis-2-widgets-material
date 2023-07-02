@@ -3,6 +3,7 @@ import {
     Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { ChannelDetector } from 'iobroker.type-detector';
 import Generic from './Generic';
 
@@ -17,7 +18,7 @@ const allObjects = async socket => {
         .concat(Object.values(devices))
         .concat(Object.values(enums))
         // eslint-disable-next-line
-        .reduce((obj, item) => (obj[item._id] = { common: item.common, type: item.type }, obj), {});
+        .reduce((obj, item) => (obj[item._id] = item, obj), {});
 };
 
 const detectDevice = async socket => {
@@ -171,22 +172,28 @@ const WizardDialog = props => {
                     const project = JSON.parse(JSON.stringify(props.project));
                     let newKey = getNewWidgetIdNumber(project);
                     states.forEach(room => {
-                        project[room._id] = {
-                            name: Generic.getText(room.common.name),
-                            parentId: null,
-                            settings: {
-                                style: {},
-                            },
-                            widgets: {},
-                            activeWidgets: {},
-                            wizard: {
-                                id: room._id,
-                            },
-                        };
+                        let viewId = uuidv4();
+                        const projectView = Object.keys(project).find(view => project[view].wizard?.id === room._id);
+                        if (projectView) {
+                            viewId = projectView;
+                        } else {
+                            project[viewId] = {
+                                name: Generic.getText(room.common.name),
+                                parentId: null,
+                                settings: {
+                                    style: {},
+                                },
+                                widgets: {},
+                                activeWidgets: {},
+                                wizard: {
+                                    id: room._id,
+                                },
+                            };
+                        }
                         room.devices.forEach(device => {
                             const newId = `w${newKey.toString().padStart(6, 0)}`;
 
-                            const widget = {
+                            let widget = {
                                 tpl: 'tplMaterial2Switches',
                                 data: {
                                     widgetTitle: Generic.getText(device.common.name),
@@ -208,6 +215,19 @@ const WizardDialog = props => {
                                     id: device._id,
                                 },
                             };
+                            const projectWidget = Object.keys(project[viewId].widgets).find(_widget => project[viewId].widgets[_widget].wizard?.id === device._id);
+                            if (projectWidget) {
+                                widget = project[viewId].widgets[projectWidget];
+                                widget.data = {
+                                    widgetTitle: Generic.getText(device.common.name),
+                                    count: 0,
+                                    g_common: true,
+                                    type: 'lines',
+                                    allSwitch: false,
+                                    buttonsWidth: 120,
+                                    buttonsHeight: 80,
+                                };
+                            }
                             device.states.forEach(state => {
                                 if (checked[state._id]) {
                                     widget.data.count++;
@@ -217,7 +237,7 @@ const WizardDialog = props => {
                                 }
                             });
                             widget.style.height = widget.data.count * 40 + 90;
-                            project[room._id].widgets[newId] = widget;
+                            project[viewId].widgets[newId] = widget;
                             newKey++;
                         });
                     });
