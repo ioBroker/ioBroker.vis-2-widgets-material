@@ -137,7 +137,8 @@ const WizardDialog = props => {
             });
             setChecked(_checked);
         })();
-    }, [props.open]);
+    }, [props.open, props.socket]);
+
     return <Dialog
         key="materialWizardDialog"
         open={!0}
@@ -148,6 +149,7 @@ const WizardDialog = props => {
             {
                 states.map(room => <div key={room._id}>
                     <h2>{Generic.getText(room.common.name)}</h2>
+
                     {room.devices.map(device => <div key={device._id}>
                         <h4>{Generic.getText(device.common.name)}</h4>
                         {device.states.map(state => <div key={state._id}>
@@ -250,7 +252,6 @@ const WizardIcon = () => <svg
 
 const WizardButton = props => {
     const [open, setOpen] = useState(false);
-    const [states, setStates] = useState([]);
 
     return [
         <Button

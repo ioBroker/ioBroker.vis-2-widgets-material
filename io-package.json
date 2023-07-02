@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "0.7.0",
     "news": {
-      "0.7.0": {
-        "en": "Added washer widget",
-        "de": "Washer Widget hinzugefügt",
-        "ru": "Добавлен виджет washer",
-        "pt": "Adicionado widget washer",
-        "nl": "Vervoegde wasser widget",
-        "fr": "Ajouté washer widget",
-        "it": "Aggiunto washer widget",
-        "es": "Widget de lavadora",
-        "pl": "Adddresser",
-        "uk": "Доданий віджет шайби",
-        "zh-cn": "死灰色"
-      },
       "0.6.2": {
         "en": "Allowed usage without frame for all widgets",
         "de": "Erlaubte Nutzung ohne Rahmen für alle Widgets",
