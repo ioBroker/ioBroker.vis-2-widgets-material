@@ -1,9 +1,8 @@
 import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 import {
-    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Switch,
+    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Switch,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { ChannelDetector } from 'iobroker.type-detector';
 import Generic from './Generic';
 
@@ -120,7 +119,7 @@ const getNewWidgetIdNumber = project => {
 };
 
 const WizardDialog = props => {
-    const [states, setStates] = useState([]);
+    const [states, setStates] = useState(null);
     const [checked, setChecked] = useState({});
     const [onePage, setOnePage] = useState(false);
 
@@ -141,6 +140,137 @@ const WizardDialog = props => {
         })();
     }, [props.open, props.socket]);
 
+    const handleSubmit = () => {
+        const project = JSON.parse(JSON.stringify(props.project));
+        let newKey = getNewWidgetIdNumber(project);
+        states.forEach(room => {
+            let roomHeight = 0;
+            let viewId = Generic.getText(room.common.name);
+            let roomWidget;
+            if (onePage) {
+                roomWidget = {
+                    tpl: 'tplMaterial2Switches',
+                    data: {
+                        widgetTitle: Generic.getText(room.common.name),
+                        count: 0,
+                        g_common: true,
+                        type: 'lines',
+                        allSwitch: false,
+                        buttonsWidth: 120,
+                        buttonsHeight: 80,
+                    },
+                    style: {
+                        left: '0px',
+                        top: '0px',
+                        width: '100%',
+                        height: 120,
+                        position: 'relative',
+                    },
+                    wizard: {
+                        id: room._id,
+                    },
+                };
+                viewId = props.view;
+            } else {
+                const projectView = Object.keys(project).find(view => project[view].wizard?.id === room._id);
+                if (projectView) {
+                    viewId = projectView;
+                } else if (project[viewId]) {
+                    project[viewId].wizard = {
+                        id: room._id,
+                    };
+                } else {
+                    project[viewId] = {
+                        name: Generic.getText(room.common.name),
+                        parentId: null,
+                        settings: {
+                            style: {},
+                        },
+                        widgets: {},
+                        activeWidgets: {},
+                        wizard: {
+                            id: room._id,
+                        },
+                    };
+                }
+            }
+            room.devices.forEach(device => {
+                let widgetId = `w${newKey.toString().padStart(6, 0)}`;
+
+                let widget = {
+                    tpl: 'tplMaterial2Switches',
+                    data: {
+                        widgetTitle: Generic.getText(device.common.name),
+                        count: 0,
+                        g_common: true,
+                        type: 'lines',
+                        allSwitch: false,
+                        buttonsWidth: 120,
+                        buttonsHeight: 80,
+                    },
+                    style: {
+                        left: '0px',
+                        top: '0px',
+                        width: '100%',
+                        height: 120,
+                        position: 'relative',
+                    },
+                    wizard: {
+                        id: device._id,
+                    },
+                };
+                const projectWidget = Object.keys(project[viewId].widgets).find(_widget => project[viewId].widgets[_widget].wizard?.id === device._id);
+                if (projectWidget) {
+                    widget = project[viewId].widgets[projectWidget];
+                    widgetId = projectWidget;
+                    widget.data = {
+                        widgetTitle: Generic.getText(device.common.name),
+                        count: 0,
+                        g_common: true,
+                        type: 'lines',
+                        allSwitch: false,
+                        buttonsWidth: 120,
+                        buttonsHeight: 80,
+                    };
+                }
+                device.states.forEach(state => {
+                    if (checked[state._id]) {
+                        widget.data.count++;
+                        widget.data[`oid${widget.data.count}`] = state._id;
+                        widget.data[`type${widget.data.count}`] = 'auto';
+                        widget.data[`g_switch-${widget.data.count}`] = true;
+                    }
+                });
+                widget.style.height = widget.data.count * 40 + 90;
+                roomHeight += widget.style.height;
+                if (onePage) {
+                    widget.usedInWidget = true;
+                    project[viewId].widgets[widgetId] = widget;
+                    roomWidget.data.count++;
+                    roomWidget.data[`widget${roomWidget.data.count}`] = widgetId;
+                    roomWidget.data[`noIcon${roomWidget.data.count}`] = true;
+                    roomWidget.data[`title${roomWidget.data.count}`] = Generic.getText(device.common.name);
+                } else {
+                    project[viewId].widgets[widgetId] = widget;
+                }
+                newKey++;
+            });
+            if (onePage) {
+                roomWidget.style.height = roomHeight + 90;
+                const projectRoomWidget = Object.keys(project[props.view].widgets).find(_widget => project[props.view].widgets[_widget].wizard?.id === room._id);
+                if (projectRoomWidget) {
+                    roomWidget = project[props.view].widgets[projectRoomWidget];
+                } else {
+                    const roomWidgetId = `w${newKey.toString().padStart(6, 0)}`;
+                    project[props.view].widgets[roomWidgetId] = roomWidget;
+                    newKey++;
+                }
+            }
+        });
+        props.changeProject(project);
+        props.onClose();
+    };
+
     return <Dialog
         key="materialWizardDialog"
         open={!0}
@@ -149,30 +279,32 @@ const WizardDialog = props => {
     >
         <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
         <DialogContent>
-            <div>
-                <Switch checked={onePage} onChange={e => setOnePage(e.target.checked)} />
-                {Generic.t('One page')}
-            </div>
-            {
-                states.map(room => <div key={room._id}>
-                    <h2>{Generic.getText(room.common.name)}</h2>
+            {states ? <>
+                <div>
+                    <Switch checked={onePage} onChange={e => setOnePage(e.target.checked)} />
+                    {Generic.t('One page')}
+                </div>
+                {
+                    states.map(room => <div key={room._id}>
+                        <h2>{Generic.getText(room.common.name)}</h2>
 
-                    {room.devices.map(device => <div key={device._id}>
-                        <h4>{Generic.getText(device.common.name)}</h4>
-                        {device.states.map(state => <div key={state._id}>
-                            <Checkbox
-                                checked={checked[state._id]}
-                                onChange={e => {
-                                    const _checked = JSON.parse(JSON.stringify(checked));
-                                    _checked[state._id] = e.target.checked;
-                                    setChecked(_checked);
-                                }}
-                            />
-                            {Generic.getText(state.common.name)}
+                        {room.devices.map(device => <div key={device._id}>
+                            <h4>{Generic.getText(device.common.name)}</h4>
+                            {device.states.map(state => <div key={state._id}>
+                                <Checkbox
+                                    checked={checked[state._id]}
+                                    onChange={e => {
+                                        const _checked = JSON.parse(JSON.stringify(checked));
+                                        _checked[state._id] = e.target.checked;
+                                        setChecked(_checked);
+                                    }}
+                                />
+                                {Generic.getText(state.common.name)}
+                            </div>)}
                         </div>)}
-                    </div>)}
-                </div>)
-            }
+                    </div>)
+                }
+            </> : <LinearProgress />}
         </DialogContent>
         <DialogActions>
             <Button
@@ -184,127 +316,7 @@ const WizardDialog = props => {
             </Button>
             <Button
                 variant="contained"
-                onClick={() => {
-                    const project = JSON.parse(JSON.stringify(props.project));
-                    let newKey = getNewWidgetIdNumber(project);
-                    states.forEach(room => {
-                        let viewId = Generic.getText(room.common.name);
-                        let roomWidget;
-                        if (onePage) {
-                            roomWidget = {
-                                tpl: 'tplMaterial2Switches',
-                                data: {
-                                    widgetTitle: Generic.getText(room.common.name),
-                                    count: 0,
-                                    g_common: true,
-                                    type: 'lines',
-                                    allSwitch: false,
-                                    buttonsWidth: 120,
-                                    buttonsHeight: 80,
-                                },
-                                style: {
-                                    left: '0px',
-                                    top: '0px',
-                                    width: '100%',
-                                    height: 120,
-                                    position: 'relative',
-                                },
-                                wizard: {
-                                    id: room._id,
-                                },
-                            };
-                            viewId = props.view;
-                        } else {
-                            const projectView = Object.keys(project).find(view => project[view].wizard?.id === room._id);
-                            if (projectView) {
-                                viewId = projectView;
-                            } else if (project[viewId]) {
-                                project[viewId].wizard = {
-                                    id: room._id,
-                                };
-                            } else {
-                                project[viewId] = {
-                                    name: Generic.getText(room.common.name),
-                                    parentId: null,
-                                    settings: {
-                                        style: {},
-                                    },
-                                    widgets: {},
-                                    activeWidgets: {},
-                                    wizard: {
-                                        id: room._id,
-                                    },
-                                };
-                            }
-                        }
-                        room.devices.forEach(device => {
-                            const newId = `w${newKey.toString().padStart(6, 0)}`;
-
-                            let widget = {
-                                tpl: 'tplMaterial2Switches',
-                                data: {
-                                    widgetTitle: Generic.getText(device.common.name),
-                                    count: 0,
-                                    g_common: true,
-                                    type: 'lines',
-                                    allSwitch: false,
-                                    buttonsWidth: 120,
-                                    buttonsHeight: 80,
-                                },
-                                style: {
-                                    left: '0px',
-                                    top: '0px',
-                                    width: '100%',
-                                    height: 120,
-                                    position: 'relative',
-                                },
-                                wizard: {
-                                    id: device._id,
-                                },
-                            };
-                            const projectWidget = Object.keys(project[viewId].widgets).find(_widget => project[viewId].widgets[_widget].wizard?.id === device._id);
-                            if (projectWidget) {
-                                widget = project[viewId].widgets[projectWidget];
-                                widget.data = {
-                                    widgetTitle: Generic.getText(device.common.name),
-                                    count: 0,
-                                    g_common: true,
-                                    type: 'lines',
-                                    allSwitch: false,
-                                    buttonsWidth: 120,
-                                    buttonsHeight: 80,
-                                };
-                            }
-                            device.states.forEach(state => {
-                                if (checked[state._id]) {
-                                    widget.data.count++;
-                                    widget.data[`oid${widget.data.count}`] = state._id;
-                                    widget.data[`type${widget.data.count}`] = 'auto';
-                                    widget.data[`g_switch-${widget.data.count}`] = true;
-                                }
-                            });
-                            widget.style.height = widget.data.count * 40 + 90;
-                            if (onePage) {
-                                widget.usedInWidget = true;
-                                project[viewId].widgets[newId] = widget;
-                                roomWidget.data.count++;
-                                roomWidget.data[`widget${roomWidget.data.count}`] = newId;
-                                roomWidget.data[`noIcon${roomWidget.data.count}`] = true;
-                                roomWidget.data[`title${roomWidget.data.count}`] = Generic.getText(device.common.name);
-                            } else {
-                                project[viewId].widgets[newId] = widget;
-                            }
-                            newKey++;
-                        });
-                        if (onePage) {
-                            const newId = `w${newKey.toString().padStart(6, 0)}`;
-                            project[props.view].widgets[newId] = roomWidget;
-                            newKey++;
-                        }
-                    });
-                    props.changeProject(project);
-                    props.onClose();
-                }}
+                onClick={handleSubmit}
             >
                 {Generic.t('Add views')}
             </Button>

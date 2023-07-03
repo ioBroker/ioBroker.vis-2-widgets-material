@@ -251,5 +251,7 @@
   "wash_or_dry_id": "Washer or dryer mode ID",
   "wash_or_dry_tooltip": "Valus for dryer is \"true\"",
   "dishwasher": "Dishwasher",
-  "inactive": "inactive"
+  "inactive": "inactive",
+  "Cancel": "Cancel",
+  "One page": "One page"
 }
