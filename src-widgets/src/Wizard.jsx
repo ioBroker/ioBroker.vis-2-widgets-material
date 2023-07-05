@@ -81,10 +81,11 @@ const detectDevice = async socket => {
             const controls = detector.detect(options);
             if (controls) {
                 controls.forEach(control => {
-                // console.log('control type', control.type);
+                    console.log('control type', control.type);
                     if (control.states) {
                         control.states.forEach(state => {
                             if (state.id) {
+                                console.log(state);
                                 deviceObject.states.push(devicesObject[state.id]);
                             }
                         });
