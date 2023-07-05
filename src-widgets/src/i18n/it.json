@@ -251,5 +251,11 @@
   "wash_or_dry_id": "ID modalità lavatrice o asciugatrice",
   "wash_or_dry_tooltip": "Valus per asciugatrice è \"vero\"",
   "dishwasher": "Lavastoviglie",
-  "inactive": "inattivo"
+  "inactive": "inattivo",
+  "Cancel": "Annulla",
+  "One page": "Una pagina",
+  "orientation": "Orientamento",
+  "flexible": "Flessibile",
+  "horizontal": "Orizzontale",
+  "vertical": "Verticale"
 }

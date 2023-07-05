@@ -253,5 +253,9 @@
   "dishwasher": "Dishwasher",
   "inactive": "inactive",
   "Cancel": "Cancel",
-  "One page": "One page"
+  "One page": "One page",
+  "orientation": "Orientation",
+  "flexible": "Flexible",
+  "horizontal": "Horizontal",
+  "vertical": "Vertical"
 }

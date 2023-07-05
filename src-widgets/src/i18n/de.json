@@ -251,5 +251,11 @@
   "wash_or_dry_id": "ID des Waschmaschinen- oder Trocknermodus",
   "wash_or_dry_tooltip": "Wert für Trockner ist „wahr“",
   "dishwasher": "Geschirrspüler",
-  "inactive": "inaktiv"
+  "inactive": "inaktiv",
+  "Cancel": "Stornieren",
+  "One page": "Eine Seite",
+  "orientation": "Orientierung",
+  "flexible": "Flexibel",
+  "horizontal": "Horizontal",
+  "vertical": "Vertikal"
 }

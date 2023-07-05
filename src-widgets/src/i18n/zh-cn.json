@@ -251,5 +251,11 @@
   "wash_or_dry_id": "洗衣机或烘干机模式 ID",
   "wash_or_dry_tooltip": "烘干机的价值是“真实的”",
   "dishwasher": "洗碗机",
-  "inactive": "不活跃的"
+  "inactive": "不活跃的",
+  "Cancel": "取消",
+  "One page": "一页",
+  "orientation": "方向",
+  "flexible": "灵活的",
+  "horizontal": "水平的",
+  "vertical": "垂直的"
 }
