@@ -251,5 +251,11 @@
   "wash_or_dry_id": "Was- of droogmodus-ID",
   "wash_or_dry_tooltip": "Waarde voor droger is \"waar\"",
   "dishwasher": "Afwasmachine",
-  "inactive": "inactief"
+  "inactive": "inactief",
+  "Cancel": "Annuleren",
+  "One page": "Een pagina",
+  "orientation": "oriëntatie",
+  "flexible": "Flexibel",
+  "horizontal": "Horizontaal",
+  "vertical": "Verticaal"
 }

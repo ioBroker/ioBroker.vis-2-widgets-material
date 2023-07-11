@@ -251,5 +251,11 @@
   "wash_or_dry_id": "Identyfikator trybu pralki lub suszarki",
   "wash_or_dry_tooltip": "Wartość dla suszarki to „prawda”",
   "dishwasher": "Zmywarka",
-  "inactive": "nieaktywny"
+  "inactive": "nieaktywny",
+  "Cancel": "Anulować",
+  "One page": "Jedna strona",
+  "orientation": "Orientacja",
+  "flexible": "Elastyczny",
+  "horizontal": "Poziomy",
+  "vertical": "Pionowy"
 }

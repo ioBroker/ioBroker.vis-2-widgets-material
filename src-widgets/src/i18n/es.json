@@ -251,5 +251,11 @@
   "wash_or_dry_id": "Identificación del modo de lavadora o secadora",
   "wash_or_dry_tooltip": "El valor de la secadora es \"verdadero\"",
   "dishwasher": "Lavavajillas",
-  "inactive": "inactivo"
+  "inactive": "inactivo",
+  "Cancel": "Cancelar",
+  "One page": "Una página",
+  "orientation": "Orientación",
+  "flexible": "Flexible",
+  "horizontal": "Horizontal",
+  "vertical": "Vertical"
 }

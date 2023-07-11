@@ -419,27 +419,33 @@ class SimpleState extends Generic {
 
         icon = icon || this.state.rxData.icon || this.state.rxData.iconSmall;
         icon = icon || this.state.object.common.icon;
+        const isOn = this.isOn();
+        const color = this.getColor(isOn);
 
         if (icon) {
             icon = <Icon
                 src={icon}
-                style={{ width: 40, height: 40 }}
+                style={{ width: 40, height: 40, color }}
                 className={this.props.classes.iconCustom}
             />;
-        } else if (this.isOn()) {
-            icon = <LightbulbIconOn color="primary" />;
+        } else if (isOn) {
+            icon = <LightbulbIconOn color="primary" style={{ color }} />;
         } else {
-            icon = <LightbulbIconOff />;
+            icon = <LightbulbIconOff style={{ color }} />;
         }
 
         return icon;
     }
 
-    getColor() {
+    getColor(isOn) {
         if (this.state.object.common.states) {
             return this.getValueData()?.color;
         }
-        return this.isOn() ?
+        if (isOn === undefined) {
+            isOn = this.isOn();
+        }
+
+        return isOn ?
             this.state.rxData.colorEnabled || this.state.object.common.color
             : this.state.rxData.color || this.state.object.common.color;
     }

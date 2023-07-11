@@ -251,5 +251,11 @@
   "wash_or_dry_id": "ID do modo de lavadora ou secadora",
   "wash_or_dry_tooltip": "Valus para secador é \"verdadeiro\"",
   "dishwasher": "Lava-louças",
-  "inactive": "inativo"
+  "inactive": "inativo",
+  "Cancel": "Cancelar",
+  "One page": "Uma página",
+  "orientation": "Orientação",
+  "flexible": "Flexível",
+  "horizontal": "Horizontal",
+  "vertical": "Vertical"
 }

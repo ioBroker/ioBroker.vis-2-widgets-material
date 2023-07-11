@@ -665,29 +665,36 @@ class Switches extends BlindsBase {
         icon = icon || this.state.rxData[`icon${index}`] || this.state.rxData[`iconSmall${index}`];
         icon = icon || obj?.common?.icon;
 
+        const isOn = this.isOn(index);
+        const color = this.getColor(index, isOn);
+
         if (icon) {
             icon = <Icon
                 src={icon}
-                style={{ width: 40, height: 40 }}
+                style={{ width: 40, height: 40, color }}
                 className={this.props.classes.iconCustom}
             />;
         } else if (obj?.widgetType === 'blinds') {
-            icon = <WindowClosed />;
-        } else if (this.isOn(index)) {
-            icon = <LightbulbIconOn color="primary" />;
+            icon = <WindowClosed style={{ color }} />;
+        } else if (isOn) {
+            icon = <LightbulbIconOn color="primary" style={{ color }} />;
         } else {
-            icon = <LightbulbIconOff />;
+            icon = <LightbulbIconOff style={{ color }} />;
         }
 
         return icon;
     }
 
-    getColor(index) {
+    getColor(index, isOn) {
         const obj = this.state.objects[index];
         if (typeof obj === 'string') {
             return undefined;
         }
-        return this.isOn(index) ?
+        if (isOn === undefined) {
+            isOn = this.isOn(index);
+        }
+
+        return isOn ?
             this.state.rxData[`colorEnabled${index}`] || obj?.common.color
             : this.state.rxData[`color${index}`] || obj?.common.color;
     }
@@ -1007,26 +1014,24 @@ class Switches extends BlindsBase {
                 setTimeout(() => this.forceUpdate(), 50);
             }
             const style = asButton ? { justifyContent: 'center' } : { margin: 8, justifyContent: 'right' };
-            if (!this.state.rxData.orientation || this.state.rxData.orientation === 'h') {
-                if (asButton) {
+            if (asButton) {
+                if (!this.state.rxData.orientation || this.state.rxData.orientation === 'h') {
                     style.width = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || widget.style?.width || 120;
-                }
-            } else
-            if (this.state.rxData.orientation === 'v') {
-                style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
-            } else
-            if (this.state.rxData.orientation === 'f') {
-                if (asButton) {
+                } else
+                if (this.state.rxData.orientation === 'v') {
+                    style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
+                } else
+                if (this.state.rxData.orientation === 'f') {
                     style.width = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || widget.style?.width || 120;
+                    style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
                 }
-                style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
-            }
-
-            if (!asButton) {
+                if (this.state.selectedOne) {
+                    style.border = '1px dashed gray';
+                    style.boxSizing = 'border-box';
+                }
+            } else {
+                style.height = this.state.rxData[`height${index}`] || widget.style?.height || 80;
                 style.marginRight = this.state.rxData[`position${index}`];
-            } else if (this.state.selectedOne) {
-                style.border = '1px dashed gray';
-                style.boxSizing = 'border-box';
             }
 
             return <div
@@ -1264,8 +1269,10 @@ class Switches extends BlindsBase {
             if (value === true || value === 'true' || value === 1 || value === '1' || value === 'on' || value === 'ON' || value === 'On' || value === 'ein' || value === 'EIN' || value === 'Ein' || value === 'an' || value === 'AN' || value === 'An') {
                 val = true;
             }
+            const colorInactive = this.state.rxData[`infoInactiveColor${index}`] || this.state.rxData[`color${index}`];
             if (val) {
-                const diffColors = this.state.rxData[`infoActiveColor${index}`] && this.state.rxData[`infoInactiveColor${index}`] && this.state.rxData[`infoActiveColor${index}`] !== this.state.rxData[`infoInactiveColor${index}`];
+                const colorActive = this.state.rxData[`infoActiveColor${index}`] || this.state.rxData[`colorEnabled${index}`];
+                const diffColors = colorActive && colorInactive && colorActive !== colorInactive;
                 icon = this.state.rxData[`infoActiveIcon${index}`] || this.state.rxData[`infoActiveImage${index}`];
                 if (!icon && diffColors) {
                     icon = this.state.rxData[`infoInactiveIcon${index}`] || this.state.rxData[`infoInactiveImage${index}`];
@@ -1275,11 +1282,11 @@ class Switches extends BlindsBase {
                 if (!text && diffColors) {
                     text = this.state.rxData[`infoInactiveText${index}`];
                 }
-                color = this.state.rxData[`infoActiveColor${index}`] || this.state.rxData[`infoInactiveColor${index}`];
+                color = colorActive || colorInactive;
             } else {
                 icon = this.state.rxData[`infoInactiveIcon${index}`] || this.state.rxData[`infoInactiveImage${index}`];
                 text = this.state.rxData[`infoInactiveText${index}`];
-                color = this.state.rxData[`infoInactiveColor${index}`];
+                color = colorInactive;
             }
         }
 
@@ -1309,7 +1316,7 @@ class Switches extends BlindsBase {
         } else if (icon) {
             staticElem = <Icon src={icon} style={{ width: 24, height: 24, color }} />;
         } else {
-            staticElem = value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '');
+            staticElem = <span style={{ color }}>{value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}</span>;
         }
 
         // todo: history for booleans

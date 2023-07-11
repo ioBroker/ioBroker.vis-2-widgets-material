@@ -251,5 +251,11 @@
   "wash_or_dry_id": "ID du mode laveuse ou sécheuse",
   "wash_or_dry_tooltip": "La valeur pour le sèche-linge est \"vraie\"",
   "dishwasher": "Lave-vaisselle",
-  "inactive": "inactif"
+  "inactive": "inactif",
+  "Cancel": "Annuler",
+  "One page": "Une page",
+  "orientation": "Orientation",
+  "flexible": "Flexible",
+  "horizontal": "Horizontal",
+  "vertical": "Vertical"
 }

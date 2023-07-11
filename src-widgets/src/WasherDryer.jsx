@@ -554,7 +554,7 @@ class WasherDryer extends Generic {
                 const startTime = new Date(this.state.values[`${this.state.rxData['start-time-oid']}.val`]);
                 const totalTime = endTime.getTime() - startTime.getTime();
                 const ms = endTime.getTime() - Date.now();
-                if (totalTime > 0) {
+                if (totalTime > 0 && endTime.getTime() > Date.now()) {
                     options.value = Math.round(((totalTime - ms) / totalTime) * 360);
                     const hours = Math.floor(ms / 1000 / 60 / 60);
                     const minutes = Math.floor((ms - hours * 1000 * 60 * 60) / 1000 / 60);
