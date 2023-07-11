@@ -1,7 +1,11 @@
 import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Switch,
 } from '@mui/material';
+import { ExpandMore } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { ChannelDetector } from 'iobroker.type-detector';
 import Generic from './Generic';
@@ -44,7 +48,7 @@ const detectDevice = async socket => {
             rooms.push(id);
         }
         const members = devicesObject[id].common.members;
-        console.log(id);
+        // console.log(id);
         if (members && members.length) {
             members.forEach(member => {
                 if (devicesObject[member]) {
@@ -64,14 +68,14 @@ const detectDevice = async socket => {
         excludedTypes,
     };
     const result = [];
-    console.log(rooms);
+    // console.log(rooms);
     rooms.forEach(roomId => {
         const room = devicesObject[roomId];
         const roomObject = {
             ...room,
             devices: [],
         };
-        console.log(room.common.members);
+        // console.log(room.common.members);
         room.common.members.forEach(member => {
             const deviceObject = {
                 ...devicesObject[member],
@@ -79,13 +83,16 @@ const detectDevice = async socket => {
             };
             options.id = member;
             const controls = detector.detect(options);
+            console.log(controls);
             if (controls) {
                 controls.forEach(control => {
-                    console.log('control type', control.type);
+                    if (!deviceObject.deviceType) {
+                        deviceObject.deviceType = control.type;
+                    }
                     if (control.states) {
                         control.states.forEach(state => {
                             if (state.id) {
-                                console.log(state);
+                                // console.log(state);
                                 deviceObject.states.push(devicesObject[state.id]);
                             }
                         });
@@ -122,6 +129,8 @@ const getNewWidgetIdNumber = project => {
 const WizardDialog = props => {
     const [states, setStates] = useState(null);
     const [checked, setChecked] = useState({});
+    const [devicesChecked, setDevicesChecked] = useState({});
+    const [roomsChecked, setRoomsChecked] = useState({});
     const [onePage, setOnePage] = useState(false);
 
     useEffect(() => {
@@ -130,14 +139,20 @@ const WizardDialog = props => {
             console.log(_states);
             setStates(_states);
             const _checked = {};
+            const _devicesChecked = {};
+            const _roomsChecked = {};
             _states.forEach(room => {
+                _roomsChecked[room._id] = true;
                 room.devices.forEach(device => {
+                    _devicesChecked[device._id] = true;
                     device.states.forEach(state => {
                         _checked[state._id] = true;
                     });
                 });
             });
             setChecked(_checked);
+            setDevicesChecked(_devicesChecked);
+            setRoomsChecked(_roomsChecked);
         })();
     }, [props.open, props.socket]);
 
@@ -145,6 +160,9 @@ const WizardDialog = props => {
         const project = JSON.parse(JSON.stringify(props.project));
         let newKey = getNewWidgetIdNumber(project);
         states.forEach(room => {
+            if (!roomsChecked[room._id]) {
+                return;
+            }
             let roomHeight = 0;
             let viewId = Generic.getText(room.common.name);
             let roomWidget;
@@ -171,7 +189,7 @@ const WizardDialog = props => {
                         id: room._id,
                     },
                 };
-                viewId = props.view;
+                viewId = props.selectedView;
             } else {
                 const projectView = Object.keys(project).find(view => project[view].wizard?.id === room._id);
                 if (projectView) {
@@ -196,6 +214,10 @@ const WizardDialog = props => {
                 }
             }
             room.devices.forEach(device => {
+                if (!devicesChecked[device._id]) {
+                    return;
+                }
+                // console.log(device);
                 let widgetId = `w${newKey.toString().padStart(6, 0)}`;
 
                 let widget = {
@@ -235,12 +257,13 @@ const WizardDialog = props => {
                     };
                 }
                 device.states.forEach(state => {
-                    if (checked[state._id]) {
-                        widget.data.count++;
-                        widget.data[`oid${widget.data.count}`] = state._id;
-                        widget.data[`type${widget.data.count}`] = 'auto';
-                        widget.data[`g_switch-${widget.data.count}`] = true;
+                    if (!checked[state._id]) {
+                        return;
                     }
+                    widget.data.count++;
+                    widget.data[`oid${widget.data.count}`] = state._id;
+                    widget.data[`type${widget.data.count}`] = 'auto';
+                    widget.data[`g_switch-${widget.data.count}`] = true;
                 });
                 widget.style.height = widget.data.count * 40 + 90;
                 roomHeight += widget.style.height;
@@ -258,12 +281,12 @@ const WizardDialog = props => {
             });
             if (onePage) {
                 roomWidget.style.height = roomHeight + 90;
-                const projectRoomWidget = Object.keys(project[props.view].widgets).find(_widget => project[props.view].widgets[_widget].wizard?.id === room._id);
+                const projectRoomWidget = Object.keys(project[props.selectedView].widgets).find(_widget => project[props.selectedView].widgets[_widget].wizard?.id === room._id);
                 if (projectRoomWidget) {
-                    roomWidget = project[props.view].widgets[projectRoomWidget];
+                    roomWidget = project[props.selectedView].widgets[projectRoomWidget];
                 } else {
                     const roomWidgetId = `w${newKey.toString().padStart(6, 0)}`;
-                    project[props.view].widgets[roomWidgetId] = roomWidget;
+                    project[props.selectedView].widgets[roomWidgetId] = roomWidget;
                     newKey++;
                 }
             }
@@ -287,22 +310,60 @@ const WizardDialog = props => {
                 </div>
                 {
                     states.map(room => <div key={room._id}>
-                        <h2>{Generic.getText(room.common.name)}</h2>
-
-                        {room.devices.map(device => <div key={device._id}>
-                            <h4>{Generic.getText(device.common.name)}</h4>
-                            {device.states.map(state => <div key={state._id}>
-                                <Checkbox
-                                    checked={checked[state._id]}
-                                    onChange={e => {
-                                        const _checked = JSON.parse(JSON.stringify(checked));
-                                        _checked[state._id] = e.target.checked;
-                                        setChecked(_checked);
-                                    }}
-                                />
-                                {Generic.getText(state.common.name)}
-                            </div>)}
-                        </div>)}
+                        <Accordion defaultExpanded>
+                            <AccordionSummary expandIcon={<ExpandMore />}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Checkbox
+                                        checked={roomsChecked[room._id]}
+                                        onChange={e => {
+                                            const _roomsChecked = JSON.parse(JSON.stringify(roomsChecked));
+                                            _roomsChecked[room._id] = e.target.checked;
+                                            setRoomsChecked(_roomsChecked);
+                                        }}
+                                        onClick={e => e.stopPropagation()}
+                                    />
+                                    {Generic.getText(room.common.name)}
+                                </div>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                {roomsChecked[room._id] ? room.devices.map(device => <div key={device._id}>
+                                    <Accordion
+                                        defaultExpanded
+                                    >
+                                        <AccordionSummary expandIcon={<ExpandMore />}>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <Checkbox
+                                                    checked={devicesChecked[device._id]}
+                                                    onChange={e => {
+                                                        const _devicesChecked = JSON.parse(JSON.stringify(devicesChecked));
+                                                        _devicesChecked[device._id] = e.target.checked;
+                                                        setDevicesChecked(_devicesChecked);
+                                                    }}
+                                                    onClick={e => e.stopPropagation()}
+                                                />
+                                                {Generic.getText(device.common.name)}
+                                            </div>
+                                        </AccordionSummary>
+                                        {devicesChecked[device._id] ? <AccordionDetails>
+                                            {device.states.map(state => <div
+                                                key={state._id}
+                                                style={{ paddingLeft: 20, display: 'flex', alignItems: 'center' }}
+                                            >
+                                                <Checkbox
+                                                    checked={checked[state._id]}
+                                                    onChange={e => {
+                                                        const _checked = JSON.parse(JSON.stringify(checked));
+                                                        _checked[state._id] = e.target.checked;
+                                                        setChecked(_checked);
+                                                    }}
+                                                />
+                                                {Generic.getText(state.common.name)}
+                                            </div>)}
+                                        </AccordionDetails> : null}
+                                    </Accordion>
+                                </div>) : null}
+                            </AccordionDetails>
+                        </Accordion>
                     </div>)
                 }
             </> : <LinearProgress />}
@@ -372,12 +433,7 @@ class Wizard extends (window.visRxWidget || VisRxWidget) {
             visPrev: 'widgets/vis-2-widgets-material/img/prev_wizard.png',
             visOrder: 100,
             custom: true,
-            customPalette: (socket, project, changeProject, view) => <WizardButton
-                socket={socket}
-                project={project}
-                changeProject={changeProject}
-                view={view}
-            />,
+            customPalette: data => <WizardButton {...data} />,
         };
     }
 }

@@ -56,16 +56,18 @@ class App extends WidgetDemoApp {
     renderWidget() {
         const widgets = {
             wizard: Wizard.getWidgetInfo().customPalette(
-                this.socket,
                 {
-                    test: {
-                        widgets: {},
+                    socket: this.socket,
+                    project: {
+                        test: {
+                            widgets: {},
+                        },
                     },
+                    changeProject: project => {
+                        console.log(project);
+                    },
+                    selectedView: 'test',
                 },
-                project => {
-                    console.log(project);
-                },
-                'test',
             ),
             camera: <Camera
                 key="Camera"
