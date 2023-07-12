@@ -9,6 +9,7 @@ import { ExpandMore } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { ChannelDetector } from 'iobroker.type-detector';
 import Generic from './Generic';
+import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
 
 const allObjects = async socket => {
     const states = await socket.getObjectView('', '\u9999', 'state');
@@ -220,41 +221,14 @@ const WizardDialog = props => {
                 // console.log(device);
                 let widgetId = `w${newKey.toString().padStart(6, 0)}`;
 
-                let widget = {
-                    tpl: 'tplMaterial2Switches',
-                    data: {
-                        widgetTitle: Generic.getText(device.common.name),
-                        count: 0,
-                        g_common: true,
-                        type: 'lines',
-                        allSwitch: false,
-                        buttonsWidth: 120,
-                        buttonsHeight: 80,
-                    },
-                    style: {
-                        left: '0px',
-                        top: '0px',
-                        width: '100%',
-                        height: 120,
-                        position: 'relative',
-                    },
-                    wizard: {
-                        id: device._id,
-                    },
-                };
+                let widget;
                 const projectWidget = Object.keys(project[viewId].widgets).find(_widget => project[viewId].widgets[_widget].wizard?.id === device._id);
                 if (projectWidget) {
                     widget = project[viewId].widgets[projectWidget];
                     widgetId = projectWidget;
-                    widget.data = {
-                        widgetTitle: Generic.getText(device.common.name),
-                        count: 0,
-                        g_common: true,
-                        type: 'lines',
-                        allSwitch: false,
-                        buttonsWidth: 120,
-                        buttonsHeight: 80,
-                    };
+                    widget.data = { ...widget.data, ...getDeviceWidget(device).data };
+                } else {
+                    widget = getDeviceWidget(device);
                 }
                 device.states.forEach(state => {
                     if (!checked[state._id]) {
@@ -268,12 +242,9 @@ const WizardDialog = props => {
                 widget.style.height = widget.data.count * 40 + 90;
                 roomHeight += widget.style.height;
                 if (onePage) {
-                    widget.usedInWidget = true;
-                    project[viewId].widgets[widgetId] = widget;
-                    roomWidget.data.count++;
-                    roomWidget.data[`widget${roomWidget.data.count}`] = widgetId;
-                    roomWidget.data[`noIcon${roomWidget.data.count}`] = true;
-                    roomWidget.data[`title${roomWidget.data.count}`] = Generic.getText(device.common.name);
+                    getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId]);
+                    // widget.usedInWidget = true;
+                    // project[viewId].widgets[widgetId] = widget;
                 } else {
                     project[viewId].widgets[widgetId] = widget;
                 }
@@ -283,7 +254,8 @@ const WizardDialog = props => {
                 roomWidget.style.height = roomHeight + 90;
                 const projectRoomWidget = Object.keys(project[props.selectedView].widgets).find(_widget => project[props.selectedView].widgets[_widget].wizard?.id === room._id);
                 if (projectRoomWidget) {
-                    roomWidget = project[props.selectedView].widgets[projectRoomWidget];
+                    project[props.selectedView].widgets[projectRoomWidget] =
+                    { ...project[props.selectedView].widgets[projectRoomWidget], ...roomWidget };
                 } else {
                     const roomWidgetId = `w${newKey.toString().padStart(6, 0)}`;
                     project[props.selectedView].widgets[roomWidgetId] = roomWidget;
@@ -327,40 +299,18 @@ const WizardDialog = props => {
                             </AccordionSummary>
                             <AccordionDetails>
                                 {roomsChecked[room._id] ? room.devices.map(device => <div key={device._id}>
-                                    <Accordion
-                                        defaultExpanded
-                                    >
-                                        <AccordionSummary expandIcon={<ExpandMore />}>
-                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                <Checkbox
-                                                    checked={devicesChecked[device._id]}
-                                                    onChange={e => {
-                                                        const _devicesChecked = JSON.parse(JSON.stringify(devicesChecked));
-                                                        _devicesChecked[device._id] = e.target.checked;
-                                                        setDevicesChecked(_devicesChecked);
-                                                    }}
-                                                    onClick={e => e.stopPropagation()}
-                                                />
-                                                {Generic.getText(device.common.name)}
-                                            </div>
-                                        </AccordionSummary>
-                                        {devicesChecked[device._id] ? <AccordionDetails>
-                                            {device.states.map(state => <div
-                                                key={state._id}
-                                                style={{ paddingLeft: 20, display: 'flex', alignItems: 'center' }}
-                                            >
-                                                <Checkbox
-                                                    checked={checked[state._id]}
-                                                    onChange={e => {
-                                                        const _checked = JSON.parse(JSON.stringify(checked));
-                                                        _checked[state._id] = e.target.checked;
-                                                        setChecked(_checked);
-                                                    }}
-                                                />
-                                                {Generic.getText(state.common.name)}
-                                            </div>)}
-                                        </AccordionDetails> : null}
-                                    </Accordion>
+                                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 20 }}>
+                                        <Checkbox
+                                            checked={devicesChecked[device._id]}
+                                            onChange={e => {
+                                                const _devicesChecked = JSON.parse(JSON.stringify(devicesChecked));
+                                                _devicesChecked[device._id] = e.target.checked;
+                                                setDevicesChecked(_devicesChecked);
+                                            }}
+                                            onClick={e => e.stopPropagation()}
+                                        />
+                                        {Generic.getText(device.common.name)}
+                                    </div>
                                 </div>) : null}
                             </AccordionDetails>
                         </Accordion>

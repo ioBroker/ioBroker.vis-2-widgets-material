@@ -993,7 +993,7 @@ class Switches extends BlindsBase {
                 }}
             >
                 <DialogTitle>
-                    {this.state.rxData[`title${index}`] || this.state.objects[index].common.name}
+                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name)}
                     <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showControlDialog: null })}><CloseIcon /></IconButton>
                 </DialogTitle>
                 <DialogContent>
@@ -1143,7 +1143,7 @@ class Switches extends BlindsBase {
                         }, 100);
                     }}
                     variant="standard"
-                    label={this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
+                    label={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index]?.common?.name) || ''}
                     value={!this.state.showSetButton[index] ? (value === null || value === undefined ? '' : value) : this.state.inputValues[index]}
                     InputProps={{
                         endAdornment: this.state.objects[index].common.unit ?
@@ -1225,7 +1225,7 @@ class Switches extends BlindsBase {
                 <InputLabel
                     classes={{ root: states.find(item => item.value === value) ? this.props.classes.selectLabel : undefined }}
                 >
-                    {this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
+                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index]?.common?.name) || ''}
                 </InputLabel>
                 <Select
                     variant="standard"
@@ -1696,7 +1696,7 @@ class Switches extends BlindsBase {
             >
                 {icon ? <div className={this.props.classes.iconButton}>{icon}</div> : null}
                 <div className={this.props.classes.text}>
-                    {this.state.rxData[`title${index}`] || this.state.objects[index].common.name || ''}
+                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name) || ''}
                 </div>
                 {value !== undefined && value !== null ?
                     <div className={this.props.classes.value}>
@@ -1755,7 +1755,7 @@ class Switches extends BlindsBase {
                             {icons[i]}
                         </span> : null}
                         {this.state.objects[index].widgetType !== 'input' && this.state.objects[index].widgetType !== 'select' ? <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
-                            {this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
+                            {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index]?.common?.name) || ''}
                         </span> : null}
                     </span>
                     {this.renderLine(index)}
