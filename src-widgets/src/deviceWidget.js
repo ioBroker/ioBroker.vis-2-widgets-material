@@ -2,6 +2,15 @@ import Generic from './Generic';
 
 const simpleState = (device, role, result, settings) => {
     const set = device.states.find(state => state.common.role === role);
+    if (device.common.icon) {
+        if (settings) {
+            delete settings.iconSmall;
+            delete settings.iconEnabledSmall;
+            settings.icon = device.common.icon;
+        } else {
+            settings = { icon: device.common.icon };
+        }
+    }
     return {
         tpl: 'tplMaterial2SimpleState',
         data: {
@@ -23,7 +32,6 @@ export const getDeviceWidget = device => {
             left: '0px',
             top: '0px',
             width: '100%',
-            height: 120,
             position: 'relative',
         },
         wizard: {
@@ -33,6 +41,7 @@ export const getDeviceWidget = device => {
     if (device.deviceType === 'thermostat') {
         const set = device.states.find(state => state.common.role === 'level.temperature');
         const actual = device.states.find(state => state.common.role === 'value.temperature');
+        result.style.height = 120;
         return {
             tpl: 'tplMaterial2Thermostat',
             data: {
@@ -51,8 +60,9 @@ export const getDeviceWidget = device => {
     if (device.deviceType === 'dimmer') {
         return simpleState(device, 'level.dimmer', result);
     }
-    if (device.deviceType === 'blinds') {
+    if (device.deviceType === 'blind') {
         const set = device.states.find(state => state.common.role === 'level.blind');
+        result.style.height = 120;
         return {
             tpl: 'tplMaterial2Blinds',
             data: {
@@ -62,6 +72,7 @@ export const getDeviceWidget = device => {
                 borderWidth: 3,
                 oid: set?._id,
             },
+            ...result,
         };
     }
     if (device.deviceType === 'temperature') {
@@ -167,14 +178,11 @@ export const getDeviceWidget = device => {
             g_common: true,
             type: 'lines',
             allSwitch: false,
-            buttonsWidth: 120,
-            buttonsHeight: 80,
         },
         style: {
             left: '0px',
             top: '0px',
             width: '100%',
-            height: 120,
             position: 'relative',
         },
         wizard: {
@@ -185,6 +193,15 @@ export const getDeviceWidget = device => {
 
 export const getDeviceWidgetOnePage = (device, widgetId, roomWidget, view) => {
     const addSwitch = (role, settings) => {
+        if (device.common.icon) {
+            if (settings) {
+                delete settings.iconSmall;
+                delete settings.iconEnabledSmall;
+                settings.icon = device.common.icon;
+            } else {
+                settings = { icon: device.common.icon };
+            }
+        }
         const set = device.states.find(state => state.common.role === role);
         roomWidget.data.count++;
         roomWidget.data[`oid${roomWidget.data.count}`] = set?._id;
@@ -200,15 +217,17 @@ export const getDeviceWidgetOnePage = (device, widgetId, roomWidget, view) => {
         view.widgets[widgetId] = widget;
         roomWidget.data.count++;
         roomWidget.data[`widget${roomWidget.data.count}`] = widgetId;
+        return;
     }
     if (device.deviceType === 'light') {
         addSwitch('switch.light', { type: 'switch' });
+        return;
     }
     if (device.deviceType === 'dimmer') {
         addSwitch('level.dimmer', { type: 'slider' });
         return;
     }
-    if (device.deviceType === 'blinds') {
+    if (device.deviceType === 'blind') {
         addSwitch('level.blind', { type: 'blinds' });
         return;
     }
@@ -267,6 +286,7 @@ export const getDeviceWidgetOnePage = (device, widgetId, roomWidget, view) => {
     if (device.deviceType === 'media') {
         const widget = getDeviceWidget(device);
         view.widgets[widgetId] = widget;
+        return;
     }
     if (device.deviceType === 'volume') {
         addSwitch('level.volume', {
@@ -278,6 +298,7 @@ export const getDeviceWidgetOnePage = (device, widgetId, roomWidget, view) => {
     if (device.deviceType === 'weatherForecast') {
         const widget = getDeviceWidget(device);
         view.widgets[widgetId] = widget;
+        return;
     }
     if (device.deviceType === 'window') {
         addSwitch('sensor.window', {

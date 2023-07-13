@@ -3,13 +3,35 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Switch,
+    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Switch, TextField,
 } from '@mui/material';
-import { ExpandMore } from '@mui/icons-material';
+import {
+    Add, Close, ExpandMore, Adjust, Blinds, DirectionsRun, Lightbulb, Outlet, SensorDoor, Thermostat, VolumeUp, WbSunny, Whatshot, Water, PlayArrow, Lock, Window,
+} from '@mui/icons-material';
+
 import { useEffect, useState } from 'react';
 import { ChannelDetector } from 'iobroker.type-detector';
 import Generic from './Generic';
 import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
+
+const deviceIcons = {
+    thermostat: <Thermostat />,
+    light: <Lightbulb />,
+    dimmer: <Adjust />,
+    blind: <Blinds />,
+    temperature: <Thermostat />,
+    motion: <DirectionsRun />,
+    fireAlarm: <Whatshot />,
+    floodAlarm: <Water />,
+    door: <SensorDoor />,
+    levelSlider: <Adjust />,
+    lock: <Lock />,
+    socket: <Outlet />,
+    media: <PlayArrow />,
+    volume: <VolumeUp />,
+    weatherForecast: <WbSunny />,
+    window: <Window />,
+};
 
 const allObjects = async socket => {
     const states = await socket.getObjectView('', '\u9999', 'state');
@@ -105,6 +127,32 @@ const detectDevice = async socket => {
         result.push(roomObject);
     });
 
+    for (const k in result) {
+        for (const k2 in result[k].devices) {
+            const device = result[k].devices[k2];
+            if (!device.common.icon && (device.type === 'state' || device.type === 'channel')) {
+                const idArray = device._id.split('.');
+
+                // read channel
+                const parentObject = await socket.getObject(idArray.slice(0, -1).join('.'));
+                if (!parentObject?.common?.icon && (device.type === 'state' || device.type === 'channel')) {
+                    const grandParentObject = await socket.getObject(idArray.slice(0, -2).join('.'));
+                    if (grandParentObject?.common?.icon) {
+                        device.common.icon = grandParentObject.common.icon;
+                        if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                            device.common.icon = `../${grandParentObject.common.name}.admin/${device.common.icon}`;
+                        }
+                    }
+                } else {
+                    device.common.icon = parentObject.common.icon;
+                    if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                        device.common.icon = `../${parentObject.common.name}.admin/${device.common.icon}`;
+                    }
+                }
+            }
+        }
+    }
+
     return result;
 };
 
@@ -129,7 +177,7 @@ const getNewWidgetIdNumber = project => {
 
 const WizardDialog = props => {
     const [states, setStates] = useState(null);
-    const [checked, setChecked] = useState({});
+    // const [checked, setChecked] = useState({});
     const [devicesChecked, setDevicesChecked] = useState({});
     const [roomsChecked, setRoomsChecked] = useState({});
     const [onePage, setOnePage] = useState(false);
@@ -151,7 +199,7 @@ const WizardDialog = props => {
                     });
                 });
             });
-            setChecked(_checked);
+            // setChecked(_checked);
             setDevicesChecked(_devicesChecked);
             setRoomsChecked(_roomsChecked);
         })();
@@ -164,7 +212,6 @@ const WizardDialog = props => {
             if (!roomsChecked[room._id]) {
                 return;
             }
-            let roomHeight = 0;
             let viewId = Generic.getText(room.common.name);
             let roomWidget;
             if (onePage) {
@@ -176,14 +223,11 @@ const WizardDialog = props => {
                         g_common: true,
                         type: 'lines',
                         allSwitch: false,
-                        buttonsWidth: 120,
-                        buttonsHeight: 80,
                     },
                     style: {
                         left: '0px',
                         top: '0px',
                         width: '100%',
-                        height: 120,
                         position: 'relative',
                     },
                     wizard: {
@@ -230,7 +274,6 @@ const WizardDialog = props => {
                 } else {
                     widget = getDeviceWidget(device);
                 }
-                roomHeight += widget.style.height;
                 if (onePage) {
                     getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId]);
                     // widget.usedInWidget = true;
@@ -241,7 +284,6 @@ const WizardDialog = props => {
                 newKey++;
             });
             if (onePage) {
-                roomWidget.style.height = roomHeight + 90;
                 const projectRoomWidget = Object.keys(project[props.selectedView].widgets).find(_widget => project[props.selectedView].widgets[_widget].wizard?.id === room._id);
                 if (projectRoomWidget) {
                     project[props.selectedView].widgets[projectRoomWidget] =
@@ -267,11 +309,12 @@ const WizardDialog = props => {
         <DialogContent>
             {states ? <>
                 <div>
+                    {Generic.t('Muliple views')}
                     <Switch checked={onePage} onChange={e => setOnePage(e.target.checked)} />
-                    {Generic.t('One page')}
+                    {Generic.t('One view')}
                 </div>
                 {
-                    states.map(room => <div key={room._id}>
+                    states.map((room, roomId) => <div key={room._id}>
                         <Accordion defaultExpanded>
                             <AccordionSummary expandIcon={<ExpandMore />}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -284,12 +327,16 @@ const WizardDialog = props => {
                                         }}
                                         onClick={e => e.stopPropagation()}
                                     />
+                                    {room.common.icon ? <img src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" /> : null}
                                     {Generic.getText(room.common.name)}
                                 </div>
                             </AccordionSummary>
                             <AccordionDetails>
-                                {roomsChecked[room._id] ? room.devices.map(device => <div key={device._id}>
-                                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 20 }}>
+                                {roomsChecked[room._id] ? room.devices.map((device, deviceId) => <div key={device._id}>
+                                    <div style={{
+                                        display: 'flex', alignItems: 'center', marginLeft: 20, marginBottom: 4,
+                                    }}
+                                    >
                                         <Checkbox
                                             checked={devicesChecked[device._id]}
                                             onChange={e => {
@@ -299,7 +346,22 @@ const WizardDialog = props => {
                                             }}
                                             onClick={e => e.stopPropagation()}
                                         />
-                                        {Generic.getText(device.common.name)}
+                                        <span style={{ marginRight: 8 }}>
+                                            {(device.common.icon && <img src={device.common.icon} style={{ width: 24, height: 24 }} alt="" />)
+                                        || deviceIcons[device.deviceType] || <Lightbulb />}
+                                        </span>
+                                        <TextField
+                                            variant="standard"
+                                            helperText={<span style={{ fontStyle: 'italic' }}>
+                                                {`${Generic.t('Device type')}: ${Generic.t(device.deviceType)}`}
+                                            </span>}
+                                            value={Generic.getText(device.common.name)}
+                                            onChange={e => {
+                                                const _states = JSON.parse(JSON.stringify(states));
+                                                _states[roomId].devices[deviceId].common.name = e.target.value;
+                                                setStates(_states);
+                                            }}
+                                        />
                                     </div>
                                 </div>) : null}
                             </AccordionDetails>
@@ -311,16 +373,18 @@ const WizardDialog = props => {
         <DialogActions>
             <Button
                 variant="contained"
-                onClick={() => props.onClose()}
-                color="grey"
+                onClick={handleSubmit}
+                startIcon={<Add />}
             >
-                {Generic.t('Cancel')}
+                {Generic.t('Add widgets')}
             </Button>
             <Button
                 variant="contained"
-                onClick={handleSubmit}
+                onClick={() => props.onClose()}
+                startIcon={<Close />}
+                color="grey"
             >
-                {Generic.t('Add views')}
+                {Generic.t('Cancel')}
             </Button>
         </DialogActions>
     </Dialog>;
