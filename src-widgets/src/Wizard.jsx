@@ -230,16 +230,6 @@ const WizardDialog = props => {
                 } else {
                     widget = getDeviceWidget(device);
                 }
-                device.states.forEach(state => {
-                    if (!checked[state._id]) {
-                        return;
-                    }
-                    widget.data.count++;
-                    widget.data[`oid${widget.data.count}`] = state._id;
-                    widget.data[`type${widget.data.count}`] = 'auto';
-                    widget.data[`g_switch-${widget.data.count}`] = true;
-                });
-                widget.style.height = widget.data.count * 40 + 90;
                 roomHeight += widget.style.height;
                 if (onePage) {
                     getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId]);
