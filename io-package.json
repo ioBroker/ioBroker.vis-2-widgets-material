@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.7.1",
+    "version": "0.8.0",
     "news": {
+      "0.8.0": {
+        "en": "Added wizard for widgets",
+        "de": "Wizard für Widgets hinzugefügt",
+        "ru": "Добавлен мастер для виджетов",
+        "pt": "Assistente adicionado para widgets",
+        "nl": "Toegevoegd tovenaar voor widgets",
+        "fr": "Ajout de l'assistant pour les widgets",
+        "it": "Aggiunto wizard per widgets",
+        "es": "Agregado mago para widgets",
+        "pl": "Added wizard for widgets (ang.)",
+        "uk": "Додано майстра для віджетів",
+        "zh-cn": "令人感到震惊"
+      },
       "0.7.1": {
         "en": "Added washer widget",
         "de": "Washer Widget hinzugefügt",
@@ -80,19 +93,6 @@
         "pl": "Widget przełącza tematykę\nPoprawa HTML widget by pokazać iframe oraz obraz",
         "uk": "Додано віджет для перемикання теми\nПокращений HTML віджет, щоб показати iframe і зображення",
         "zh-cn": "重新确定这个主题的预计目标\nB. 改善HTML wid目标以图示和图像"
-      },
-      "0.4.0": {
-        "en": "Added button texts for switches widget\nRemoved static widget, as it replaced by switches widget",
-        "de": "Schaltfläche Texte für Schalter Widget hinzugefügt\nEntfernte statische Widget, wie es durch Schalter Widget ersetzt",
-        "ru": "Добавлены кнопки для коммутаторов виджет\nУдаленный статический виджет, как он заменен коммутатором виджет",
-        "pt": "Textos de botão adicionados para widget de interruptores\nWidget estático removido, como substituído por interruptores widget",
-        "nl": "Vermeldde knopsystemen voor wisselgeld\nVerwijderde statische wedget, zoals het vervangen is door wisselaars",
-        "fr": "Ajout de textes de bouton pour les commutateurs widget\nSupprimé widget statique, comme il a remplacé par des commutateurs widget",
-        "it": "Testi di pulsante aggiunti per widget di switch\nWidget statico rimosso, come sostituito da widget switch",
-        "es": "Textos de botón añadido para interruptores widget\nWidget estático eliminado, ya que reemplazado por interruptores widget",
-        "pl": "Wszystko przycisku\nPrzemieniono statyczne widgety, ponieważ zastąpiono je widget",
-        "uk": "Додано тексти кнопок для віджетів\nВидалення статичного віджету, як він замінюється перемикачами",
-        "zh-cn": "改用目标的加德顿案文\n取消静态目标,因为改用目标"
       }
     },
     "title": "Vis 2 Widgets Material",

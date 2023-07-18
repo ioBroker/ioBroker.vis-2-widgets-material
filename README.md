@@ -146,7 +146,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.8.0 (2023-07-18)
 * (bluefox) Added wizard for widgets
 
 ### 0.7.1 (2023-07-02)

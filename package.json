@@ -1,6 +1,6 @@
 {
   "name": "iobroker.vis-2-widgets-material",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "ioBroker vis2 material widgets",
   "author": "bluefox <dogafox@gmail.com>",
   "contributors": [
