@@ -884,8 +884,8 @@ class Switches extends BlindsBase {
                             unit={this.state.objects[index].common.unit}
                             title={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name)}
                             objLineType="line"
-                            objColor={this.props.theme.palette.primary.main}
-                            objBackgroundColor={this.props.theme.palette.primary.main}
+                            objColor={this.props.context.theme.palette.primary.main}
+                            objBackgroundColor={this.props.context.theme.palette.primary.main}
                             themeType={this.props.themeType}
                             defaultHistory={this.history[index]}
                             noToolbar
@@ -1265,7 +1265,17 @@ class Switches extends BlindsBase {
         let text;
         let color;
         let val = false;
-        if (this.state.objects[index].common.type === 'boolean' || value === true || value === 'true' || value === false || value === 'false') {
+        if (this.state.objects[index].common.type === 'boolean' ||
+            this.state.objects[index].common.type === 'number' ||
+            value === 0 ||
+            value === 1 ||
+            value === '0' ||
+            value === '1' ||
+            value === true ||
+            value === 'true' ||
+            value === false ||
+            value === 'false'
+        ) {
             if (value === true || value === 'true' || value === 1 || value === '1' || value === 'on' || value === 'ON' || value === 'On' || value === 'ein' || value === 'EIN' || value === 'Ein' || value === 'an' || value === 'AN' || value === 'An') {
                 val = true;
             }
@@ -1503,7 +1513,7 @@ class Switches extends BlindsBase {
                                 showSymbol: false,
                                 data,
                                 lineStyle: {
-                                    color: this.props.theme.palette.primary.main,
+                                    color: this.props.context.theme.palette.primary.main,
                                     opacity: 0.3,
                                 },
                                 areaStyle: {

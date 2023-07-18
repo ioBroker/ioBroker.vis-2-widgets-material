@@ -258,12 +258,11 @@
   "flexible": "Flexible",
   "horizontal": "Horizontal",
   "vertical": "Vertical",
-  "Muliple views": "Muliple views",
-  "One view": "One view",
+  "One view": "One view for all rooms",
   "Device type": "Device type",
   "light": "Light",
   "dimmer": "Dimmer",
-  "blind": "Blind",
+  "blind": "Jalousie",
   "motion": "Motion",
   "fireAlarm": "Fire alarm",
   "floodAlarm": "Flood alarm",
@@ -271,7 +270,11 @@
   "levelSlider": "Level slider",
   "lock": "Lock",
   "socket": "Socket",
-  "media": "Media",
+  "media": "Media-player",
   "weatherForecast": "Weather forecast",
-  "window": "Window"
+  "window": "Window",
+  "Add views": "Add views",
+  "Multiple views": "One view per room",
+  "%s devices": "%s device(s)",
+  "windowTilt": "Tilted window"
 }

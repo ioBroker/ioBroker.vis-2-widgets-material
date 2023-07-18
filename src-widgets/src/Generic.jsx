@@ -15,7 +15,7 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
 
     // TODO: remove this method when vis-2-widgets-react-dev is updated
     static getText(text) {
-        if (typeof text === 'object') {
+        if (text && typeof text === 'object') {
             return text[(window.visRxWidget || VisRxWidget).getLanguage()] || text.en;
         }
         return text;

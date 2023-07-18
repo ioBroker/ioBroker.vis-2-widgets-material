@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 import {
     Accordion,
@@ -6,191 +7,28 @@ import {
     Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Switch, TextField,
 } from '@mui/material';
 import {
-    Add, Close, ExpandMore, Adjust, Blinds, DirectionsRun, Lightbulb, Outlet, SensorDoor, Thermostat, VolumeUp, WbSunny, Whatshot, Water, PlayArrow, Lock, Window,
+    Add, Close, ExpandMore, Lightbulb,
 } from '@mui/icons-material';
 
-import { useEffect, useState } from 'react';
-import { ChannelDetector } from 'iobroker.type-detector';
+import { Icon } from '@iobroker/adapter-react-v5';
+
 import Generic from './Generic';
 import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
 
-const deviceIcons = {
-    thermostat: <Thermostat />,
-    light: <Lightbulb />,
-    dimmer: <Adjust />,
-    blind: <Blinds />,
-    temperature: <Thermostat />,
-    motion: <DirectionsRun />,
-    fireAlarm: <Whatshot />,
-    floodAlarm: <Water />,
-    door: <SensorDoor />,
-    levelSlider: <Adjust />,
-    lock: <Lock />,
-    socket: <Outlet />,
-    media: <PlayArrow />,
-    volume: <VolumeUp />,
-    weatherForecast: <WbSunny />,
-    window: <Window />,
-};
-
-const allObjects = async socket => {
-    const states = await socket.getObjectView('', '\u9999', 'state');
-    const channels = await socket.getObjectView('', '\u9999', 'channel');
-    const devices = await socket.getObjectView('', '\u9999', 'device');
-    const enums = await socket.getObjectView('', '\u9999', 'enum');
-
-    return Object.values(states)
-        .concat(Object.values(channels))
-        .concat(Object.values(devices))
-        .concat(Object.values(enums))
-        // eslint-disable-next-line
-        .reduce((obj, item) => (obj[item._id] = item, obj), {});
-};
-
-const detectDevice = async socket => {
-    const devicesObject = await allObjects(socket);
-    const keys = Object.keys(devicesObject).sort();
-    const detector = new ChannelDetector();
-
-    const usedIds = [];
-    const ignoreIndicators = ['UNREACH_STICKY'];    // Ignore indicators by name
-    const excludedTypes = ['info'];
-    const enums = [];
-    const rooms = [];
-    const list = [];
-    keys.forEach(id => {
-        if (devicesObject[id]?.type === 'enum') {
-            enums.push(id);
-        } else if (devicesObject[id]?.common?.smartName) {
-            list.push(id);
-        }
-    });
-
-    enums.forEach(id => {
-        if (id.startsWith('enum.rooms.')) {
-            rooms.push(id);
-        }
-        const members = devicesObject[id].common.members;
-        // console.log(id);
-        if (members && members.length) {
-            members.forEach(member => {
-                if (devicesObject[member]) {
-                    if (!list.includes(member)) {
-                        list.push(member);
-                    }
-                }
-            });
-        }
-    });
-
-    const options = {
-        objects: devicesObject,
-        _keysOptional: keys,
-        _usedIdsOptional: usedIds,
-        ignoreIndicators,
-        excludedTypes,
-    };
-    const result = [];
-    // console.log(rooms);
-    rooms.forEach(roomId => {
-        const room = devicesObject[roomId];
-        const roomObject = {
-            ...room,
-            devices: [],
-        };
-        // console.log(room.common.members);
-        room.common.members.forEach(member => {
-            const deviceObject = {
-                ...devicesObject[member],
-                states: [],
-            };
-            options.id = member;
-            const controls = detector.detect(options);
-            console.log(controls);
-            if (controls) {
-                controls.forEach(control => {
-                    if (!deviceObject.deviceType) {
-                        deviceObject.deviceType = control.type;
-                    }
-                    if (control.states) {
-                        control.states.forEach(state => {
-                            if (state.id) {
-                                // console.log(state);
-                                deviceObject.states.push(devicesObject[state.id]);
-                            }
-                        });
-                    }
-                });
-            }
-            roomObject.devices.push(deviceObject);
-        });
-        result.push(roomObject);
-    });
-
-    for (const k in result) {
-        for (const k2 in result[k].devices) {
-            const device = result[k].devices[k2];
-            if (!device.common.icon && (device.type === 'state' || device.type === 'channel')) {
-                const idArray = device._id.split('.');
-
-                // read channel
-                const parentObject = await socket.getObject(idArray.slice(0, -1).join('.'));
-                if (!parentObject?.common?.icon && (device.type === 'state' || device.type === 'channel')) {
-                    const grandParentObject = await socket.getObject(idArray.slice(0, -2).join('.'));
-                    if (grandParentObject?.common?.icon) {
-                        device.common.icon = grandParentObject.common.icon;
-                        if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                            device.common.icon = `../${grandParentObject.common.name}.admin/${device.common.icon}`;
-                        }
-                    }
-                } else {
-                    device.common.icon = parentObject.common.icon;
-                    if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                        device.common.icon = `../${parentObject.common.name}.admin/${device.common.icon}`;
-                    }
-                }
-            }
-        }
-    }
-
-    return result;
-};
-
-const getNewWidgetIdNumber = project => {
-    const widgets = [];
-    Object.keys(project).forEach(view =>
-        project[view].widgets && Object.keys(project[view].widgets).forEach(widget =>
-            widgets.push(widget)));
-    let newKey = 1;
-    widgets.forEach(name => {
-        const matches = name.match(/^w([0-9]+)$/);
-        if (matches) {
-            const num = parseInt(matches[1], 10);
-            if (num >= newKey) {
-                newKey = num + 1;
-            }
-        }
-    });
-
-    return newKey;
-};
-
 const WizardDialog = props => {
-    const [states, setStates] = useState(null);
-    // const [checked, setChecked] = useState({});
+    const [rooms, setRooms] = useState(null);
     const [devicesChecked, setDevicesChecked] = useState({});
     const [roomsChecked, setRoomsChecked] = useState({});
-    const [onePage, setOnePage] = useState(false);
+    const [onePage, setOnePage] = useState(window.localStorage.getItem('AppWizard.onePage') !== 'false');
 
     useEffect(() => {
         (async () => {
-            const _states = await detectDevice(props.socket);
-            console.log(_states);
-            setStates(_states);
+            const _rooms = (await props.helpers?.detectDevices(props.socket)) || [];
+            setRooms(_rooms);
             const _checked = {};
             const _devicesChecked = {};
             const _roomsChecked = {};
-            _states.forEach(room => {
+            _rooms.forEach(room => {
                 _roomsChecked[room._id] = true;
                 room.devices.forEach(device => {
                     _devicesChecked[device._id] = true;
@@ -199,7 +37,6 @@ const WizardDialog = props => {
                     });
                 });
             });
-            // setChecked(_checked);
             setDevicesChecked(_devicesChecked);
             setRoomsChecked(_roomsChecked);
         })();
@@ -207,15 +44,19 @@ const WizardDialog = props => {
 
     const handleSubmit = () => {
         const project = JSON.parse(JSON.stringify(props.project));
-        let newKey = getNewWidgetIdNumber(project);
-        states.forEach(room => {
+        let newKey = props.helpers?.getNewWidgetIdNumber(project) || 1000;
+        let changed = false;
+        rooms.forEach(room => {
             if (!roomsChecked[room._id]) {
                 return;
             }
             let viewId = Generic.getText(room.common.name);
             let roomWidget;
             if (onePage) {
-                roomWidget = {
+                roomWidget = Object.values(project[props.selectedView].widgets)
+                    .find(_widget => _widget.data.wizardId === room._id);
+
+                roomWidget = roomWidget || {
                     tpl: 'tplMaterial2Switches',
                     data: {
                         widgetTitle: Generic.getText(room.common.name),
@@ -223,6 +64,7 @@ const WizardDialog = props => {
                         g_common: true,
                         type: 'lines',
                         allSwitch: false,
+                        wizardId: room._id,
                     },
                     style: {
                         left: '0px',
@@ -230,72 +72,82 @@ const WizardDialog = props => {
                         width: '100%',
                         position: 'relative',
                     },
-                    wizard: {
-                        id: room._id,
-                    },
                 };
                 viewId = props.selectedView;
+
+                room.devices.forEach(device => {
+                    if (!devicesChecked[device._id]) {
+                        return;
+                    }
+                    const widgetId = `w${newKey.toString().padStart(6, '0')}`;
+                    changed = true;
+                    if (getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId])) {
+                        newKey++;
+                    }
+                });
+
+                // try to find existing widget
+                const projectRoomWidget = Object.keys(project[props.selectedView].widgets)
+                    .find(_widget => roomWidget === project[props.selectedView].widgets[_widget]);
+
+                // if not found => add new widget
+                if (!projectRoomWidget) {
+                    const roomWidgetId = `w${newKey.toString().padStart(6, '0')}`;
+                    project[props.selectedView].widgets[roomWidgetId] = roomWidget;
+                    newKey++;
+                }
             } else {
-                const projectView = Object.keys(project).find(view => project[view].wizard?.id === room._id);
+                // try to find existing view
+                const projectView = Object.keys(project).find(view => project[view].settings?.wizardId === room._id);
                 if (projectView) {
                     viewId = projectView;
                 } else if (project[viewId]) {
-                    project[viewId].wizard = {
-                        id: room._id,
-                    };
+                    project[viewId].settings.wizardId = room._id;
                 } else {
+                    // create new view
                     project[viewId] = {
                         name: Generic.getText(room.common.name),
                         parentId: null,
                         settings: {
                             style: {},
+                            wizardId: room._id,
                         },
                         widgets: {},
                         activeWidgets: {},
-                        wizard: {
-                            id: room._id,
-                        },
                     };
+                    // add new view to opened views
+                    if (project.___settings.openedViews && !project.___settings.openedViews.includes(viewId)) {
+                        project.___settings.openedViews.push(viewId);
+                    }
                 }
-            }
-            room.devices.forEach(device => {
-                if (!devicesChecked[device._id]) {
-                    return;
-                }
-                // console.log(device);
-                let widgetId = `w${newKey.toString().padStart(6, 0)}`;
 
-                let widget;
-                const projectWidget = Object.keys(project[viewId].widgets).find(_widget => project[viewId].widgets[_widget].wizard?.id === device._id);
-                if (projectWidget) {
-                    widget = project[viewId].widgets[projectWidget];
-                    widgetId = projectWidget;
-                    widget.data = { ...widget.data, ...getDeviceWidget(device).data };
-                } else {
-                    widget = getDeviceWidget(device);
-                }
-                if (onePage) {
-                    getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId]);
-                    // widget.usedInWidget = true;
-                    // project[viewId].widgets[widgetId] = widget;
-                } else {
-                    project[viewId].widgets[widgetId] = widget;
-                }
-                newKey++;
-            });
-            if (onePage) {
-                const projectRoomWidget = Object.keys(project[props.selectedView].widgets).find(_widget => project[props.selectedView].widgets[_widget].wizard?.id === room._id);
-                if (projectRoomWidget) {
-                    project[props.selectedView].widgets[projectRoomWidget] =
-                    { ...project[props.selectedView].widgets[projectRoomWidget], ...roomWidget };
-                } else {
-                    const roomWidgetId = `w${newKey.toString().padStart(6, 0)}`;
-                    project[props.selectedView].widgets[roomWidgetId] = roomWidget;
-                    newKey++;
-                }
+                // create widgets for every room
+                room.devices.forEach(device => {
+                    if (!devicesChecked[device._id]) {
+                        return;
+                    }
+
+                    const projectWidget = Object.keys(project[viewId].widgets)
+                        .find(_widget => project[viewId].widgets && project[viewId].widgets[_widget].data?.wizardId === device._id);
+
+                    if (!projectWidget) {
+                        changed = true;
+                        const widget = getDeviceWidget(device);
+                        if (widget) {
+                            const widgetId = `w${newKey.toString().padStart(6, '0')}`;
+                            project[viewId].widgets[widgetId] = widget;
+                            newKey++;
+                        } else {
+                            console.warn(`Cannot find widget for ${device._id} (${device.common.name})`);
+                        }
+                    } else {
+                        // merge ??
+                    }
+                });
             }
         });
-        props.changeProject(project);
+
+        changed && props.changeProject(project);
         props.onClose();
     };
 
@@ -307,15 +159,22 @@ const WizardDialog = props => {
     >
         <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
         <DialogContent>
-            {states ? <>
+            {rooms ? <>
                 <div>
-                    {Generic.t('Muliple views')}
-                    <Switch checked={onePage} onChange={e => setOnePage(e.target.checked)} />
+                    {Generic.t('Multiple views')}
+                    <Switch
+                        checked={onePage}
+                        onChange={e => {
+                            window.localStorage.setItem('AppWizard.onePage', e.target.checked ? 'true' : 'false');
+                            setOnePage(e.target.checked);
+                        }}
+                    />
                     {Generic.t('One view')}
                 </div>
-                {
-                    states.map((room, roomId) => <div key={room._id}>
-                        <Accordion defaultExpanded>
+                <div style={{ height: 'calc(100% - 100px)' }}>
+                    {!rooms.length ? <div>{Generic.t('Nothing detected')}</div> : null}
+                    {rooms.map((room, roomId) => <div key={room._id}>
+                        <Accordion>
                             <AccordionSummary expandIcon={<ExpandMore />}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <Checkbox
@@ -327,15 +186,24 @@ const WizardDialog = props => {
                                         }}
                                         onClick={e => e.stopPropagation()}
                                     />
-                                    {room.common.icon ? <img src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" /> : null}
-                                    {Generic.getText(room.common.name)}
+                                    {room.common.icon ? <Icon src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" /> : null}
+                                    <div>{Generic.getText(room.common.name)}</div>
+                                    <div style={{ fontSize: 12, opacity: 0.7, marginLeft: 20 }}>{Generic.t('%s devices', room.devices.length)}</div>
                                 </div>
                             </AccordionSummary>
-                            <AccordionDetails>
-                                {roomsChecked[room._id] ? room.devices.map((device, deviceId) => <div key={device._id}>
-                                    <div style={{
-                                        display: 'flex', alignItems: 'center', marginLeft: 20, marginBottom: 4,
-                                    }}
+                            <AccordionDetails
+                                sx={{
+                                    backgroundColor: props.themeType ? '#111' : '#eee',
+                                }}
+                            >
+                                {roomsChecked[room._id] ? room.devices.map((device, deviceId) => <div key={device._id} style={{ backgroundColor: 'transparent' }}>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            marginLeft: 20,
+                                            marginBottom: 20,
+                                        }}
                                     >
                                         <Checkbox
                                             checked={devicesChecked[device._id]}
@@ -347,32 +215,37 @@ const WizardDialog = props => {
                                             onClick={e => e.stopPropagation()}
                                         />
                                         <span style={{ marginRight: 8 }}>
-                                            {(device.common.icon && <img src={device.common.icon} style={{ width: 24, height: 24 }} alt="" />)
-                                        || deviceIcons[device.deviceType] || <Lightbulb />}
+                                            {device.common.icon ?
+                                                <Icon src={device.common.icon} style={{ width: 24, height: 24 }} alt="" />
+                                                :
+                                                (props.helpers?.deviceIcons[device.deviceType] || <Lightbulb />)}
                                         </span>
                                         <TextField
                                             variant="standard"
+                                            fullWidth
+                                            label={device._id}
                                             helperText={<span style={{ fontStyle: 'italic' }}>
-                                                {`${Generic.t('Device type')}: ${Generic.t(device.deviceType)}`}
+                                                {`${Generic.t('Device type')}: ${Generic.t(device.deviceType).replace('vis_2_widgets_material_', '')}`}
                                             </span>}
                                             value={Generic.getText(device.common.name)}
                                             onChange={e => {
-                                                const _states = JSON.parse(JSON.stringify(states));
+                                                const _states = JSON.parse(JSON.stringify(rooms));
                                                 _states[roomId].devices[deviceId].common.name = e.target.value;
-                                                setStates(_states);
+                                                setRooms(_states);
                                             }}
                                         />
                                     </div>
                                 </div>) : null}
                             </AccordionDetails>
                         </Accordion>
-                    </div>)
-                }
+                    </div>)}
+                </div>
             </> : <LinearProgress />}
         </DialogContent>
         <DialogActions>
             <Button
                 variant="contained"
+                disabled={!rooms?.length || !Object.values(roomsChecked).find(val => val)}
                 onClick={handleSubmit}
                 startIcon={<Add />}
             >
@@ -437,7 +310,7 @@ class Wizard extends (window.visRxWidget || VisRxWidget) {
             visPrev: 'widgets/vis-2-widgets-material/img/prev_wizard.png',
             visOrder: 100,
             custom: true,
-            customPalette: data => <WizardButton {...data} />,
+            customPalette: props => <WizardButton {...props} />,
         };
     }
 }
