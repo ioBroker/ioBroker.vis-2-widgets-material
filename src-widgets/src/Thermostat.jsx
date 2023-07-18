@@ -487,8 +487,7 @@ class Thermostat extends Generic {
         }
         if (tempValue !== null && tempValue < this.state.min) {
             tempValue = this.state.min;
-        } else
-        if (tempValue !== null && tempValue > this.state.max) {
+        } else if (tempValue !== null && tempValue > this.state.max) {
             tempValue = this.state.max;
         }
 

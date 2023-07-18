@@ -40,7 +40,7 @@ const WizardDialog = props => {
             setDevicesChecked(_devicesChecked);
             setRoomsChecked(_roomsChecked);
         })();
-    }, [props.open, props.socket]);
+    }, [props.helpers, props.open, props.socket]);
 
     const handleSubmit = () => {
         const project = JSON.parse(JSON.stringify(props.project));

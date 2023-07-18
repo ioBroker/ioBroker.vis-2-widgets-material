@@ -488,7 +488,7 @@ class Switches extends BlindsBase {
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.count; index++) {
             if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
-                // read object itself
+                // read an object itself
                 const object = await this.props.context.socket.getObject(this.state.rxData[`oid${index}`]);
                 if (!object) {
                     objects[index] = { common: {} };
@@ -501,21 +501,17 @@ class Switches extends BlindsBase {
                     // not writable => info
                     if (object.common.write === false) {
                         widgetType = 'info';
-                    } else
-                    // with states => select
-                    if (object.common.states && object.common.write !== false) {
+                    } else if (object.common.states && object.common.write !== false) {
+                        // with states => select
                         widgetType = 'select';
-                    } else
-                    // number writable max => slider
-                    if (object.common.type === 'number' && object.common.max !== undefined) {
+                    } else if (object.common.type === 'number' && object.common.max !== undefined) {
+                        // number writable max => slider
                         widgetType = 'slider';
-                    } else
-                    // boolean writable => switch
-                    if (object.common.type === 'boolean' && object.common.write !== false) {
+                    } else if (object.common.type === 'boolean' && object.common.write !== false) {
+                        // boolean writable => switch
                         widgetType = 'switch';
-                    } else
-                    // boolean not readable => button
-                    if (object.common.type === 'boolean' && object.common.read === false) {
+                    } else if (object.common.type === 'boolean' && object.common.read === false) {
+                        // boolean not readable => button
                         widgetType = 'button';
                     } else {
                         widgetType = 'input';
@@ -541,8 +537,7 @@ class Switches extends BlindsBase {
 
                 if (this.state.rxData[`noIcon${index}`]) {
                     object.common.icon = null;
-                } else
-                if (!this.state.rxData[`icon${index}`] && !this.state.rxData[`iconSmall${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                } else if (!this.state.rxData[`icon${index}`] && !this.state.rxData[`iconSmall${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
                     const idArray = this.state.rxData[`oid${index}`].split('.');
 
                     // read channel
@@ -1017,14 +1012,13 @@ class Switches extends BlindsBase {
             if (asButton) {
                 if (!this.state.rxData.orientation || this.state.rxData.orientation === 'h') {
                     style.width = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || widget.style?.width || 120;
-                } else
-                if (this.state.rxData.orientation === 'v') {
+                } else if (this.state.rxData.orientation === 'v') {
                     style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
-                } else
-                if (this.state.rxData.orientation === 'f') {
+                } else if (this.state.rxData.orientation === 'f') {
                     style.width = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || widget.style?.width || 120;
                     style.height = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || widget.style?.height || 80;
                 }
+
                 if (this.state.selectedOne) {
                     style.border = '1px dashed gray';
                     style.boxSizing = 'border-box';
@@ -1480,6 +1474,7 @@ class Switches extends BlindsBase {
         } else {
             indexesToUpdate = Object.keys(this.history);
         }
+
         for (let i = 0; i < indexesToUpdate.length; i++) {
             (_index => {
                 this.props.context.socket.getHistory(this.state.objects[_index]._id, {
@@ -1561,8 +1556,7 @@ class Switches extends BlindsBase {
                                     yAxis.max = 1.5;
                                     yAxis.interval = 1;
                                     // widthAxis = 50;
-                                } else
-                                if (this.state.objects[_index].common.type === 'number' && this.state.objects[_index].common.states) {
+                                } else if (this.state.objects[_index].common.type === 'number' && this.state.objects[_index].common.states) {
                                     serie.step = 'end';
                                     yAxis.axisLabel.showMaxLabel = false;
                                     yAxis.axisLabel.formatter = value => (this.state.objects[_index].common.states[value] !== undefined ? this.state.objects[_index].common.states[value] : value);
@@ -1581,8 +1575,7 @@ class Switches extends BlindsBase {
                                     if (this.state.objects[_index].common.min !== undefined && this.state.objects[_index].common.max !== undefined) {
                                         yAxis.max = this.state.objects[_index].common.max;
                                         yAxis.min = this.state.objects[_index].common.min;
-                                    } else
-                                    if (this.state.objects[_index].common.unit === '%') {
+                                    } else if (this.state.objects[_index].common.unit === '%') {
                                         yAxis.max = 100;
                                         yAxis.min = 0;
                                     }
@@ -1679,11 +1672,9 @@ class Switches extends BlindsBase {
         let buttonHeight;
         if (!this.state.rxData.orientation || this.state.rxData.orientation === 'h') {
             buttonWidth = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || 120;
-        } else
-        if (this.state.rxData.orientation === 'v') {
+        } else if (this.state.rxData.orientation === 'v') {
             buttonHeight = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || 80;
-        } else
-        if (this.state.rxData.orientation === 'f') {
+        } else if (this.state.rxData.orientation === 'f') {
             buttonWidth = this.state.rxData[`width${index}`] || this.state.rxData.buttonsWidth || 120;
             buttonHeight = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || 80;
         }

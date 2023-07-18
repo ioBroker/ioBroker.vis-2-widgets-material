@@ -17,6 +17,7 @@ const simpleState = (device, role, style, settings) => {
     return {
         tpl: 'tplMaterial2SimpleState',
         data: {
+            widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
             wizardId: device._id,
             values_count: 0,
             g_common: true,
@@ -50,15 +51,17 @@ export const getDeviceWidget = device => {
         width: '100%',
         position: 'relative',
     };
+    // const widgetTitle = Generic.getText(device.common.name);
 
     if (device.deviceType === 'thermostat') {
         const set = device.states.find(state => state.common.role === 'level.temperature');
         const actual = device.states.find(state => state.common.role === 'value.temperature');
-        style.height = 120;
+        style.height = 160;
         return {
             tpl: 'tplMaterial2Thermostat',
             style,
             data: {
+                widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 'oid-step': '1',
                 g_common: true,
@@ -81,6 +84,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplMaterial2Blinds',
             style,
             data: {
+                widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 sashCount: 1,
                 g_common: true,
@@ -97,6 +101,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplMaterial2Actual',
             style,
             data: {
+                widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 timeInterval: 12,
                 updateInterval: 60,
@@ -178,6 +183,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplOpenWeatherMapWeather',
             style,
             data: {
+                widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 type: 'all',
                 g_common: true,

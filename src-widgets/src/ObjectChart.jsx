@@ -671,8 +671,7 @@ class ObjectChart extends Component {
             yAxis[0].max = 1.5;
             yAxis[0].interval = 1;
             widthAxis = 50;
-        } else
-        if (this.props.obj?.common?.type === 'number' && this.props.obj.common.states) {
+        } else if (this.props.obj?.common?.type === 'number' && this.props.obj.common.states) {
             serie.step = 'end';
             yAxis[0].axisLabel.showMaxLabel = false;
             yAxis[0].axisLabel.formatter = value => (this.props.obj.common.states[value] !== undefined ? this.props.obj.common.states[value] : value);
@@ -691,8 +690,7 @@ class ObjectChart extends Component {
             if (this.props.obj.common.min !== undefined && this.props.obj.common.max !== undefined) {
                 yAxis[0].max = this.props.obj.common.max;
                 yAxis[0].min = this.props.obj.common.min;
-            } else
-            if (this.props.obj.common.unit === '%') {
+            } else if (this.props.obj.common.unit === '%') {
                 yAxis[0].max = 100;
                 yAxis[0].min = 0;
             }
@@ -705,8 +703,7 @@ class ObjectChart extends Component {
             yAxis[1].max = 1.5;
             yAxis[1].interval = 1;
             widthAxis2 = 50;
-        } else
-        if (this.props.obj2?.common?.type === 'number' && this.props.obj2.common.states) {
+        } else if (this.props.obj2?.common?.type === 'number' && this.props.obj2.common.states) {
             serie.step = 'end';
             yAxis[1].axisLabel.showMaxLabel = false;
             yAxis[1].axisLabel.formatter = value => (this.props.obj2.common.states[value] !== undefined ? this.props.obj2.common.states[value] : value);
@@ -725,8 +722,7 @@ class ObjectChart extends Component {
             if (this.props.obj2.common.min !== undefined && this.props.obj2.common.max !== undefined) {
                 yAxis[1].max = this.props.obj2.common.max;
                 yAxis[1].min = this.props.obj2.common.min;
-            } else
-            if (this.props.obj2.common.unit === '%') {
+            } else if (this.props.obj2.common.unit === '%') {
                 yAxis[1].max = 100;
                 yAxis[1].min = 0;
             }
