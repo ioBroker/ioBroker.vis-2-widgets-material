@@ -153,7 +153,7 @@ Additionally, you can show image or iframe with this widget too.
 * (bluefox) Added washer widget
 
 ### 0.6.2 (2023-06-29)
-* (bluefox) Allowed usage without frame for all widgets
+* (bluefox) Allowed usage without a frame for all widgets
 
 ### 0.6.0 (2023-06-28)
 * (bluefox) Added blinds to switches widget
@@ -168,7 +168,7 @@ Additionally, you can show image or iframe with this widget too.
 
 ### 0.4.0 (2023-06-16)
 * (bluefox) Added button texts for switches widget
-* (bluefox) Removed static widget, as it replaced by switches widget
+* (bluefox) Removed static widget, as it was replaced by switches widget
 
 ### 0.3.1 (2023-06-14)
 * (bluefox) Improved buttons widget
