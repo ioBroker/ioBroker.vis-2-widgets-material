@@ -4,7 +4,16 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Switch, TextField,
+    Button,
+    Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControlLabel,
+    LinearProgress,
+    Switch,
+    TextField,
 } from '@mui/material';
 import {
     Add, Close, ExpandMore, Lightbulb,
@@ -30,6 +39,18 @@ const WizardDialog = props => {
             });
             // ignore empty rooms
             _rooms = _rooms.filter(room => room.devices.length);
+
+            // Fix names
+            _rooms.forEach(room => {
+                room.devices.forEach(device => {
+                    // Device.Name.Room => Device Name Room
+                    device.common.name = (Generic.getText(device.common.name) || '').replace(/\./g, ' ').trim();
+                    // delete room name from device name
+                    if (device.roomName) {
+                        device.common.name = device.common.name.replace(Generic.getText(device.roomName), '').trim();
+                    }
+                });
+            });
 
             setRooms(_rooms);
             const _checked = {};
@@ -69,6 +90,7 @@ const WizardDialog = props => {
                 roomWidget = roomWidget || {
                     tpl: 'tplMaterial2Switches',
                     data: {
+                        name: Generic.getText(room.common.name),
                         widgetTitle: Generic.getText(room.common.name),
                         count: 0,
                         g_common: true,
@@ -114,7 +136,7 @@ const WizardDialog = props => {
                 } else if (project[viewId]) {
                     project[viewId].settings.wizardId = room._id;
                 } else {
-                    // create new view
+                    // create a new view
                     project[viewId] = {
                         name: Generic.getText(room.common.name),
                         parentId: null,
@@ -161,15 +183,25 @@ const WizardDialog = props => {
         props.onClose();
     };
 
+    const allChecked = rooms?.every(room => roomsChecked[room._id]);
+    const anyChecked = rooms?.some(room => roomsChecked[room._id]);
+    const counters = rooms?.map(room => room.devices.reduce((a, b) => a + (devicesChecked[b._id] ? 1 : 0), 0));
+
     return <Dialog
         key="materialWizardDialog"
         open={!0}
         onClose={props.onClose}
         fullWidth
+        PaperProps={{
+            style: {
+                maxHeight: 'calc(100% - 80px)',
+                height: 'calc(100% - 80px)',
+            },
+        }}
     >
         <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
-        <DialogContent>
-            {rooms ? <>
+        <DialogContent style={{ height: '100%', overflowY: 'hidden' }}>
+            {rooms ? <div style={{ height: '100%', overflowY: 'hidden' }}>
                 <div>
                     {Generic.t('Multiple views')}
                     <Switch
@@ -181,12 +213,26 @@ const WizardDialog = props => {
                     />
                     {Generic.t('One view')}
                 </div>
-                <div style={{ height: 'calc(100% - 100px)' }}>
+                <div>
+                    <FormControlLabel
+                        control={<Checkbox
+                            indeterminate={!allChecked && anyChecked}
+                            checked={allChecked}
+                            onChange={() => {
+                                const _roomsChecked = JSON.parse(JSON.stringify(roomsChecked));
+                                rooms.forEach(room => _roomsChecked[room._id] = !allChecked);
+                                setRoomsChecked(_roomsChecked);
+                            }}
+                        />}
+                        label={allChecked ? Generic.t('Unselect all rooms') : Generic.t('Select all rooms')}
+                    />
+                </div>
+                <div style={{ height: 'calc(100% - 80px)', overflowY: 'auto' }}>
                     {!rooms.length ? <div>{Generic.t('Nothing detected')}</div> : null}
                     {rooms.map((room, roomId) => <div key={room._id}>
                         <Accordion>
                             <AccordionSummary expandIcon={<ExpandMore />}>
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                                     <Checkbox
                                         checked={roomsChecked[room._id]}
                                         onChange={e => {
@@ -197,22 +243,39 @@ const WizardDialog = props => {
                                         onClick={e => e.stopPropagation()}
                                     />
                                     {room.common.icon ? <Icon src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" /> : null}
-                                    <div>{Generic.getText(room.common.name)}</div>
-                                    <div style={{ fontSize: 12, opacity: 0.7, marginLeft: 20 }}>{Generic.t('%s devices', room.devices.length)}</div>
+                                    <div style={{ flexGrow: 1 }}>{Generic.getText(room.common.name)}</div>
+                                    <Checkbox
+                                        title={Generic.t('Select/Unselect all devices in room')}
+                                        indeterminate={counters[roomId] !== room.devices.length && counters[roomId]}
+                                        checked={counters[roomId] === room.devices.length}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            const _devicesChecked = JSON.parse(JSON.stringify(devicesChecked));
+                                            if (counters[roomId] === room.devices.length) {
+                                                room.devices.forEach(device => {
+                                                    _devicesChecked[device._id] = false;
+                                                });
+                                            } else {
+                                                room.devices.forEach(device => {
+                                                    _devicesChecked[device._id] = true;
+                                                });
+                                            }
+                                            setDevicesChecked(_devicesChecked);
+                                        }}
+                                    />
+                                    <div style={{ fontSize: 12, opacity: 0.7, marginLeft: 20 }}>{Generic.t('%s of %s devices selected', counters[roomId], room.devices.length)}</div>
                                 </div>
                             </AccordionSummary>
-                            <AccordionDetails
-                                sx={{
-                                    backgroundColor: props.themeType ? '#111' : '#eee',
-                                }}
-                            >
-                                {roomsChecked[room._id] ? room.devices.map((device, deviceId) => <div key={device._id} style={{ backgroundColor: 'transparent' }}>
+                            <AccordionDetails sx={{ backgroundColor: props.themeType ? '#111' : '#eee' }}>
+                                {room.devices.map((device, deviceId) => <div key={device._id} style={{ backgroundColor: 'transparent' }}>
                                     <div
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center',
                                             marginLeft: 20,
                                             marginBottom: 20,
+                                            opacity: roomsChecked[room._id] ? 1 : 0.5,
                                         }}
                                     >
                                         <Checkbox
@@ -237,20 +300,20 @@ const WizardDialog = props => {
                                             helperText={<span style={{ fontStyle: 'italic' }}>
                                                 {`${Generic.t('Device type')}: ${Generic.t(device.deviceType).replace('vis_2_widgets_material_', '')}`}
                                             </span>}
-                                            value={Generic.getText(device.common.name)}
+                                            value={device.common.name}
                                             onChange={e => {
-                                                const _states = JSON.parse(JSON.stringify(rooms));
-                                                _states[roomId].devices[deviceId].common.name = e.target.value;
-                                                setRooms(_states);
+                                                const _rooms = JSON.parse(JSON.stringify(rooms));
+                                                room.devices[deviceId].common.name = e.target.value;
+                                                setRooms(_rooms);
                                             }}
                                         />
                                     </div>
-                                </div>) : null}
+                                </div>)}
                             </AccordionDetails>
                         </Accordion>
                     </div>)}
                 </div>
-            </> : <LinearProgress />}
+            </div> : <LinearProgress />}
         </DialogContent>
         <DialogActions>
             <Button

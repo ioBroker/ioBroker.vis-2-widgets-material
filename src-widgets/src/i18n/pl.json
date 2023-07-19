@@ -275,8 +275,11 @@
   "weatherForecast": "Prognoza pogody",
   "window": "Okno",
   "Multiple views": "Jeden widok na pokój",
-  "%s devices": "%s urządzeń",
   "windowTilt": "Uchylone okno",
   "buttonIconActive": "Aktywna ikona przycisku",
-  "buttonImageActive": "Aktywny obraz przycisku"
+  "buttonImageActive": "Aktywny obraz przycisku",
+  "%s of %s devices selected": "Wybrano %s z %s urządzeń",
+  "Unselect all rooms": "Odznacz wszystkie pokoje",
+  "Select all rooms": "Wybierz wszystkie pokoje",
+  "Select/Unselect all devices in room": "Zaznacz/odznacz wszystkie urządzenia w pokoju"
 }

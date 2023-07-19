@@ -275,8 +275,11 @@
   "weatherForecast": "Previsão do tempo",
   "window": "Janela",
   "Multiple views": "Uma vista por quarto",
-  "%s devices": "%s dispositivos",
   "windowTilt": "janela inclinada",
   "buttonIconActive": "Ícone ativo para o botão",
-  "buttonImageActive": "Imagem ativa para o botão"
+  "buttonImageActive": "Imagem ativa para o botão",
+  "%s of %s devices selected": "%s de %s dispositivo(s) selecionado(s)",
+  "Unselect all rooms": "Desmarcar todos os quartos",
+  "Select all rooms": "Selecione todos os quartos",
+  "Select/Unselect all devices in room": "Selecionar/desmarcar todos os dispositivos na sala"
 }

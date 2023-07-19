@@ -275,8 +275,11 @@
   "weatherForecast": "Прогноз погоды",
   "window": "Окно",
   "Multiple views": "Одна страница на комнату",
-  "%s devices": "устройств %s",
   "windowTilt": "Наклонное окно",
   "buttonIconActive": "Активный значок для кнопки",
-  "buttonImageActive": "Активное изображение для кнопки"
+  "buttonImageActive": "Активное изображение для кнопки",
+  "%s of %s devices selected": "Выбрано %s из %s устройств",
+  "Unselect all rooms": "Отменить выбор всех комнат",
+  "Select all rooms": "Выбрать все комнаты",
+  "Select/Unselect all devices in room": "Выбрать/отменить выбор всех устройств в комнате"
 }

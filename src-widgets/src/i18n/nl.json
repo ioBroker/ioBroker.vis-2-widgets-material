@@ -275,8 +275,11 @@
   "weatherForecast": "Weervoorspelling",
   "window": "Raam",
   "Multiple views": "Eén uitzicht per kamer",
-  "%s devices": "%s apparaten",
   "windowTilt": "Gekanteld raam",
   "buttonIconActive": "Actief pictogram voor knop",
-  "buttonImageActive": "Actieve afbeelding voor knop"
+  "buttonImageActive": "Actieve afbeelding voor knop",
+  "%s of %s devices selected": "%s van %s apparaat(en) geselecteerd",
+  "Unselect all rooms": "Deselecteer alle kamers",
+  "Select all rooms": "Selecteer alle kamers",
+  "Select/Unselect all devices in room": "Selecteer/deselecteer alle apparaten in de kamer"
 }

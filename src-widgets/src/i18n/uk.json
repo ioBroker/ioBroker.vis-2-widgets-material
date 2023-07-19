@@ -275,8 +275,11 @@
   "weatherForecast": "Прогноз погоди",
   "window": "Вікно",
   "Multiple views": "Один вид на кімнату",
-  "%s devices": "%s пристроїв",
   "windowTilt": "Похиле вікно",
   "buttonIconActive": "Активний значок для кнопки",
-  "buttonImageActive": "Активне зображення для кнопки"
+  "buttonImageActive": "Активне зображення для кнопки",
+  "%s of %s devices selected": "%s із %s вибрано пристроїв",
+  "Unselect all rooms": "Скасувати вибір усіх кімнат",
+  "Select all rooms": "Виберіть усі кімнати",
+  "Select/Unselect all devices in room": "Виберіть/Скасуйте вибір усіх пристроїв у кімнаті"
 }

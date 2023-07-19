@@ -275,8 +275,11 @@
   "window": "Window",
   "Add views": "Add views",
   "Multiple views": "One view per room",
-  "%s devices": "%s device(s)",
   "windowTilt": "Tilted window",
   "buttonIconActive": "Active icon for button",
-  "buttonImageActive": "Active image for button"
+  "buttonImageActive": "Active image for button",
+  "%s of %s devices selected": "%s of %s device(s) selected",
+  "Unselect all rooms": "Unselect all rooms",
+  "Select all rooms": "Select all rooms",
+  "Select/Unselect all devices in room": "Select/Unselect all devices in room"
 }

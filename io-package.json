@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "0.8.1",
     "news": {
-      "0.8.1": {
-        "en": "Corrected small layout problems",
-        "de": "Kleine Layoutprobleme korrigiert",
-        "ru": "Исправлены небольшие проблемы макета",
-        "pt": "Problemas de layout pequenos corrigidos",
-        "nl": "Vertaling:",
-        "fr": "Problèmes de mise en page corrigés",
-        "it": "Problemi corretti di piccolo layout",
-        "es": "Problemas de diseño pequeños corregidos",
-        "pl": "Definicja drobnych problemów układowych",
-        "uk": "Виправлені маленькі проблеми планування",
-        "zh-cn": "微不足道的问题"
-      },
       "0.8.0": {
         "en": "Added wizard for widgets",
         "de": "Wizard für Widgets hinzugefügt",

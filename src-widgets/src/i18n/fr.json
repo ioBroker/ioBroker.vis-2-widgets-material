@@ -275,8 +275,11 @@
   "weatherForecast": "Prévisions météorologiques",
   "window": "Fenêtre",
   "Multiple views": "Une vue par chambre",
-  "%s devices": "%s appareils",
   "windowTilt": "Fenêtre inclinée",
   "buttonIconActive": "Icône active pour le bouton",
-  "buttonImageActive": "Image active pour le bouton"
+  "buttonImageActive": "Image active pour le bouton",
+  "%s of %s devices selected": "%s de %s appareil(s) sélectionné(s)",
+  "Unselect all rooms": "Désélectionner toutes les pièces",
+  "Select all rooms": "Sélectionnez toutes les chambres",
+  "Select/Unselect all devices in room": "Sélectionner/désélectionner tous les appareils de la pièce"
 }

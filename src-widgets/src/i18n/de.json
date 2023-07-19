@@ -275,8 +275,11 @@
   "weatherForecast": "Wettervorhersage",
   "window": "Fenster",
   "Multiple views": "Eine Seite pro Zimmer",
-  "%s devices": "%s Gerät(e)",
   "windowTilt": "Gekipptes Fenster",
   "buttonIconActive": "Aktives Symbol für Knopf",
-  "buttonImageActive": "Aktives Bild für Knopf"
+  "buttonImageActive": "Aktives Bild für Knopf",
+  "%s of %s devices selected": "%s von %s Gerät(en) ausgewählt",
+  "Unselect all rooms": "Alle Räume abwählen",
+  "Select all rooms": "Wählen Sie alle Räume aus",
+  "Select/Unselect all devices in room": "Alle Geräte im Raum auswählen/abwählen"
 }

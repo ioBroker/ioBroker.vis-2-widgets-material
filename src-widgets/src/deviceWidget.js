@@ -17,6 +17,7 @@ const simpleState = (device, role, style, settings) => {
     return {
         tpl: 'tplMaterial2SimpleState',
         data: {
+            name: Generic.getText(device.common.name),
             widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
             wizardId: device._id,
             values_count: 0,
@@ -62,6 +63,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplMaterial2Thermostat',
             style,
             data: {
+                name: Generic.getText(device.common.name),
                 widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 'oid-step': '1',
@@ -85,6 +87,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplMaterial2Blinds',
             style,
             data: {
+                name: Generic.getText(device.common.name),
                 widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 sashCount: 1,
@@ -102,6 +105,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplMaterial2Actual',
             style,
             data: {
+                name: Generic.getText(device.common.name),
                 widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 timeInterval: 12,
@@ -156,6 +160,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplMaterial2Player',
             style,
             data: {
+                name: Generic.getText(device.common.name),
                 wizardId: device._id,
                 noCard: false,
                 widgetTitle: Generic.getText(device.roomName),
@@ -185,6 +190,7 @@ export const getDeviceWidget = device => {
             tpl: 'tplOpenWeatherMapWeather',
             style,
             data: {
+                name: Generic.getText(device.common.name),
                 widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
                 type: 'all',
@@ -224,7 +230,7 @@ export const getDeviceWidgetOnePage = (device, widgetId, parentWidget, viewObj) 
         }
         const set = device.states.find(state => state.common.role === role);
         if (set) {
-            // add only if state does not exist
+            // add only if the state does not exist
             for (let i = 1; i <= parentWidget.data.count; i++) {
                 if (parentWidget.data[`oid${i}`] === set._id) {
                     return false;
@@ -233,7 +239,7 @@ export const getDeviceWidgetOnePage = (device, widgetId, parentWidget, viewObj) 
 
             parentWidget.data.count++;
             parentWidget.data[`oid${parentWidget.data.count}`] = set._id;
-            parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name).replace(device.roomName, '').trim();
+            parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
             // apply settings
             settings && Object.keys(settings).forEach(setting => {
                 parentWidget.data[`${setting}${parentWidget.data.count}`] = settings[setting];

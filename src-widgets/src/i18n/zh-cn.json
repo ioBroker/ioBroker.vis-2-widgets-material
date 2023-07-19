@@ -275,8 +275,11 @@
   "weatherForecast": "天气预报",
   "window": "窗户",
   "Multiple views": "每间客房仅可欣赏一处景观",
-  "%s devices": "%s 台设备",
   "windowTilt": "倾斜窗户",
   "buttonIconActive": "按钮的活动图标",
-  "buttonImageActive": "按钮的活动图像"
+  "buttonImageActive": "按钮的活动图像",
+  "%s of %s devices selected": "已选择 %s 个设备（共 %s 个）",
+  "Unselect all rooms": "取消选择所有房间",
+  "Select all rooms": "选择所有房间",
+  "Select/Unselect all devices in room": "选择/取消选择房间中的所有设备"
 }
