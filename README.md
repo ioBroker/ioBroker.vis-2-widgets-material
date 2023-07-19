@@ -143,7 +143,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.8.2 (2023-07-19)
 * (bluefox) Corrected small layout problems
 
 ### 0.8.0 (2023-07-18)
