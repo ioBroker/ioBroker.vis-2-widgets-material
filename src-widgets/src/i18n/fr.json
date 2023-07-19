@@ -276,5 +276,7 @@
   "window": "Fenêtre",
   "Multiple views": "Une vue par chambre",
   "%s devices": "%s appareils",
-  "windowTilt": "Fenêtre inclinée"
+  "windowTilt": "Fenêtre inclinée",
+  "buttonIconActive": "Icône active pour le bouton",
+  "buttonImageActive": "Image active pour le bouton"
 }

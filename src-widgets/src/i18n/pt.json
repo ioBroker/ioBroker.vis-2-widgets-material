@@ -276,5 +276,7 @@
   "window": "Janela",
   "Multiple views": "Uma vista por quarto",
   "%s devices": "%s dispositivos",
-  "windowTilt": "janela inclinada"
+  "windowTilt": "janela inclinada",
+  "buttonIconActive": "Ícone ativo para o botão",
+  "buttonImageActive": "Imagem ativa para o botão"
 }

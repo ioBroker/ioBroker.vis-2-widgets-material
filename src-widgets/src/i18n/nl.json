@@ -276,5 +276,7 @@
   "window": "Raam",
   "Multiple views": "Eén uitzicht per kamer",
   "%s devices": "%s apparaten",
-  "windowTilt": "Gekanteld raam"
+  "windowTilt": "Gekanteld raam",
+  "buttonIconActive": "Actief pictogram voor knop",
+  "buttonImageActive": "Actieve afbeelding voor knop"
 }

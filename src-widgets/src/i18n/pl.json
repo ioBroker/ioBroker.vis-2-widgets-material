@@ -276,5 +276,7 @@
   "window": "Okno",
   "Multiple views": "Jeden widok na pokój",
   "%s devices": "%s urządzeń",
-  "windowTilt": "Uchylone okno"
+  "windowTilt": "Uchylone okno",
+  "buttonIconActive": "Aktywna ikona przycisku",
+  "buttonImageActive": "Aktywny obraz przycisku"
 }

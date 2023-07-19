@@ -133,19 +133,19 @@ Additionally, you can show image or iframe with this widget too.
 - Media player => media player (As card) with room name
 - Volume => Switch and Buttons Slider with specific icon (Volume)
 - Weather Forecast => Openweathermap as card (only if installed)
-- Window =>  Switch and Buttons Info with specific iconS (opened => true, closed => false)
-
-
+- Window => Switch and Buttons Info with specific iconS (opened => true, closed => false)
 
 ## Todo
 - RGBW color controller 
-
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Corrected small layout problems
+
 ### 0.8.0 (2023-07-18)
 * (bluefox) Added wizard for widgets
 

@@ -276,5 +276,7 @@
   "Add views": "Add views",
   "Multiple views": "One view per room",
   "%s devices": "%s device(s)",
-  "windowTilt": "Tilted window"
+  "windowTilt": "Tilted window",
+  "buttonIconActive": "Active icon for button",
+  "buttonImageActive": "Active image for button"
 }

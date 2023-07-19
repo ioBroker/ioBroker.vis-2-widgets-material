@@ -276,5 +276,7 @@
   "window": "Ventana",
   "Multiple views": "Una vista por habitación",
   "%s devices": "%s dispositivos",
-  "windowTilt": "ventana inclinada"
+  "windowTilt": "ventana inclinada",
+  "buttonIconActive": "Icono activo para botón",
+  "buttonImageActive": "Imagen activa para botón"
 }

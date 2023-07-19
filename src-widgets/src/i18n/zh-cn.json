@@ -276,5 +276,7 @@
   "window": "窗户",
   "Multiple views": "每间客房仅可欣赏一处景观",
   "%s devices": "%s 台设备",
-  "windowTilt": "倾斜窗户"
+  "windowTilt": "倾斜窗户",
+  "buttonIconActive": "按钮的活动图标",
+  "buttonImageActive": "按钮的活动图像"
 }

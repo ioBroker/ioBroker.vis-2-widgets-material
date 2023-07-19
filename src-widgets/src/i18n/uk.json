@@ -276,5 +276,7 @@
   "window": "Вікно",
   "Multiple views": "Один вид на кімнату",
   "%s devices": "%s пристроїв",
-  "windowTilt": "Похиле вікно"
+  "windowTilt": "Похиле вікно",
+  "buttonIconActive": "Активний значок для кнопки",
+  "buttonImageActive": "Активне зображення для кнопки"
 }

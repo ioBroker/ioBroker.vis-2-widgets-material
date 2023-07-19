@@ -276,5 +276,7 @@
   "window": "Fenster",
   "Multiple views": "Eine Seite pro Zimmer",
   "%s devices": "%s Gerät(e)",
-  "windowTilt": "Gekipptes Fenster"
+  "windowTilt": "Gekipptes Fenster",
+  "buttonIconActive": "Aktives Symbol für Knopf",
+  "buttonImageActive": "Aktives Bild für Knopf"
 }

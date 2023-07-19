@@ -276,5 +276,7 @@
   "window": "Окно",
   "Multiple views": "Одна страница на комнату",
   "%s devices": "устройств %s",
-  "windowTilt": "Наклонное окно"
+  "windowTilt": "Наклонное окно",
+  "buttonIconActive": "Активный значок для кнопки",
+  "buttonImageActive": "Активное изображение для кнопки"
 }

@@ -276,5 +276,7 @@
   "window": "Finestra",
   "Multiple views": "Una vista per camera",
   "%s devices": "%s dispositivi",
-  "windowTilt": "Finestra inclinata"
+  "windowTilt": "Finestra inclinata",
+  "buttonIconActive": "Icona attiva per pulsante",
+  "buttonImageActive": "Immagine attiva per il pulsante"
 }

@@ -23,7 +23,14 @@ const WizardDialog = props => {
 
     useEffect(() => {
         (async () => {
-            const _rooms = (await props.helpers?.detectDevices(props.socket)) || [];
+            let _rooms = (await props.helpers?.detectDevices(props.socket)) || [];
+            // ignore buttons
+            _rooms.forEach(room => {
+                room.devices = room.devices.filter(device => device.common.role !== 'button');
+            });
+            // ignore empty rooms
+            _rooms = _rooms.filter(room => room.devices.length);
+
             setRooms(_rooms);
             const _checked = {};
             const _devicesChecked = {};
@@ -47,7 +54,10 @@ const WizardDialog = props => {
         let newKey = props.helpers?.getNewWidgetIdNumber(project) || 1000;
         let changed = false;
         rooms.forEach(room => {
-            if (!roomsChecked[room._id]) {
+            if (!roomsChecked[room._id] ||
+                !room.devices.length ||
+                !room.devices.find(device => devicesChecked[device._id])
+            ) {
                 return;
             }
             let viewId = Generic.getText(room.common.name);

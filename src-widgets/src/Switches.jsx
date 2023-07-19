@@ -121,6 +121,10 @@ const styles = () => ({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    infoData: {
+        textAlign: 'center',
+        minWidth: 58,
+    },
     ...STYLES,
 });
 
@@ -380,6 +384,18 @@ class Switches extends BlindsBase {
                             hidden: 'data.type !== "lines" || !data["oid" + index] || data["type" + index] !== "button" || !!data["buttonText" + index] || !!data["buttonIcon" + index]',
                         },
                         {
+                            name: 'buttonIconActive',
+                            type: 'icon64',
+                            label: 'button_icon',
+                            hidden: 'data.type !== "lines" || !data["oid" + index] || data["type" + index] !== "button" || !!data["buttonText" + index] || !!data["buttonImageActive" + index]',
+                        },
+                        {
+                            name: 'buttonImageActive',
+                            type: 'image',
+                            label: 'button_image',
+                            hidden: 'data.type !== "lines" || !data["oid" + index] || data["type" + index] !== "button" || !!data["buttonText" + index] || !!data["buttonIconActive" + index]',
+                        },
+                        {
                             name: 'infoInactiveText',
                             type: 'text',
                             noButton: true,
@@ -635,7 +651,7 @@ class Switches extends BlindsBase {
 
     isOn(index, values) {
         const obj = this.state.objects[index];
-        if (!obj || typeof obj === 'string' || obj.widgetType === 'button') {
+        if (!obj || typeof obj === 'string') {
             return false;
         }
 
@@ -690,7 +706,7 @@ class Switches extends BlindsBase {
         }
 
         return isOn ?
-            this.state.rxData[`colorEnabled${index}`] || obj?.common.color
+            this.state.rxData[`colorEnabled${index}`] || this.state.rxData[`color${index}`] || obj?.common.color
             : this.state.rxData[`color${index}`] || obj?.common.color;
     }
 
@@ -1044,10 +1060,15 @@ class Switches extends BlindsBase {
         if (typeof this.state.objects[index] === 'string') {
             return this.renderWidgetInWidget(index);
         }
+        let value = this.state.values[`${this.state.objects[index]._id}.val`];
 
         if (this.state.objects[index].widgetType === 'button') {
-            const icon = this.state.rxData[`buttonIcon${index}`] || this.state.rxData[`buttonImage${index}`];
             const text = this.state.rxData[`buttonText${index}`];
+            let icon = this.state.rxData[`buttonIcon${index}`] || this.state.rxData[`buttonImage${index}`];
+            const iconActive = this.state.rxData[`buttonIconActive${index}`] || this.state.rxData[`buttonImageActive${index}`];
+            if (iconActive && (value === '1' || value === 1 || value === true || value === 'true')) {
+                icon = iconActive;
+            }
 
             return <Button onClick={() => this.buttonPressed(index)}>
                 {text || (icon ? <Icon src={icon} style={{ width: 24, height: 24 }} /> : <RoomService />)}
@@ -1059,7 +1080,6 @@ class Switches extends BlindsBase {
                 onChange={() => this.changeSwitch(index)}
             />;
         }
-        let value = this.state.values[`${this.state.objects[index]._id}.val`];
 
         if (this.state.objects[index].widgetType === 'slider') {
             const min = this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
@@ -1340,7 +1360,7 @@ class Switches extends BlindsBase {
             </div>;
         }
 
-        return <div>
+        return <div className={this.props.classes.infoData}>
             {staticElem}
         </div>;
     }
@@ -1488,8 +1508,8 @@ class Switches extends BlindsBase {
                         if (result) {
                             const historyData = { ...this.state.historyData };
                             const data = [];
-                            let min = result[0].val || 0;
-                            let max = result[0].val || 0;
+                            let min = (result[0] && result[0].val) || 0;
+                            let max = (result[0] && result[0].val) || 0;
                             for (let j = 0; j < result.length; j++) {
                                 const item = result[j];
                                 if (min > item.val) {
