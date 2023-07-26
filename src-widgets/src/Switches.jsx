@@ -776,6 +776,7 @@ class Switches extends BlindsBase {
                     buttons = Object.keys(this.state.objects[index].common.states)
                         .map((state, i) =>
                             <Button
+                                style={this.customStyle}
                                 variant="contained"
                                 key={`${state}_${i}`}
                                 className={curValue !== state ? this.props.classes.buttonInactive : ''}
@@ -793,6 +794,7 @@ class Switches extends BlindsBase {
                     buttons = [];
                     for (let i = min; i <= max; i += step) {
                         buttons.push(<Button
+                            style={this.customStyle}
                             variant="contained"
                             key={i}
                             className={curValue !== i ? this.props.classes.buttonInactive : ''}
@@ -820,7 +822,7 @@ class Switches extends BlindsBase {
                 control = <>
                     <div style={{ width: '100%', marginBottom: 20 }}>
                         <Button
-                            style={{ width: '50%' }}
+                            style={{ width: '50%', ...this.customStyle }}
                             color="grey"
                             className={curValue === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
                             onClick={() => {
@@ -832,7 +834,7 @@ class Switches extends BlindsBase {
                             {Generic.t('OFF').replace('vis_2_widgets_material_', '')}
                         </Button>
                         <Button
-                            style={{ width: '50%' }}
+                            style={{ width: '50%', ...this.customStyle }}
                             className={curValue === this.state.objects[index].common.max ? '' : this.props.classes.buttonInactive}
                             color="primary"
                             onClick={() => {
@@ -958,6 +960,7 @@ class Switches extends BlindsBase {
                         variant="contained"
                         color="primary"
                         title={Generic.t('Set')}
+                        style={this.customStyle}
                         onClick={() => {
                             const values = JSON.parse(JSON.stringify(this.state.values));
                             const oid = `${this.state.objects[index]._id}.val`;
@@ -1070,7 +1073,10 @@ class Switches extends BlindsBase {
                 icon = iconActive;
             }
 
-            return <Button onClick={() => this.buttonPressed(index)}>
+            return <Button
+                onClick={() => this.buttonPressed(index)}
+                style={this.customStyle}
+            >
                 {text || (icon ? <Icon src={icon} style={{ width: 24, height: 24 }} /> : <RoomService />)}
             </Button>;
         }
@@ -1174,6 +1180,7 @@ class Switches extends BlindsBase {
                 this.state.showSetButton[index] ? <Button
                     key="button"
                     variant="contained"
+                    style={this.customStyle}
                     onClick={() => {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         const oid = `${this.state.objects[index]._id}.val`;
@@ -1716,7 +1723,7 @@ class Switches extends BlindsBase {
                 disabled={this.state.objects[index].widgetType === 'info' && (!this.history[index] || this.state.rxData[`hideChart${index}`])}
             >
                 {icon ? <div className={this.props.classes.iconButton}>{icon}</div> : null}
-                <div className={this.props.classes.text}>
+                <div className={this.props.classes.text} style={this.customStyle}>
                     {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name) || ''}
                 </div>
                 {value !== undefined && value !== null ?
@@ -1730,7 +1737,25 @@ class Switches extends BlindsBase {
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
-
+        this.customStyle = {};
+        if (this.state.rxStyle['font-weight']) {
+            this.customStyle.fontWeight = this.state.rxStyle['font-weight'];
+        }
+        if (this.state.rxStyle['font-size']) {
+            this.customStyle.fontSize = this.state.rxStyle['font-size'];
+        }
+        if (this.state.rxStyle['font-family']) {
+            this.customStyle.fontFamily = this.state.rxStyle['font-family'];
+        }
+        if (this.state.rxStyle['font-style']) {
+            this.customStyle.fontStyle = this.state.rxStyle['font-style'];
+        }
+        if (this.state.rxStyle['word-spacing']) {
+            this.customStyle.wordSpacing = this.state.rxStyle['word-spacing'];
+        }
+        if (this.state.rxStyle['letter-spacing']) {
+            this.customStyle.letterSpacing = this.state.rxStyle['letter-spacing'];
+        }
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
             this.updateTimeout = this.updateTimeout || setTimeout(async () => {

@@ -136,13 +136,16 @@ Additionally, you can show image or iframe with this widget too.
 - Window → Switch and Buttons Info with specific iconS (opened → true, closed → false)
 
 ## Todo
-- RGBW color controller 
+- RGBW color controller
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Font styles are applied to all buttons
+
 ### 0.8.2 (2023-07-19)
 * (bluefox) Corrected small layout problems
 
