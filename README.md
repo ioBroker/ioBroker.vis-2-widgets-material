@@ -144,7 +144,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.8.3 (2023-07-30)
 * (bluefox) Font styles are applied to all buttons
 
 ### 0.8.2 (2023-07-19)

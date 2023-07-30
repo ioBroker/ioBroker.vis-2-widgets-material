@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.8.2",
+    "version": "0.8.3",
     "news": {
+      "0.8.3": {
+        "en": "Font styles are applied to all buttons",
+        "de": "Schriftarten werden auf alle Tasten angewendet",
+        "ru": "Шрифты применяются ко всем кнопкам",
+        "pt": "Estilos de fonte são aplicados a todos os botões",
+        "nl": "Font stijl is toegewijd aan alle knoppen",
+        "fr": "Les styles de police sont appliqués à tous les boutons",
+        "it": "Gli stili di carattere sono applicati a tutti i pulsanti",
+        "es": "Los estilos de fuente se aplican a todos los botones",
+        "pl": "Styl fonsu jest używany do wszystkich przycisków",
+        "uk": "Стилі шрифту наносяться на всі кнопки",
+        "zh-cn": "对所有但各州都使用了代金风格。"
+      },
       "0.8.2": {
         "en": "Corrected small layout problems",
         "de": "Kleine Layoutprobleme korrigiert",
@@ -80,19 +93,6 @@
         "pl": "Dodać ślepe na przełączanie widgetów\nWszystko na miejscu widgets in widgets",
         "uk": "Додано жалюзі для вимикачів віджет\nДопускається розміщення віджетів у віджетах",
         "zh-cn": "增加盲人,以改用目标\n允许在迫在眉睫的植被中种植。"
-      },
-      "0.5.3": {
-        "en": "Corrected errors with view in widget",
-        "de": "Korrigierte Fehler mit Blick in Widget",
-        "ru": "Исправлены ошибки с просмотром в виджете",
-        "pt": "Erros corrigidos com vista para o widget",
-        "nl": "Gecorrigeerde fouten met uitzicht in Widget",
-        "fr": "Erreurs corrigées avec vue dans widget",
-        "it": "Errori corretti con vista in widget",
-        "es": "Errores corregidos con vista en widget",
-        "pl": "Nieprawidłowe błędy z widokiem na widget",
-        "uk": "Виправлені помилки з переглядом у віджеті",
-        "zh-cn": "令人发指的错误"
       }
     },
     "title": "Vis 2 Widgets Material",
