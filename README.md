@@ -137,6 +137,7 @@ Additionally, you can show image or iframe with this widget too.
 
 ## Todo
 - RGBW color controller
+- Investigate delay for widgets
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
