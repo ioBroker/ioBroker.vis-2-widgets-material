@@ -3,6 +3,7 @@
     "private": true,
     "version": "0.4.4",
     "dependencies": {
+        "@adobe/react-spectrum": "^3.28.0",
         "@craco/craco": "^7.1.0",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
@@ -12,6 +13,7 @@
         "@mui/material": "^5.14.2",
         "@mui/styles": "^5.14.1",
         "@mui/system": "^5.14.1",
+        "@react-spectrum/color": "^3.0.0-beta.23",
         "color": "^4.2.3",
         "colorthief": "^2.4.0",
         "craco-esbuild": "^0.5.2",

@@ -22,6 +22,7 @@ import Blinds from './Blinds';
 import ThemeSwitcher from './ThemeSwitcher';
 import WasherDryer from './WasherDryer';
 import Wizard from './Wizard';
+import RGBLight from './RGBLight';
 
 const styles = theme => ({
     app: {
@@ -343,6 +344,21 @@ class App extends WidgetDemoApp {
                 }}
                 data={{
                     name: 'WasherDryer',
+                }}
+            />,
+            rgblight: <RGBLight
+                key="RGBLight"
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
+                themeType={this.state.themeType}
+                style={{
+                    width: 400,
+                    height: 200,
+                }}
+                data={{
+                    name: 'RGBLight',
                 }}
             />,
         };

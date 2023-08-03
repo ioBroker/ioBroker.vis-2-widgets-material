@@ -281,5 +281,6 @@
   "%s of %s devices selected": "%s of %s device(s) selected",
   "Unselect all rooms": "Unselect all rooms",
   "Select all rooms": "Select all rooms",
-  "Select/Unselect all devices in room": "Select/Unselect all devices in room"
+  "Select/Unselect all devices in room": "Select/Unselect all devices in room",
+  "rgb_light": "RGB light"
 }
