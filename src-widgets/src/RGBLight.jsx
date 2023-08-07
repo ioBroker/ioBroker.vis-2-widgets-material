@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { ColorSlider, ColorWheel } from '@react-spectrum/color';
 import { Provider, defaultTheme } from '@adobe/react-spectrum';
+import { color } from 'echarts';
 import Generic from './Generic';
 
 const styles = theme => ({
@@ -39,34 +40,65 @@ class RGBLight extends Generic {
                             hidden: '!!data.noCard',
                         },
                         {
+                            name: 'brightness',
+                            type: 'id',
+                            label: 'brightness',
+                        },
+                        {
+                            name: 'type',
+                            label: 'type',
+                            type: 'select',
+                            options: [
+                                'rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct',
+                            ],
+                        },
+                        {
                             name: 'red',
                             type: 'id',
                             label: 'red',
+                            hidden: data => data.type !== 'r/g/b' && data.type !== 'r/g/b/w',
                         },
                         {
                             name: 'green',
                             type: 'id',
                             label: 'green',
+                            hidden: data => data.type !== 'r/g/b' && data.type !== 'r/g/b/w',
                         },
                         {
                             name: 'blue',
                             type: 'id',
                             label: 'blue',
+                            hidden: data => data.type !== 'r/g/b' && data.type !== 'r/g/b/w',
                         },
                         {
                             name: 'white',
                             type: 'id',
                             label: 'white',
+                            hidden: data => data.type !== 'r/g/b/w',
                         },
                         {
                             name: 'temperature',
                             type: 'id',
                             label: 'temperature',
+                            hidden: data => data.type !== 'ct',
                         },
                         {
-                            name: 'brightness',
+                            name: 'hue',
                             type: 'id',
-                            label: 'brightness',
+                            label: 'hue',
+                            hidden: data => data.type !== 'hue/sat/lum',
+                        },
+                        {
+                            name: 'saturation',
+                            type: 'id',
+                            label: 'saturation',
+                            hidden: data => data.type !== 'hue/sat/lum',
+                        },
+                        {
+                            name: 'luminance',
+                            type: 'id',
+                            label: 'luminance',
+                            hidden: data => data.type !== 'hue/sat/lum',
                         },
                     ],
                 },
@@ -97,6 +129,14 @@ class RGBLight extends Generic {
     async onRxDataChanged() {
         await this.propertiesUpdate();
     }
+
+    getColor = () => {
+
+    };
+
+    setColor = color => {
+
+    };
 
     renderDialog() {
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
