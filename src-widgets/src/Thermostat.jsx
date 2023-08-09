@@ -470,6 +470,26 @@ class Thermostat extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
+        this.customStyle = {};
+        if (this.state.rxStyle['font-weight']) {
+            this.customStyle.fontWeight = this.state.rxStyle['font-weight'];
+        }
+        if (this.state.rxStyle['font-size']) {
+            this.customStyle.fontSize = this.state.rxStyle['font-size'];
+        }
+        if (this.state.rxStyle['font-family']) {
+            this.customStyle.fontFamily = this.state.rxStyle['font-family'];
+        }
+        if (this.state.rxStyle['font-style']) {
+            this.customStyle.fontStyle = this.state.rxStyle['font-style'];
+        }
+        if (this.state.rxStyle['word-spacing']) {
+            this.customStyle.wordSpacing = this.state.rxStyle['word-spacing'];
+        }
+        if (this.state.rxStyle['letter-spacing']) {
+            this.customStyle.letterSpacing = this.state.rxStyle['letter-spacing'];
+        }
+
         const withCard = !this.state.rxData.noCard && !props.widget.usedInWidget;
         const withTitle = this.state.rxData.widgetTitle && withCard;
 
@@ -518,6 +538,7 @@ class Thermostat extends Generic {
 
         const isWithModeButtons = this.isWithModeButtons();
         const isWithPowerButton = this.isWithPowerButton();
+        const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme.palette.primary.main;
 
         const content = <div
             className={this.props.classes.circleDiv}
@@ -530,7 +551,7 @@ class Thermostat extends Generic {
                     minValue={this.state.min}
                     maxValue={this.state.max}
                     size={this.state.size}
-                    arcColor={this.props.context.theme.palette.primary.main}
+                    arcColor={arcColor}
                     arcBackgroundColor={this.props.themeType === 'dark' ? '#DDD' : '#222'}
                     startAngle={40}
                     step={0.5}
@@ -554,10 +575,10 @@ class Thermostat extends Generic {
                     {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
                         <div
                             className={this.props.classes.desiredTemp}
-                            style={{ fontSize: Math.round(this.state.size / 6) }}
+                            style={{ fontSize: Math.round(this.state.size / 6), ...this.customStyle }}
                         >
                             <ThermostatIcon style={{ width: this.state.size / 8, height: this.state.size / 8 }} />
-                            <div style={{ display: 'flex', alignItems: 'top' }}>
+                            <div style={{ display: 'flex', alignItems: 'top', ...this.customStyle }}>
                                 {this.formatValue(tempValue)}
                                 <span style={{ fontSize: Math.round(this.state.size / 12), fontWeight: 'normal' }}>{this.state.rxData.unit || this.state.tempObject?.common?.unit}</span>
                             </div>
@@ -565,7 +586,7 @@ class Thermostat extends Generic {
                     </Tooltip> : null}
                     {actualTemp !== null ? <Tooltip title={Generic.t('actual_temperature')}>
                         <div
-                            style={{ fontSize: Math.round((this.state.size * 0.6) / 6), opacity: 0.7 }}
+                            style={{ fontSize: Math.round((this.state.size * 0.6) / 6), opacity: 0.7, ...this.customStyle }}
                             key={`${actualTemp}valText`}
                             className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
                         >

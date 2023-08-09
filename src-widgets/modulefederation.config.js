@@ -5,7 +5,6 @@ module.exports = makeFederation(
     {
         './Thermostat': './src/Thermostat',
         './Actual': './src/Actual',
-//        './Static': './src/Static',
         './Switches': './src/Switches',
         './SimpleState': './src/SimpleState',
         './Blinds': './src/Blinds',

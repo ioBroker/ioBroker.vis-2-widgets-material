@@ -11,15 +11,36 @@ import {
 import Generic from './Generic';
 
 const styles = () => ({
-    pinGrid:  { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridGap: '10px' },
-    pinInput:  { padding: '10px 0px' },
-    timerDialog: { textAlign: 'center' },
-    timerSeconds:  { fontSize: '200%', padding: 40 },
+    pinGrid:  {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gridGap: '10px',
+    },
+    pinInput:  {
+        padding: '10px 0px',
+    },
+    timerDialog: {
+        textAlign: 'center',
+    },
+    timerSeconds:  {
+        fontSize: '200%',
+        padding: 40,
+    },
     lockedButton: {
-        display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', flex: 1,
+        display: 'flex',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+        gap: 8,
     },
     unlockedButtons: {
-        display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center', flex: 1,
+        display: 'flex',
+        width: '100%',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        flex: 1,
+        gap: 8,
     },
     lockButton: {
         display: 'flex',
