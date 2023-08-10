@@ -538,7 +538,7 @@ class Thermostat extends Generic {
 
         const isWithModeButtons = this.isWithModeButtons();
         const isWithPowerButton = this.isWithPowerButton();
-        const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme.palette.primary.main;
+        const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme?.palette.primary.main || '#448aff';
 
         const content = <div
             className={this.props.classes.circleDiv}

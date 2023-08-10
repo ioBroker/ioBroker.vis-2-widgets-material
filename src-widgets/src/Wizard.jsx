@@ -29,6 +29,7 @@ const WizardDialog = props => {
     const [devicesChecked, setDevicesChecked] = useState({});
     const [roomsChecked, setRoomsChecked] = useState({});
     const [onePage, setOnePage] = useState(window.localStorage.getItem('AppWizard.onePage') !== 'false');
+    const [standardIcons, setStandardIcons] = useState(window.localStorage.getItem('AppWizard.standardIcons') === 'true');
 
     useEffect(() => {
         (async () => {
@@ -113,7 +114,7 @@ const WizardDialog = props => {
                     }
                     const widgetId = `w${newKey.toString().padStart(6, '0')}`;
                     changed = true;
-                    if (getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId])) {
+                    if (getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId], standardIcons)) {
                         newKey++;
                     }
                 });
@@ -164,7 +165,7 @@ const WizardDialog = props => {
 
                     if (!projectWidget) {
                         changed = true;
-                        const widget = getDeviceWidget(device);
+                        const widget = getDeviceWidget(device, standardIcons);
                         if (widget) {
                             const widgetId = `w${newKey.toString().padStart(6, '0')}`;
                             project[viewId].widgets[widgetId] = widget;
@@ -214,6 +215,25 @@ const WizardDialog = props => {
                     {Generic.t('One view')}
                 </div>
                 <div>
+                    {Generic.t('Custom icons')}
+                    <img
+                        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAyCAMAAAAUcxnlAAADAFBMVEUCAgKGhoY/Pz/X19cfHx9jY2OoqKju7u4QEBDh4eF0dHQxMTG/v78ICAienp5JSUnf399ra2u3t7cXFxfp6el8fHw5OTkDAwNBQUHZ2dkpKSmurq7+/v4SEhLn5+d6eno3NzfBwcEKCgqmpqZycnJycnIeHh4AAACurq4cHBxOTk5FRUUAAAANDQ0cHBwAAABJSUlISEgUFBQAAAAyMjKCgoJGRkYhISGWlpY4ODhGRkYhISHV1dXCwsKpqamYmJhHR0eFhYVMTEwhISFCQkJeXl5UVFQhISElJSUqKioYGBgAAAAeHh4iIiIwMDACAgJMTExwcHB/f39FRUWDg4NTU1MeHh4AAABkZGRycnJoaGhFRUXj4+PKysqpqamYmJgdHR1fX19vb28AAAArKyvOzs5YWFhFRUUWFhZTU1Ofn59HR0cICAgNDQ0EBAQAAAC1tbWYmJhTU1NFRUUUFBQAAAAAAAAAAABYWFhwcHAlJSULCwsuLi6EhIQ/Pz8hISEnJydmZmYaGhoAAAAuLi7IyMg1NTUhISEiIiIoKChAQEAhISGVlZXLy8tXV1dJSUk4ODhUVFRRUVEhISG9vb3b29syMjIhISEaGhqlpaVgYGBFRUVbW1tRUVFjY2NUVFSnp6e/v7+0tLSnp6c7Ozuenp53d3djY2O8vLzAwMCGhoZ7e3sICAgXFxeFhYULCwsQEBAWFhZ3d3cAAAAAAAArKytBQUELCwsLCws1NTUqKiohISFra2uAgIBTU1MhISEAAAAfHx+YmJgiIiIaGhq4uLgPDw8AAAAlJSUlJSVcXFwlJSUkJCQuLi5lZWUXFxc2NjY/Pz8rKysAAAA8PDwzMzM4ODg5OTlcXFxaWlo7Ozs/Pz9ISEhNTU1LS0tFRUU4ODhDQ0NNTU1GRkZ9fX2ZmZl7e3t/f38+Pj5fX19AQEA5OTlJSUlCQkJAQEA6OjpOTk5HR0c1NTUlJSUpKSk7OzsnJyckJCQ7OzsxMTEfHx8kJCRKSkpJSUkLCwtFRUVwJku+AAAACXBIWXMAAFxGAABcRgEUlENBAAAAvklEQVR42u2Vyw6CMBBFrxDDiBmVRylCA4j+/zfKqqBOKS5M1HCn6erkJF3MLcxbwc/jpzjxjFKpxZss9OWCwOIa/qSFxVHUh9lcFaJuxGPfE3fI9yN+8+Hhgz3x4ecXO4jFECLJTi7zMZLsbIi0Zg2e3j1MkEt2LftLUzaynSW8c9od+Gpf7audXcvnslcEzU+Hh9UW7e7iEO1MQ1MI00Psmc91ZLugsCf2ahO3c6O2yGqLZ0s+mz/5tb8EvwNPZ9YpjSwIDgAAAABJRU5ErkJggg=="
+                        style={{ width: 24, height: 24, marginLeft: 8 }}
+                        alt="icon"
+                    />
+                    <Switch
+                        checked={standardIcons}
+                        onChange={e => {
+                            window.localStorage.setItem('AppWizard.standardIcons', e.target.checked ? 'true' : 'false');
+                            setStandardIcons(e.target.checked);
+                        }}
+                    />
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" style={{ marginRight: 8 }}>
+                        <path fill="currentColor" d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
+                    </svg>
+                    {Generic.t('Standrad icons')}
+                </div>
+                <div>
                     <FormControlLabel
                         control={<Checkbox
                             indeterminate={!allChecked && anyChecked}
@@ -227,7 +247,7 @@ const WizardDialog = props => {
                         label={allChecked ? Generic.t('Unselect all rooms') : Generic.t('Select all rooms')}
                     />
                 </div>
-                <div style={{ height: 'calc(100% - 80px)', overflowY: 'auto' }}>
+                <div style={{ height: 'calc(100% - 120px)', overflowY: 'auto' }}>
                     {!rooms.length ? <div>{Generic.t('Nothing detected')}</div> : null}
                     {rooms.map((room, roomId) => <div key={room._id}>
                         <Accordion>
@@ -242,8 +262,11 @@ const WizardDialog = props => {
                                         }}
                                         onClick={e => e.stopPropagation()}
                                     />
+
                                     {room.common.icon ? <Icon src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" /> : null}
+
                                     <div style={{ flexGrow: 1 }}>{Generic.getText(room.common.name)}</div>
+
                                     <Checkbox
                                         title={Generic.t('Select/Unselect all devices in room')}
                                         indeterminate={counters[roomId] !== room.devices.length && counters[roomId]}
@@ -288,7 +311,7 @@ const WizardDialog = props => {
                                             onClick={e => e.stopPropagation()}
                                         />
                                         <span style={{ marginRight: 8 }}>
-                                            {device.common.icon ?
+                                            {!standardIcons && device.common.icon ?
                                                 <Icon src={device.common.icon} style={{ width: 24, height: 24 }} alt="" />
                                                 :
                                                 (props.helpers?.deviceIcons[device.deviceType] || <Lightbulb />)}
@@ -382,8 +405,7 @@ class Wizard extends (window.visRxWidget || VisRxWidget) {
             visWidgetLabel: 'wizard',
             visPrev: 'widgets/vis-2-widgets-material/img/prev_wizard.png',
             visOrder: 100,
-            custom: true,
-            customPalette: props => <WizardButton {...props} />,
+            customPalette: props => <WizardButton key="wizard" {...props} />,
         };
     }
 }

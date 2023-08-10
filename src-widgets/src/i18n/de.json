@@ -280,6 +280,9 @@
   "buttonImageActive": "Aktives Bild für Knopf",
   "%s of %s devices selected": "%s von %s Gerät(en) ausgewählt",
   "Unselect all rooms": "Alle Räume abwählen",
-  "Select all rooms": "Wählen Sie alle Räume aus",
-  "Select/Unselect all devices in room": "Alle Geräte im Raum auswählen/abwählen"
+  "Select all rooms": "Alle Räume auswählen",
+  "Select/Unselect all devices in room": "Alle Geräte im Raum auswählen/abwählen",
+  "rgb_light": "RGB-Licht",
+  "Custom icons": "Benutzerdefinierte Symbole",
+  "Standrad icons": "Standardsymbole"
 }
