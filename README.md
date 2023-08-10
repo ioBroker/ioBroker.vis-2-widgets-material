@@ -144,7 +144,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.8.4 (2023-08-10)
 * (bluefox) Improvement of wizard
 
 ### 0.8.3 (2023-07-30)

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "0.8.3",
+    "version": "0.8.4",
     "news": {
+      "0.8.4": {
+        "en": "Improvement of wizard",
+        "de": "Verbesserung des Assistenten",
+        "ru": "Улучшение мастера",
+        "pt": "Melhoria do assistente",
+        "nl": "Inbreuk op tovenaar",
+        "fr": "Amélioration du sorcier",
+        "it": "Miglioramento della procedura guidata",
+        "es": "Mejora del mago",
+        "pl": "Poprawa wizardów",
+        "uk": "Удосконалення майстра",
+        "zh-cn": "改善妻子"
+      },
       "0.8.3": {
         "en": "Font styles are applied to all buttons",
         "de": "Schriftarten werden auf alle Tasten angewendet",
@@ -80,19 +93,6 @@
         "pl": "Wykorzystywanie bez ramki dla wszystkich widgetów",
         "uk": "Допускається використання без рами для всіх віджетів",
         "zh-cn": "允许在无任何框架的情况下使用所有植物目标"
-      },
-      "0.6.0": {
-        "en": "Added blinds to switches widget\nAllowed to place widgets in widgets",
-        "de": "Blinds hinzugefügt, um Widget zu wechseln\nErlaubt, Widgets in Widgets zu platzieren",
-        "ru": "Добавлены жалюзи для переключателей виджета\nРазрешено размещать виджеты в виджетах",
-        "pt": "Adicionado blinds para switches widget\nPermitiram colocar widgets em widgets",
-        "nl": "Vertaling:\nGenoemd om wedgetten in Widgets te plaatsen",
-        "fr": "Ajout des stores aux commutateurs widget\nPermet de placer des widgets dans des widgets",
-        "it": "Aggiunta di tende per interruttori widget\nPermesso di inserire widget in widgets",
-        "es": "Persianas agregadas para interruptores widget\nPermitido colocar widgets en widgets",
-        "pl": "Dodać ślepe na przełączanie widgetów\nWszystko na miejscu widgets in widgets",
-        "uk": "Додано жалюзі для вимикачів віджет\nДопускається розміщення віджетів у віджетах",
-        "zh-cn": "增加盲人,以改用目标\n允许在迫在眉睫的植被中种植。"
       }
     },
     "title": "Vis 2 Widgets Material",
