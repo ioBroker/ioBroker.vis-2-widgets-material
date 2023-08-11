@@ -282,5 +282,16 @@
   "Unselect all rooms": "Unselect all rooms",
   "Select all rooms": "Select all rooms",
   "Select/Unselect all devices in room": "Select/Unselect all devices in room",
-  "rgb_light": "RGB light"
+  "rgb_light": "RGB light",
+  "brightness": "Brightness",
+  "rgb": "RGB",
+  "rgbw": "RGBW",
+  "red": "Red",
+  "green": "Green",
+  "blue": "Blue",
+  "white": "White",
+  "color_temperature": "Color temperature",
+  "hue": "Hue",
+  "saturation": "Saturation",
+  "luminance": "Luminance"
 }

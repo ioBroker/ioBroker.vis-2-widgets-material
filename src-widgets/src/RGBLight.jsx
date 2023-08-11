@@ -2,7 +2,7 @@ import React from 'react';
 import { withStyles } from '@mui/styles';
 
 import {
-    Dialog, DialogActions, DialogContent, DialogTitle, IconButton,
+    Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slider, Switch,
 } from '@mui/material';
 import { ColorSlider, ColorWheel } from '@react-spectrum/color';
 import { Provider, defaultTheme } from '@adobe/react-spectrum';
@@ -40,6 +40,11 @@ class RGBLight extends Generic {
                             hidden: '!!data.noCard',
                         },
                         {
+                            name: 'switch',
+                            type: 'id',
+                            label: 'switch',
+                        },
+                        {
                             name: 'brightness',
                             type: 'id',
                             label: 'brightness',
@@ -51,6 +56,18 @@ class RGBLight extends Generic {
                             options: [
                                 'rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct',
                             ],
+                        },
+                        {
+                            name: 'rgb',
+                            type: 'id',
+                            label: 'rgb',
+                            hidden: data => data.type !== 'rgb' && data.type !== 'rgbw',
+                        },
+                        {
+                            name: 'rgbw',
+                            type: 'id',
+                            label: 'rgbw',
+                            hidden: data => data.type !== 'rgbw',
                         },
                         {
                             name: 'red',
@@ -77,9 +94,9 @@ class RGBLight extends Generic {
                             hidden: data => data.type !== 'r/g/b/w',
                         },
                         {
-                            name: 'temperature',
+                            name: 'color_temperature',
                             type: 'id',
-                            label: 'temperature',
+                            label: 'color_temperature',
                             hidden: data => data.type !== 'ct',
                         },
                         {
@@ -142,6 +159,14 @@ class RGBLight extends Generic {
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
             <DialogTitle>Dialog</DialogTitle>
             <DialogContent>
+                {this.state.rxData.switch && <Switch />}
+                {this.state.rxData.brightness && <Slider />}
+                {this.state.rxData.type === 'rgb' && null}
+                {this.state.rxData.type === 'rgbw' && null}
+                {this.state.rxData.type === 'r/g/b' && null}
+                {this.state.rxData.type === 'r/g/b/w' && null}
+                {this.state.rxData.type === 'hue/sat/lum' && null}
+                {this.state.rxData.type === 'ct' && null}
                 <Provider theme={defaultTheme}>
                     <ColorSlider defaultValue="hsl(0, 100%, 50%)" channel="hue" />
                     <ColorWheel defaultValue="hsl(0, 100%, 50%)" />
