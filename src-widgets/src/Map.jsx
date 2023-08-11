@@ -323,19 +323,27 @@ class Map extends Generic {
 
         const objects = {};
 
+        const ids = [];
+        for (let index = 1; index <= this.state.rxData.markersCount; index++) {
+            if (this.state.rxData[`position${index}`] && this.state.rxData[`position${index}`] !== 'nothing_selected') {
+                ids.push(this.state.rxData[`oid${index}`]);
+            }
+        }
+        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
+
         // try to find icons for all OIDs
-        for (let i = 1; i <= this.state.rxData.markersCount; i++) {
-            if (this.state.rxData[`position${i}`]) {
+        for (let index = 1; index <= this.state.rxData.markersCount; index++) {
+            if (this.state.rxData[`position${index}`] && this.state.rxData[`position${index}`] !== 'nothing_selected') {
                 // read object itself
-                const object = await this.props.context.socket.getObject(this.state.rxData[`position${i}`]);
+                const object = _objects[this.state.rxData[`position${index}`]];
                 if (!object) {
-                    objects[i] = { common: {} };
+                    objects[index] = { common: {}, _id: this.state.rxData[`position${index}`] };
                     continue;
                 }
                 object.common = object.common || {};
                 object.isChart = !!(object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]);
-                if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData[`position${i}`].split('.');
+                if (!this.state.rxData[`icon${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                    const idArray = this.state.rxData[`position${index}`].split('.');
 
                     // read channel
                     const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
@@ -354,7 +362,7 @@ class Map extends Generic {
                         }
                     }
                 }
-                objects[i] = { common: object.common, _id: object._id };
+                objects[index] = { common: object.common, _id: object._id };
             }
         }
 

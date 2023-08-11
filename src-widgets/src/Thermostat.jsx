@@ -247,9 +247,20 @@ class Thermostat extends Generic {
 
         const newState = {};
         this.lastRxData = actualRxData;
+        const ids = [];
+        if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-mode']);
+        }
+        if (this.state.rxData['oid-temp-set'] && this.state.rxData['oid-temp-set'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-temp-set']);
+        }
+        if (this.state.rxData['oid-temp-actual'] && this.state.rxData['oid-temp-actual'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-temp-actual']);
+        }
+        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
 
         if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
-            const modeObj = await this.props.context.socket.getObject(this.state.rxData['oid-mode']);
+            const modeObj = _objects[this.state.rxData['oid-mode']];
             let modes = modeObj?.common?.states;
             newState.modeObject = { common: modeObj.common, _id: modeObj._id };
             // convert the array to the object
@@ -282,7 +293,7 @@ class Thermostat extends Generic {
         }
 
         if (this.state.rxData['oid-temp-set'] && this.state.rxData['oid-temp-set'] !== 'nothing_selected') {
-            const tempObj = await this.props.context.socket.getObject(this.state.rxData['oid-temp-set']);
+            const tempObj = _objects[this.state.rxData['oid-temp-set']];
             newState.min = tempObj?.common?.min === undefined ? 12 : tempObj.common.min;
             newState.max = tempObj?.common?.max === undefined ? 30 : tempObj.common.max;
             newState.tempObject = { common: tempObj.common, _id: tempObj._id };
@@ -294,7 +305,7 @@ class Thermostat extends Generic {
         }
 
         if (this.state.rxData['oid-temp-actual'] && this.state.rxData['oid-temp-actual'] !== 'nothing_selected') {
-            const tempStateObj = await this.props.context.socket.getObject(this.state.rxData['oid-temp-actual']);
+            const tempStateObj = _objects[this.state.rxData['oid-temp-actual']];
             newState.tempStateObject = { common: tempStateObj.common, _id: tempStateObj._id };
         } else {
             newState.tempStateObject = null;

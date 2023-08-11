@@ -500,12 +500,19 @@ class Switches extends BlindsBase {
 
         this.lastRxData = actualRxData;
         const objects = {};
+        const ids = [];
+        for (let index = 1; index <= this.state.rxData.count; index++) {
+            if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
+                ids.push(this.state.rxData[`oid${index}`]);
+            }
+        }
+        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.count; index++) {
             if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 // read an object itself
-                const object = await this.props.context.socket.getObject(this.state.rxData[`oid${index}`]);
+                const object = _objects[this.state.rxData[`oid${index}`]];
                 if (!object) {
                     objects[index] = { common: {} };
                     continue;

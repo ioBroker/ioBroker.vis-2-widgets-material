@@ -225,8 +225,15 @@ class ObjectChart extends Component {
     }
 
     componentDidMount() {
-        this.props.socket.subscribeState(this.props.obj._id, this.onChange);
-        this.props.obj2 && this.props.socket.subscribeState(this.props.obj2._id, this.onChange);
+        const ids = [];
+        if (this.props.obj._id && this.props.obj._id !== 'nothing_selected') {
+            ids.push(this.props.obj._id);
+        }
+        if (this.props.obj2?._id && this.props.obj2._id !== 'nothing_selected') {
+            ids.push(this.props.obj2._id);
+        }
+
+        ids.length && this.props.socket.subscribeState(ids, this.onChange);
         window.addEventListener('resize', this.onResize);
         this.prepareData()
             .then(() => !this.props.noToolbar && this.readHistoryRange())
@@ -247,8 +254,16 @@ class ObjectChart extends Component {
         this.maxYLenTimeout2 && clearTimeout(this.maxYLenTimeout2);
         this.maxYLenTimeout2 = null;
 
-        this.props.socket.unsubscribeState(this.props.obj._id, this.onChange);
-        this.props.obj2 && this.props.socket.unsubscribeState(this.props.obj2._id, this.onChange);
+        const ids = [];
+        if (this.props.obj._id && this.props.obj._id !== 'nothing_selected') {
+            ids.push(this.props.obj._id);
+        }
+        if (this.props.obj2?._id && this.props.obj2._id !== 'nothing_selected') {
+            ids.push(this.props.obj2._id);
+        }
+
+        ids.length && this.props.socket.unsubscribeState(ids, this.onChange);
+
         window.removeEventListener('resize', this.onResize);
     }
 
@@ -272,7 +287,7 @@ class ObjectChart extends Component {
                     this.rangeValues.push({ val: state.val, ts: state.ts });
                 }
 
-                // update only if end is near to now
+                // update only if the end is near to now
                 if (state.ts >= this.chart.min && state.ts <= this.chart.max + 300000) {
                     this.updateChart();
                 }
@@ -296,11 +311,8 @@ class ObjectChart extends Component {
         return this.getHistoryInstances()
             .then(_list => {
                 list = _list;
-                if (this.props.systemConfig) {
-                    return Promise.resolve(this.props.systemConfig);
-                }
                 // read default history
-                return this.props.socket.getSystemConfig();
+                return this.props.context.systemConfig ? Promise.resolve(this.props.context.systemConfig) : this.props.socket.getSystemConfig();
             })
             .then(config => {
                 const defaultHistory = config && config.common && config.common.defaultHistory;

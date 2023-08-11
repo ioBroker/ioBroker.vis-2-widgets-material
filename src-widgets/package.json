@@ -4,6 +4,7 @@
     "version": "0.4.6",
     "dependencies": {
         "@adobe/react-spectrum": "^3.29.0",
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@craco/craco": "^7.1.0",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",

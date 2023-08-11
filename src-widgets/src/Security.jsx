@@ -223,40 +223,45 @@ class Security extends Generic {
         this.lastRxData = actualRxData;
 
         const objects = {};
+        const ids = [];
+        for (let index = 1; index <= this.state.rxData.count; index++) {
+            if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
+                ids.push(this.state.rxData[`oid${index}`]);
+            }
+        }
+        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
 
         // try to find icons for all OIDs
-        for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
-            if (this.state.rxData[`oid${i}`]) {
-                // read object itself
-                const object = await this.props.context.socket.getObject(this.state.rxData[`oid${i}`]);
-                if (!object) {
-                    objects[i] = { common: {} };
-                    continue;
-                }
-                object.common = object.common || {};
-                object.isChart = !!(object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]);
-                if (!this.state.rxData[`icon${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData[`oid${i}`].split('.');
+        for (let index = 1; index <= this.state.rxData.buttonsCount; index++) {
+            const object = _objects[this.state.rxData[`oid${index}`]];
+            // read object itself
+            if (!object) {
+                objects[index] = { common: {}, _id: this.state.rxData[`oid${index}`] };
+                continue;
+            }
+            object.common = object.common || {};
+            object.isChart = !!(object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]);
+            if (!this.state.rxData[`icon${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                const idArray = this.state.rxData[`oid${index}`].split('.');
 
-                    // read channel
-                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
-                        if (grandParentObject?.common?.icon) {
-                            object.common.icon = grandParentObject.common.icon;
-                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                            }
-                        }
-                    } else {
-                        object.common.icon = parentObject.common.icon;
-                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                // read channel
+                const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
+                if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                    const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
+                    if (grandParentObject?.common?.icon) {
+                        object.common.icon = grandParentObject.common.icon;
+                        if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                            object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
                         }
                     }
+                } else {
+                    object.common.icon = parentObject.common.icon;
+                    if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                        object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                    }
                 }
-                objects[i] = { common: object.common, _id: object._id };
             }
+            objects[index] = { common: object.common, _id: object._id };
         }
 
         if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {

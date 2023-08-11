@@ -266,11 +266,20 @@ class Actual extends Generic {
         this.lastRxData = actualRxData;
 
         const objects = {};
+        const ids = [];
+        if (this.state.rxData['oid-main'] && this.state.rxData['oid-main'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-main']);
+        }
+        if (this.state.rxData['oid-secondary'] && this.state.rxData['oid-secondary'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-secondary']);
+        }
+
+        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
 
         // try to find icons for all OIDs
         if (this.state.rxData['oid-main'] && this.state.rxData['oid-main'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.context.socket.getObject(this.state.rxData['oid-main']);
+            const object = _objects[this.state.rxData['oid-main']];
             if (!object) {
                 objects.main = { common: {} };
             } else {
@@ -301,7 +310,7 @@ class Actual extends Generic {
 
         if (this.state.rxData['oid-secondary'] && this.state.rxData['oid-secondary'] !== 'nothing_selected') {
             // read object itself
-            const object = await this.props.context.socket.getObject(this.state.rxData['oid-secondary']);
+            const object = _objects[this.state.rxData['oid-secondary']];
             if (!object) {
                 objects.secondary = { common: {} };
             } else {
