@@ -1,6 +1,6 @@
 {
   "name": "iobroker.vis-2-widgets-material",
-  "version": "0.8.3",
+  "version": "0.8.5",
   "description": "ioBroker vis2 material widgets",
   "author": "bluefox <dogafox@gmail.com>",
   "contributors": [
@@ -25,7 +25,7 @@
     "@iobroker/vis-2-widgets-react-dev": "^0.4.6",
     "@types/gulp": "^4.0.13",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^20.4.5",
+    "@types/node": "^20.4.9",
     "eslint": "^8.46.0",
     "gulp": "^4.0.2",
     "mocha": "^10.2.0",

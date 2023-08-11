@@ -293,5 +293,7 @@
   "color_temperature": "Color temperature",
   "hue": "Hue",
   "saturation": "Saturation",
-  "luminance": "Luminance"
+  "luminance": "Luminance",
+  "Custom icons": "Custom icons",
+  "Standrad icons": "Standrad icons"
 }

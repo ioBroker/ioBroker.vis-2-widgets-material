@@ -144,6 +144,12 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
+### 0.8.5 (2023-08-11)
+* (bluefox) Improvement of the widget loading
+
+### 0.8.4 (2023-08-10)
+* (bluefox) Improvement of wizard
+
 ### 0.8.3 (2023-07-30)
 * (bluefox) Font styles are applied to all buttons
 

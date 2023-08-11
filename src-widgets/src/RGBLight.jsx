@@ -6,10 +6,10 @@ import {
 } from '@mui/material';
 import { ColorSlider, ColorWheel } from '@react-spectrum/color';
 import { Provider, defaultTheme } from '@adobe/react-spectrum';
-import { color } from 'echarts';
+// import { color } from 'echarts';
 import Generic from './Generic';
 
-const styles = theme => ({
+const styles = () => ({
 
 });
 
@@ -134,26 +134,26 @@ class RGBLight extends Generic {
         return RGBLight.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    // async propertiesUpdate() {
+    //
+    // }
 
-    }
+    // async componentDidMount() {
+    //     super.componentDidMount();
+    //     await this.propertiesUpdate();
+    // }
 
-    async componentDidMount() {
-        super.componentDidMount();
-        await this.propertiesUpdate();
-    }
+    // async onRxDataChanged() {
+    //     await this.propertiesUpdate();
+    // }
 
-    async onRxDataChanged() {
-        await this.propertiesUpdate();
-    }
-
-    getColor = () => {
-
-    };
-
-    setColor = color => {
-
-    };
+    // getColor = () => {
+    //
+    // };
+    //
+    // setColor = color => {
+    //
+    // };
 
     renderDialog() {
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>

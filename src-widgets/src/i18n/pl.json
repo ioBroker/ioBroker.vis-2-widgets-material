@@ -281,5 +281,8 @@
   "%s of %s devices selected": "Wybrano %s z %s urządzeń",
   "Unselect all rooms": "Odznacz wszystkie pokoje",
   "Select all rooms": "Wybierz wszystkie pokoje",
-  "Select/Unselect all devices in room": "Zaznacz/odznacz wszystkie urządzenia w pokoju"
+  "Select/Unselect all devices in room": "Zaznacz/odznacz wszystkie urządzenia w pokoju",
+  "rgb_light": "Światło rgb",
+  "Custom icons": "Niestandardowe ikony",
+  "Standrad icons": "Standardowe ikony"
 }

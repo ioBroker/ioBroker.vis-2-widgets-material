@@ -281,5 +281,8 @@
   "%s of %s devices selected": "%s van %s apparaat(en) geselecteerd",
   "Unselect all rooms": "Deselecteer alle kamers",
   "Select all rooms": "Selecteer alle kamers",
-  "Select/Unselect all devices in room": "Selecteer/deselecteer alle apparaten in de kamer"
+  "Select/Unselect all devices in room": "Selecteer/deselecteer alle apparaten in de kamer",
+  "rgb_light": "RGB-licht",
+  "Custom icons": "Aangepaste pictogrammen",
+  "Standrad icons": "Standaard pictogrammen"
 }

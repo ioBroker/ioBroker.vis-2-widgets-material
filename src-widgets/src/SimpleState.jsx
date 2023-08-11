@@ -494,7 +494,9 @@ class SimpleState extends Generic {
             >
                 <DialogTitle>
                     {this.state.rxData.title || this.state.object.common.name}
-                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}><CloseIcon /></IconButton>
+                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}>
+                        <CloseIcon />
+                    </IconButton>
                 </DialogTitle>
                 <DialogContent>
                     {this.state.object.common.states ?

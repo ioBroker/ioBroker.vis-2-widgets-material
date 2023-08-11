@@ -281,5 +281,8 @@
   "%s of %s devices selected": "%s із %s вибрано пристроїв",
   "Unselect all rooms": "Скасувати вибір усіх кімнат",
   "Select all rooms": "Виберіть усі кімнати",
-  "Select/Unselect all devices in room": "Виберіть/Скасуйте вибір усіх пристроїв у кімнаті"
+  "Select/Unselect all devices in room": "Виберіть/Скасуйте вибір усіх пристроїв у кімнаті",
+  "rgb_light": "RGB світло",
+  "Custom icons": "Спеціальні іконки",
+  "Standrad icons": "Стандартні іконки"
 }

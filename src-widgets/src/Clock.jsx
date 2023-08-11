@@ -556,7 +556,6 @@ class Clock extends Generic {
 
 Clock.propTypes = {
     context: PropTypes.object,
-    socket: PropTypes.object,
     themeType: PropTypes.string,
     style: PropTypes.object,
     data: PropTypes.object,

@@ -247,9 +247,20 @@ class Thermostat extends Generic {
 
         const newState = {};
         this.lastRxData = actualRxData;
+        const ids = [];
+        if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-mode']);
+        }
+        if (this.state.rxData['oid-temp-set'] && this.state.rxData['oid-temp-set'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-temp-set']);
+        }
+        if (this.state.rxData['oid-temp-actual'] && this.state.rxData['oid-temp-actual'] !== 'nothing_selected') {
+            ids.push(this.state.rxData['oid-temp-actual']);
+        }
+        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
 
         if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
-            const modeObj = await this.props.context.socket.getObject(this.state.rxData['oid-mode']);
+            const modeObj = _objects[this.state.rxData['oid-mode']];
             let modes = modeObj?.common?.states;
             newState.modeObject = { common: modeObj.common, _id: modeObj._id };
             // convert the array to the object
@@ -282,7 +293,7 @@ class Thermostat extends Generic {
         }
 
         if (this.state.rxData['oid-temp-set'] && this.state.rxData['oid-temp-set'] !== 'nothing_selected') {
-            const tempObj = await this.props.context.socket.getObject(this.state.rxData['oid-temp-set']);
+            const tempObj = _objects[this.state.rxData['oid-temp-set']];
             newState.min = tempObj?.common?.min === undefined ? 12 : tempObj.common.min;
             newState.max = tempObj?.common?.max === undefined ? 30 : tempObj.common.max;
             newState.tempObject = { common: tempObj.common, _id: tempObj._id };
@@ -294,7 +305,7 @@ class Thermostat extends Generic {
         }
 
         if (this.state.rxData['oid-temp-actual'] && this.state.rxData['oid-temp-actual'] !== 'nothing_selected') {
-            const tempStateObj = await this.props.context.socket.getObject(this.state.rxData['oid-temp-actual']);
+            const tempStateObj = _objects[this.state.rxData['oid-temp-actual']];
             newState.tempStateObject = { common: tempStateObj.common, _id: tempStateObj._id };
         } else {
             newState.tempStateObject = null;
@@ -470,6 +481,26 @@ class Thermostat extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
+        this.customStyle = {};
+        if (this.state.rxStyle['font-weight']) {
+            this.customStyle.fontWeight = this.state.rxStyle['font-weight'];
+        }
+        if (this.state.rxStyle['font-size']) {
+            this.customStyle.fontSize = this.state.rxStyle['font-size'];
+        }
+        if (this.state.rxStyle['font-family']) {
+            this.customStyle.fontFamily = this.state.rxStyle['font-family'];
+        }
+        if (this.state.rxStyle['font-style']) {
+            this.customStyle.fontStyle = this.state.rxStyle['font-style'];
+        }
+        if (this.state.rxStyle['word-spacing']) {
+            this.customStyle.wordSpacing = this.state.rxStyle['word-spacing'];
+        }
+        if (this.state.rxStyle['letter-spacing']) {
+            this.customStyle.letterSpacing = this.state.rxStyle['letter-spacing'];
+        }
+
         const withCard = !this.state.rxData.noCard && !props.widget.usedInWidget;
         const withTitle = this.state.rxData.widgetTitle && withCard;
 
@@ -518,6 +549,7 @@ class Thermostat extends Generic {
 
         const isWithModeButtons = this.isWithModeButtons();
         const isWithPowerButton = this.isWithPowerButton();
+        const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme?.palette.primary.main || '#448aff';
 
         const content = <div
             className={this.props.classes.circleDiv}
@@ -530,7 +562,7 @@ class Thermostat extends Generic {
                     minValue={this.state.min}
                     maxValue={this.state.max}
                     size={this.state.size}
-                    arcColor={this.props.context.theme.palette.primary.main}
+                    arcColor={arcColor}
                     arcBackgroundColor={this.props.themeType === 'dark' ? '#DDD' : '#222'}
                     startAngle={40}
                     step={0.5}
@@ -554,10 +586,10 @@ class Thermostat extends Generic {
                     {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
                         <div
                             className={this.props.classes.desiredTemp}
-                            style={{ fontSize: Math.round(this.state.size / 6) }}
+                            style={{ fontSize: Math.round(this.state.size / 6), ...this.customStyle }}
                         >
                             <ThermostatIcon style={{ width: this.state.size / 8, height: this.state.size / 8 }} />
-                            <div style={{ display: 'flex', alignItems: 'top' }}>
+                            <div style={{ display: 'flex', alignItems: 'top', ...this.customStyle }}>
                                 {this.formatValue(tempValue)}
                                 <span style={{ fontSize: Math.round(this.state.size / 12), fontWeight: 'normal' }}>{this.state.rxData.unit || this.state.tempObject?.common?.unit}</span>
                             </div>
@@ -565,7 +597,7 @@ class Thermostat extends Generic {
                     </Tooltip> : null}
                     {actualTemp !== null ? <Tooltip title={Generic.t('actual_temperature')}>
                         <div
-                            style={{ fontSize: Math.round((this.state.size * 0.6) / 6), opacity: 0.7 }}
+                            style={{ fontSize: Math.round((this.state.size * 0.6) / 6), opacity: 0.7, ...this.customStyle }}
                             key={`${actualTemp}valText`}
                             className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
                         >
