@@ -40,7 +40,6 @@
     "widgets/"
   ],
   "scripts": {
-    "check": "tsc --noEmit -p tsconfig.check.json",
     "prepublishOnly": "gulp",
     "lint": "eslint",
     "build": "gulp",
