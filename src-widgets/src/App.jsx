@@ -359,6 +359,19 @@ class App extends WidgetDemoApp {
                 }}
                 data={{
                     name: 'RGBLight',
+                    type: 'rgb',
+                    switch: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    brightness: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    rgb: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    rgbw: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    red: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    green: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    blue: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    white: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    color_temperature: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    hue: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    saturation: 'hue-extended.0.lights.003-hue_go_1.action.hue',
+                    luminance: 'hue-extended.0.lights.003-hue_go_1.action.hue',
                 }}
             />,
         };
