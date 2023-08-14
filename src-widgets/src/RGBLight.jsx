@@ -7,16 +7,40 @@ import {
 import {
     Wheel, Hue, rgbaToHsva, rgbStringToHsva, hsvaToHsla, hsvaToRgba, hsvaToRgbString, hexToHsva, hsvaToHex,
 } from '@uiw/react-color';
+import ct from 'color-temperature';
 import Generic from './Generic';
 
 const styles = () => ({
 
 });
 
+const loadStates = async (field, data, changeData, socket) => {
+    if (data[field.name]) {
+        const object = await socket.getObject(data[field.name]);
+        if (object && object.common) {
+            const id = data[field.name].split('.');
+            id.pop();
+            const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+            if (states) {
+                const currentMediaTypes = [...mediaTypes];
+                Object.values(states).forEach(state => {
+                    const role = state?.common?.role?.match(/^(media\.mode|media|button|level)\.(.*)$/)?.[2];
+                    if (role && currentMediaTypes.includes(role) && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                        currentMediaTypes.splice(currentMediaTypes.indexOf(role), 1);
+                        data[role] = state._id;
+                    }
+                });
+                changeData(data);
+            }
+        }
+    }
+};
+
 class RGBLight extends Generic {
     constructor(props) {
         super(props);
         this.state.dialog = true;
+        this.state.objects = {};
     }
 
     static getWidgetInfo() {
@@ -140,15 +164,24 @@ class RGBLight extends Generic {
     };
 
     async propertiesUpdate() {
-        ['switch', 'brightness', 'rgb', 'rgbw', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'].forEach(async id => {
+        const objects = {};
+        const ids = ['switch', 'brightness', 'rgb', 'rgbw', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
+        for (const k in ids) {
+            const id = ids[k];
             if (this.state.rxData[id]) {
                 const state = await this.props.context.socket.getState(this.state.rxData[id]);
                 if (state) {
                     console.log(state);
                     this.setState({ [id]: state.val });
                 }
+                const object = await this.props.context.socket.getObject(this.state.rxData[id]);
+                if (object) {
+                    console.log(object);
+                    objects[id] = object;
+                }
             }
-        });
+        }
+        this.setState({ objects });
     }
 
     async componentDidMount() {
@@ -242,6 +275,11 @@ class RGBLight extends Generic {
     isHsl = () => this.state.rxData.type === 'hue/sat/lum';
 
     renderDialog() {
+        const colors = [];
+        for (let i = 3000; i <= 12000; i += 100) {
+            colors.push(ct.colorTemperature2rgb(i));
+        }
+
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
             <DialogTitle>Dialog</DialogTitle>
             <DialogContent>
@@ -253,7 +291,7 @@ class RGBLight extends Generic {
                     value={this.state.brightness}
                     onChange={(e, value) => this.setId('brightness', value)}
                 />}
-                {this.isW() && <Slider />}
+                {this.isW() && <Slider value={this.getWhite()} onChange={(e, value) => this.setWhite(value)} />}
                 {this.isRgb() && <Wheel
                     color={this.getWheelColor()}
                     onChange={color => {
@@ -267,7 +305,15 @@ class RGBLight extends Generic {
                 {this.state.rxData.type === 'rgbw' && null}
                 {this.state.rxData.type === 'r/g/b/w' && null}
                 {this.state.rxData.type === 'hue/sat/lum' && null}
-                {this.state.rxData.type === 'ct' && null}
+                {this.state.rxData.type === 'ct' && <div style={{
+                    background:
+                    `linear-gradient(to right, ${colors.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
+                >
+                    <Slider min={3000} max={12000} />
+                </div>}
             </DialogContent>
             <DialogActions>
             </DialogActions>

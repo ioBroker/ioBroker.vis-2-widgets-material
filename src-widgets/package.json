@@ -17,6 +17,7 @@
         "@react-spectrum/color": "^3.0.0-beta.24",
         "@uiw/react-color": "^1.3.3",
         "color": "^4.2.3",
+        "color-temperature": "^0.2.7",
         "colorthief": "^2.4.0",
         "craco-esbuild": "^0.5.2",
         "craco-module-federation": "^1.1.0",
