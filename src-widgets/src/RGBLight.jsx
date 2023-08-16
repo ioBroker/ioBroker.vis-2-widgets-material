@@ -14,6 +14,20 @@ const styles = () => ({
 
 });
 
+const stateRoles = {
+    'switch.light': 'switch',
+    'level.dimmer': 'brightness',
+    'level.color.red': 'red',
+    'level.color.green': 'green',
+    'level.color.blue': 'blue',
+    'level.color.white': 'white',
+    'level.color.rgb': 'rgb',
+    'level.color.hue': 'hue',
+    'level.color.saturation': 'saturation',
+    'level.color.luminance': 'luminance',
+    'level.color.temperature': 'color_temperature',
+};
+
 const loadStates = async (field, data, changeData, socket) => {
     if (data[field.name]) {
         const object = await socket.getObject(data[field.name]);
@@ -22,12 +36,10 @@ const loadStates = async (field, data, changeData, socket) => {
             id.pop();
             const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
             if (states) {
-                const currentMediaTypes = [...mediaTypes];
                 Object.values(states).forEach(state => {
-                    const role = state?.common?.role?.match(/^(media\.mode|media|button|level)\.(.*)$/)?.[2];
-                    if (role && currentMediaTypes.includes(role) && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
-                        currentMediaTypes.splice(currentMediaTypes.indexOf(role), 1);
-                        data[role] = state._id;
+                    const role = state.common.role;
+                    if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                        data[stateRoles[role]] = state._id;
                     }
                 });
                 changeData(data);
@@ -67,11 +79,13 @@ class RGBLight extends Generic {
                             name: 'switch',
                             type: 'id',
                             label: 'switch',
+                            onChange: loadStates,
                         },
                         {
                             name: 'brightness',
                             type: 'id',
                             label: 'brightness',
+                            onChange: loadStates,
                         },
                         {
                             name: 'type',
@@ -80,66 +94,70 @@ class RGBLight extends Generic {
                             options: [
                                 'rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct',
                             ],
+                            onChange: loadStates,
                         },
                         {
                             name: 'rgb',
                             type: 'id',
                             label: 'rgb',
                             hidden: data => data.type !== 'rgb' && data.type !== 'rgbw',
-                        },
-                        {
-                            name: 'rgbw',
-                            type: 'id',
-                            label: 'rgbw',
-                            hidden: data => data.type !== 'rgbw',
+                            onChange: loadStates,
                         },
                         {
                             name: 'red',
                             type: 'id',
                             label: 'red',
                             hidden: data => data.type !== 'r/g/b' && data.type !== 'r/g/b/w',
+                            onChange: loadStates,
                         },
                         {
                             name: 'green',
                             type: 'id',
                             label: 'green',
                             hidden: data => data.type !== 'r/g/b' && data.type !== 'r/g/b/w',
+                            onChange: loadStates,
                         },
                         {
                             name: 'blue',
                             type: 'id',
                             label: 'blue',
                             hidden: data => data.type !== 'r/g/b' && data.type !== 'r/g/b/w',
+                            onChange: loadStates,
                         },
                         {
                             name: 'white',
                             type: 'id',
                             label: 'white',
-                            hidden: data => data.type !== 'r/g/b/w',
+                            hidden: data => data.type !== 'r/g/b/w' && data.type !== 'rgbw',
+                            onChange: loadStates,
                         },
                         {
                             name: 'color_temperature',
                             type: 'id',
                             label: 'color_temperature',
                             hidden: data => data.type !== 'ct',
+                            onChange: loadStates,
                         },
                         {
                             name: 'hue',
                             type: 'id',
                             label: 'hue',
                             hidden: data => data.type !== 'hue/sat/lum',
+                            onChange: loadStates,
                         },
                         {
                             name: 'saturation',
                             type: 'id',
                             label: 'saturation',
                             hidden: data => data.type !== 'hue/sat/lum',
+                            onChange: loadStates,
                         },
                         {
                             name: 'luminance',
                             type: 'id',
                             label: 'luminance',
                             hidden: data => data.type !== 'hue/sat/lum',
+                            onChange: loadStates,
                         },
                     ],
                 },
@@ -165,7 +183,7 @@ class RGBLight extends Generic {
 
     async propertiesUpdate() {
         const objects = {};
-        const ids = ['switch', 'brightness', 'rgb', 'rgbw', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
+        const ids = ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
         for (const k in ids) {
             const id = ids[k];
             if (this.state.rxData[id]) {
@@ -219,7 +237,7 @@ class RGBLight extends Generic {
             }
         } else if (this.state.rxData.type === 'rgbw') {
             try {
-                result = hexToHsva(this.state.rgbw || '');
+                result = hexToHsva(this.state.rgb || '');
             } catch (e) {
                 console.error(e);
             }
@@ -242,7 +260,7 @@ class RGBLight extends Generic {
         } else if (this.state.rxData.type === 'rgb') {
             this.setId('rgb', hsvaToHex(color));
         } else if (this.state.rxData.type === 'rgbw') {
-            this.setId('rgbw', hsvaToHex(color));
+            this.setId('rgb', hsvaToHex(color));
         }
     };
 
@@ -251,7 +269,7 @@ class RGBLight extends Generic {
             return this.state.white;
         }
         if (this.state.rxData.type === 'rgbw') {
-            return this.state.rgbw;
+            return this.state.white;
         }
     };
 
@@ -259,13 +277,9 @@ class RGBLight extends Generic {
         if (this.state.rxData.type === 'r/g/b/w') {
             this.setId('white', color);
         } else if (this.state.rxData.type === 'rgbw') {
-            this.setId('rgbw', color);
+            this.setId('white', color);
         }
     };
-
-    rgba2rgbw = rgba => rgba + this.state.rgbw.slice(9, 2);
-
-    rgbw2rgba = rgbw => rgbw.slice(9, 2);
 
     isRgb = () => this.state.rxData.type === 'rgb' || this.state.rxData.type === 'rgbw' ||
     this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w';
@@ -302,9 +316,6 @@ class RGBLight extends Generic {
                         this.setWheelColor(color.hsva);
                     }}
                 />}
-                {this.state.rxData.type === 'rgbw' && null}
-                {this.state.rxData.type === 'r/g/b/w' && null}
-                {this.state.rxData.type === 'hue/sat/lum' && null}
                 {this.state.rxData.type === 'ct' && <div style={{
                     background:
                     `linear-gradient(to right, ${colors.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
@@ -312,7 +323,7 @@ class RGBLight extends Generic {
                     alignItems: 'center',
                 }}
                 >
-                    <Slider min={3000} max={12000} />
+                    <Slider min={this.state.objects?.color_temperature?.common?.min || 3000} max={this.state.objects?.color_temperature?.common?.max || 12000} />
                 </div>}
             </DialogContent>
             <DialogActions>
