@@ -1,17 +1,24 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
-
+import { Brightness6, ColorLens, Thermostat } from '@mui/icons-material';
+import { TbSquareLetterW } from 'react-icons/tb';
 import {
-    Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slider, Switch,
+    Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip,
 } from '@mui/material';
 import {
-    Wheel, Hue, rgbaToHsva, rgbStringToHsva, hsvaToHsla, hsvaToRgba, hsvaToRgbString, hexToHsva, hsvaToHex,
+    Wheel, Hue, rgbaToHsva, rgbStringToHsva, hsvaToHsla, hsvaToRgba, hsvaToRgbString, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
 } from '@uiw/react-color';
-import ct from 'color-temperature';
+import ct, { colorTemperature2rgb } from 'color-temperature';
 import Generic from './Generic';
+import './sketch.css';
 
-const styles = () => ({
-
+const styles = style => ({
+    sliderContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        width: '100%',
+    },
 });
 
 const stateRoles = {
@@ -53,6 +60,8 @@ class RGBLight extends Generic {
         super(props);
         this.state.dialog = true;
         this.state.objects = {};
+        this.state.colorTemperatures = [];
+        this.sketch = false;
     }
 
     static getWidgetInfo() {
@@ -176,6 +185,10 @@ class RGBLight extends Generic {
         return RGBLight.getWidgetInfo();
     }
 
+    getIdMin = id => this.state.objects[id]?.common?.min || 0;
+
+    getIdMax = id => this.state.objects[id]?.common?.max || 0;
+
     setId = (id, value) => {
         this.setState({ [id]: value });
         this.props.context.socket.setState(this.state.rxData[id], value);
@@ -200,6 +213,15 @@ class RGBLight extends Generic {
             }
         }
         this.setState({ objects });
+        if (objects.color_temperature) {
+            const colors = [];
+            for (let i = (objects.color_temperature?.common?.min || 3000); i <= (objects.color_temperature?.common?.max || 12000); i += 100) {
+                colors.push(ct.colorTemperature2rgb(i));
+            }
+            this.setState({ colorTemperatures: colors });
+        } else {
+            this.setState({ colorTemperatures: [] });
+        }
     }
 
     async componentDidMount() {
@@ -215,14 +237,16 @@ class RGBLight extends Generic {
         let result = {
             h: undefined,
             s: undefined,
-            l: undefined,
+            v: undefined,
             a: undefined,
         };
 
         if (this.state.rxData.type === 'hue/sat/lum') {
-            result.h = this.state.hue;
-            result.s = this.state.saturation;
-            result.l = this.state.luminance;
+            result = hslaToHsva({
+                h: this.state.hue,
+                s: this.state.saturation,
+                l: this.state.rxData.luminance ? this.state.luminance : 50,
+            });
         } else if (this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w') {
             result = rgbaToHsva({
                 r: this.state.red,
@@ -242,16 +266,19 @@ class RGBLight extends Generic {
                 console.error(e);
             }
         }
-
+        console.log(result);
         return result;
     };
 
     setWheelColor = color => {
         if (this.state.rxData.type === 'hue/sat/lum') {
             color = hsvaToHsla(color);
+            console.log(color);
             this.setId('hue', color.h);
             this.setId('saturation', color.s);
-            this.setId('luminance', color.l);
+            if (this.state.rxData.luminance) {
+                this.setId('luminance', color.l);
+            }
         } else if (this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w') {
             color = hsvaToRgba(color);
             this.setId('red', color.r);
@@ -281,62 +308,182 @@ class RGBLight extends Generic {
         }
     };
 
-    isRgb = () => this.state.rxData.type === 'rgb' || this.state.rxData.type === 'rgbw' ||
-    this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w';
+    isRgb = () => {
+        if ((this.state.rxData.type === 'rgb' || this.state.rxData.type === 'rgbw')
+        && this.state.rxData.rgb) {
+            return true;
+        }
+        if ((this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w')
+        && this.state.rxData.red
+        && this.state.rxData.green
+        && this.state.rxData.blue) {
+            return true;
+        }
+        return false;
+    };
 
-    isW = () => this.state.rxData.type === 'rgbw' || this.state.rxData.type === 'r/g/b/w';
+    isW = () => (this.state.rxData.type === 'rgbw' || this.state.rxData.type === 'r/g/b/w') && this.state.rxData.white;
 
-    isHsl = () => this.state.rxData.type === 'hue/sat/lum';
+    isHsl = () => this.state.rxData.type === 'hue/sat/lum'
+    && this.state.rxData.hue
+    && this.state.rxData.saturation;
+
+    renderSwitch() {
+        return this.state.rxData.switch && <Switch
+            checked={this.state.switch || false}
+            onChange={e => this.setId('switch', e.target.checked)}
+        />;
+    }
+
+    renderBrightness() {
+        return this.state.rxData.brightness && <div className={this.props.classes.sliderContainer}>
+            <Tooltip title={Generic.t('Brightness')}>
+                <Brightness6 />
+            </Tooltip>
+            <Slider
+                min={this.getIdMin('brightness') || 0}
+                max={this.getIdMax('brightness') || 100}
+                valueLabelDisplay="auto"
+                value={this.state.brightness || 0}
+                onChange={(e, value) => this.setId('brightness', value)}
+            />
+        </div>;
+    }
+
+    renderSketch() {
+        return <div className="dark">
+            <Sketch
+                color={this.getWheelColor()}
+                disableAlpha
+                onChange={color => {
+                    console.log(color);
+                    this.setWheelColor(color.hsva);
+                }}
+            />
+        </div>;
+    }
+
+    renderWheel() {
+        return (this.isRgb() || this.isHsl()) &&
+        <>
+            <div>
+                <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
+                    <ColorLens />
+                </IconButton>
+            </div>
+            {
+                this.state.sketch ? this.renderSketch() :
+                    <>
+                        <div>
+                            <Wheel
+                                color={this.getWheelColor()}
+                                onChange={color => {
+                                    console.log(color);
+                                    color = JSON.parse(JSON.stringify(color));
+                                    this.setWheelColor(color.hsva);
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <ShadeSlider
+                                hsva={this.getWheelColor()}
+                                onChange={shade => {
+                                    this.setWheelColor({ ...this.getWheelColor(), ...shade });
+                                }}
+                            />
+                        </div>
+                    </>
+            }
+        </>;
+    }
+
+    renderWhite() {
+        return this.isW() &&
+            <div className={this.props.classes.sliderContainer}>
+                <TbSquareLetterW />
+                <Slider
+                    min={this.getIdMin('white') || 0}
+                    max={this.getIdMax('white') || 100}
+                    valueLabelDisplay="auto"
+                    value={this.getWhite() || 0}
+                    onChange={(e, value) => this.setWhite(value)}
+                />
+            </div>;
+    }
+
+    renderColorTemperature() {
+        return this.state.rxData.type === 'ct' && <div
+            className={this.props.classes.sliderContainer}
+        >
+            <Tooltip title={Generic.t('Color temperature')}>
+                <Thermostat />
+            </Tooltip>
+            <div
+                className={this.props.classes.sliderContainer}
+                style={{
+                    background:
+        `linear-gradient(to right, ${this.state.colorTemperatures.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
+                    flex: '1',
+                }}
+            >
+                <Slider
+                    valueLabelDisplay="auto"
+                    min={this.getIdMin('color_temperature') || 3000}
+                    max={this.getIdMax('color_temperature') || 12000}
+                    value={this.state.color_temperature || 0}
+                    onChange={(e, value) => this.setId('color_temperature', value)}
+                />
+            </div>
+        </div>;
+    }
 
     renderDialog() {
-        const colors = [];
-        for (let i = 3000; i <= 12000; i += 100) {
-            colors.push(ct.colorTemperature2rgb(i));
-        }
-
-        return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
-            <DialogTitle>Dialog</DialogTitle>
+        return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })} fullWidth>
+            <DialogTitle>{this.state.widgetTitle}</DialogTitle>
             <DialogContent>
-                {this.state.rxData.switch && <Switch
-                    checked={this.state.switch}
-                    onChange={e => this.setId('switch', e.target.checked)}
-                />}
-                {this.state.rxData.brightness && <Slider
-                    value={this.state.brightness}
-                    onChange={(e, value) => this.setId('brightness', value)}
-                />}
-                {this.isW() && <Slider value={this.getWhite()} onChange={(e, value) => this.setWhite(value)} />}
-                {this.isRgb() && <Wheel
-                    color={this.getWheelColor()}
-                    onChange={color => {
-                        console.log(color);
-                        color = JSON.parse(JSON.stringify(color));
-                        color.hsva.v = 100;
-                        // color.hsva.s = 100;
-                        this.setWheelColor(color.hsva);
-                    }}
-                />}
-                {this.state.rxData.type === 'ct' && <div style={{
-                    background:
-                    `linear-gradient(to right, ${colors.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
-                    display: 'flex',
-                    alignItems: 'center',
-                }}
-                >
-                    <Slider min={this.state.objects?.color_temperature?.common?.min || 3000} max={this.state.objects?.color_temperature?.common?.max || 12000} />
-                </div>}
+                {this.renderSwitch()}
+                {this.renderBrightness()}
+                {this.renderWhite()}
+                {this.renderWheel()}
+                {this.renderColorTemperature()}
             </DialogContent>
             <DialogActions>
             </DialogActions>
         </Dialog>;
     }
 
+    getColor = () => {
+        if (this.state.rxData.type === 'ct') {
+            const color = colorTemperature2rgb(this.state.color_temperature);
+            return rgbaToHex({
+                r: color.red,
+                g: color.green,
+                b: color.blue,
+            });
+        }
+        return hsvaToHex(this.getWheelColor());
+    };
+
+    getTextColor = () => {
+        if (this.state.rxData.type === 'ct') {
+            const color = colorTemperature2rgb(this.state.color_temperature);
+            return color.red + color.green + color.blue > 3 * 128 ? '#000000' : '#ffffff';
+        }
+        const color = hsvaToRgba(this.getWheelColor());
+        return color.r + color.g + color.b > 3 * 128 ? '#000000' : '#ffffff';
+    };
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
         const content = <>
             <div>
-                <IconButton onClick={() => this.setState({ dialog: true })}>Dialog</IconButton>
+                <IconButton
+                    onClick={() => this.setState({ dialog: true })}
+                    style={{ backgroundColor: this.getColor(), color: this.getTextColor() }}
+                >
+                    <ColorLens />
+                </IconButton>
             </div>
             {
                 this.renderDialog()
