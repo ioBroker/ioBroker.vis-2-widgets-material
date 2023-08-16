@@ -284,5 +284,22 @@
   "Select/Unselect all devices in room": "Виберіть/Скасуйте вибір усіх пристроїв у кімнаті",
   "rgb_light": "RGB світло",
   "Custom icons": "Спеціальні іконки",
-  "Standrad icons": "Стандартні іконки"
+  "Standrad icons": "Стандартні іконки",
+  "blue": "Синій",
+  "brightness": "Яскравість",
+  "color_temperature": "Колірна температура",
+  "green": "Зелений",
+  "hue": "Відтінок",
+  "luminance": "Яскравість",
+  "red": "Червоний",
+  "rgb": "RGB",
+  "rgbw": "RGBW",
+  "saturation": "насиченість",
+  "white": "Білий",
+  "Temperature": "температура",
+  "Humidity": "Вологість",
+  "vacuumCleaner": "Пилосос",
+  "image": "Зображення",
+  "Brightness": "Яскравість",
+  "Color temperature": "Колірна температура"
 }

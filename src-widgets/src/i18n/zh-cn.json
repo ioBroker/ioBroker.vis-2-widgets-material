@@ -284,5 +284,22 @@
   "Select/Unselect all devices in room": "选择/取消选择房间中的所有设备",
   "rgb_light": "RGB灯",
   "Custom icons": "自定义图标",
-  "Standrad icons": "标准图标"
+  "Standrad icons": "标准图标",
+  "blue": "蓝色的",
+  "brightness": "亮度",
+  "color_temperature": "色温",
+  "green": "绿色的",
+  "hue": "色调",
+  "luminance": "亮度",
+  "red": "红色的",
+  "rgb": "RGB",
+  "rgbw": "RGBW",
+  "saturation": "饱和",
+  "white": "白色的",
+  "Temperature": "温度",
+  "Humidity": "湿度",
+  "vacuumCleaner": "吸尘器",
+  "image": "图像",
+  "Brightness": "亮度",
+  "Color temperature": "色温"
 }

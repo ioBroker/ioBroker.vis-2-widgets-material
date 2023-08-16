@@ -284,5 +284,22 @@
   "Select/Unselect all devices in room": "Selecionar/desmarcar todos os dispositivos na sala",
   "rgb_light": "luz RGB",
   "Custom icons": "Ícones personalizados",
-  "Standrad icons": "Ícones padrão"
+  "Standrad icons": "Ícones padrão",
+  "blue": "Azul",
+  "brightness": "Brilho",
+  "color_temperature": "Temperatura de cor",
+  "green": "Verde",
+  "hue": "Matiz",
+  "luminance": "luminância",
+  "red": "Vermelho",
+  "rgb": "RGB",
+  "rgbw": "RGBW",
+  "saturation": "Saturação",
+  "white": "Branco",
+  "Temperature": "Temperatura",
+  "Humidity": "Umidade",
+  "vacuumCleaner": "Aspirador de pó",
+  "image": "Imagem",
+  "Brightness": "Brilho",
+  "Color temperature": "Temperatura de cor"
 }

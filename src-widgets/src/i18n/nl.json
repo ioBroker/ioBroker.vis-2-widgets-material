@@ -284,5 +284,22 @@
   "Select/Unselect all devices in room": "Selecteer/deselecteer alle apparaten in de kamer",
   "rgb_light": "RGB-licht",
   "Custom icons": "Aangepaste pictogrammen",
-  "Standrad icons": "Standaard pictogrammen"
+  "Standrad icons": "Standaard pictogrammen",
+  "blue": "Blauw",
+  "brightness": "Helderheid",
+  "color_temperature": "Kleurtemperatuur",
+  "green": "Groente",
+  "hue": "Tint",
+  "luminance": "Luminantie",
+  "red": "Rood",
+  "rgb": "RGB",
+  "rgbw": "RGBW",
+  "saturation": "Verzadiging",
+  "white": "Wit",
+  "Temperature": "Temperatuur",
+  "Humidity": "Vochtigheid",
+  "vacuumCleaner": "Stofzuiger",
+  "image": "Afbeelding",
+  "Brightness": "Helderheid",
+  "Color temperature": "Kleurtemperatuur"
 }
