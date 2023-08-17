@@ -364,7 +364,7 @@ class App extends WidgetDemoApp {
                     blue: 'shelly.0.SHRGBW2#2F5DF6#1.lights.blue',
                     white: 'shelly.0.SHRGBW2#2F5DF6#1.lights.white',
                     brightness: 'hue-extended.0.lights.003-hue_go_1.action.level',
-                    type: 'rgbw',
+                    type: 'ct',
                     switch: 'hue-extended.0.lights.003-hue_go_1.action.on',
                     rgb: 'hue-extended.0.lights.003-hue_go_1.action.rgb',
                     color_temperature: 'hue-extended.0.lights.003-hue_go_1.action.colorTemperature',

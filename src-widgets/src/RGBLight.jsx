@@ -1,23 +1,35 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
-import { Brightness6, ColorLens, Thermostat } from '@mui/icons-material';
+import {
+    Brightness6, Close, ColorLens, Thermostat,
+} from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 import {
+    Button,
     Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip,
 } from '@mui/material';
 import {
-    Wheel, Hue, rgbaToHsva, rgbStringToHsva, hsvaToHsla, hsvaToRgba, hsvaToRgbString, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
+    Wheel, rgbaToHsva, hsvaToHsla, hsvaToRgba, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
 } from '@uiw/react-color';
 import ct, { colorTemperature2rgb } from 'color-temperature';
 import Generic from './Generic';
 import './sketch.css';
 
-const styles = style => ({
+const styles = () => ({
     sliderContainer: {
         display: 'flex',
         alignItems: 'center',
         gap: 4,
         width: '100%',
+    },
+    dialogContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+    },
+    wheel: {
+        display: 'flex',
+        justifyContent: 'center',
     },
 });
 
@@ -190,8 +202,10 @@ class RGBLight extends Generic {
     getIdMax = id => this.state.objects[id]?.common?.max || 0;
 
     setId = (id, value) => {
-        this.setState({ [id]: value });
-        this.props.context.socket.setState(this.state.rxData[id], value);
+        if (this.state.objects[id]) {
+            this.setState({ [id]: value });
+            this.props.context.socket.setState(this.state.rxData[id], value);
+        }
     };
 
     async propertiesUpdate() {
@@ -202,12 +216,10 @@ class RGBLight extends Generic {
             if (this.state.rxData[id]) {
                 const state = await this.props.context.socket.getState(this.state.rxData[id]);
                 if (state) {
-                    console.log(state);
                     this.setState({ [id]: state.val });
                 }
                 const object = await this.props.context.socket.getObject(this.state.rxData[id]);
                 if (object) {
-                    console.log(object);
                     objects[id] = object;
                 }
             }
@@ -233,6 +245,8 @@ class RGBLight extends Generic {
         await this.propertiesUpdate();
     }
 
+    isOnlyHue = () => this.state.rxData.type === 'hue/sat/lum' && (!this.state.objects.saturation || !this.state.objects.luminance);
+
     getWheelColor = () => {
         let result = {
             h: undefined,
@@ -244,8 +258,8 @@ class RGBLight extends Generic {
         if (this.state.rxData.type === 'hue/sat/lum') {
             result = hslaToHsva({
                 h: this.state.hue,
-                s: this.state.saturation,
-                l: this.state.rxData.luminance ? this.state.luminance : 50,
+                s: this.isOnlyHue() ? 100 : this.state.saturation,
+                l: this.isOnlyHue() ? 50 : this.state.luminance,
             });
         } else if (this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w') {
             result = rgbaToHsva({
@@ -266,17 +280,15 @@ class RGBLight extends Generic {
                 console.error(e);
             }
         }
-        console.log(result);
         return result;
     };
 
     setWheelColor = color => {
         if (this.state.rxData.type === 'hue/sat/lum') {
             color = hsvaToHsla(color);
-            console.log(color);
             this.setId('hue', color.h);
-            this.setId('saturation', color.s);
-            if (this.state.rxData.luminance) {
+            if (!this.isOnlyHue()) {
+                this.setId('saturation', color.s);
                 this.setId('luminance', color.l);
             }
         } else if (this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w') {
@@ -298,6 +310,7 @@ class RGBLight extends Generic {
         if (this.state.rxData.type === 'rgbw') {
             return this.state.white;
         }
+        return 0;
     };
 
     setWhite = color => {
@@ -314,29 +327,31 @@ class RGBLight extends Generic {
             return true;
         }
         if ((this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w')
-        && this.state.rxData.red
-        && this.state.rxData.green
-        && this.state.rxData.blue) {
+        && this.state.objects.red
+        && this.state.objects.green
+        && this.state.objects.blue) {
             return true;
         }
         return false;
     };
 
-    isW = () => (this.state.rxData.type === 'rgbw' || this.state.rxData.type === 'r/g/b/w') && this.state.rxData.white;
+    isW = () => (this.state.rxData.type === 'rgbw' || this.state.rxData.type === 'r/g/b/w') && this.state.objects.white;
 
     isHsl = () => this.state.rxData.type === 'hue/sat/lum'
-    && this.state.rxData.hue
-    && this.state.rxData.saturation;
+    && this.state.objects.hue;
 
     renderSwitch() {
-        return this.state.rxData.switch && <Switch
-            checked={this.state.switch || false}
-            onChange={e => this.setId('switch', e.target.checked)}
-        />;
+        return this.state.objects.switch && <div className={this.props.classes.sliderContainer}>
+            <Switch
+                checked={this.state.switch || false}
+                onChange={e => this.setId('switch', e.target.checked)}
+            />
+            {Generic.getText(this.state.objects?.switch?.common?.name)}
+        </div>;
     }
 
     renderBrightness() {
-        return this.state.rxData.brightness && <div className={this.props.classes.sliderContainer}>
+        return this.state.objects.brightness && <div className={this.props.classes.sliderContainer}>
             <Tooltip title={Generic.t('Brightness')}>
                 <Brightness6 />
             </Tooltip>
@@ -351,12 +366,11 @@ class RGBLight extends Generic {
     }
 
     renderSketch() {
-        return <div className="dark">
+        return <div className={`dark ${this.props.classes.wheel}`}>
             <Sketch
                 color={this.getWheelColor()}
                 disableAlpha
                 onChange={color => {
-                    console.log(color);
                     this.setWheelColor(color.hsva);
                 }}
             />
@@ -367,31 +381,33 @@ class RGBLight extends Generic {
         return (this.isRgb() || this.isHsl()) &&
         <>
             <div>
-                <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
-                    <ColorLens />
-                </IconButton>
+                {!this.isOnlyHue() &&
+                <Tooltip title={Generic.t('Switch color picker')}>
+                    <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
+                        <ColorLens />
+                    </IconButton>
+                </Tooltip>}
             </div>
             {
                 this.state.sketch ? this.renderSketch() :
                     <>
-                        <div>
+                        <div className={this.props.classes.wheel}>
                             <Wheel
                                 color={this.getWheelColor()}
                                 onChange={color => {
-                                    console.log(color);
                                     color = JSON.parse(JSON.stringify(color));
                                     this.setWheelColor(color.hsva);
                                 }}
                             />
                         </div>
-                        <div>
+                        {!this.isOnlyHue() && <div>
                             <ShadeSlider
                                 hsva={this.getWheelColor()}
                                 onChange={shade => {
                                     this.setWheelColor({ ...this.getWheelColor(), ...shade });
                                 }}
                             />
-                        </div>
+                        </div>}
                     </>
             }
         </>;
@@ -400,7 +416,7 @@ class RGBLight extends Generic {
     renderWhite() {
         return this.isW() &&
             <div className={this.props.classes.sliderContainer}>
-                <TbSquareLetterW />
+                <TbSquareLetterW style={{ width: 24, height: 24 }} />
                 <Slider
                     min={this.getIdMin('white') || 0}
                     max={this.getIdMax('white') || 100}
@@ -424,6 +440,7 @@ class RGBLight extends Generic {
                     background:
         `linear-gradient(to right, ${this.state.colorTemperatures.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
                     flex: '1',
+                    borderRadius: 4,
                 }}
             >
                 <Slider
@@ -438,16 +455,25 @@ class RGBLight extends Generic {
     }
 
     renderDialog() {
-        return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })} fullWidth>
-            <DialogTitle>{this.state.widgetTitle}</DialogTitle>
-            <DialogContent>
-                {this.renderSwitch()}
-                {this.renderBrightness()}
-                {this.renderWhite()}
-                {this.renderWheel()}
-                {this.renderColorTemperature()}
+        return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
+            <DialogTitle>{this.state.rxData.widgetTitle}</DialogTitle>
+            <DialogContent style={{ maxWidth: 400 }}>
+                <div className={this.props.classes.dialogContainer}>
+                    {this.renderSwitch()}
+                    {this.renderBrightness()}
+                    {this.renderWhite()}
+                    {this.renderWheel()}
+                    {this.renderColorTemperature()}
+                </div>
             </DialogContent>
             <DialogActions>
+                <Button
+                    variant="contained"
+                    startIcon={<Close />}
+                    onClick={() => this.setState({ dialog: false })}
+                >
+                    {Generic.t('Close')}
+                </Button>
             </DialogActions>
         </Dialog>;
     }
