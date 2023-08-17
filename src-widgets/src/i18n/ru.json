@@ -284,5 +284,22 @@
   "Select/Unselect all devices in room": "Выбрать/отменить выбор всех устройств в комнате",
   "rgb_light": "RGB свет",
   "Custom icons": "Пользовательские значки",
-  "Standrad icons": "Стандартные иконки"
+  "Standrad icons": "Стандартные иконки",
+  "blue": "Синий",
+  "brightness": "Яркость",
+  "color_temperature": "Цветовая температура",
+  "green": "Зеленый",
+  "hue": "оттенок",
+  "luminance": "яркость",
+  "red": "Красный",
+  "rgb": "RGB",
+  "rgbw": "RGBW",
+  "saturation": "Насыщенность",
+  "white": "Белый",
+  "Temperature": "Температура",
+  "Humidity": "Влажность",
+  "vacuumCleaner": "Пылесос",
+  "image": "Изображение",
+  "Brightness": "Яркость",
+  "Color temperature": "Цветовая температура"
 }

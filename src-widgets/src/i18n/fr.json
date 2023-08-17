@@ -284,5 +284,22 @@
   "Select/Unselect all devices in room": "Sélectionner/désélectionner tous les appareils de la pièce",
   "rgb_light": "Lumière RVB",
   "Custom icons": "Icônes personnalisées",
-  "Standrad icons": "Icônes standard"
+  "Standrad icons": "Icônes standard",
+  "blue": "Bleu",
+  "brightness": "Luminosité",
+  "color_temperature": "Température de couleur",
+  "green": "Vert",
+  "hue": "Teinte",
+  "luminance": "Luminance",
+  "red": "Rouge",
+  "rgb": "RVB",
+  "rgbw": "RGBW",
+  "saturation": "Saturation",
+  "white": "Blanc",
+  "Temperature": "Température",
+  "Humidity": "Humidité",
+  "vacuumCleaner": "aspirateur",
+  "image": "Image",
+  "Brightness": "Luminosité",
+  "Color temperature": "Température de couleur"
 }
