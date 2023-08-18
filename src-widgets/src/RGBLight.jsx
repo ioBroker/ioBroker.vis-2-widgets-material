@@ -300,6 +300,16 @@ class RGBLight extends Generic {
         await this.propertiesUpdate();
     }
 
+    onStateUpdated(id, state) {
+        if (this.state.dialog) {
+            ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'].forEach(_id => {
+                if (this.state.rxData[_id] === id) {
+                    this.setState({ [_id]: state.val });
+                }
+            });
+        }
+    }
+
     isOnlyHue = () => this.state.rxData.type === 'hue/sat/lum' && (!this.state.objects.saturation || !this.state.objects.luminance);
 
     getWheelColor = () => {
