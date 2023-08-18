@@ -358,13 +358,13 @@ class App extends WidgetDemoApp {
                     height: 200,
                 }}
                 data={{
-                    name: 'RGBLight',
+                    widgetTitle: 'RGB light',
                     red: 'shelly.0.SHRGBW2#2F5DF6#1.lights.red',
                     green: 'shelly.0.SHRGBW2#2F5DF6#1.lights.green',
                     blue: 'shelly.0.SHRGBW2#2F5DF6#1.lights.blue',
                     white: 'shelly.0.SHRGBW2#2F5DF6#1.lights.white',
                     brightness: 'hue-extended.0.lights.003-hue_go_1.action.level',
-                    type: 'ct',
+                    type: 'rgbw',
                     switch: 'hue-extended.0.lights.003-hue_go_1.action.on',
                     rgb: 'hue-extended.0.lights.003-hue_go_1.action.rgb',
                     color_temperature: 'hue-extended.0.lights.003-hue_go_1.action.colorTemperature',

@@ -31,6 +31,12 @@ const styles = () => ({
         display: 'flex',
         justifyContent: 'center',
     },
+    content: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+    },
 });
 
 const stateRoles = {
@@ -509,7 +515,7 @@ class RGBLight extends Generic {
         super.renderWidgetBody(props);
 
         const content = <>
-            <div>
+            <div className={this.props.classes.content}>
                 <IconButton
                     onClick={() => this.setState({ dialog: true })}
                     style={{ backgroundColor: this.getColor(), color: this.getTextColor() }}
