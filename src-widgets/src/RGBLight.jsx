@@ -349,7 +349,12 @@ class RGBLight extends Generic {
     && this.state.objects.hue;
 
     renderSwitch() {
-        return this.state.objects.switch && <div className={this.props.classes.sliderContainer}>
+        return this.state.objects.switch && <div
+            className={this.props.classes.sliderContainer}
+            style={{
+                justifyContent: 'center',
+            }}
+        >
             {Generic.t('Off')}
             <Switch
                 checked={this.state.switch || false}
