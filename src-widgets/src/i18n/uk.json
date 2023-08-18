@@ -303,5 +303,7 @@
   "Brightness": "Яскравість",
   "Color temperature": "Колірна температура",
   "Close": "Закрити",
-  "Switch color picker": "Змінити вибір кольору"
+  "Switch color picker": "Змінити вибір кольору",
+  "On": "Увімкнено",
+  "Off": "Вимкнено"
 }

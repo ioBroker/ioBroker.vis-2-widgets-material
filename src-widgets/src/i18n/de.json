@@ -303,5 +303,7 @@
   "Brightness": "Helligkeit",
   "Color temperature": "Farbtemperatur",
   "Close": "Schließen",
-  "Switch color picker": "Farbauswahl wechseln"
+  "Switch color picker": "Farbauswahl wechseln",
+  "On": "An",
+  "Off": "Aus"
 }

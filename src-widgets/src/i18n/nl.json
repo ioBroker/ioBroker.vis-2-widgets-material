@@ -303,5 +303,7 @@
   "Brightness": "Helderheid",
   "Color temperature": "Kleurtemperatuur",
   "Close": "Dichtbij",
-  "Switch color picker": "Wissel van kleurenkiezer"
+  "Switch color picker": "Wissel van kleurenkiezer",
+  "On": "Op",
+  "Off": "Uit"
 }

@@ -303,5 +303,7 @@
   "Brightness": "Brilho",
   "Color temperature": "Temperatura de cor",
   "Close": "Fechar",
-  "Switch color picker": "Alternar seletor de cores"
+  "Switch color picker": "Alternar seletor de cores",
+  "On": "Sobre",
+  "Off": "Desligado"
 }

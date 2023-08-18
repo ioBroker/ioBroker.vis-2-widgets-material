@@ -303,5 +303,7 @@
   "Brightness": "亮度",
   "Color temperature": "色温",
   "Close": "关闭",
-  "Switch color picker": "切换颜色选择器"
+  "Switch color picker": "切换颜色选择器",
+  "On": "在",
+  "Off": "离开"
 }

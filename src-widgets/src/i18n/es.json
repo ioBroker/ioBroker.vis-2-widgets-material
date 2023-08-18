@@ -303,5 +303,7 @@
   "Brightness": "Brillo",
   "Color temperature": "Temperatura del color",
   "Close": "Cerca",
-  "Switch color picker": "Cambiar selector de color"
+  "Switch color picker": "Cambiar selector de color",
+  "On": "En",
+  "Off": "Apagado"
 }

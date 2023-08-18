@@ -303,5 +303,7 @@
   "Brightness": "Jasność",
   "Color temperature": "Temperatura koloru",
   "Close": "Zamknąć",
-  "Switch color picker": "Przełącz próbnik kolorów"
+  "Switch color picker": "Przełącz próbnik kolorów",
+  "On": "NA",
+  "Off": "Wyłączony"
 }

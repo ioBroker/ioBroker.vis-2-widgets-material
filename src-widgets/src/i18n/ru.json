@@ -303,5 +303,7 @@
   "Brightness": "Яркость",
   "Color temperature": "Цветовая температура",
   "Close": "Закрывать",
-  "Switch color picker": "Переключить палитру цветов"
+  "Switch color picker": "Переключить палитру цветов",
+  "On": "Вкл.",
+  "Off": "Выкл."
 }

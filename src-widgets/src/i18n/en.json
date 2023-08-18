@@ -303,5 +303,7 @@
   "Brightness": "Brightness",
   "Color temperature": "Color temperature",
   "Switch color picker": "Switch color picker",
-  "Close": "Close"
+  "Close": "Close",
+  "On": "On",
+  "Off": "Off"
 }
