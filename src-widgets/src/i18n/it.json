@@ -301,5 +301,7 @@
   "vacuumCleaner": "Aspirapolvere",
   "image": "Immagine",
   "Brightness": "Luminosità",
-  "Color temperature": "Temperatura di colore"
+  "Color temperature": "Temperatura di colore",
+  "Close": "Vicino",
+  "Switch color picker": "Cambia selettore colore"
 }

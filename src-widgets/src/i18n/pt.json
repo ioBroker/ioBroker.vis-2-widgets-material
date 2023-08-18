@@ -301,5 +301,7 @@
   "vacuumCleaner": "Aspirador de pó",
   "image": "Imagem",
   "Brightness": "Brilho",
-  "Color temperature": "Temperatura de cor"
+  "Color temperature": "Temperatura de cor",
+  "Close": "Fechar",
+  "Switch color picker": "Alternar seletor de cores"
 }

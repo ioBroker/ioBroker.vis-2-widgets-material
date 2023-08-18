@@ -301,5 +301,7 @@
   "vacuumCleaner": "吸尘器",
   "image": "图像",
   "Brightness": "亮度",
-  "Color temperature": "色温"
+  "Color temperature": "色温",
+  "Close": "关闭",
+  "Switch color picker": "切换颜色选择器"
 }

@@ -301,5 +301,7 @@
   "vacuumCleaner": "Stofzuiger",
   "image": "Afbeelding",
   "Brightness": "Helderheid",
-  "Color temperature": "Kleurtemperatuur"
+  "Color temperature": "Kleurtemperatuur",
+  "Close": "Dichtbij",
+  "Switch color picker": "Wissel van kleurenkiezer"
 }

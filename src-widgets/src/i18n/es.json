@@ -301,5 +301,7 @@
   "vacuumCleaner": "aspiradora",
   "image": "Imagen",
   "Brightness": "Brillo",
-  "Color temperature": "Temperatura del color"
+  "Color temperature": "Temperatura del color",
+  "Close": "Cerca",
+  "Switch color picker": "Cambiar selector de color"
 }

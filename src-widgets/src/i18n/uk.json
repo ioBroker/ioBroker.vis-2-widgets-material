@@ -301,5 +301,7 @@
   "vacuumCleaner": "Пилосос",
   "image": "Зображення",
   "Brightness": "Яскравість",
-  "Color temperature": "Колірна температура"
+  "Color temperature": "Колірна температура",
+  "Close": "Закрити",
+  "Switch color picker": "Змінити вибір кольору"
 }

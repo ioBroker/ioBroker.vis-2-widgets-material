@@ -8,7 +8,7 @@
         "@craco/craco": "^7.1.0",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
-        "@iobroker/adapter-react-v5": "^4.4.7",
+        "@iobroker/adapter-react-v5": "^4.5.0",
         "@iobroker/vis-2-widgets-react-dev": "^0.4.6",
         "@mui/icons-material": "^5.14.3",
         "@mui/material": "^5.14.5",
@@ -42,7 +42,7 @@
         "react-icons": "^4.10.1",
         "react-leaflet": "^4.2.1",
         "react-scripts": "^5.0.1",
-        "sass": "^1.65.1",
+        "sass": "^1.66.0",
         "uuid": "^9.0.0"
     },
     "scripts": {

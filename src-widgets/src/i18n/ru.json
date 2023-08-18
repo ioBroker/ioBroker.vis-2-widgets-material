@@ -301,5 +301,7 @@
   "vacuumCleaner": "Пылесос",
   "image": "Изображение",
   "Brightness": "Яркость",
-  "Color temperature": "Цветовая температура"
+  "Color temperature": "Цветовая температура",
+  "Close": "Закрывать",
+  "Switch color picker": "Переключить палитру цветов"
 }

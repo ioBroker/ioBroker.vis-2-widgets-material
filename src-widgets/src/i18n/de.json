@@ -301,5 +301,7 @@
   "vacuumCleaner": "Staubsauger",
   "image": "Bild",
   "Brightness": "Helligkeit",
-  "Color temperature": "Farbtemperatur"
+  "Color temperature": "Farbtemperatur",
+  "Close": "Schließen",
+  "Switch color picker": "Farbauswahl wechseln"
 }

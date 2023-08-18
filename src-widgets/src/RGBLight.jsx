@@ -35,6 +35,8 @@ const styles = () => ({
 
 const stateRoles = {
     'switch.light': 'switch',
+    switch: 'switch',
+    'level.brightness': 'brightness',
     'level.dimmer': 'brightness',
     'level.color.red': 'red',
     'level.color.green': 'green',
@@ -70,7 +72,7 @@ const loadStates = async (field, data, changeData, socket) => {
 class RGBLight extends Generic {
     constructor(props) {
         super(props);
-        this.state.dialog = true;
+        this.state.dialog = false;
         this.state.objects = {};
         this.state.colorTemperatures = [];
         this.sketch = false;
@@ -342,11 +344,12 @@ class RGBLight extends Generic {
 
     renderSwitch() {
         return this.state.objects.switch && <div className={this.props.classes.sliderContainer}>
+            {Generic.t('Off')}
             <Switch
                 checked={this.state.switch || false}
                 onChange={e => this.setId('switch', e.target.checked)}
             />
-            {Generic.getText(this.state.objects?.switch?.common?.name)}
+            {Generic.t('On')}
         </div>;
     }
 
@@ -455,7 +458,10 @@ class RGBLight extends Generic {
     }
 
     renderDialog() {
-        return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
+        if (!this.state.dialog) {
+            return null;
+        }
+        return <Dialog open={!0} onClose={() => this.setState({ dialog: false })}>
             <DialogTitle>{this.state.rxData.widgetTitle}</DialogTitle>
             <DialogContent style={{ maxWidth: 400 }}>
                 <div className={this.props.classes.dialogContainer}>
