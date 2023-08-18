@@ -219,29 +219,43 @@ class RGBLight extends Generic {
     async propertiesUpdate() {
         const objects = {};
         const ids = ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
+        const idToRead = [];
+        for (const k in ids) {
+            const id = ids[k];
+            if (this.state.rxData[id] && this.state.rxData[id] !== 'nothing_selected') {
+                idToRead.push(this.state.rxData[id]);
+            }
+        }
+        const _objects = await this.props.context.socket.getObjectsById(idToRead);
+        const states = await this.props.context.socket.getStates(idToRead);
+        const newState = {};
+
         for (const k in ids) {
             const id = ids[k];
             if (this.state.rxData[id]) {
-                const state = await this.props.context.socket.getState(this.state.rxData[id]);
+                const state = states[this.state.rxData[id]];
                 if (state) {
-                    this.setState({ [id]: state.val });
+                    newState[id] = state.val;
                 }
-                const object = await this.props.context.socket.getObject(this.state.rxData[id]);
+                const object = _objects[this.state.rxData[id]];
                 if (object) {
                     objects[id] = object;
                 }
             }
         }
-        this.setState({ objects });
+        newState.objects = objects;
+
         if (objects.color_temperature) {
             const colors = [];
             for (let i = (objects.color_temperature?.common?.min || 3000); i <= (objects.color_temperature?.common?.max || 12000); i += 100) {
                 colors.push(ct.colorTemperature2rgb(i));
             }
-            this.setState({ colorTemperatures: colors });
+            newState.colorTemperatures = colors;
         } else {
-            this.setState({ colorTemperatures: [] });
+            newState.colorTemperatures = [];
         }
+
+        this.setState(newState);
     }
 
     async componentDidMount() {
@@ -334,19 +348,16 @@ class RGBLight extends Generic {
         && this.state.rxData.rgb) {
             return true;
         }
-        if ((this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w')
-        && this.state.objects.red
-        && this.state.objects.green
-        && this.state.objects.blue) {
-            return true;
-        }
-        return false;
+
+        return (this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w')
+            && this.state.objects.red
+            && this.state.objects.green
+            && this.state.objects.blue;
     };
 
     isW = () => (this.state.rxData.type === 'rgbw' || this.state.rxData.type === 'r/g/b/w') && this.state.objects.white;
 
-    isHsl = () => this.state.rxData.type === 'hue/sat/lum'
-    && this.state.objects.hue;
+    isHsl = () => this.state.rxData.type === 'hue/sat/lum' && this.state.objects.hue;
 
     renderSwitch() {
         return this.state.objects.switch && <div
