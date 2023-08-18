@@ -93,6 +93,7 @@ Additionally, you can show image or iframe with this widget too.
 ![Player](img/material-blinds-2.png)
 
 ### Color Lamp
+![RGB](img/material-rgb.png)
 
 ### Time picker
 
@@ -144,6 +145,9 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added RGB widget
+
 ### 0.8.5 (2023-08-11)
 * (bluefox) Improvement of the widget loading
 
