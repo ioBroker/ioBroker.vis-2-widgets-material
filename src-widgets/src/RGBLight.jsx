@@ -19,7 +19,7 @@ const styles = () => ({
     sliderContainer: {
         display: 'flex',
         alignItems: 'center',
-        gap: 4,
+        gap: 12,
         width: '100%',
     },
     dialogContainer: {
@@ -32,10 +32,10 @@ const styles = () => ({
         justifyContent: 'center',
     },
     content: {
+        width: '100%',
+        flex: 1,
         display: 'flex',
-        alignItems: 'center',
         justifyContent: 'center',
-        height: '100%',
     },
 });
 
@@ -81,7 +81,9 @@ class RGBLight extends Generic {
         this.state.dialog = false;
         this.state.objects = {};
         this.state.colorTemperatures = [];
-        this.sketch = false;
+        this.state.sketch = false;
+        this.contentRef = React.createRef();
+        this.timeouts = {};
     }
 
     static getWidgetInfo() {
@@ -212,7 +214,12 @@ class RGBLight extends Generic {
     setId = (id, value) => {
         if (this.state.objects[id]) {
             this.setState({ [id]: value });
-            this.props.context.socket.setState(this.state.rxData[id], value);
+            if (this.timeouts[id]) {
+                clearTimeout(this.timeouts[id]);
+            }
+            this.timeouts[id] = setTimeout(() => {
+                this.props.context.socket.setState(this.state.rxData[id], value);
+            }, 200);
         }
     };
 
@@ -519,11 +526,23 @@ class RGBLight extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
+        let width = 0;
+
+        if (this.contentRef.current) {
+            width = this.contentRef.current.offsetWidth > this.contentRef.current.offsetHeight
+                ? this.contentRef.current.offsetHeight : this.contentRef.current.offsetWidth;
+        }
+
         const content = <>
-            <div className={this.props.classes.content}>
+            <div className={this.props.classes.content} ref={this.contentRef}>
                 <IconButton
                     onClick={() => this.setState({ dialog: true })}
-                    style={{ backgroundColor: this.getColor(), color: this.getTextColor() }}
+                    style={{
+                        backgroundColor: this.getColor(),
+                        color: this.getTextColor(),
+                        width,
+                        height: width,
+                    }}
                 >
                     <ColorLens />
                 </IconButton>
