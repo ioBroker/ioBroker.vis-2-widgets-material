@@ -305,5 +305,7 @@
   "Close": "关闭",
   "Switch color picker": "切换颜色选择器",
   "On": "在",
-  "Off": "离开"
+  "Off": "离开",
+  "controlTimeout": "控制延迟",
+  "In milliseconds": "以毫秒为单位"
 }

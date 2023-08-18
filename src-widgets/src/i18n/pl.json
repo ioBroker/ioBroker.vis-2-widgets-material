@@ -305,5 +305,7 @@
   "Close": "Zamknąć",
   "Switch color picker": "Przełącz próbnik kolorów",
   "On": "NA",
-  "Off": "Wyłączony"
+  "Off": "Wyłączony",
+  "controlTimeout": "Opóźnienie sterowania",
+  "In milliseconds": "w milisekundach"
 }

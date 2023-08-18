@@ -305,5 +305,7 @@
   "Close": "Cerca",
   "Switch color picker": "Cambiar selector de color",
   "On": "En",
-  "Off": "Apagado"
+  "Off": "Apagado",
+  "controlTimeout": "Retardo de control",
+  "In milliseconds": "en milisegundos"
 }

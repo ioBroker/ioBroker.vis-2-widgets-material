@@ -305,5 +305,7 @@
   "Close": "Fermer",
   "Switch color picker": "Changer de sélecteur de couleur",
   "On": "Sur",
-  "Off": "Désactivé"
+  "Off": "Désactivé",
+  "controlTimeout": "Délai de contrôle",
+  "In milliseconds": "En millisecondes"
 }

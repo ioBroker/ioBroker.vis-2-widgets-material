@@ -305,5 +305,7 @@
   "Close": "Dichtbij",
   "Switch color picker": "Wissel van kleurenkiezer",
   "On": "Op",
-  "Off": "Uit"
+  "Off": "Uit",
+  "controlTimeout": "Controle vertraging",
+  "In milliseconds": "In milliseconden"
 }
