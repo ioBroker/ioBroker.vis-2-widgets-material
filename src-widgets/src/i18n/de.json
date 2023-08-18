@@ -305,5 +305,7 @@
   "Close": "Schließen",
   "Switch color picker": "Farbauswahl wechseln",
   "On": "An",
-  "Off": "Aus"
+  "Off": "Aus",
+  "controlTimeout": "Steuerverzögerung",
+  "In milliseconds": "In Millisekunden"
 }

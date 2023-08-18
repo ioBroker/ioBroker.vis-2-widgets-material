@@ -305,5 +305,7 @@
   "Switch color picker": "Switch color picker",
   "Close": "Close",
   "On": "On",
-  "Off": "Off"
+  "Off": "Off",
+  "controlTimeout": "Control delay",
+  "In milliseconds": "In milliseconds"
 }

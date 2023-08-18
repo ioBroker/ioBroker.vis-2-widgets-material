@@ -191,6 +191,14 @@ class RGBLight extends Generic {
                             hidden: data => data.type !== 'hue/sat/lum',
                             onChange: loadStates,
                         },
+                        {
+                            name: 'timeout',
+                            label: 'controlTimeout',
+                            help: 'In milliseconds',
+                            type: 'number',
+                            min: 0,
+                            max: 1000,
+                        },
                     ],
                 },
             ],
@@ -218,9 +226,16 @@ class RGBLight extends Generic {
             if (this.timeouts[id]) {
                 clearTimeout(this.timeouts[id]);
             }
-            this.timeouts[id] = setTimeout(() => {
+
+            // control switch directly without timeout
+            if (this.state.rxData.switch === id) {
                 this.props.context.socket.setState(this.state.rxData[id], value);
-            }, 200);
+            } else {
+                this.timeouts[id] = setTimeout(() => {
+                    this.timeouts[id] = null;
+                    this.props.context.socket.setState(this.state.rxData[id], value);
+                }, parseInt(this.state.rxData.timeout, 10) || 200);
+            }
         }
     };
 
@@ -269,6 +284,16 @@ class RGBLight extends Generic {
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
+    }
+
+    componentWillUnmount() {
+        super.componentWillUnmount();
+        for (const k in this.timeouts) {
+            if (this.timeouts[k]) {
+                clearTimeout(this.timeouts[k]);
+                this.timeouts[k] = null;
+            }
+        }
     }
 
     async onRxDataChanged() {
@@ -538,10 +563,10 @@ class RGBLight extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        let width = 0;
+        let size = 0;
 
         if (this.contentRef.current) {
-            width = this.contentRef.current.offsetWidth > this.contentRef.current.offsetHeight
+            size = this.contentRef.current.offsetWidth > this.contentRef.current.offsetHeight
                 ? this.contentRef.current.offsetHeight : this.contentRef.current.offsetWidth;
         }
 
@@ -552,8 +577,8 @@ class RGBLight extends Generic {
                     style={{
                         backgroundColor: this.getColor(),
                         color: this.getTextColor(),
-                        width,
-                        height: width,
+                        width: size,
+                        height: size,
                     }}
                 >
                     <ColorLens />
