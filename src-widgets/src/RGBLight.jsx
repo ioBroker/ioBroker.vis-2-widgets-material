@@ -301,7 +301,7 @@ class RGBLight extends Generic {
     }
 
     onStateUpdated(id, state) {
-        if (this.state.dialog) {
+        if (!this.state.dialog) {
             ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'].forEach(_id => {
                 if (this.state.rxData[_id] === id) {
                     this.setState({ [_id]: state.val });
