@@ -123,7 +123,7 @@ Additionally, you can show image or iframe with this widget too.
 - Dimmer → Switch and Buttons Slider
 - Shutter → Switch and Buttons Blinds
 - Temperature → Switch and Buttons info with chart
--- humidity → Switch and Buttons info with chart
+- Humidity → Switch and Buttons info with chart
 - Motion → Switch and Buttons Info specific icon, read only, active color rgba(52,170,68,1)
 - Fire → ISwitch and Buttons nfo specific icon (fire), read only, active color 'red'
 - Flood → Switch and Buttons Info with specific icon (water), read only, active color 'blue'
@@ -209,7 +209,7 @@ Additionally, you can show image or iframe with this widget too.
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2022-2023 bluefox <dogafox@gmail.com>
+Copyright (c) 2022-2023 Denis Haev <dogafox@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
