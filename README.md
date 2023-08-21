@@ -145,7 +145,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.0 (2023-08-21)
 * (bluefox) Added RGB widget
 
 ### 0.8.5 (2023-08-11)
