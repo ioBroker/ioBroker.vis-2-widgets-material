@@ -290,7 +290,7 @@ const WizardDialog = props => {
                                     <div style={{ fontSize: 12, opacity: 0.7, marginLeft: 20 }}>{Generic.t('%s of %s devices selected', counters[roomId], room.devices.length)}</div>
                                 </div>
                             </AccordionSummary>
-                            <AccordionDetails sx={{ backgroundColor: props.themeType ? '#111' : '#eee' }}>
+                            <AccordionDetails sx={{ backgroundColor: props.themeType === 'dark' ? '#111' : '#eee' }}>
                                 {room.devices.map((device, deviceId) => <div key={device._id} style={{ backgroundColor: 'transparent' }}>
                                     <div
                                         style={{
