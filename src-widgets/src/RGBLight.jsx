@@ -222,15 +222,15 @@ class RGBLight extends Generic {
 
     setId = (id, value) => {
         if (this.state.objects[id]) {
-            this.setState({ [id]: value });
-            if (this.timeouts[id]) {
-                clearTimeout(this.timeouts[id]);
-            }
+            this.timeouts[id] && clearTimeout(this.timeouts[id]);
 
             // control switch directly without timeout
             if (this.state.rxData.switch === id) {
                 this.props.context.socket.setState(this.state.rxData[id], value);
             } else {
+                const values = { ...this.state.values, [`${id}.val`]: value };
+                this.setState({ values });
+
                 this.timeouts[id] = setTimeout(() => {
                     this.timeouts[id] = null;
                     this.props.context.socket.setState(this.state.rxData[id], value);
@@ -250,16 +250,11 @@ class RGBLight extends Generic {
             }
         }
         const _objects = await this.props.context.socket.getObjectsById(idToRead);
-        const states = await this.props.context.socket.getStates(idToRead);
         const newState = {};
 
         for (const k in ids) {
             const id = ids[k];
             if (this.state.rxData[id]) {
-                const state = states[this.state.rxData[id]];
-                if (state) {
-                    newState[id] = state.val;
-                }
                 const object = _objects[this.state.rxData[id]];
                 if (object) {
                     objects[id] = object;
@@ -300,16 +295,6 @@ class RGBLight extends Generic {
         await this.propertiesUpdate();
     }
 
-    onStateUpdated(id, state) {
-        if (!this.state.dialog) {
-            ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'].forEach(_id => {
-                if (this.state.rxData[_id] === id) {
-                    this.setState({ [_id]: state.val });
-                }
-            });
-        }
-    }
-
     isOnlyHue = () => this.state.rxData.type === 'hue/sat/lum' && (!this.state.objects.saturation || !this.state.objects.luminance);
 
     getWheelColor = () => {
@@ -322,25 +307,25 @@ class RGBLight extends Generic {
 
         if (this.state.rxData.type === 'hue/sat/lum') {
             result = hslaToHsva({
-                h: this.state.hue,
-                s: this.isOnlyHue() ? 100 : this.state.saturation,
-                l: this.isOnlyHue() ? 50 : this.state.luminance,
+                h: this.getPropertyValue('hue'),
+                s: this.isOnlyHue() ? 100 : this.getPropertyValue('saturation'),
+                l: this.isOnlyHue() ? 50 : this.getPropertyValue('luminance'),
             });
         } else if (this.state.rxData.type === 'r/g/b' || this.state.rxData.type === 'r/g/b/w') {
             result = rgbaToHsva({
-                r: this.state.red,
-                g: this.state.green,
-                b: this.state.blue,
+                r: this.getPropertyValue('red'),
+                g: this.getPropertyValue('green'),
+                b: this.getPropertyValue('blue'),
             });
         } else if (this.state.rxData.type === 'rgb') {
             try {
-                result = hexToHsva(this.state.rgb || '');
+                result = hexToHsva(this.getPropertyValue('rgb') || '');
             } catch (e) {
                 console.error(e);
             }
         } else if (this.state.rxData.type === 'rgbw') {
             try {
-                result = hexToHsva(this.state.rgb || '');
+                result = hexToHsva(this.getPropertyValue('rgb') || '');
             } catch (e) {
                 console.error(e);
             }
@@ -370,10 +355,10 @@ class RGBLight extends Generic {
 
     getWhite = () => {
         if (this.state.rxData.type === 'r/g/b/w') {
-            return this.state.white;
+            return this.getPropertyValue('white');
         }
         if (this.state.rxData.type === 'rgbw') {
-            return this.state.white;
+            return this.getPropertyValue('white');
         }
         return 0;
     };
@@ -411,7 +396,7 @@ class RGBLight extends Generic {
         >
             {Generic.t('Off')}
             <Switch
-                checked={this.state.switch || false}
+                checked={this.getPropertyValue('switch') || false}
                 onChange={e => this.setId('switch', e.target.checked)}
             />
             {Generic.t('On')}
@@ -427,7 +412,7 @@ class RGBLight extends Generic {
                 min={this.getIdMin('brightness') || 0}
                 max={this.getIdMax('brightness') || 100}
                 valueLabelDisplay="auto"
-                value={this.state.brightness || 0}
+                value={this.getPropertyValue('brightness') || 0}
                 onChange={(e, value) => this.setId('brightness', value)}
             />
         </div>;
@@ -438,16 +423,13 @@ class RGBLight extends Generic {
             <Sketch
                 color={this.getWheelColor()}
                 disableAlpha
-                onChange={color => {
-                    this.setWheelColor(color.hsva);
-                }}
+                onChange={color => this.setWheelColor(color.hsva)}
             />
         </div>;
     }
 
     renderWheel() {
-        return (this.isRgb() || this.isHsl()) &&
-        <>
+        return (this.isRgb() || this.isHsl()) && <>
             <div>
                 {!this.isOnlyHue() &&
                 <Tooltip title={Generic.t('Switch color picker')}>
@@ -457,7 +439,7 @@ class RGBLight extends Generic {
                 </Tooltip>}
             </div>
             {
-                this.state.sketch ? this.renderSketch() :
+                this.getPropertyValue('sketch') ? this.renderSketch() :
                     <>
                         <div className={this.props.classes.wheel}>
                             <Wheel
@@ -471,9 +453,8 @@ class RGBLight extends Generic {
                         {!this.isOnlyHue() && <div>
                             <ShadeSlider
                                 hsva={this.getWheelColor()}
-                                onChange={shade => {
-                                    this.setWheelColor({ ...this.getWheelColor(), ...shade });
-                                }}
+                                onChange={shade =>
+                                    this.setWheelColor({ ...this.getWheelColor(), ...shade })}
                             />
                         </div>}
                     </>
@@ -515,7 +496,7 @@ class RGBLight extends Generic {
                     valueLabelDisplay="auto"
                     min={this.getIdMin('color_temperature') || 3000}
                     max={this.getIdMax('color_temperature') || 12000}
-                    value={this.state.color_temperature || 0}
+                    value={this.getPropertyValue('color_temperature') || 0}
                     onChange={(e, value) => this.setId('color_temperature', value)}
                 />
             </div>
@@ -551,7 +532,7 @@ class RGBLight extends Generic {
 
     getColor = () => {
         if (this.state.rxData.type === 'ct') {
-            const color = colorTemperature2rgb(this.state.color_temperature);
+            const color = colorTemperature2rgb(this.getPropertyValue('color_temperature'));
             return rgbaToHex({
                 r: color.red,
                 g: color.green,
@@ -563,7 +544,7 @@ class RGBLight extends Generic {
 
     getTextColor = () => {
         if (this.state.rxData.type === 'ct') {
-            const color = colorTemperature2rgb(this.state.color_temperature);
+            const color = colorTemperature2rgb(this.getPropertyValue('color_temperature'));
             return color.red + color.green + color.blue > 3 * 128 ? '#000000' : '#ffffff';
         }
         const color = hsvaToRgba(this.getWheelColor());
@@ -580,23 +561,31 @@ class RGBLight extends Generic {
                 ? this.contentRef.current.offsetHeight : this.contentRef.current.offsetWidth;
         }
 
+        let switchState = null;
+        if (this.state.objects.switch) {
+            switchState = this.getPropertyValue('switch');
+        }
+
         const content = <>
             <div className={this.props.classes.content} ref={this.contentRef}>
                 <IconButton
                     onClick={() => this.setState({ dialog: true })}
                     style={{
-                        backgroundColor: this.getColor(),
+                        backgroundColor: switchState === null || switchState ? this.getColor() :
+                            (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
                         color: this.getTextColor(),
                         width: size,
                         height: size,
                     }}
                 >
-                    <ColorLens />
+                    <ColorLens
+                        style={{
+                            color: switchState === null || switchState ? undefined : this.getColor(),
+                        }}
+                    />
                 </IconButton>
             </div>
-            {
-                this.renderDialog()
-            }
+            {this.renderDialog()}
         </>;
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
