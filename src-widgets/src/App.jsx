@@ -23,6 +23,7 @@ import ThemeSwitcher from './ThemeSwitcher';
 import WasherDryer from './WasherDryer';
 import Wizard from './Wizard';
 import RGBLight from './RGBLight';
+import Lock from './Lock';
 
 const styles = theme => ({
     app: {
@@ -373,6 +374,26 @@ class App extends WidgetDemoApp {
                     luminance: 'hue-extended.0.lights.003-hue_go_1.action.brightness',
                 }}
             />,
+            lock: <Lock
+                key="Lock"
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
+                style={{
+                    width: 400,
+                    height: 180,
+                }}
+                data={{
+                    name: 'Security',
+                    'lock-oid': 'javascript.0.lock',
+                    'door-oid': 'javascript.0.door',
+                    'doorOpen-oid': 'javascript.0.doorOpen',
+                    pincode: '1234',
+                    pincodeReturnButton: 'backspace',
+                }}
+            />,
+
         };
 
         return <div className={this.props.classes.app}>
