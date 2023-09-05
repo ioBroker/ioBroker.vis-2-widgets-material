@@ -160,11 +160,9 @@ class Lock extends Generic {
         let lockedId = null;
         let pincode = null;
         let pincodeReturnButton = null;
-        if (this.getPropertyValue('oid')) {
-            lockedId = this.state.rxData.oid;
-            pincode = this.getPincode();
-            pincodeReturnButton = this.state.rxData.pincodeReturnButton === 'backspace' ? 'backspace' : 'submit';
-        }
+        lockedId = this.state.rxData['lock-oid'];
+        pincode = this.getPincode();
+        pincodeReturnButton = this.state.rxData.pincodeReturnButton === 'backspace' ? 'backspace' : 'submit';
 
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
             <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
@@ -253,24 +251,31 @@ class Lock extends Generic {
         super.renderWidgetBody(props);
 
         const content = <div>
-            <IconButton onClick={() => {
-                this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], !this.getPropertyValue('doorOpen-oid'));
-            }}
-            >
-                <SensorDoor sx={theme => ({
-                    color: this.getPropertyValue('door-oid') ? theme.palette.primary.main : undefined,
-                })}
-                />
-            </IconButton>
-            <IconButton onClick={() => {
-                this.props.context.socket.setState(this.state.rxData['lock-oid'], !this.getPropertyValue('lock-oid'));
-            }}
-            >
-                <LockIcon sx={theme => ({
-                    color: this.getPropertyValue('lock-oid') ? theme.palette.primary.main : undefined,
-                })}
-                />
-            </IconButton>
+            {this.renderUnlockDialog()}
+            {this.state.rxData['door-oid'] || this.state.rxData['doorOpen-oid'] ?
+                <IconButton onClick={() => {
+                    this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], !this.getPropertyValue('doorOpen-oid'));
+                }}
+                >
+                    <SensorDoor sx={theme => ({
+                        color: this.getPropertyValue('door-oid') ? theme.palette.primary.main : undefined,
+                    })}
+                    />
+                </IconButton> : null}
+            {this.state.rxData['lock-oid'] ?
+                <IconButton onClick={() => {
+                    if (this.getPropertyValue('lock-oid') && this.getPincode()) {
+                        this.setState({ dialog: true, pinInput: '' });
+                    } else {
+                        this.props.context.socket.setState(this.state.rxData['lock-oid'], !this.getPropertyValue('lock-oid'));
+                    }
+                }}
+                >
+                    <LockIcon sx={theme => ({
+                        color: this.getPropertyValue('lock-oid') ? theme.palette.primary.main : undefined,
+                    })}
+                    />
+                </IconButton> : null}
         </div>;
 
         return this.wrapContent(content, null, {

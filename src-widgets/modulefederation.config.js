@@ -19,6 +19,7 @@ module.exports = makeFederation(
         './WasherDryer': './src/WasherDryer',
         './Wizard': './src/Wizard',
         './RGBLight': './src/RGBLight',
+        './Lock': './src/Lock',
         './translations': './src/translations',
     }
 );

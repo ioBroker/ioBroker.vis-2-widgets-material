@@ -307,5 +307,8 @@
   "On": "On",
   "Off": "Off",
   "controlTimeout": "Control delay",
-  "In milliseconds": "In milliseconds"
+  "In milliseconds": "In milliseconds",
+  "lock-oid": "Lock OID",
+  "door-oid": "Door OID",
+  "doorOpen-oid": "Door open OID"
 }
