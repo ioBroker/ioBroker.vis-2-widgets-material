@@ -254,7 +254,9 @@ class Lock extends Generic {
             {this.renderUnlockDialog()}
             {this.state.rxData['door-oid'] || this.state.rxData['doorOpen-oid'] ?
                 <IconButton onClick={() => {
-                    this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], !this.getPropertyValue('doorOpen-oid'));
+                    if (this.state.rxData['doorOpen-oid']) {
+                        this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], !this.getPropertyValue('doorOpen-oid'));
+                    }
                 }}
                 >
                     <SensorDoor sx={theme => ({
