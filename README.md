@@ -147,7 +147,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.1.0 (2023-09-08)
 * (bluefox) Added door lock
 
 ### 1.0.0 (2023-08-21)
