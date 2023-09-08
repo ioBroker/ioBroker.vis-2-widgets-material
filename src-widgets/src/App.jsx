@@ -387,7 +387,7 @@ class App extends WidgetDemoApp {
                 data={{
                     name: 'Security',
                     'lock-oid': 'javascript.0.lock',
-                    'door-oid': 'javascript.0.door',
+                    'doorSensor-oid': 'javascript.0.door',
                     'doorOpen-oid': 'javascript.0.doorOpen',
                     pincode: '1234',
                     pincodeReturnButton: 'backspace',

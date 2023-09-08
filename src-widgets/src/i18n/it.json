@@ -307,5 +307,13 @@
   "On": "SU",
   "Off": "Spento",
   "controlTimeout": "Ritardo di controllo",
-  "In milliseconds": "In millisecondi"
+  "In milliseconds": "In millisecondi",
+  "fullSize": "Dimensione piena",
+  "doorOpen-oid": "OID porta aperta",
+  "lock-oid": "Blocca l'OID",
+  "close_lock": "Chiudere la serratura",
+  "open_lock": "Serratura aperta",
+  "open_door": "Porta aperta",
+  "lockWorking-oid": "Blocca l'OID funzionante",
+  "doorSensor-oid": "OID della porta"
 }

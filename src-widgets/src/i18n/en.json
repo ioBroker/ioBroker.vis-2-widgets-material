@@ -308,7 +308,12 @@
   "Off": "Off",
   "controlTimeout": "Control delay",
   "In milliseconds": "In milliseconds",
-  "lock-oid": "Lock OID",
-  "door-oid": "Door OID",
-  "doorOpen-oid": "Door open OID"
+  "lock-oid": "Lock OID (open/close)",
+  "doorOpen-oid": "Open door OID",
+  "fullSize": "Full size",
+  "close_lock": "Close lock",
+  "open_lock": "Open lock",
+  "open_door": "Open door",
+  "lockWorking-oid": "Lock rotating OID",
+  "doorSensor-oid": "Door sensor OID"
 }
