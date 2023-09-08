@@ -136,6 +136,7 @@
           "Switches",
           "Blinds",
           "Clock",
+          "Lock",
           "RGBLight",
           "SimpleState",
           "ViewInWidget",

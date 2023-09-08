@@ -307,5 +307,13 @@
   "On": "NA",
   "Off": "Wyłączony",
   "controlTimeout": "Opóźnienie sterowania",
-  "In milliseconds": "w milisekundach"
+  "In milliseconds": "w milisekundach",
+  "fullSize": "Pełny rozmiar",
+  "doorOpen-oid": "Drzwi otwarte OID",
+  "lock-oid": "Zablokuj OID",
+  "close_lock": "Zamknij zamek",
+  "open_lock": "Otwórz zamek",
+  "open_door": "Otwarte drzwi",
+  "lockWorking-oid": "Zablokuj działający OID",
+  "doorSensor-oid": "Drzwi OID"
 }

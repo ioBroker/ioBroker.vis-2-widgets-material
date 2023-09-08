@@ -307,5 +307,13 @@
   "On": "Увімкнено",
   "Off": "Вимкнено",
   "controlTimeout": "Контрольна затримка",
-  "In milliseconds": "За мілісекунди"
+  "In milliseconds": "За мілісекунди",
+  "fullSize": "Повний розмір",
+  "doorOpen-oid": "OID відкритих дверей",
+  "lock-oid": "Заблокувати OID",
+  "close_lock": "Закрити замок",
+  "open_lock": "Відкритий замок",
+  "open_door": "Відкриті двері",
+  "lockWorking-oid": "Заблокувати робочий OID",
+  "doorSensor-oid": "OID дверей"
 }

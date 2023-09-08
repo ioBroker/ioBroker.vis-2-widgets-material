@@ -103,6 +103,11 @@ class RGBLight extends Generic {
                             type: 'checkbox',
                         },
                         {
+                            name: 'fullSize',
+                            label: 'fullSize',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'widgetTitle',
                             label: 'name',
                             hidden: '!!data.noCard',
@@ -197,7 +202,7 @@ class RGBLight extends Generic {
                             help: 'In milliseconds',
                             type: 'number',
                             min: 0,
-                            max: 1000,
+                            max: 2000,
                         },
                     ],
                 },
@@ -225,10 +230,10 @@ class RGBLight extends Generic {
             this.timeouts[id] && clearTimeout(this.timeouts[id]);
 
             // control switch directly without timeout
-            if (this.state.rxData.switch === id) {
+            if (id === 'switch') {
                 this.props.context.socket.setState(this.state.rxData[id], value);
             } else {
-                const values = { ...this.state.values, [`${id}.val`]: value };
+                const values = { ...this.state.values, [`${this.state.rxData[id]}.val`]: value };
                 this.setState({ values });
 
                 this.timeouts[id] = setTimeout(() => {
@@ -319,13 +324,23 @@ class RGBLight extends Generic {
             });
         } else if (this.state.rxData.type === 'rgb') {
             try {
-                result = hexToHsva(this.getPropertyValue('rgb') || '');
+                const val = this.getPropertyValue('rgb') || '';
+                if (val && val.length >= 4) {
+                    result = hexToHsva(val);
+                } else {
+                    result = hexToHsva('#000000');
+                }
             } catch (e) {
                 console.error(e);
             }
         } else if (this.state.rxData.type === 'rgbw') {
             try {
-                result = hexToHsva(this.getPropertyValue('rgb') || '');
+                const val = this.getPropertyValue('rgb') || '';
+                if (val && val.length >= 4) {
+                    result = hexToHsva(val);
+                } else {
+                    result = hexToHsva('#000000');
+                }
             } catch (e) {
                 console.error(e);
             }
@@ -349,7 +364,13 @@ class RGBLight extends Generic {
         } else if (this.state.rxData.type === 'rgb') {
             this.setId('rgb', hsvaToHex(color));
         } else if (this.state.rxData.type === 'rgbw') {
-            this.setId('rgb', hsvaToHex(color));
+            if (this.state.objects.white) {
+                this.setId('rgb', hsvaToHex(color));
+            } else {
+                let val = this.getPropertyValue('rgb') || '#00000000';
+                val = hsvaToHex(color) + val.substring(7);
+                this.setId('rgb', val);
+            }
         }
     };
 
@@ -358,7 +379,12 @@ class RGBLight extends Generic {
             return this.getPropertyValue('white');
         }
         if (this.state.rxData.type === 'rgbw') {
-            return this.getPropertyValue('white');
+            if (this.state.objects.white) {
+                return this.getPropertyValue('white');
+            }
+
+            const val = this.getPropertyValue('rgb')?.substring(7);
+            return parseInt(val, 16);
         }
         return 0;
     };
@@ -367,7 +393,13 @@ class RGBLight extends Generic {
         if (this.state.rxData.type === 'r/g/b/w') {
             this.setId('white', color);
         } else if (this.state.rxData.type === 'rgbw') {
-            this.setId('white', color);
+            if (this.state.objects.white) {
+                this.setId('white', color);
+            } else {
+                let val = this.getPropertyValue('rgb') || '#00000000';
+                val = val.substring(0, 7) + color.toString(16).padStart(2, '0');
+                this.setId('rgb', val);
+            }
         }
     };
 
@@ -383,7 +415,8 @@ class RGBLight extends Generic {
             && this.state.objects.blue;
     };
 
-    isW = () => (this.state.rxData.type === 'rgbw' || this.state.rxData.type === 'r/g/b/w') && this.state.objects.white;
+    isW = () => (this.state.rxData.type === 'rgbw' && this.state.rxData.rgb)
+        || (this.state.rxData.type === 'r/g/b/w' && this.state.objects.white);
 
     isHsl = () => this.state.rxData.type === 'hue/sat/lum' && this.state.objects.hue;
 
@@ -428,52 +461,69 @@ class RGBLight extends Generic {
         </div>;
     }
 
-    renderWheel() {
-        return (this.isRgb() || this.isHsl()) && <>
-            <div>
-                {!this.isOnlyHue() &&
-                <Tooltip title={Generic.t('Switch color picker')}>
-                    <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
-                        <ColorLens />
-                    </IconButton>
-                </Tooltip>}
-            </div>
-            {
-                this.getPropertyValue('sketch') ? this.renderSketch() :
-                    <>
-                        <div className={this.props.classes.wheel}>
-                            <Wheel
-                                color={this.getWheelColor()}
-                                onChange={color => {
-                                    color = JSON.parse(JSON.stringify(color));
-                                    this.setWheelColor(color.hsva);
-                                }}
-                            />
-                        </div>
-                        {!this.isOnlyHue() && <div>
-                            <ShadeSlider
-                                hsva={this.getWheelColor()}
-                                onChange={shade =>
-                                    this.setWheelColor({ ...this.getWheelColor(), ...shade })}
-                            />
-                        </div>}
-                    </>
-            }
-        </>;
+    renderWheelTypeSwitch(isWheelVisible, twoPanels) {
+        if (!isWheelVisible) {
+            return null;
+        }
+        return !this.isOnlyHue() && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
+            <Tooltip title={Generic.t('Switch color picker')}>
+                <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
+                    <ColorLens />
+                </IconButton>
+            </Tooltip>
+        </div>;
+    }
+
+    renderBrightnessSlider(isWheelVisible) {
+        if (!isWheelVisible) {
+            return null;
+        }
+        return !this.isOnlyHue() && <ShadeSlider
+            hsva={this.getWheelColor()}
+            onChange={shade =>
+                this.setWheelColor({ ...this.getWheelColor(), ...shade })}
+        />;
+    }
+
+    renderWheel(isWheelVisible) {
+        if (!isWheelVisible) {
+            return null;
+        }
+        return this.state.sketch ? this.renderSketch() :  <div className={this.props.classes.wheel}>
+            <Wheel
+                color={this.getWheelColor()}
+                onChange={color => {
+                    color = JSON.parse(JSON.stringify(color));
+                    this.setWheelColor(color.hsva);
+                }}
+            />
+        </div>;
     }
 
     renderWhite() {
-        return this.isW() &&
-            <div className={this.props.classes.sliderContainer}>
-                <TbSquareLetterW style={{ width: 24, height: 24 }} />
-                <Slider
-                    min={this.getIdMin('white') || 0}
-                    max={this.getIdMax('white') || 100}
-                    valueLabelDisplay="auto"
-                    value={this.getWhite() || 0}
-                    onChange={(e, value) => this.setWhite(value)}
-                />
-            </div>;
+        if (!this.isW()) {
+            return null;
+        }
+        let min;
+        let max;
+        if (!this.state.objects.white) {
+            min = 0;
+            max = 255;
+        } else {
+            min = this.getIdMin('white') || 0;
+            max = this.getIdMax('white') || 100;
+        }
+
+        return <div className={this.props.classes.sliderContainer}>
+            <TbSquareLetterW style={{ width: 24, height: 24 }} />
+            <Slider
+                min={min}
+                max={max}
+                valueLabelDisplay="auto"
+                value={this.getWhite() || 0}
+                onChange={(e, value) => this.setWhite(value)}
+            />
+        </div>;
     }
 
     renderColorTemperature() {
@@ -503,7 +553,7 @@ class RGBLight extends Generic {
         </div>;
     }
 
-    renderDialog() {
+    renderDialog(wheelVisible) {
         if (!this.state.dialog) {
             return null;
         }
@@ -514,7 +564,9 @@ class RGBLight extends Generic {
                     {this.renderSwitch()}
                     {this.renderBrightness()}
                     {this.renderWhite()}
-                    {this.renderWheel()}
+                    {this.renderWheelTypeSwitch(wheelVisible)}
+                    {this.renderWheel(wheelVisible)}
+                    {this.renderBrightnessSlider(wheelVisible)}
                     {this.renderColorTemperature()}
                 </div>
             </DialogContent>
@@ -556,7 +608,9 @@ class RGBLight extends Generic {
 
         let size = 0;
 
-        if (this.contentRef.current) {
+        if (this.state.rxData.fullSize) {
+            size = this.refService?.current?.clientWidth;
+        } else if (this.contentRef.current) {
             size = this.contentRef.current.offsetWidth > this.contentRef.current.offsetHeight
                 ? this.contentRef.current.offsetHeight : this.contentRef.current.offsetWidth;
         }
@@ -565,28 +619,82 @@ class RGBLight extends Generic {
         if (this.state.objects.switch) {
             switchState = this.getPropertyValue('switch');
         }
+        const wheelVisible = this.isRgb() || this.isHsl();
 
-        const content = <>
-            <div className={this.props.classes.content} ref={this.contentRef}>
-                <IconButton
-                    onClick={() => this.setState({ dialog: true })}
+        let content;
+        if (this.state.rxData.fullSize) {
+            if (wheelVisible && size >= 350) {
+                content = <div
+                    ref={this.contentRef}
+                    className={this.props.classes.dialogContainer}
                     style={{
-                        backgroundColor: switchState === null || switchState ? this.getColor() :
-                            (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
-                        color: this.getTextColor(),
-                        width: size,
-                        height: size,
+                        flexDirection: 'row',
+                        width: '100%',
                     }}
                 >
-                    <ColorLens
+                    <div
                         style={{
-                            color: switchState === null || switchState ? undefined : this.getColor(),
+                            flexDirection: 'column',
+                            gap: 12,
+                            flexGrow: 1,
+                            display: 'flex',
                         }}
-                    />
-                </IconButton>
-            </div>
-            {this.renderDialog()}
-        </>;
+                    >
+                        {this.renderSwitch()}
+                        {this.renderBrightness()}
+                        {this.renderWhite()}
+                        {this.renderColorTemperature()}
+                        {this.renderBrightnessSlider(wheelVisible)}
+                        {this.renderWheelTypeSwitch(wheelVisible, true)}
+                    </div>
+                    <div
+                        style={{
+                            flexDirection: 'column',
+                            display: 'flex',
+                        }}
+                    >
+                        {this.renderWheel(wheelVisible)}
+                    </div>
+                </div>;
+            } else {
+                content = <div
+                    ref={this.contentRef}
+                    className={this.props.classes.dialogContainer}
+                >
+                    {this.renderSwitch()}
+                    {this.renderBrightness()}
+                    {this.renderWhite()}
+                    {this.renderWheelTypeSwitch(wheelVisible)}
+                    {this.renderWheel(wheelVisible)}
+                    {this.renderBrightnessSlider(wheelVisible)}
+                    {this.renderColorTemperature()}
+                </div>;
+            }
+        } else {
+            content = <>
+                <div className={this.props.classes.content} ref={this.contentRef}>
+                    <IconButton
+                        onClick={() => this.setState({ dialog: true })}
+                        style={{
+                            backgroundColor: switchState === null || switchState ? this.getColor() :
+                                (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
+                            color: this.getTextColor(),
+                            width: size,
+                            height: size,
+                        }}
+                    >
+                        <ColorLens
+                            style={{
+                                color: switchState === null || switchState ? undefined : this.getColor(),
+                                width: '90%',
+                                height: '90%',
+                            }}
+                        />
+                    </IconButton>
+                </div>
+                {this.renderDialog(wheelVisible)}
+            </>;
+        }
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
             return content;

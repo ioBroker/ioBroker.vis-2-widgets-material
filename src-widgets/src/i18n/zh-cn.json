@@ -307,5 +307,13 @@
   "On": "在",
   "Off": "离开",
   "controlTimeout": "控制延迟",
-  "In milliseconds": "以毫秒为单位"
+  "In milliseconds": "以毫秒为单位",
+  "fullSize": "全尺寸",
+  "doorOpen-oid": "开门 OID",
+  "lock-oid": "锁定OID",
+  "close_lock": "关闭锁",
+  "open_lock": "开锁",
+  "open_door": "开门",
+  "lockWorking-oid": "锁定工作 OID",
+  "doorSensor-oid": "门OID"
 }
