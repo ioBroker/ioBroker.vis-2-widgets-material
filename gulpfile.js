@@ -14,6 +14,8 @@ gulpHelper.gulpTasks(gulp, adapterName, __dirname, `${__dirname}/src-widgets/`, 
     `${__dirname}/src-widgets/build/static/js/*echarts-for-react_lib_core_js-node_modules_echarts_core*.*`,
     `${__dirname}/src-widgets/build/static/js/*spectrum_color_dist_import_mjs*.*`,
     `${__dirname}/src-widgets/build/static/js/*uiw_react-color-shade-slider*.*`,
+    `${__dirname}/src-widgets/build/static/js/*lottie-react_build*.*`,
+    `${__dirname}/src-widgets/build/static/js/*node_modules_babel_runtime_helpers_createForOfItera*.*`,
 ]);
 
 gulp.task('default', gulp.series('widget-build'));
