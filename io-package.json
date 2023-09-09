@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "news": {
+      "1.1.0": {
+        "en": "Added door lock",
+        "de": "Zusätzliche Türschloss",
+        "ru": "Добавлен замок двери",
+        "pt": "Fechadura de porta adicionada",
+        "nl": "Vertaling:",
+        "fr": "Ajout de la serrure de porte",
+        "it": "Aggiunto serratura porta",
+        "es": "Cierre de puerta",
+        "pl": "Drzwi do drzwi",
+        "uk": "Доданий замок дверей",
+        "zh-cn": "增加锁门"
+      },
       "1.0.0": {
         "en": "Added RGB widget",
         "de": "Hinzugefügt RGB Widget",
@@ -80,19 +93,6 @@
         "pl": "Added wizard for widgets (ang.)",
         "uk": "Додано майстра для віджетів",
         "zh-cn": "令人感到震惊"
-      },
-      "0.7.1": {
-        "en": "Added washer widget",
-        "de": "Washer Widget hinzugefügt",
-        "ru": "Добавлен виджет washer",
-        "pt": "Adicionado widget washer",
-        "nl": "Vervoegde wasser widget",
-        "fr": "Ajouté washer widget",
-        "it": "Aggiunto washer widget",
-        "es": "Widget de lavadora",
-        "pl": "Adddresser",
-        "uk": "Доданий віджет шайби",
-        "zh-cn": "死灰色"
       }
     },
     "title": "Vis 2 Widgets Material",
@@ -136,6 +136,7 @@
           "Switches",
           "Blinds",
           "Clock",
+          "Lock",
           "RGBLight",
           "SimpleState",
           "ViewInWidget",

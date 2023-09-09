@@ -307,5 +307,13 @@
   "On": "Op",
   "Off": "Uit",
   "controlTimeout": "Controle vertraging",
-  "In milliseconds": "In milliseconden"
+  "In milliseconds": "In milliseconden",
+  "fullSize": "Volledige grootte",
+  "doorOpen-oid": "Deur open OID",
+  "lock-oid": "OID vergrendelen",
+  "close_lock": "Sluit slot",
+  "open_lock": "Slot openen",
+  "open_door": "Geopende deur",
+  "lockWorking-oid": "Vergrendel werkende OID",
+  "doorSensor-oid": "Deur OID"
 }

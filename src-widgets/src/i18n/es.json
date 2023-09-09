@@ -307,5 +307,13 @@
   "On": "En",
   "Off": "Apagado",
   "controlTimeout": "Retardo de control",
-  "In milliseconds": "en milisegundos"
+  "In milliseconds": "en milisegundos",
+  "fullSize": "Tamaño completo",
+  "doorOpen-oid": "OID de puerta abierta",
+  "lock-oid": "Bloquear OID",
+  "close_lock": "Cerrar cerradura",
+  "open_lock": "cerradura abierta",
+  "open_door": "Puerta abierta",
+  "lockWorking-oid": "Bloquear OID en funcionamiento",
+  "doorSensor-oid": "Puerta OID"
 }

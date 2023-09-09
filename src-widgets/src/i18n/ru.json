@@ -307,5 +307,13 @@
   "On": "Вкл.",
   "Off": "Выкл.",
   "controlTimeout": "Задержка управления",
-  "In milliseconds": "В миллисекундах"
+  "In milliseconds": "В миллисекундах",
+  "fullSize": "Полный размер",
+  "doorOpen-oid": "Открыть дверь OID",
+  "lock-oid": "OID замка (откр/закр)",
+  "close_lock": "Закрыть замок",
+  "open_lock": "Открыть замок",
+  "open_door": "Открытая дверь",
+  "lockWorking-oid": "Замок в движении OID",
+  "doorSensor-oid": "Сенсор двери OID"
 }

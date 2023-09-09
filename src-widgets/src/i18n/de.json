@@ -307,5 +307,13 @@
   "On": "An",
   "Off": "Aus",
   "controlTimeout": "Steuerverzögerung",
-  "In milliseconds": "In Millisekunden"
+  "In milliseconds": "In Millisekunden",
+  "fullSize": "Volle Größe",
+  "doorOpen-oid": "Tür öffnen OID",
+  "lock-oid": "Schloss OID (auf/zu)",
+  "close_lock": "Schloss schließen",
+  "open_lock": "Schloss öffnen",
+  "open_door": "Offene Tür",
+  "lockWorking-oid": "Schloss-Dreht-OID",
+  "doorSensor-oid": "Türsensor-OID"
 }

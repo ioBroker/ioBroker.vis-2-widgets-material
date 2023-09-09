@@ -307,5 +307,13 @@
   "On": "Sobre",
   "Off": "Desligado",
   "controlTimeout": "atraso de controle",
-  "In milliseconds": "Em milissegundos"
+  "In milliseconds": "Em milissegundos",
+  "fullSize": "Tamanho real",
+  "doorOpen-oid": "OID de porta aberta",
+  "lock-oid": "Bloquear OID",
+  "close_lock": "Fechar bloqueio",
+  "open_lock": "Fechadura aberta",
+  "open_door": "Porta aberta",
+  "lockWorking-oid": "Bloquear OID funcional",
+  "doorSensor-oid": "OID da porta"
 }

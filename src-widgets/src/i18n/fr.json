@@ -307,5 +307,13 @@
   "On": "Sur",
   "Off": "Désactivé",
   "controlTimeout": "Délai de contrôle",
-  "In milliseconds": "En millisecondes"
+  "In milliseconds": "En millisecondes",
+  "fullSize": "Taille réelle",
+  "doorOpen-oid": "OID porte ouverte",
+  "lock-oid": "Verrouiller l'IDO",
+  "close_lock": "Fermer le verrou",
+  "open_lock": "Ouvrir la serrure",
+  "open_door": "Porte ouverte",
+  "lockWorking-oid": "Verrouiller l'OID fonctionnel",
+  "doorSensor-oid": "OID de la porte"
 }
