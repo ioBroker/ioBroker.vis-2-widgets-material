@@ -419,7 +419,8 @@ class Lock extends Generic {
                     {this.state.rxData.noLockAnimation ? (lockOpened ?
                         <LockOpenedIcon
                             style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
-                            className={this.props.classes.svgIcon} sx={theme => ({ color: theme.palette.primary.main })}
+                            className={this.props.classes.svgIcon}
+                            sx={theme => ({ color: theme.palette.primary.main })}
                         /> :
                         <LockClosedIcon
                             style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
