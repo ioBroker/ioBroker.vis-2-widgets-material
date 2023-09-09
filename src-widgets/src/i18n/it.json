@@ -315,5 +315,12 @@
   "open_lock": "Serratura aperta",
   "open_door": "Porta aperta",
   "lockWorking-oid": "Blocca l'OID funzionante",
-  "doorSensor-oid": "OID della porta"
+  "doorSensor-oid": "OID della porta",
+  "doNotConfirm": "Non confermare l'apertura",
+  "please_confirm": "Conferma l'azione",
+  "Open": "Aprire",
+  "doorSize": "Altezza della porta",
+  "lockSize": "Blocca l'altezza",
+  "noLockAnimation": "Nessuna animazione della serratura della porta",
+  "lockColor": "Colore serratura porta"
 }

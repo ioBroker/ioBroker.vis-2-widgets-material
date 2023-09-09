@@ -5,6 +5,7 @@ import animationDoor from './animationDoor.json';
 const DoorAnimation = props => {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
+
     useEffect(() => {
         setOpen(props.open);
         if (ref.current) {
@@ -30,7 +31,7 @@ const DoorAnimation = props => {
         autoPlay={false}
         loop={false}
         // start={200}
-        style={{ height: 120 }}
+        style={{ height: props.size || 120 }}
     />;
 };
 

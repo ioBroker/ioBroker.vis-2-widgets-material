@@ -315,5 +315,12 @@
   "open_lock": "Schloss öffnen",
   "open_door": "Offene Tür",
   "lockWorking-oid": "Schloss-Dreht-OID",
-  "doorSensor-oid": "Türsensor-OID"
+  "doorSensor-oid": "Türsensor-OID",
+  "doNotConfirm": "Öffnen nicht bestätigen",
+  "please_confirm": "Bitte bestätigen Sie die Aktion",
+  "Open": "Offen",
+  "doorSize": "Türhöhe",
+  "lockSize": "Schlosshöhe",
+  "noLockAnimation": "Keine Türschlossanimation",
+  "lockColor": "Farbe des Türschlosses"
 }

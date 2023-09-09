@@ -315,5 +315,12 @@
   "open_lock": "Slot openen",
   "open_door": "Geopende deur",
   "lockWorking-oid": "Vergrendel werkende OID",
-  "doorSensor-oid": "Deur OID"
+  "doorSensor-oid": "Deur OID",
+  "doNotConfirm": "Bevestig de opening niet",
+  "please_confirm": "Bevestig actie",
+  "Open": "Open",
+  "doorSize": "Hoogte deur",
+  "lockSize": "Hoogte slot",
+  "noLockAnimation": "Geen deurslotanimatie",
+  "lockColor": "Kleur deurslot"
 }

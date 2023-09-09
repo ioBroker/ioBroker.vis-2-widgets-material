@@ -315,5 +315,12 @@
   "open_lock": "Ouvrir la serrure",
   "open_door": "Porte ouverte",
   "lockWorking-oid": "Verrouiller l'OID fonctionnel",
-  "doorSensor-oid": "OID de la porte"
+  "doorSensor-oid": "OID de la porte",
+  "doNotConfirm": "Ne pas confirmer l'ouverture",
+  "please_confirm": "Veuillez confirmer l'action",
+  "Open": "Ouvrir",
+  "doorSize": "Hauteur de la porte",
+  "lockSize": "Hauteur de verrouillage",
+  "noLockAnimation": "Aucune animation de verrouillage de porte",
+  "lockColor": "Couleur de la serrure de porte"
 }

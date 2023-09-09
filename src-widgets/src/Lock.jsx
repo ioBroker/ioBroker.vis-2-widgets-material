@@ -3,7 +3,7 @@ import { withStyles } from '@mui/styles';
 
 import {
     Button, CircularProgress,
-    Dialog,
+    Dialog, DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
@@ -13,8 +13,10 @@ import {
 import {
     Backspace,
     Check,
-    Lock as LockClosedIcon,
+    MeetingRoom as DoorOpenedIcon,
     LockOpen as LockOpenedIcon,
+    Lock as LockClosedIcon,
+    Cancel,
 } from '@mui/icons-material';
 
 import { Message as DialogMessage } from '@iobroker/adapter-react-v5';
@@ -96,6 +98,7 @@ class Lock extends Generic {
         this.state.dialog = false;
         this.state.pinInput = '';
         this.state.invalidPin = false;
+        this.state.confirmDialog = false;
     }
 
     static getWidgetInfo() {
@@ -176,12 +179,48 @@ class Lock extends Generic {
                             hidden: data => !!data.pincode,
                         },
                         {
+                            name: 'doNotConfirm',
+                            type: 'checkbox',
+                            label: 'doNotConfirm',
+                            hidden: data => !!data.pincode || !!data['pincode-oid'],
+                        },
+                        {
                             name: 'pincodeReturnButton',
                             type: 'select',
                             options: ['submit', 'backspace'],
                             default: 'submit',
                             label: 'pincode_return_button',
                             hidden: data => !!data['pincode-oid'] && !!data.pincode,
+                        },
+                        {
+                            name: 'doorSize',
+                            label: 'doorSize',
+                            type: 'slider',
+                            min: 20,
+                            max: 500,
+                            default: 100,
+                            hidden: data => !data['doorOpen-oid'] && !data['doorSensor-oid'],
+                        },
+                        {
+                            name: 'lockSize',
+                            label: 'lockSize',
+                            type: 'slider',
+                            min: 15,
+                            max: 500,
+                            default: 40,
+                            hidden: data => !data['lock-oid'],
+                        },
+                        {
+                            name: 'noLockAnimation',
+                            label: 'noLockAnimation',
+                            type: 'checkbox',
+                            hidden: data => !data['lock-oid'],
+                        },
+                        {
+                            name: 'lockColor',
+                            label: 'Lock color',
+                            type: 'color',
+                            hidden: data => !data['lock-oid'] || !!data.noLockAnimation,
                         },
                     ],
                 },
@@ -298,6 +337,46 @@ class Lock extends Generic {
         /> : null;
     }
 
+    renderConfirmDialog() {
+        if (!this.state.confirmDialog) {
+            return null;
+        }
+        return <Dialog
+            open={!0}
+            onClose={() => this.setState({ confirmDialog: false })}
+        >
+            <DialogContent>
+                {Generic.t('please_confirm')}
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                        this.setState({ confirmDialog: false });
+                        if (this.state.confirmDialog === 'doorOpen-oid') {
+                            this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
+                        } else {
+                            this.props.context.socket.setState(this.state.rxData['lock-oid'], true);
+                        }
+                    }}
+                    startIcon={this.state.confirmDialog === 'doorOpen-oid' ? <DoorOpenedIcon /> : <LockOpenedIcon />}
+                >
+                    {Generic.t('Open')}
+                </Button>
+                <Button
+                    variant="contained"
+                    color="grey"
+                    autoFocus
+                    onClick={() => this.setState({ confirmDialog: false })}
+                    startIcon={<Cancel />}
+                >
+                    {Generic.t('Cancel')}
+                </Button>
+            </DialogActions>
+        </Dialog>;
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
         const doorOpened = this.state.rxData['doorSensor-oid'] && this.getPropertyValue('doorSensor-oid');
@@ -306,6 +385,7 @@ class Lock extends Generic {
 
         const content = <div>
             {this.renderUnlockDialog()}
+            {this.renderConfirmDialog()}
             {this.state.rxData['doorSensor-oid'] || this.state.rxData['doorOpen-oid'] ?
                 <IconButton
                     disabled={!this.state.rxData['doorOpen-oid']}
@@ -313,12 +393,14 @@ class Lock extends Generic {
                     onClick={() => {
                         if (this.getPincode()) {
                             this.setState({ dialog: 'doorOpen-oid', pinInput: '' });
-                        } else {
+                        } else if (this.state.rxData.doNotConfirm) {
                             this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
+                        } else {
+                            this.setState({ confirmDialog: 'doorOpen-oid' });
                         }
                     }}
                 >
-                    <DoorAnimation open={doorOpened} />
+                    <DoorAnimation open={doorOpened} size={this.state.rxData.doorSize} />
                 </IconButton> : null}
             {this.state.rxData['lock-oid'] ?
                 <IconButton
@@ -326,13 +408,28 @@ class Lock extends Generic {
                     onClick={() => {
                         if (!lockOpened && this.getPincode()) {
                             this.setState({ dialog: 'lock-oid', pinInput: '' });
-                        } else {
+                        } else if (lockOpened || this.state.rxData.doNotConfirm) {
                             this.props.context.socket.setState(this.state.rxData['lock-oid'], !this.getPropertyValue('lock-oid'));
+                        } else {
+                            this.setState({ confirmDialog: 'lock-oid' });
                         }
                     }}
                 >
-                    {working ? <CircularProgress className={this.props.classes.workingIcon} size={20} /> : null}
-                    <LockAnimation open={lockOpened} />
+                    {working ? <CircularProgress className={this.props.classes.workingIcon} size={this.state.rxData.lockSize || 40} /> : null}
+                    {this.state.rxData.noLockAnimation ? (lockOpened ?
+                        <LockOpenedIcon
+                            style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
+                            className={this.props.classes.svgIcon} sx={theme => ({ color: theme.palette.primary.main })}
+                        /> :
+                        <LockClosedIcon
+                            style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
+                            className={this.props.classes.svgIcon}
+                        />) :
+                        <LockAnimation
+                            open={lockOpened}
+                            size={this.state.rxData.lockSize}
+                            color={this.state.rxData.lockColor}
+                        />}
                 </IconButton> : null}
         </div>;
 

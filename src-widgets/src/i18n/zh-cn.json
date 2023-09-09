@@ -315,5 +315,12 @@
   "open_lock": "开锁",
   "open_door": "开门",
   "lockWorking-oid": "锁定工作 OID",
-  "doorSensor-oid": "门OID"
+  "doorSensor-oid": "门OID",
+  "doNotConfirm": "不确认开启",
+  "please_confirm": "请确认操作",
+  "Open": "打开",
+  "doorSize": "门高",
+  "lockSize": "锁高度",
+  "noLockAnimation": "没有门锁动画",
+  "lockColor": "门锁颜色"
 }

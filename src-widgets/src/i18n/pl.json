@@ -315,5 +315,12 @@
   "open_lock": "Otwórz zamek",
   "open_door": "Otwarte drzwi",
   "lockWorking-oid": "Zablokuj działający OID",
-  "doorSensor-oid": "Drzwi OID"
+  "doorSensor-oid": "Drzwi OID",
+  "doNotConfirm": "Nie potwierdzaj otwarcia",
+  "please_confirm": "Proszę potwierdzić działanie",
+  "Open": "otwarty",
+  "doorSize": "Wysokość drzwi",
+  "lockSize": "Wysokość zamka",
+  "noLockAnimation": "Brak animacji zamka drzwi",
+  "lockColor": "Kolor zamka drzwi"
 }

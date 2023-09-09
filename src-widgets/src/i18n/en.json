@@ -315,5 +315,12 @@
   "open_lock": "Open lock",
   "open_door": "Open door",
   "lockWorking-oid": "Lock rotating OID",
-  "doorSensor-oid": "Door sensor OID"
+  "doorSensor-oid": "Door sensor OID",
+  "doNotConfirm": "Do not confirm opening",
+  "please_confirm": "Please confirm action",
+  "Open": "Open",
+  "doorSize": "Door height",
+  "lockSize": "Lock height",
+  "noLockAnimation": "No door lock animation",
+  "lockColor": "Door lock color"
 }

@@ -315,5 +315,12 @@
   "open_lock": "Відкритий замок",
   "open_door": "Відкриті двері",
   "lockWorking-oid": "Заблокувати робочий OID",
-  "doorSensor-oid": "OID дверей"
+  "doorSensor-oid": "OID дверей",
+  "doNotConfirm": "Не підтверджувати відкриття",
+  "please_confirm": "Будь ласка, підтвердьте дію",
+  "Open": "ВІДЧИНЕНО",
+  "doorSize": "Висота дверей",
+  "lockSize": "Висота замка",
+  "noLockAnimation": "Немає анімації замка дверей",
+  "lockColor": "Колір дверного замка"
 }
