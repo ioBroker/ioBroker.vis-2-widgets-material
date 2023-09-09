@@ -22,6 +22,7 @@ const DoorAnimation = props => {
         }
         // ref.current?.stop();
     }, [props.open]);
+
     return <Lottie
         animationData={animationDoor}
         onClick={() => setOpen(!open)}
