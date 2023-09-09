@@ -21,6 +21,7 @@ import { Message as DialogMessage } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
+import LockAnimation from './Components/LockAnimation';
 
 const styles = () => ({
     content: {
@@ -331,9 +332,7 @@ class Lock extends Generic {
                     }}
                 >
                     {working ? <CircularProgress className={this.props.classes.workingIcon} size={20} /> : null}
-                    {lockOpened ?
-                        <LockOpenedIcon className={this.props.classes.svgIcon} sx={theme => ({ color: theme.palette.primary.main })} /> :
-                        <LockClosedIcon className={this.props.classes.svgIcon} />}
+                    <LockAnimation open={lockOpened} />
                 </IconButton> : null}
         </div>;
 

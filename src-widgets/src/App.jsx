@@ -389,7 +389,7 @@ class App extends WidgetDemoApp {
                     'lock-oid': 'javascript.0.lock',
                     'doorSensor-oid': 'javascript.0.doorOpen',
                     'doorOpen-oid': 'javascript.0.doorOpen',
-                    pincode: '1234',
+                    // pincode: '1234',
                     pincodeReturnButton: 'backspace',
                 }}
             />,
