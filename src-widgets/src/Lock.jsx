@@ -2,14 +2,15 @@ import React from 'react';
 import { withStyles } from '@mui/styles';
 
 import {
-    Button, Chip, Dialog, DialogContent, DialogTitle, IconButton, TextField,
+    Button, Dialog, DialogContent, DialogTitle, IconButton, TextField,
 } from '@mui/material';
-import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
+import { Message as DialogMessage } from '@iobroker/adapter-react-v5';
 import {
-    Backspace, Check, RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon, SensorDoor,
+    Backspace, Check, SensorDoor,
     Lock as LockIcon,
 } from '@mui/icons-material';
 import Generic from './Generic';
+import DoorAnimation from './Components/DoorAnimation';
 
 const styles = () => ({
     pinGrid:  {
@@ -259,10 +260,11 @@ class Lock extends Generic {
                     }
                 }}
                 >
-                    <SensorDoor sx={theme => ({
+                    {/* <SensorDoor sx={theme => ({
                         color: this.getPropertyValue('door-oid') ? theme.palette.primary.main : undefined,
                     })}
-                    />
+                    /> */}
+                    <DoorAnimation open={this.getPropertyValue('door-oid')} />
                 </IconButton> : null}
             {this.state.rxData['lock-oid'] ?
                 <IconButton onClick={() => {
