@@ -268,7 +268,7 @@
   "floodAlarm": "Hochwasseralarm",
   "levelSlider": "Level-Schieberegler",
   "light": "Licht",
-  "lock": "Sperren",
+  "lock": "Türschloss",
   "media": "Media Player",
   "motion": "Bewegung",
   "socket": "Steckdose",
@@ -322,5 +322,5 @@
   "doorSize": "Türhöhe",
   "lockSize": "Schlosshöhe",
   "noLockAnimation": "Keine Türschlossanimation",
-  "lockColor": "Farbe des Türschlosses"
+  "Lock color": "Farbe des Türschlosses"
 }

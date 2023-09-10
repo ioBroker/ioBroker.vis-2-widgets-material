@@ -322,5 +322,5 @@
   "doorSize": "Hauteur de la porte",
   "lockSize": "Hauteur de verrouillage",
   "noLockAnimation": "Aucune animation de verrouillage de porte",
-  "lockColor": "Couleur de la serrure de porte"
+  "Lock color": "Couleur de la serrure de porte"
 }

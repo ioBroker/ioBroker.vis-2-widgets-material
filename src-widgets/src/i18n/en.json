@@ -322,5 +322,5 @@
   "doorSize": "Door height",
   "lockSize": "Lock height",
   "noLockAnimation": "No door lock animation",
-  "lockColor": "Door lock color"
+  "Lock color": "Door lock color"
 }

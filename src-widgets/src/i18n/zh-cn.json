@@ -322,5 +322,5 @@
   "doorSize": "门高",
   "lockSize": "锁高度",
   "noLockAnimation": "没有门锁动画",
-  "lockColor": "门锁颜色"
+  "Lock color": "门锁颜色"
 }

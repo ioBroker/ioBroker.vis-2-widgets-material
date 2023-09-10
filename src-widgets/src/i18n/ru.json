@@ -313,7 +313,7 @@
   "lock-oid": "OID замка (откр/закр)",
   "close_lock": "Закрыть замок",
   "open_lock": "Открыть замок",
-  "open_door": "Открытая дверь",
+  "open_door": "Открыть дверь",
   "lockWorking-oid": "Замок в движении OID",
   "doorSensor-oid": "Сенсор двери OID",
   "doNotConfirm": "Не подтверждать открытие",
@@ -321,6 +321,6 @@
   "Open": "Открыть",
   "doorSize": "Высота двери",
   "lockSize": "Высота замка",
-  "noLockAnimation": "Нет анимации дверного замка",
-  "lockColor": "Цвет дверного замка"
+  "noLockAnimation": "Без анимации дверного замка",
+  "Lock color": "Цвет дверного замка"
 }
