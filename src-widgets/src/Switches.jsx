@@ -32,7 +32,7 @@ import {
     LightbulbOutlined as LightbulbIconOff,
     Close as CloseIcon,
     RoomService,
-    Check,
+    Check, Thermostat, ColorLens,
 } from '@mui/icons-material';
 
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
@@ -237,6 +237,55 @@ class Switches extends BlindsBase {
                             type: 'id',
                             label: 'oid',
                             hidden: 'data["widget" + index]',
+                            onChange: async (field, data, changeData, socket, index) => {
+                                if (data[field.name]) {
+                                    const object = await socket.getObject(data[field.name]);
+                                    if (object?.common?.role &&
+                                        (
+                                            object.common.role.includes('level.temperature') ||
+                                            object.common.role.includes('rgb')
+                                        )
+                                    ) {
+                                        const id = data[field.name].split('.');
+                                        id.pop();
+                                        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                        if (states) {
+                                            let changed = false;
+                                            if (data[`type${index}`] !== 'thermostat' && object.common.role.includes('level.temperature')) {
+                                                changed = true;
+                                                data[`type${index}`] = 'thermostat';
+                                            }
+                                            if (data[`type${index}`] !== 'rgb' && object.common.role.includes('rgb')) {
+                                                changed = true;
+                                                data[`type${index}`] = 'rgb';
+                                            }
+                                            if (object.common.role.includes('level.temperature')) {
+                                                Object.values(states).forEach(state => {
+                                                    const role = state.common.role;
+                                                    if (role && role.includes('value.temperature')) {
+                                                        data[`oid_actual_temp${index}`] = state._id;
+                                                        changed = true;
+                                                    }
+                                                });
+                                            } else if (object.common.role.includes('rgb')) {
+                                                Object.values(states).forEach(state => {
+                                                    const role = state.common.role;
+                                                    if (role && (role.includes('power') || role.includes('switch')) && state.common.write !== false) {
+                                                        data[`oid-switch${index}`] = state._id;
+                                                        changed = true;
+                                                    } else if (role && (role.includes('level.dimmer') || role.includes('level.brightness'))) {
+                                                        data[`oid-brightness${index}`] = state._id;
+                                                        changed = true;
+                                                    }
+                                                    // todo: detect r, g, b, w
+                                                });
+                                            }
+
+                                            changed && changeData(data);
+                                        }
+                                    }
+                                }
+                            },
                         },
                         {
                             name: 'type',
@@ -274,6 +323,14 @@ class Switches extends BlindsBase {
                                 {
                                     value: 'blinds',
                                     label: 'blinds',
+                                },
+                                {
+                                    value: 'thermostat',
+                                    label: 'thermostat',
+                                },
+                                {
+                                    value: 'rgb',
+                                    label: 'rgb',
                                 },
                             ],
                             hidden: '!data["oid" + index]',
@@ -473,6 +530,24 @@ class Switches extends BlindsBase {
                             type: 'checkbox',
                             label: 'hide',
                             tooltip: 'hide_tooltip',
+                        },
+                        {
+                            name: 'oid_actual_temp',
+                            type: 'id',
+                            label: 'oid_actual_temp',
+                            hidden: 'data.type !== "thermostat"',
+                        },
+                        {
+                            name: 'oid-switch',
+                            type: 'id',
+                            label: 'oid_switch',
+                            hidden: '!!data["widget" + index] || data["type" + index] !== "rgb"',
+                        },
+                        {
+                            name: 'oid-brightness',
+                            type: 'id',
+                            label: 'oid_brightness',
+                            hidden: '!!data["widget" + index] || data["type" + index] !== "rgb"',
                         },
                     ],
                 },
@@ -694,6 +769,25 @@ class Switches extends BlindsBase {
             />;
         } else if (obj?.widgetType === 'blinds') {
             icon = <WindowClosed style={{ color }} />;
+        } else if (obj?.widgetType === 'thermostat') {
+            icon = <Thermostat />;
+        } else if (obj?.widgetType === 'rgb') {
+            // check if rgb has power
+            if (this.state.rxData[`oid-switch${index}`]) {
+                if (this.state.values[`${this.state.rxData[`oid-switch${index}`]}.val`]) {
+                    icon = <LightbulbIconOn color="primary" style={{ color }} />;
+                } else {
+                    icon = <LightbulbIconOff style={{ color }} />;
+                }
+            } else if (this.state.rxData['oid-brightness']) {
+                if (this.state.values[`${this.state.rxData[`oid-brightness${index}`]}.val`]) {
+                    icon = <LightbulbIconOn color="primary" style={{ color }} />;
+                } else {
+                    icon = <LightbulbIconOff style={{ color }} />;
+                }
+            } else {
+                icon = <LightbulbIconOn color="primary" style={{ color }} />;
+            }
         } else if (isOn) {
             icon = <LightbulbIconOn color="primary" style={{ color }} />;
         } else {
@@ -870,6 +964,8 @@ class Switches extends BlindsBase {
                         />
                     </div>
                 </>;
+            } else if (this.state.objects[index].widgetType === 'rgb') {
+                control = 'RGB';
             } else if (this.state.objects[index].widgetType === 'info') {
                 if (this._refs[index]) {
                     // update width and height of chart container
@@ -1087,6 +1183,7 @@ class Switches extends BlindsBase {
                 {text || (icon ? <Icon src={icon} style={{ width: 24, height: 24 }} /> : <RoomService />)}
             </Button>;
         }
+
         if (this.state.objects[index].widgetType === 'switch') {
             return <Switch
                 checked={this.isOn(index)}
@@ -1118,6 +1215,65 @@ class Switches extends BlindsBase {
                     {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
                 </div>,
             ];
+        }
+
+        if (this.state.objects[index].widgetType === 'thermostat') {
+            const min = this.state.objects[index].common.min === undefined ? 12 : this.state.objects[index].common.min;
+            const max = this.state.objects[index].common.max === undefined ? 30 : this.state.objects[index].common.max;
+            let temp;
+            if (this.state.rxData[`oid_actual_temp${index}`]) {
+                temp = this.state.values[`${this.state.rxData[`oid_actual_temp${index}`]}.val`];
+                if (temp || temp === '0') {
+                    temp = temp.toString();
+                    if (temp.includes('.')) {
+                        const f = Math.round((parseFloat(temp) || 0) * 10) / 10;
+                        if (this.props.context.systemConfig.common.isFloatComma) {
+                            temp = f.toString().replace('.', ',');
+                        } else {
+                            temp = f.toString();
+                        }
+                    }
+                }
+            }
+            return [
+                <Slider
+                    key="slider"
+                    className={this.props.classes.controlElement}
+                    size="small"
+                    valueLabelDisplay="auto"
+                    value={value === undefined || value === null ? min : value}
+                    onChange={(event, newValue) => {
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        const oid = `${this.state.objects[index]._id}.val`;
+                        values[oid] = newValue;
+                        this.setState({ values });
+                        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                    }}
+                    min={min}
+                    max={max}
+                />,
+                <div
+                    key="value"
+                    style={{
+                        width: 45,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <div style={{ whiteSpace: 'nowrap' }}>{value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}</div>
+                    {temp ? <div style={{ fontSize: 'smaller', opacity: 0.7, whiteSpace: 'nowrap' }}>{temp + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}</div> : null}
+                </div>,
+            ];
+        }
+
+        if (this.state.objects[index].widgetType === 'rgb') {
+            return <IconButton
+                style={{ color: value }}
+                onClick={() => this.setState({ showControlDialog: index })}
+            >
+                <ColorLens />
+            </IconButton>;
         }
 
         if (this.state.objects[index].widgetType === 'input') {

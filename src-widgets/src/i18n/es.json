@@ -322,5 +322,9 @@
   "doorSize": "Altura de la puerta",
   "lockSize": "Altura de bloqueo",
   "noLockAnimation": "Animación sin cerradura de puerta",
-  "Lock color": "Color de cerradura de puerta"
+  "Lock color": "Color de cerradura de puerta",
+  "Party": "Fiesta",
+  "Boost": "Aumentar",
+  "mode_boost": "Impulsar identificación",
+  "mode_party": "Identificación del partido"
 }

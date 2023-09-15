@@ -322,5 +322,9 @@
   "doorSize": "Türhöhe",
   "lockSize": "Schlosshöhe",
   "noLockAnimation": "Keine Türschlossanimation",
-  "Lock color": "Farbe des Türschlosses"
+  "Lock color": "Farbe des Türschlosses",
+  "Party": "Party",
+  "Boost": "Schub",
+  "mode_boost": "Boost-ID",
+  "mode_party": "Party-ID"
 }

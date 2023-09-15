@@ -322,5 +322,9 @@
   "doorSize": "Hoogte deur",
   "lockSize": "Hoogte slot",
   "noLockAnimation": "Geen deurslotanimatie",
-  "Lock color": "Kleur deurslot"
+  "Lock color": "Kleur deurslot",
+  "Party": "Feest",
+  "Boost": "Boost",
+  "mode_boost": "Boost-ID",
+  "mode_party": "Partij-ID"
 }

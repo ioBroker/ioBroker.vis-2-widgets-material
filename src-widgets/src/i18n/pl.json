@@ -322,5 +322,9 @@
   "doorSize": "Wysokość drzwi",
   "lockSize": "Wysokość zamka",
   "noLockAnimation": "Brak animacji zamka drzwi",
-  "Lock color": "Kolor zamka drzwi"
+  "Lock color": "Kolor zamka drzwi",
+  "Party": "Impreza",
+  "Boost": "Zwiększyć",
+  "mode_boost": "Zwiększ identyfikator",
+  "mode_party": "Identyfikator partii"
 }

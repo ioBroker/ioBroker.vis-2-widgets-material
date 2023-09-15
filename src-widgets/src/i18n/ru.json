@@ -322,5 +322,9 @@
   "doorSize": "Высота двери",
   "lockSize": "Высота замка",
   "noLockAnimation": "Без анимации дверного замка",
-  "Lock color": "Цвет дверного замка"
+  "Lock color": "Цвет дверного замка",
+  "Party": "Вечеринка",
+  "Boost": "Boost",
+  "mode_boost": "Boost-ID",
+  "mode_party": "Идентификатор вечеринки"
 }

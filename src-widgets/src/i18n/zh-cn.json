@@ -322,5 +322,9 @@
   "doorSize": "门高",
   "lockSize": "锁高度",
   "noLockAnimation": "没有门锁动画",
-  "Lock color": "门锁颜色"
+  "Lock color": "门锁颜色",
+  "Party": "派对",
+  "Boost": "促进",
+  "mode_boost": "升压ID",
+  "mode_party": "派对 ID"
 }

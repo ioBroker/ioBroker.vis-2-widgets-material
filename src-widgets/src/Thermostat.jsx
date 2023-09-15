@@ -22,6 +22,8 @@ import {
     MoreVert as MoreVertIcon,
     Close as IconClose,
     Thermostat as ThermostatIcon,
+    Celebration as CelebrationIcon,
+    ElectricBolt as BoostIcon,
 } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
@@ -142,6 +144,36 @@ class Thermostat extends Generic {
                             name: 'oid-temp-set',
                             type: 'id',
                             label: 'temperature_oid',
+                            onChange: async (field, data, changeData, socket) => {
+                                if (data[field.name]) {
+                                    const object = await socket.getObject(data[field.name]);
+                                    if (object?.common) {
+                                        const id = data[field.name].split('.');
+                                        id.pop();
+                                        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                        if (states) {
+                                            let changed = false;
+                                            Object.values(states).forEach(state => {
+                                                const role = state.common.role;
+                                                if (role && role.includes('value.temperature')) {
+                                                    data['oid-temp-actual'] = state._id;
+                                                    changed = true;
+                                                } else if (role && role.includes('power')) {
+                                                    data['oid-power'] = state._id;
+                                                    changed = true;
+                                                } else if (role && role.includes('boost')) {
+                                                    data['oid-boost'] = state._id;
+                                                    changed = true;
+                                                } else if (role && role.includes('party')) {
+                                                    data['oid-party'] = state._id;
+                                                    changed = true;
+                                                }
+                                            });
+                                            changed && changeData(data);
+                                        }
+                                    }
+                                }
+                            },
                         },
                         {
                             name: 'oid-temp-actual',
@@ -161,6 +193,16 @@ class Thermostat extends Generic {
                             name: 'oid-mode',
                             type: 'id',
                             label: 'mode_oid',
+                        },
+                        {
+                            name: 'oid-boost',
+                            type: 'id',
+                            label: 'mode_boost',
+                        },
+                        {
+                            name: 'oid-party',
+                            type: 'id',
+                            label: 'mode_party',
                         },
                         {
                             name: 'oid-step',
@@ -473,7 +515,7 @@ class Thermostat extends Generic {
     }
 
     isWithModeButtons() {
-        return this.state.modes?.length &&
+        return (this.state.modes?.length || this.state.rxData['oid-party'] || this.state.rxData['oid-boost']) &&
             // if no power button or power is on
             (!this.state.rxData['oid-power'] || this.state.values[`${this.state.rxData['oid-power']}.val`]);
     }
@@ -551,6 +593,118 @@ class Thermostat extends Generic {
         const isWithPowerButton = this.isWithPowerButton();
         const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme?.palette.primary.main || '#448aff';
 
+        let modesButton = null;
+        if (isWithModeButtons) {
+            modesButton = [];
+
+            if (this.state.modes?.length) {
+                modesButton = this.state.modes.map(mode => {
+                    const icon = mode.icon === true && BUTTONS[mode.original] ? true : (mode.icon ? <Icon src={mode.icon} style={{ width: 24, height: 24 }} /> : null);
+                    const MyIcon = icon === true ? BUTTONS[mode.original] : null;
+                    let currentValueStr = this.state.values[`${this.state.rxData['oid-mode']}.val`];
+                    if (currentValueStr === null || currentValueStr === undefined) {
+                        currentValueStr = 'null';
+                    } else {
+                        currentValueStr = currentValueStr.toString();
+                    }
+
+                    return icon && !mode.label ?
+                        <Tooltip key={mode.value} title={mode.tooltip}>
+                            <IconButton
+                                color={currentValueStr === mode.value ? 'primary' : 'grey'}
+                                style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
+                                onClick={() => {
+                                    let value = mode.value;
+                                    if (this.state.modeObject?.common?.type === 'number') {
+                                        value = parseFloat(value);
+                                    }
+                                    const values = JSON.parse(JSON.stringify(this.state.values));
+                                    values[`${this.state.rxData['oid-mode']}.val`] = value;
+                                    this.setState(values);
+                                    this.props.context.socket.setState(this.state.rxData['oid-mode'], value);
+                                }}
+                            >
+                                {icon === true ? <MyIcon /> : icon}
+                            </IconButton>
+                        </Tooltip>
+                        :
+                        <Button
+                            key={mode.value}
+                            color={currentValueStr === mode.value ? 'primary' : 'grey'}
+                            style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
+                            onClick={() => {
+                                let value = mode.value;
+                                if (this.state.modeObject?.common?.type === 'number') {
+                                    value = parseFloat(value);
+                                }
+                                const values = JSON.parse(JSON.stringify(this.state.values));
+                                values[`${this.state.rxData['oid-mode']}.val`] = value;
+                                this.setState(values);
+                                this.props.context.socket.setState(this.state.rxData['oid-mode'], value);
+                            }}
+                            startIcon={icon === true ? <MyIcon /> : icon}
+                        >
+                            {mode.label}
+                        </Button>;
+                });
+            }
+
+            if (this.state.rxData['oid-party']) {
+                let currentValueStr = this.state.values[`${this.state.rxData['oid-party']}.val`];
+                if (currentValueStr === null || currentValueStr === undefined) {
+                    currentValueStr = false;
+                } else {
+                    currentValueStr = currentValueStr === '1' || currentValueStr === 'true' || currentValueStr === true;
+                }
+                modesButton.push(<Button
+                    key="party"
+                    color={currentValueStr ? 'primary' : 'grey'}
+                    onClick={() => {
+                        let _currentValueStr = this.state.values[`${this.state.rxData['oid-party']}.val`];
+                        if (_currentValueStr === null || _currentValueStr === undefined) {
+                            _currentValueStr = false;
+                        } else {
+                            _currentValueStr = _currentValueStr === '1' || _currentValueStr === 'true' || _currentValueStr === true;
+                        }
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        values[`${this.state.rxData['oid-party']}.val`] = !_currentValueStr;
+                        this.setState(values);
+                        this.props.context.socket.setState(this.state.rxData['oid-party'], !_currentValueStr);
+                    }}
+                    startIcon={<CelebrationIcon />}
+                >
+                    {Generic.t('Party')}
+                </Button>);
+            }
+            if (this.state.rxData['oid-boost']) {
+                let currentValueStr = this.state.values[`${this.state.rxData['oid-boost']}.val`];
+                if (currentValueStr === null || currentValueStr === undefined) {
+                    currentValueStr = false;
+                } else {
+                    currentValueStr = currentValueStr === '1' || currentValueStr === 'true' || currentValueStr === true;
+                }
+                modesButton.push(<Button
+                    key="party"
+                    color={currentValueStr ? 'primary' : 'grey'}
+                    onClick={() => {
+                        let _currentValueStr = this.state.values[`${this.state.rxData['oid-boost']}.val`];
+                        if (_currentValueStr === null || _currentValueStr === undefined) {
+                            _currentValueStr = false;
+                        } else {
+                            _currentValueStr = _currentValueStr === '1' || _currentValueStr === 'true' || _currentValueStr === true;
+                        }
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        values[`${this.state.rxData['oid-boost']}.val`] = !_currentValueStr;
+                        this.setState(values);
+                        this.props.context.socket.setState(this.state.rxData['oid-boost'], !_currentValueStr);
+                    }}
+                    startIcon={<BoostIcon />}
+                >
+                    {Generic.t('Boost')}
+                </Button>);
+            }
+        }
+
         const content = <div
             className={this.props.classes.circleDiv}
             style={{ height: withTitle ? 'calc(100% - 36px)' : '100%' }}
@@ -611,56 +765,7 @@ class Thermostat extends Generic {
                 className={this.props.classes.buttonsDiv}
                 style={{ bottom: 8 }}
             >
-                {isWithModeButtons ?
-                    this.state.modes.map(mode => {
-                        const icon = mode.icon === true && BUTTONS[mode.original] ? true : (mode.icon ? <Icon src={mode.icon} style={{ width: 24, height: 24 }} /> : null);
-                        const MyIcon = icon === true ? BUTTONS[mode.original] : null;
-                        let currentValueStr = this.state.values[`${this.state.rxData['oid-mode']}.val`];
-                        if (currentValueStr === null || currentValueStr === undefined) {
-                            currentValueStr = 'null';
-                        } else {
-                            currentValueStr = currentValueStr.toString();
-                        }
-
-                        return icon && !mode.label ?
-                            <Tooltip key={mode.value} title={mode.tooltip}>
-                                <IconButton
-                                    color={currentValueStr === mode.value ? 'primary' : 'grey'}
-                                    style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
-                                    onClick={() => {
-                                        let value = mode.value;
-                                        if (this.state.modeObject?.common?.type === 'number') {
-                                            value = parseFloat(value);
-                                        }
-                                        const values = JSON.parse(JSON.stringify(this.state.values));
-                                        values[`${this.state.rxData['oid-mode']}.val`] = value;
-                                        this.setState(values);
-                                        this.props.context.socket.setState(this.state.rxData['oid-mode'], value);
-                                    }}
-                                >
-                                    {icon === true ? <MyIcon /> : icon}
-                                </IconButton>
-                            </Tooltip>
-                            :
-                            <Button
-                                key={mode.value}
-                                color={currentValueStr === mode.value ? 'primary' : 'grey'}
-                                style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
-                                onClick={() => {
-                                    let value = mode.value;
-                                    if (this.state.modeObject?.common?.type === 'number') {
-                                        value = parseFloat(value);
-                                    }
-                                    const values = JSON.parse(JSON.stringify(this.state.values));
-                                    values[`${this.state.rxData['oid-mode']}.val`] = value;
-                                    this.setState(values);
-                                    this.props.context.socket.setState(this.state.rxData['oid-mode'], value);
-                                }}
-                                startIcon={icon === true ? <MyIcon /> : icon}
-                            >
-                                {mode.label}
-                            </Button>;
-                    }) : null}
+                {modesButton}
                 {isWithPowerButton ?
                     <Tooltip title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
                         <IconButton

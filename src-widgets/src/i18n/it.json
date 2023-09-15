@@ -322,5 +322,9 @@
   "doorSize": "Altezza della porta",
   "lockSize": "Blocca l'altezza",
   "noLockAnimation": "Nessuna animazione della serratura della porta",
-  "Lock color": "Colore serratura porta"
+  "Lock color": "Colore serratura porta",
+  "Party": "Festa",
+  "Boost": "Aumento",
+  "mode_boost": "Aumenta l'ID",
+  "mode_party": "Identificativo del partito"
 }

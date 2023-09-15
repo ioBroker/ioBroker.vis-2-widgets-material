@@ -322,5 +322,9 @@
   "doorSize": "Door height",
   "lockSize": "Lock height",
   "noLockAnimation": "No door lock animation",
-  "Lock color": "Door lock color"
+  "Lock color": "Door lock color",
+  "Party": "Party",
+  "Boost": "Boost",
+  "mode_boost": "Boost ID",
+  "mode_party": "Party ID"
 }
