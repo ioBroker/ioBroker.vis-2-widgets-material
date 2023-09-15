@@ -18,7 +18,7 @@ class Generic extends (window.visRxWidget || VisRxWidget) {
         if (text && typeof text === 'object') {
             return text[(window.visRxWidget || VisRxWidget).getLanguage()] || text.en;
         }
-        return text;
+        return text || null;
     }
 
     async getParentObject(id) {

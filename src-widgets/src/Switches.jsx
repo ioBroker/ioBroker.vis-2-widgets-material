@@ -24,7 +24,7 @@ import {
     CircularProgress,
     InputAdornment,
     InputLabel,
-    FormControl,
+    FormControl, Tooltip, DialogActions,
 } from '@mui/material';
 
 import {
@@ -32,19 +32,72 @@ import {
     LightbulbOutlined as LightbulbIconOff,
     Close as CloseIcon,
     RoomService,
-    Check, Thermostat, ColorLens,
+    Check, Thermostat, ColorLens, Brightness6, Close,
 } from '@mui/icons-material';
+
+import ct from 'color-temperature';
+import {
+    hexToHsva,
+    hslaToHsva,
+    hsvaToHex,
+    hsvaToHsla,
+    hsvaToRgba, rgbaToHex,
+    rgbaToHsva,
+    ShadeSlider,
+    Sketch,
+    Wheel,
+} from '@uiw/react-color';
+import { TbSquareLetterW } from 'react-icons/tb';
 
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import BlindsBase, { STYLES } from './Components/BlindsBase';
 import WindowClosed from './Components/WindowClosed';
+
 // import ObjectChart from './ObjectChart';
 
 const HISTORY = ['influxdb', 'sql', 'history'];
 
 echarts.use([TimelineComponent, LineChart, SVGRenderer]);
+
+const stateRoles = {
+    'switch.light': 'switch',
+    switch: 'switch',
+    'level.brightness': 'brightness',
+    'level.dimmer': 'brightness',
+    'level.color.red': 'red',
+    'level.color.green': 'green',
+    'level.color.blue': 'blue',
+    'level.color.white': 'white',
+    'level.color.rgb': 'oid',
+    'level.color.hue': 'hue',
+    'level.color.saturation': 'saturation',
+    'level.color.luminance': 'luminance',
+    'level.color.temperature': 'color_temperature',
+};
+
+const loadStates = async (field, data, changeData, socket, index) => {
+    if (data[field.name]) {
+        const object = await socket.getObject(data[field.name]);
+        if (object && object.common) {
+            const id = data[field.name].split('.');
+            id.pop();
+            const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+            if (states) {
+                let changed = false;
+                Object.values(states).forEach(state => {
+                    const role = state.common.role;
+                    if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                        changed = true;
+                        data[stateRoles[role] + index] = state._id;
+                    }
+                });
+                changed && changeData(data);
+            }
+        }
+    }
+};
 
 const styles = () => ({
     intermediate: {
@@ -125,6 +178,22 @@ const styles = () => ({
         textAlign: 'center',
         minWidth: 58,
     },
+    rgbSliderContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        width: '100%',
+    },
+    rgbDialogContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        maxWidth: 400,
+    },
+    rgbWheel: {
+        display: 'flex',
+        justifyContent: 'center',
+    },
     ...STYLES,
 });
 
@@ -140,6 +209,7 @@ class Switches extends BlindsBase {
         this.state.historyData = {};
         this.state.chartWidth = {};
         this.state.chartHeight = {};
+        this.state.sketch = {};
         this.history = {};
         this._refs = {}; // this.refs name does not work (I don't know why)
         this.widgetRef = {};
@@ -270,14 +340,10 @@ class Switches extends BlindsBase {
                                             } else if (object.common.role.includes('rgb')) {
                                                 Object.values(states).forEach(state => {
                                                     const role = state.common.role;
-                                                    if (role && (role.includes('power') || role.includes('switch')) && state.common.write !== false) {
-                                                        data[`oid-switch${index}`] = state._id;
+                                                    if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
                                                         changed = true;
-                                                    } else if (role && (role.includes('level.dimmer') || role.includes('level.brightness'))) {
-                                                        data[`oid-brightness${index}`] = state._id;
-                                                        changed = true;
+                                                        data[stateRoles[role] + index] = state._id;
                                                     }
-                                                    // todo: detect r, g, b, w
                                                 });
                                             }
 
@@ -538,16 +604,93 @@ class Switches extends BlindsBase {
                             hidden: 'data.type !== "thermostat"',
                         },
                         {
-                            name: 'oid-switch',
+                            name: 'switch',
                             type: 'id',
-                            label: 'oid_switch',
+                            label: 'switch',
+                            onChange: loadStates,
                             hidden: '!!data["widget" + index] || data["type" + index] !== "rgb"',
                         },
                         {
-                            name: 'oid-brightness',
+                            name: 'brightness',
                             type: 'id',
-                            label: 'oid_brightness',
+                            label: 'brightness',
+                            onChange: loadStates,
                             hidden: '!!data["widget" + index] || data["type" + index] !== "rgb"',
+                        },
+                        {
+                            name: 'rgbType',
+                            label: 'rgbType',
+                            type: 'select',
+                            options: [
+                                'rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct',
+                            ],
+                            onChange: loadStates,
+                            hidden: '!!data["widget" + index] || data["type" + index] !== "rgb"',
+                        },
+                        {
+                            name: 'red',
+                            type: 'id',
+                            label: 'red',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'green',
+                            type: 'id',
+                            label: 'green',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'blue',
+                            type: 'id',
+                            label: 'blue',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'white',
+                            type: 'id',
+                            label: 'white',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'r/g/b/w' && data[`rgbType${index}`] !== 'rgbw'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'color_temperature',
+                            type: 'id',
+                            label: 'color_temperature',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'ct',
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'hue',
+                            type: 'id',
+                            label: 'hue',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'hue/sat/lum',
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'saturation',
+                            type: 'id',
+                            label: 'saturation',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'hue/sat/lum',
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'luminance',
+                            type: 'id',
+                            label: 'luminance',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'hue/sat/lum',
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'timeout',
+                            label: 'controlTimeout',
+                            help: 'In milliseconds',
+                            type: 'number',
+                            min: 0,
+                            max: 2000,
+                            hidden: '!!data["widget" + index] || (data["type" + index] !== "rgb" && data["type" + index] !== "slider" && data["type" + index] !== "thermostat")',
                         },
                     ],
                 },
@@ -575,6 +718,8 @@ class Switches extends BlindsBase {
 
         this.lastRxData = actualRxData;
         const objects = {};
+        const rgbObjects = {};
+        const colorTemperatures = {};
         const ids = [];
         for (let index = 1; index <= this.state.rxData.count; index++) {
             if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
@@ -585,7 +730,9 @@ class Switches extends BlindsBase {
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.count; index++) {
-            if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
+            if (this.state.rxData[`type${index}`] === 'rgb') {
+                await this.rgbReadObjects(index, objects, rgbObjects, colorTemperatures);
+            } else if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 // read an object itself
                 const object = _objects[this.state.rxData[`oid${index}`]];
                 if (!object) {
@@ -671,8 +818,11 @@ class Switches extends BlindsBase {
             }
         }
 
-        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {
-            this.setState({ objects });
+        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects) ||
+            JSON.stringify(colorTemperatures) !== JSON.stringify(this.state.colorTemperatures) ||
+            JSON.stringify(rgbObjects) !== JSON.stringify(this.state.rgbObjects)
+        ) {
+            this.setState({ objects, rgbObjects, colorTemperatures });
         }
     }
 
@@ -725,6 +875,8 @@ class Switches extends BlindsBase {
 
         this.updateChartInterval && clearInterval(this.updateChartInterval);
         this.updateChartInterval = null;
+
+        this.rgbDestroy();
     }
 
     async onRxDataChanged() {
@@ -738,6 +890,10 @@ class Switches extends BlindsBase {
         }
 
         values = values || this.state.values;
+        if (obj.widgetType === 'rgb') {
+            // analyse rgb
+            return values[`${this.state.rxData[`switch${index}`]}.val`];
+        }
         if (obj.common.type === 'number') {
             return values[`${this.state.objects[index]._id}.val`] !== obj.common.min;
         }
@@ -773,14 +929,14 @@ class Switches extends BlindsBase {
             icon = <Thermostat />;
         } else if (obj?.widgetType === 'rgb') {
             // check if rgb has power
-            if (this.state.rxData[`oid-switch${index}`]) {
-                if (this.state.values[`${this.state.rxData[`oid-switch${index}`]}.val`]) {
+            if (this.state.rxData[`switch${index}`]) {
+                if (this.state.values[`${this.state.rxData[`switch${index}`]}.val`]) {
                     icon = <LightbulbIconOn color="primary" style={{ color }} />;
                 } else {
                     icon = <LightbulbIconOff style={{ color }} />;
                 }
-            } else if (this.state.rxData['oid-brightness']) {
-                if (this.state.values[`${this.state.rxData[`oid-brightness${index}`]}.val`]) {
+            } else if (this.state.rxData[`brightness${index}`]) {
+                if (this.state.values[`${this.state.rxData[`brightness${index}`]}.val`]) {
                     icon = <LightbulbIconOn color="primary" style={{ color }} />;
                 } else {
                     icon = <LightbulbIconOff style={{ color }} />;
@@ -807,8 +963,8 @@ class Switches extends BlindsBase {
         }
 
         return isOn ?
-            this.state.rxData[`colorEnabled${index}`] || this.state.rxData[`color${index}`] || obj?.common.color
-            : this.state.rxData[`color${index}`] || obj?.common.color;
+            this.state.rxData[`colorEnabled${index}`] || this.state.rxData[`color${index}`] || obj?.common?.color
+            : this.state.rxData[`color${index}`] || obj?.common?.color;
     }
 
     changeSwitch = index => {
@@ -965,7 +1121,7 @@ class Switches extends BlindsBase {
                     </div>
                 </>;
             } else if (this.state.objects[index].widgetType === 'rgb') {
-                control = 'RGB';
+                control = this.rgbRenderDialog(index);
             } else if (this.state.objects[index].widgetType === 'info') {
                 if (this._refs[index]) {
                     // update width and height of chart container
@@ -1110,7 +1266,7 @@ class Switches extends BlindsBase {
                 }}
             >
                 <DialogTitle>
-                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name)}
+                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
                     <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showControlDialog: null })}><CloseIcon /></IconButton>
                 </DialogTitle>
                 <DialogContent>
@@ -1167,6 +1323,28 @@ class Switches extends BlindsBase {
             return this.renderWidgetInWidget(index);
         }
         let value = this.state.values[`${this.state.objects[index]._id}.val`];
+
+        if (this.state.objects[index].widgetType === 'rgb') {
+            let switchState = null;
+            if (this.state.rgbObjects[index].switch) {
+                switchState = this.getPropertyValue(`switch${index}`);
+            }
+
+            return <IconButton
+                style={{
+                    backgroundColor: switchState === null || switchState ? this.rgbGetColor(index) :
+                        (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
+                    color: this.rgbGetTextColor(index),
+                }}
+                onClick={() => this.setState({ showControlDialog: index })}
+            >
+                <ColorLens
+                    style={{
+                        color: switchState === null || switchState ? undefined : this.rgbGetColor(index),
+                    }}
+                />
+            </IconButton>;
+        }
 
         if (this.state.objects[index].widgetType === 'button') {
             const text = this.state.rxData[`buttonText${index}`];
@@ -1265,15 +1443,6 @@ class Switches extends BlindsBase {
                     {temp ? <div style={{ fontSize: 'smaller', opacity: 0.7, whiteSpace: 'nowrap' }}>{temp + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}</div> : null}
                 </div>,
             ];
-        }
-
-        if (this.state.objects[index].widgetType === 'rgb') {
-            return <IconButton
-                style={{ color: value }}
-                onClick={() => this.setState({ showControlDialog: index })}
-            >
-                <ColorLens />
-            </IconButton>;
         }
 
         if (this.state.objects[index].widgetType === 'input') {
@@ -1897,6 +2066,372 @@ class Switches extends BlindsBase {
             </Button>
         </div>;
     }
+
+    rgbGetIdMin = (index, id) => this.state.rgbObjects[index][id]?.common?.min || 0;
+
+    rgbGetIdMax = (index, id) => this.state.rgbObjects[index][id]?.common?.max || 0;
+
+    rgbSetId = (index, id, value) => {
+        if (this.state.rgbObjects[index][id]) {
+            this.timeouts = this.timeouts || {};
+            this.timeouts[index][id] && clearTimeout(this.timeouts[index][id]);
+
+            // control switch directly without timeout
+            if (id === 'switch') {
+                this.props.context.socket.setState(this.state.rxData[`switch${index}`], value);
+            } else {
+                const values = { ...this.state.values, [`${this.state.rxData[id + index]}.val`]: value };
+                this.setState({ values });
+
+                this.timeouts[index][id] = setTimeout(() => {
+                    this.timeouts[index][id] = null;
+                    this.props.context.socket.setState(this.state.rxData[id + index], value);
+                }, parseInt(this.state.rxData[`timeout${index}`], 10) || 200);
+            }
+        }
+    };
+
+    async rgbReadObjects(index, objects, rgbObjects, colorTemperatures) {
+        const _rgbObjects = {};
+        const ids = ['switch', 'brightness', 'oid', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
+        const idToRead = [];
+        for (const k in ids) {
+            const id = ids[k];
+            if (this.state.rxData[id + index] && this.state.rxData[id + index] !== 'nothing_selected') {
+                idToRead.push(this.state.rxData[id + index]);
+            }
+        }
+        const _objects = await this.props.context.socket.getObjectsById(idToRead);
+
+        for (const k in ids) {
+            const id = ids[k];
+            if (this.state.rxData[id]) {
+                const object = _objects[this.state.rxData[id]];
+                if (object) {
+                    _rgbObjects[id] = object;
+                }
+            }
+        }
+        rgbObjects[index] = _rgbObjects;
+
+        if (_rgbObjects.color_temperature) {
+            const colors = [];
+            for (let i = (_rgbObjects.color_temperature?.common?.min || 3000); i <= (_rgbObjects.color_temperature?.common?.max || 12000); i += 100) {
+                colors.push(ct.colorTemperature2rgb(i));
+            }
+            colorTemperatures[index] = colors;
+        } else {
+            colorTemperatures[index] = [];
+        }
+        objects[index] = {
+            widgetType: 'rgb',
+        };
+    }
+
+    rgbDestroy() {
+        for (const index in this.timeouts) {
+            for (const k in this.timeouts[index]) {
+                if (this.timeouts[index][k]) {
+                    clearTimeout(this.timeouts[index][k]);
+                    this.timeouts[index][k] = null;
+                }
+            }
+        }
+    }
+
+    rgbIsOnlyHue = index => this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' && (!this.state.rgbObjects[index].saturation || !this.state.rgbObjects[index].luminance);
+
+    rgbGetWheelColor = index => {
+        let result = {
+            h: undefined,
+            s: undefined,
+            v: undefined,
+            a: undefined,
+        };
+
+        if (this.state.rxData[`rgbType${index}`] === 'hue/sat/lum') {
+            result = hslaToHsva({
+                h: this.getPropertyValue(`hue${index}`),
+                s: this.rgbIsOnlyHue(index) ? 100 : this.getPropertyValue(`saturation${index}`),
+                l: this.rgbIsOnlyHue(index) ? 50 : this.getPropertyValue(`luminance${index}`),
+            });
+        } else if (this.state.rxData[`rgbType${index}`] === 'r/g/b' || this.state.rxData[`rgbType${index}`] === 'r/g/b/w') {
+            result = rgbaToHsva({
+                r: this.getPropertyValue(`red${index}`),
+                g: this.getPropertyValue(`green${index}`),
+                b: this.getPropertyValue(`blue${index}`),
+            });
+        } else if (this.state.rxData[`rgbType${index}`] === 'rgb') {
+            try {
+                const val = this.getPropertyValue(`oid${index}`) || '';
+                if (val && val.length >= 4) {
+                    result = hexToHsva(val);
+                } else {
+                    result = hexToHsva('#000000');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        } else if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
+            try {
+                const val = this.getPropertyValue(`oid${index}`) || '';
+                if (val && val.length >= 4) {
+                    result = hexToHsva(val);
+                } else {
+                    result = hexToHsva('#000000');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        return result;
+    };
+
+    rgbSetWheelColor = (index, color) => {
+        if (this.state.rxData[`rgbType${index}`] === 'hue/sat/lum') {
+            color = hsvaToHsla(color);
+            this.rgbSetId(index, 'hue', color.h);
+            if (!this.rgbIsOnlyHue(index)) {
+                this.rgbSetId(index, 'saturation', color.s);
+                this.rgbSetId(index, 'luminance', color.l);
+            }
+        } else if (this.state.rxData[`rgbType${index}`] === 'r/g/b' || this.state.rxData[`rgbType${index}`] === 'r/g/b/w') {
+            color = hsvaToRgba(color);
+            this.rgbSetId(index, 'red', color.r);
+            this.rgbSetId(index, 'green', color.g);
+            this.rgbSetId(index, 'blue', color.b);
+        } else if (this.state.rxData[`rgbType${index}`] === 'rgb') {
+            this.rgbSetId(index, 'oid', hsvaToHex(color));
+        } else if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
+            if (this.state.rgbObjects[index].white) {
+                this.rgbSetId(index, 'oid', hsvaToHex(color));
+            } else {
+                let val = this.getPropertyValue(`oid${index}`) || '#00000000';
+                val = hsvaToHex(color) + val.substring(7);
+                this.rgbSetId(index, 'oid', val);
+            }
+        }
+    };
+
+    rgbGetWhite = index => {
+        if (this.state.rxData[`rgbType${index}`] === 'r/g/b/w') {
+            return this.getPropertyValue(`white${index}`);
+        }
+        if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
+            if (this.state.rgbObjects[index].white) {
+                return this.getPropertyValue(`white${index}`);
+            }
+
+            const val = this.getPropertyValue(`oid${index}`)?.substring(7);
+            return parseInt(val, 16);
+        }
+        return 0;
+    };
+
+    rgbSetWhite = (index, color) => {
+        if (this.state.rxData[`rgbType${index}`] === 'r/g/b/w') {
+            this.rgbSetId(index, 'white', color);
+        } else if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
+            if (this.state.rgbObjects[index].white) {
+                this.rgbSetId(index, 'white', color);
+            } else {
+                let val = this.getPropertyValue(`oid${index}`) || '#00000000';
+                val = val.substring(0, 7) + color.toString(16).padStart(2, '0');
+                this.rgbSetId(index, 'oid', val);
+            }
+        }
+    };
+
+    rgbIsRgb = index => {
+        if ((this.state.rxData[`rgbType${index}`] === 'rgb' || this.state.rxData[`rgbType${index}`] === 'rgbw')
+            && this.state.rxData[`oid${index}`]) {
+            return true;
+        }
+
+        return (this.state.rxData[`rgbType${index}`] === 'r/g/b' || this.state.rxData[`rgbType${index}`] === 'r/g/b/w')
+            && this.state.rgbObjects[index].red
+            && this.state.rgbObjects[index].green
+            && this.state.rgbObjects[index].blue;
+    };
+
+    rgbIsWhite = index => (this.state.rxData[`rgbType${index}`] === 'rgbw' && this.state.rxData[`oid${index}`])
+        || (this.state.rxData[`rgbType${index}`] === 'r/g/b/w' && this.state.rgbObjects[index].white);
+
+    rgbIsHSL = index => this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' && this.state.rgbObjects[index].hue;
+
+    rgbRenderSwitch(index) {
+        return this.state.rgbObjects[index].switch && <div
+            className={this.props.classes.rgbSliderContainer}
+            style={{
+                justifyContent: 'center',
+            }}
+        >
+            {Generic.t('Off')}
+            <Switch
+                checked={this.getPropertyValue(`switch${index}`) || false}
+                onChange={e => this.rgbSetId(index, 'switch', e.target.checked)}
+            />
+            {Generic.t('On')}
+        </div>;
+    }
+
+    rgbRenderBrightness(index) {
+        return this.state.rgbObjects.brightness && <div className={this.props.classes.rgbSliderContainer}>
+            <Tooltip title={Generic.t('Brightness')}>
+                <Brightness6 />
+            </Tooltip>
+            <Slider
+                min={this.rgbGetIdMin(index, 'brightness') || 0}
+                max={this.rgbGetIdMax(index, 'brightness') || 100}
+                valueLabelDisplay="auto"
+                value={this.getPropertyValue(`brightness${index}`) || 0}
+                onChange={(e, value) => this.rgbSetId(index, 'brightness', value)}
+            />
+        </div>;
+    }
+
+    rgbRenderSketch(index) {
+        return <div className={`dark ${this.props.classes.rgbWheel}`}>
+            <Sketch
+                color={this.rgbGetWheelColor(index)}
+                disableAlpha
+                onChange={color => this.rgbSetWheelColor(index, color.hsva)}
+            />
+        </div>;
+    }
+
+    rgbRenderWheelTypeSwitch(index, isWheelVisible, twoPanels) {
+        if (!isWheelVisible) {
+            return null;
+        }
+        return !this.rgbIsOnlyHue(index) && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
+            <Tooltip title={Generic.t('Switch color picker')}>
+                <IconButton
+                    onClick={() => {
+                        const sketch = JSON.parse(JSON.stringify(this.state.sketch));
+                        sketch[index] = !sketch[index];
+                        this.setState({ sketch });
+                    }}
+                >
+                    <ColorLens />
+                </IconButton>
+            </Tooltip>
+        </div>;
+    }
+
+    rgbRenderBrightnessSlider(index, isWheelVisible) {
+        if (!isWheelVisible) {
+            return null;
+        }
+        return !this.rgbIsOnlyHue(index) && <ShadeSlider
+            hsva={this.rgbGetWheelColor(index)}
+            onChange={shade =>
+                this.rgbSetWheelColor(index, { ...this.rgbGetWheelColor(index), ...shade })}
+        />;
+    }
+
+    rgbRenderWheel(index, isWheelVisible) {
+        if (!isWheelVisible) {
+            return null;
+        }
+        return this.state.sketch[index] ? this.rgbRenderSketch(index) :  <div className={this.props.classes.rgbWheel}>
+            <Wheel
+                color={this.rgbGetWheelColor(index)}
+                onChange={color => {
+                    color = JSON.parse(JSON.stringify(color));
+                    this.rgbSetWheelColor(index, color.hsva);
+                }}
+            />
+        </div>;
+    }
+
+    rgbRenderWhite(index) {
+        if (!this.rgbIsWhite(index)) {
+            return null;
+        }
+        let min;
+        let max;
+        if (!this.state.rgbObjects[index].white) {
+            min = 0;
+            max = 255;
+        } else {
+            min = this.rgbGetIdMin(index, 'white') || 0;
+            max = this.rgbGetIdMax(index, 'white') || 100;
+        }
+
+        return <div className={this.props.classes.rgbSliderContainer}>
+            <TbSquareLetterW style={{ width: 24, height: 24 }} />
+            <Slider
+                min={min}
+                max={max}
+                valueLabelDisplay="auto"
+                value={this.rgbGetWhite(index) || 0}
+                onChange={(e, value) => this.rgbSetWhite(index, value)}
+            />
+        </div>;
+    }
+
+    rgbRenderColorTemperature(index) {
+        return this.state.rxData[`rgbType${index}`] === 'ct' && <div
+            className={this.props.classes.rgbSliderContainer}
+        >
+            <Tooltip title={Generic.t('Color temperature')}>
+                <Thermostat />
+            </Tooltip>
+            <div
+                className={this.props.classes.rgbSliderContainer}
+                style={{
+                    background:
+                        `linear-gradient(to right, ${this.state.colorTemperatures.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
+                    flex: '1',
+                    borderRadius: 4,
+                }}
+            >
+                <Slider
+                    valueLabelDisplay="auto"
+                    min={this.rgbGetIdMin(index, 'color_temperature') || 3000}
+                    max={this.rgbGetIdMax(index, 'color_temperature') || 12000}
+                    value={this.getPropertyValue(`color_temperature${index}`) || 0}
+                    onChange={(e, value) => this.rgbSetId(index, 'color_temperature', value)}
+                />
+            </div>
+        </div>;
+    }
+
+    rgbRenderDialog(index) {
+        const wheelVisible = this.rgbIsRgb(index) || this.rgbIsHSL(index);
+
+        return <div className={this.props.classes.rgbDialogContainer}>
+            {this.rgbRenderSwitch(index)}
+            {this.rgbRenderBrightness(index)}
+            {this.rgbRenderWhite(index)}
+            {this.rgbRenderWheelTypeSwitch(index, wheelVisible)}
+            {this.rgbRenderWheel(index, wheelVisible)}
+            {this.rgbRenderBrightnessSlider(index, wheelVisible)}
+            {this.rgbRenderColorTemperature(index)}
+        </div>;
+    }
+
+    rgbGetColor = index => {
+        if (this.state.rxData[`rgbType${index}`] === 'ct') {
+            const color = ct.colorTemperature2rgb(this.getPropertyValue(`color_temperature${index}`));
+            return rgbaToHex({
+                r: color.red,
+                g: color.green,
+                b: color.blue,
+            });
+        }
+        return hsvaToHex(this.rgbGetWheelColor(index));
+    };
+
+    rgbGetTextColor = index => {
+        if (this.state.rxData[`rgbType${index}`] === 'ct') {
+            const color = ct.colorTemperature2rgb(this.getPropertyValue(`color_temperature${index}`));
+            return color.red + color.green + color.blue > 3 * 128 ? '#000000' : '#ffffff';
+        }
+        const color = hsvaToRgba(this.rgbGetWheelColor(index));
+        return color.r + color.g + color.b > 3 * 128 ? '#000000' : '#ffffff';
+    };
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
