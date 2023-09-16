@@ -479,7 +479,7 @@ class RGBLight extends Generic {
     }
 
     rgbRenderBrightnessSlider(isWheelVisible) {
-        if (!isWheelVisible) {
+        if (!isWheelVisible || this.state.sketch) {
             return null;
         }
         return !this.rgbIsOnlyHue() && <ShadeSlider

@@ -24,7 +24,7 @@ import {
     CircularProgress,
     InputAdornment,
     InputLabel,
-    FormControl, Tooltip, DialogActions,
+    FormControl, Tooltip,
 } from '@mui/material';
 
 import {
@@ -32,7 +32,14 @@ import {
     LightbulbOutlined as LightbulbIconOff,
     Close as CloseIcon,
     RoomService,
-    Check, Thermostat, ColorLens, Brightness6, Close,
+    Check,
+    Thermostat,
+    ColorLens,
+    Brightness6,
+    Celebration as CelebrationIcon,
+    ElectricBolt as BoostIcon, Thermostat as ThermostatIcon, PowerSettingsNew as PowerSettingsNewIcon,
+    LockOpen,
+    Lock,
 } from '@mui/icons-material';
 
 import ct from 'color-temperature';
@@ -48,6 +55,7 @@ import {
     Wheel,
 } from '@uiw/react-color';
 import { TbSquareLetterW } from 'react-icons/tb';
+import { CircularSliderWithChildren } from "react-circular-slider-svg";
 
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
@@ -58,6 +66,7 @@ import WindowClosed from './Components/WindowClosed';
 // import ObjectChart from './ObjectChart';
 
 const HISTORY = ['influxdb', 'sql', 'history'];
+const RGB_NAMES = ['switch', 'brightness', 'oid', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
 
 echarts.use([TimelineComponent, LineChart, SVGRenderer]);
 
@@ -178,6 +187,22 @@ const styles = () => ({
         textAlign: 'center',
         minWidth: 58,
     },
+    value: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    secondaryValueDiv: {
+        marginLeft: 4,
+        fontSize: 'smaller',
+        opacity: 0.6,
+        whiteSpace: 'nowrap',
+    },
+    secondaryValue: {
+        marginLeft: 4,
+        whiteSpace: 'nowrap',
+    },
+
     rgbSliderContainer: {
         display: 'flex',
         alignItems: 'center',
@@ -197,6 +222,68 @@ const styles = () => ({
     rgbDialog: {
         maxWidth: 400,
     },
+
+    thermostatCircleDiv: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        '& svg circle': {
+            cursor: 'pointer',
+        },
+        '&>div': {
+            margin: 'auto',
+            '&>div': {
+                top: '35% !important',
+            },
+        },
+    },
+    thermostatButtonsDiv: {
+        textAlign: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%',
+        position: 'absolute',
+        bottom: 8,
+        left: 0,
+    },
+    thermostatNewValueLight: {
+        animation: '$newValueAnimationLight 2s ease-in-out',
+    },
+    '@keyframes newValueAnimationLight': {
+        '0%': {
+            color: '#00bd00',
+        },
+        '80%': {
+            color: '#008000',
+        },
+        '100%': {
+            color: '#000',
+        },
+    },
+    thermostatNewValueDark: {
+        animation: '$newValueAnimationDark 2s ease-in-out',
+    },
+    '@keyframes newValueAnimationDark': {
+        '0%': {
+            color: '#008000',
+        },
+        '80%': {
+            color: '#00bd00',
+        },
+        '100%': {
+            color: '#ffffff',
+        },
+    },
+    thermostatDesiredTemp: {
+        fontWeight: 'bold',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+        left: 0,
+        transform: 'none',
+    },
+
     ...STYLES,
 });
 
@@ -213,6 +300,7 @@ class Switches extends BlindsBase {
         this.state.chartWidth = {};
         this.state.chartHeight = {};
         this.state.sketch = {};
+        this.timeouts = {};
         this.history = {};
         this._refs = {}; // this.refs name does not work (I don't know why)
         this.widgetRef = {};
@@ -336,7 +424,16 @@ class Switches extends BlindsBase {
                                                 Object.values(states).forEach(state => {
                                                     const role = state.common.role;
                                                     if (role && role.includes('value.temperature')) {
-                                                        data[`oid_actual_temp${index}`] = state._id;
+                                                        data[`actual${index}`] = state._id;
+                                                        changed = true;
+                                                    } else if (role && role.includes('power')) {
+                                                        data[`switch${index}`] = state._id;
+                                                        changed = true;
+                                                    } else if (role && role.includes('boost')) {
+                                                        data[`boost${index}`] = state._id;
+                                                        changed = true;
+                                                    } else if (role && role.includes('party')) {
+                                                        data[`party${index}`] = state._id;
                                                         changed = true;
                                                     }
                                                 });
@@ -463,7 +560,7 @@ class Switches extends BlindsBase {
                         {
                             name: 'step',
                             label: 'values_step',
-                            hidden: '!data["oid" + index] || data["type" + index] !== "select"',
+                            hidden: '!data["oid" + index] || (data["type" + index] !== "select" && data["type" + index] !== "thermostat")',
                         },
                         {
                             name: 'hideChart',
@@ -601,17 +698,29 @@ class Switches extends BlindsBase {
                             tooltip: 'hide_tooltip',
                         },
                         {
-                            name: 'oid_actual_temp',
+                            name: 'actual',
                             type: 'id',
-                            label: 'oid_actual_temp',
-                            hidden: 'data.type !== "thermostat"',
+                            label: 'actual_oid',
+                            hidden: '!!data["widget" + index] || data["type" + index] !== "thermostat"',
+                        },
+                        {
+                            name: 'boost',
+                            type: 'id',
+                            label: 'mode_boost',
+                            hidden: '!!data["widget" + index] || data["type" + index] !== "thermostat"',
+                        },
+                        {
+                            name: 'party',
+                            type: 'id',
+                            label: 'mode_party',
+                            hidden: '!!data["widget" + index] || data["type" + index] !== "thermostat"',
                         },
                         {
                             name: 'switch',
                             type: 'id',
                             label: 'switch',
                             onChange: loadStates,
-                            hidden: '!!data["widget" + index] || data["type" + index] !== "rgb"',
+                            hidden: '!!data["widget" + index] || (data["type" + index] !== "rgb" || data["type" + index] !== "thermostat")',
                         },
                         {
                             name: 'brightness',
@@ -721,11 +830,18 @@ class Switches extends BlindsBase {
 
         this.lastRxData = actualRxData;
         const objects = {};
-        const rgbObjects = {};
-        const colorTemperatures = {};
+        const secondaryObjects = {};
         const ids = [];
         for (let index = 1; index <= this.state.rxData.count; index++) {
-            if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
+            if (this.state.rxData[`type${index}`] === 'rgb') {
+                this.rgbObjectIDs(index, ids);
+            } else if (this.state.rxData[`type${index}`] === 'thermostat') {
+                this.thermostatObjectIDs(index, ids);
+            } else if (this.state.rxData[`type${index}`] === 'lock') {
+                // this.lockObjectIDs(index, ids);
+            } else if (this.state.rxData[`type${index}`] === 'vacuum') {
+                // this.vacuumObjectIDs(index, ids);
+            } else if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 ids.push(this.state.rxData[`oid${index}`]);
             }
         }
@@ -734,7 +850,13 @@ class Switches extends BlindsBase {
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.count; index++) {
             if (this.state.rxData[`type${index}`] === 'rgb') {
-                await this.rgbReadObjects(index, objects, rgbObjects, colorTemperatures);
+                this.rgbReadObjects(index, _objects, objects, secondaryObjects);
+            } else if (this.state.rxData[`type${index}`] === 'thermostat') {
+                this.thermostatReadObjects(index, _objects, objects, secondaryObjects);
+            } else if (this.state.rxData[`type${index}`] === 'lock') {
+                // this.lockReadObjects(index, _objects, objects, secondaryObjects);
+            } else if (this.state.rxData[`type${index}`] === 'vacuum') {
+                // this.vacuumReadObjects(index, _objects, objects, secondaryObjects);
             } else if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 // read an object itself
                 const object = _objects[this.state.rxData[`oid${index}`]];
@@ -822,10 +944,9 @@ class Switches extends BlindsBase {
         }
 
         if (JSON.stringify(objects) !== JSON.stringify(this.state.objects) ||
-            JSON.stringify(colorTemperatures) !== JSON.stringify(this.state.colorTemperatures) ||
-            JSON.stringify(rgbObjects) !== JSON.stringify(this.state.rgbObjects)
+            JSON.stringify(secondaryObjects) !== JSON.stringify(this.state.secondaryObjects)
         ) {
-            this.setState({ objects, rgbObjects, colorTemperatures });
+            this.setState({ objects, secondaryObjects });
         }
     }
 
@@ -893,7 +1014,7 @@ class Switches extends BlindsBase {
         }
 
         values = values || this.state.values;
-        if (obj.widgetType === 'rgb') {
+        if (obj.widgetType === 'rgb' || obj.widgetType === 'thermostat' || obj.widgetType === 'vacuum') {
             // analyse rgb
             return values[`${this.state.rxData[`switch${index}`]}.val`];
         }
@@ -929,7 +1050,23 @@ class Switches extends BlindsBase {
         } else if (obj?.widgetType === 'blinds') {
             icon = <WindowClosed style={{ color }} />;
         } else if (obj?.widgetType === 'thermostat') {
-            icon = <Thermostat />;
+            if (this.state.rxData[`switch${index}`] && this.state.values[`${this.state.rxData[`switch${index}`]}.val`]) {
+                icon = <Thermostat color="primary" style={{ color }} />;
+            } else {
+                icon = <Thermostat />;
+            }
+        } else if (obj?.widgetType === 'lock') {
+            if (isOn) {
+                icon = <LockOpen color="primary" style={{ color }} />;
+            } else {
+                icon = <Lock style={{ color }} />;
+            }
+        } else if (obj?.widgetType === 'vacuum') {
+            if (isOn) {
+                icon = <LightbulbIconOn color="primary" style={{ color }} />;
+            } else {
+                icon = <LightbulbIconOff style={{ color }} />;
+            }
         } else if (obj?.widgetType === 'rgb') {
             // check if rgb has power
             if (this.state.rxData[`switch${index}`]) {
@@ -972,6 +1109,13 @@ class Switches extends BlindsBase {
 
     changeSwitch = index => {
         if (
+            this.state.objects[index].widgetType === 'rgb' ||
+            this.state.objects[index].widgetType === 'lock' ||
+            this.state.objects[index].widgetType === 'vacuum' ||
+            this.state.objects[index].widgetType === 'thermostat'
+        ) {
+            this.setState({ showControlDialog: index });
+        } else if (
             this.state.objects[index].widgetType === 'slider' ||
             this.state.objects[index].widgetType === 'input' ||
             this.state.objects[index].widgetType === 'select' ||
@@ -1110,6 +1254,7 @@ class Switches extends BlindsBase {
                         <Slider
                             size="small"
                             value={curValue}
+                            step={parseFloat(this.state.rxData[`step${index}`]) || undefined}
                             valueLabelDisplay="auto"
                             min={this.state.objects[index].common.min}
                             max={this.state.objects[index].common.max}
@@ -1125,6 +1270,12 @@ class Switches extends BlindsBase {
                 </>;
             } else if (this.state.objects[index].widgetType === 'rgb') {
                 control = this.rgbRenderDialog(index);
+            } else if (this.state.objects[index].widgetType === 'thermostat') {
+                control = this.thermostatRenderDialog(index);
+            } else if (this.state.objects[index].widgetType === 'lock') {
+                // control = this.lockRenderDialog(index);
+            } else if (this.state.objects[index].widgetType === 'vacuum') {
+                // control = this.vacuumRenderDialog(index);
             } else if (this.state.objects[index].widgetType === 'info') {
                 if (this._refs[index]) {
                     // update width and height of chart container
@@ -1270,7 +1421,7 @@ class Switches extends BlindsBase {
                 }}
             >
                 <DialogTitle>
-                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
+                    {(this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name) || '').trim()}
                     <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showControlDialog: null })}><CloseIcon /></IconButton>
                 </DialogTitle>
                 <DialogContent>
@@ -1330,7 +1481,7 @@ class Switches extends BlindsBase {
 
         if (this.state.objects[index].widgetType === 'rgb') {
             let switchState = null;
-            if (this.state.rgbObjects[index].switch) {
+            if (this.state.secondaryObjects[index].switch) {
                 switchState = this.getPropertyValue(`switch${index}`);
             }
 
@@ -1384,13 +1535,24 @@ class Switches extends BlindsBase {
                     className={this.props.classes.controlElement}
                     size="small"
                     valueLabelDisplay="auto"
+                    step={parseFloat(this.state.rxData[`step${index}`]) || undefined}
                     value={value === undefined || value === null ? min : value}
                     onChange={(event, newValue) => {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         const oid = `${this.state.objects[index]._id}.val`;
                         values[oid] = newValue;
-                        this.setState({ values });
-                        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                        this.setState({ values }, () => {
+                            if (this.state.rxData[`timeout${index}`]) {
+                                this.timeouts[index] = this.timeouts[index] || {};
+                                this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
+                                this.timeouts[index][oid] = setTimeout(_newValue => {
+                                    this.timeouts[index][oid] = null;
+                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], _newValue);
+                                }, parseInt(this.state.rxData[`timeout${index}`], 10), newValue);
+                            } else {
+                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], newValue);
+                            }
+                        });
                     }}
                     min={min}
                     max={max}
@@ -1405,8 +1567,8 @@ class Switches extends BlindsBase {
             const min = this.state.objects[index].common.min === undefined ? 12 : this.state.objects[index].common.min;
             const max = this.state.objects[index].common.max === undefined ? 30 : this.state.objects[index].common.max;
             let temp;
-            if (this.state.rxData[`oid_actual_temp${index}`]) {
-                temp = this.state.values[`${this.state.rxData[`oid_actual_temp${index}`]}.val`];
+            if (this.state.rxData[`actual${index}`]) {
+                temp = this.state.values[`${this.state.rxData[`actual${index}`]}.val`];
                 if (temp || temp === '0') {
                     temp = temp.toString();
                     if (temp.includes('.')) {
@@ -1424,25 +1586,38 @@ class Switches extends BlindsBase {
                     key="slider"
                     className={this.props.classes.controlElement}
                     size="small"
+                    step={parseFloat(this.state.rxData[`step${index}`]) || undefined}
                     valueLabelDisplay="auto"
                     value={value === undefined || value === null ? min : value}
                     onChange={(event, newValue) => {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         const oid = `${this.state.objects[index]._id}.val`;
                         values[oid] = newValue;
-                        this.setState({ values });
-                        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                        this.setState({ values }, () => {
+                            if (this.state.rxData[`timeout${index}`]) {
+                                this.timeouts[index] = this.timeouts[index] || {};
+                                this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
+                                this.timeouts[index][oid] = setTimeout(_newValue => {
+                                    this.timeouts[index][oid] = null;
+                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], _newValue);
+                                }, parseInt(this.state.rxData[`timeout${index}`], 10), newValue);
+                            } else {
+                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], newValue);
+                            }
+                        });
                     }}
                     min={min}
                     max={max}
                 />,
                 <div
                     key="value"
+                    onClick={() => this.setState({ showControlDialog: index })}
                     style={{
                         width: 45,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
+                        cursor: 'pointer',
                     }}
                 >
                     <div style={{ whiteSpace: 'nowrap' }}>{value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}</div>
@@ -1746,7 +1921,7 @@ class Switches extends BlindsBase {
                 option={this.state.historyData[index]}
                 notMerge
                 lazyUpdate
-                theme={this.props.themeType === 'dark' ? 'dark' : ''}
+                theme={this.props.context.themeType === 'dark' ? 'dark' : ''}
                 style={_style}
                 opts={{ renderer: 'svg' }}
             />;
@@ -2006,31 +2181,64 @@ class Switches extends BlindsBase {
             return this.renderWidgetInWidget(index, true);
         }
 
-        let value = this.state.values[`${this.state.objects[index]._id}.val`];
-        if (this.state.objects[index].common.type === 'number' || this.state.objects[index].common.states) {
-            if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
-                value = this.state.objects[index].common.states[value];
-            } else {
-                if (this.state.objects[index].widgetType === 'blinds') {
-                    const options = this.getMinMaxPosition(1, index);
-                    value = parseFloat(value);
-                    value = ((value - options.min) / (options.max - options.min)) * 100;
-                }
+        let value;
+        let secondary = null;
+        const style = {};
 
-                value = this.formatValue(value);
+        if (this.state.objects[index].widgetType !== 'rgb') {
+            value = this.state.values[`${this.state.objects[index]._id}.val`];
+            if (this.state.objects[index].common?.type === 'number' || this.state.objects[index].common?.states) {
+                if (this.state.objects[index].common.states && this.state.objects[index].common.states[value] !== undefined) {
+                    value = this.state.objects[index].common.states[value];
+                } else {
+                    if (this.state.objects[index].widgetType === 'blinds') {
+                        const options = this.getMinMaxPosition(1, index);
+                        value = parseFloat(value);
+                        value = ((value - options.min) / (options.max - options.min)) * 100;
+                    }
+
+                    value = this.formatValue(value);
+                }
             }
         }
 
         if (this.state.objects[index].widgetType === 'info') {
             this.checkHistory(index)
                 .catch(e => console.error(`Cannot read history: ${e}`));
-        }
-
-        if (this.state.objects[index].widgetType === 'blinds') {
+        } else if (this.state.objects[index].widgetType === 'blinds') {
             let height = 40; // take 10° for opened slash
             const width = 40;
             height -= 0.12 * width;
             icon = this.renderWindows({ height, width }, index);
+        } else if (this.state.objects[index].widgetType === 'rgb') {
+            let switchState = null;
+            if (this.state.secondaryObjects[index].switch) {
+                switchState = this.getPropertyValue(`switch${index}`);
+            }
+
+            style.backgroundColor = switchState === null || switchState ? this.rgbGetColor(index) :
+                (this.props.context.themeType === 'dark' ? '#111' : '#eee');
+            style.color = Utils.getInvertedColor(style.backgroundColor, this.props.context.themeType);
+
+            icon = <ColorLens
+                style={{
+                    color: switchState === null || switchState ? undefined : this.rgbGetColor(index),
+                }}
+            />;
+        } else if (this.state.objects[index].widgetType === 'thermostat') {
+            const actualObj = this.state.secondaryObjects[index]?.actual;
+            if (actualObj) {
+                const actualTemp = this.state.values[`${actualObj._id}.val`];
+                if (actualTemp || actualTemp === 0) {
+                    secondary = <div className={this.props.classes.secondaryValueDiv}>
+                        /
+                        <span className={this.props.classes.secondaryValue}>
+                            {this.formatValue(actualTemp, 1)}
+                            {this.state.rxData[`unit${index}`] || actualObj.common?.unit || ''}
+                        </span>
+                    </div>;
+                }
+            }
         }
 
         let buttonWidth;
@@ -2056,7 +2264,8 @@ class Switches extends BlindsBase {
         >
             <Button
                 onClick={() => this.changeSwitch(index)}
-                color={!this.state.objects[index].common.states && this.isOn(index) ? 'primary' : 'grey'}
+                color={!this.state.objects[index].common?.states && this.isOn(index) ? 'primary' : 'grey'}
+                style={style}
                 className={Utils.clsx(this.props.classes.button, !this.isOn(index) && this.props.classes.buttonInactive)}
                 disabled={this.state.objects[index].widgetType === 'info' && (!this.history[index] || this.state.rxData[`hideChart${index}`])}
             >
@@ -2064,21 +2273,248 @@ class Switches extends BlindsBase {
                 <div className={this.props.classes.text} style={this.customStyle}>
                     {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name) || ''}
                 </div>
-                {value !== undefined && value !== null ?
+                {(value !== undefined && value !== null) || secondary ?
                     <div className={this.props.classes.value}>
-                        {value}
+                        <div>{value}</div>
                         {this.state.rxData[`unit${index}`] || this.state.objects[index].common.unit || ''}
+                        {secondary}
                     </div> : null}
             </Button>
         </div>;
     }
 
-    rgbGetIdMin = (index, id) => this.state.rgbObjects[index][id]?.common?.min || 0;
+    thermostatObjectIDs(index, ids) {
+        const _ids = ['oid', 'actual', 'boost', 'party'];
+        _ids.forEach(id => {
+            const _id = id + index;
+            if (this.state.rxData[_id] && this.state.rxData[_id] !== 'nothing_selected') {
+                ids.push(this.state.rxData[_id]);
+            }
+        });
+    }
 
-    rgbGetIdMax = (index, id) => this.state.rgbObjects[index][id]?.common?.max || 0;
+    thermostatReadObjects(index, _objects, objects, secondaryObjects) {
+        let id = this.state.rxData[`oid${index}`];
+
+        if (_objects[id]) {
+            const tempObj = _objects[id];
+            objects[index] = {
+                widgetType: 'thermostat',
+                common: tempObj.common,
+                _id: id,
+            };
+            objects[index].common.min = tempObj?.common?.min === undefined ? 12 : tempObj.common.min;
+            objects[index].common.max = tempObj?.common?.max === undefined ? 30 : tempObj.common.max;
+        } else {
+            objects[index] = {
+                widgetType: 'thermostat',
+            };
+        }
+
+        id = this.state.rxData[`actual${index}`];
+        secondaryObjects[index] = {};
+        if (_objects[id]) {
+            secondaryObjects[index].actual = { common: _objects[id].common, _id: id };
+        } else {
+            secondaryObjects[index] = null;
+        }
+    }
+
+    thermIsWithPowerButton(index) {
+        return this.state.rxData[`switch${index}`] && this.state.rxData[`switch${index}`] !== 'nothing_selected';
+    }
+
+    thermIsWithModeButtons(index) {
+        return (this.state.rxData[`party${index}`] || this.state.rxData[`boost${index}`]) &&
+            // if no power button or power is on
+            (!this.state.rxData[`switch${index}`] || this.state.values[`${this.state.rxData[`switch${index}`]}.val`]);
+    }
+
+    thermostatRenderDialog(index) {
+        const setObj = this.state.objects[index];
+        let tempValue = null;
+        if (setObj?._id) {
+            tempValue = this.state.values[`${setObj._id}.val`];
+            if (tempValue === undefined) {
+                tempValue = null;
+            }
+            if (tempValue !== null && tempValue < setObj.common.min) {
+                tempValue = setObj.common.min;
+            } else if (tempValue !== null && tempValue > setObj.common.max) {
+                tempValue = setObj.common.max;
+            }
+
+            if (tempValue === null) {
+                tempValue = (setObj.common.max - setObj.common.min) / 2 + setObj.common.min;
+            }
+        }
+
+        const actualObj = this.state.secondaryObjects[index]?.actual;
+        let actualTemp = null;
+        if (actualObj) {
+            actualTemp = this.state.values[`${actualObj._id}.val`];
+            if (actualTemp === undefined) {
+                actualTemp = null;
+            }
+        }
+
+        let size = window.innerWidth > window.innerHeight ? window.innerHeight : window.innerWidth;
+        if (size > 200) {
+            size = 200;
+        }
+        let handleSize = Math.round(size / 25);
+        if (handleSize < 8) {
+            handleSize = 8;
+        }
+
+        actualTemp = actualTemp !== null ? this.formatValue(actualTemp, 1) : null;
+
+        const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme?.palette.primary.main || '#448aff';
+
+        let modesButton = [];
+        if (this.thermIsWithModeButtons(index)) {
+            if (this.state.rxData[`party${index}`]) {
+                let currentValueStr = this.state.values[`${this.state.rxData[`party${index}`]}.val`];
+                if (currentValueStr === null || currentValueStr === undefined) {
+                    currentValueStr = false;
+                } else {
+                    currentValueStr = currentValueStr === '1' || currentValueStr === 'true' || currentValueStr === true;
+                }
+                modesButton.push(<Button
+                    key="party"
+                    color={currentValueStr ? 'primary' : 'grey'}
+                    onClick={() => {
+                        let _currentValueStr = this.state.values[`${this.state.rxData[`party${index}`]}.val`];
+                        if (_currentValueStr === null || _currentValueStr === undefined) {
+                            _currentValueStr = false;
+                        } else {
+                            _currentValueStr = _currentValueStr === '1' || _currentValueStr === 'true' || _currentValueStr === true;
+                        }
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        values[`${this.state.rxData[`party${index}`]}.val`] = !_currentValueStr;
+                        this.setState(values);
+                        this.props.context.socket.setState(this.state.rxData[`party${index}`], !_currentValueStr);
+                    }}
+                    startIcon={<CelebrationIcon />}
+                >
+                    {Generic.t('Party')}
+                </Button>);
+            }
+            if (this.state.rxData[`boost${index}`]) {
+                let currentValueStr = this.state.values[`${this.state.rxData[`boost${index}`]}.val`];
+                if (currentValueStr === null || currentValueStr === undefined) {
+                    currentValueStr = false;
+                } else {
+                    currentValueStr = currentValueStr === '1' || currentValueStr === 'true' || currentValueStr === true;
+                }
+                modesButton.push(<Button
+                    key="party"
+                    color={currentValueStr ? 'primary' : 'grey'}
+                    onClick={() => {
+                        let _currentValueStr = this.state.values[`${this.state.rxData[`boost${index}`]}.val`];
+                        if (_currentValueStr === null || _currentValueStr === undefined) {
+                            _currentValueStr = false;
+                        } else {
+                            _currentValueStr = _currentValueStr === '1' || _currentValueStr === 'true' || _currentValueStr === true;
+                        }
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        values[`${this.state.rxData[`boost${index}`]}.val`] = !_currentValueStr;
+                        this.setState(values);
+                        this.props.context.socket.setState(this.state.rxData[`boost${index}`], !_currentValueStr);
+                    }}
+                    startIcon={<BoostIcon />}
+                >
+                    {Generic.t('Boost')}
+                </Button>);
+            }
+        }
+        if (this.thermIsWithPowerButton(index)) {
+            modesButton.push(<Tooltip key="power" title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
+                <IconButton
+                    color={this.state.values[`${this.state.rxData[`switch${index}`]}.val`] ? 'primary' : 'grey'}
+                    onClick={() => {
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        const id = `${this.state.rxData[`switch${index}`]}.val`;
+                        values[id] = !values[id];
+                        this.setState(values);
+                        this.props.context.socket.setState(this.state.rxData[`switch${index}`], values[id]);
+                    }}
+                >
+                    <PowerSettingsNewIcon />
+                </IconButton>
+            </Tooltip>);
+        }
+
+        return <div
+            className={this.props.classes.thermostatCircleDiv}
+            style={{ height: '100%' }}
+        >
+            {/* if no header, draw button here */}
+            {size && setObj ?
+                <CircularSliderWithChildren
+                    minValue={setObj.common.min}
+                    maxValue={setObj.common.max}
+                    size={size}
+                    arcColor={arcColor}
+                    arcBackgroundColor={this.props.context.themeType === 'dark' ? '#DDD' : '#222'}
+                    startAngle={40}
+                    step={0.5}
+                    handleSize={handleSize}
+                    endAngle={320}
+                    handle1={{
+                        value: tempValue,
+                        onChange: value => {
+                            const values = JSON.parse(JSON.stringify(this.state.values));
+                            if (this.state.rxData[`step${index}`] === '0.5') {
+                                values[`${setObj._id}.val`] = Math.round(value * 2) / 2;
+                            } else {
+                                values[`${setObj._id}.val`] = Math.round(value);
+                            }
+                            this.setState({ values });
+                        },
+                    }}
+                    onControlFinished={() =>
+                        this.props.context.socket.setState(setObj._id, this.state.values[`${setObj._id}.val`])}
+                >
+                    {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
+                        <div
+                            className={this.props.classes.thermostatDesiredTemp}
+                            style={{ fontSize: Math.round(size / 6), ...this.customStyle }}
+                        >
+                            <ThermostatIcon style={{ width: size / 8, height: size / 8 }} />
+                            <div style={{ display: 'flex', alignItems: 'top', ...this.customStyle }}>
+                                {this.formatValue(tempValue)}
+                                <span style={{ fontSize: Math.round(size / 12), fontWeight: 'normal' }}>{this.state.rxData[`unit${index}`] || setObj.common?.unit}</span>
+                            </div>
+                        </div>
+                    </Tooltip> : null}
+                    {actualTemp !== null ? <Tooltip title={Generic.t('actual_temperature')}>
+                        <div
+                            style={{ fontSize: Math.round((size * 0.6) / 6), opacity: 0.7, ...this.customStyle }}
+                            key={`${actualTemp}valText`}
+                            className={this.props.context.themeType === 'dark' ? this.props.classes.thermostatNewValueDark : this.props.classes.thermostatNewValueLight}
+                        >
+                            {actualTemp}
+                            {this.state.rxData[`unit${index}`] || actualObj?.common?.unit}
+                        </div>
+                    </Tooltip> : null}
+                </CircularSliderWithChildren>
+                : null}
+            <div
+                className={this.props.classes.thermostatButtonsDiv}
+                style={{ bottom: 8 }}
+            >
+                {modesButton}
+            </div>
+        </div>;
+    }
+
+    rgbGetIdMin = (index, id) => this.state.secondaryObjects[index][id]?.common?.min || 0;
+
+    rgbGetIdMax = (index, id) => this.state.secondaryObjects[index][id]?.common?.max || 0;
 
     rgbSetId = (index, id, value) => {
-        if (this.state.rgbObjects[index][id]) {
+        if (this.state.secondaryObjects[index][id]) {
             this.timeouts = this.timeouts || {};
             this.timeouts[index] = this.timeouts[index] || {};
             this.timeouts[index][id] && clearTimeout(this.timeouts[index][id]);
@@ -2098,55 +2534,59 @@ class Switches extends BlindsBase {
         }
     };
 
-    async rgbReadObjects(index, objects, rgbObjects, colorTemperatures) {
-        const _rgbObjects = {};
-        const ids = ['switch', 'brightness', 'oid', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
-        const idToRead = [];
-        for (const k in ids) {
-            const id = ids[k];
-            if (this.state.rxData[id + index] && this.state.rxData[id + index] !== 'nothing_selected') {
-                idToRead.push(this.state.rxData[id + index]);
+    rgbObjectIDs(index, ids) {
+        RGB_NAMES.forEach(name => {
+            if (this.state.rxData[name + index] && this.state.rxData[name + index] !== 'nothing_selected') {
+                ids.push(this.state.rxData[name + index]);
             }
-        }
-        const _objects = await this.props.context.socket.getObjectsById(idToRead);
+        });
+    }
 
-        for (const k in ids) {
-            const id = ids[k];
-            if (this.state.rxData[id + index]) {
-                const object = _objects[this.state.rxData[id + index]];
+    rgbReadObjects(index, _objects, objects, secondaryObjects) {
+        const _rgbObjects = {};
+
+        RGB_NAMES.forEach(name => {
+            const oid = this.state.rxData[name + index];
+            if (oid) {
+                const object = _objects[oid];
                 if (object) {
-                    _rgbObjects[id] = object;
+                    _rgbObjects[name] = object;
                 }
             }
-        }
-        rgbObjects[index] = _rgbObjects;
+        });
+
+        secondaryObjects[index] = _rgbObjects;
 
         if (_rgbObjects.color_temperature) {
             const colors = [];
-            for (let i = (_rgbObjects.color_temperature?.common?.min || 3000); i <= (_rgbObjects.color_temperature?.common?.max || 12000); i += 100) {
+            const minCt = _rgbObjects.color_temperature?.common?.min || 3000;
+            const maxCt = _rgbObjects.color_temperature?.common?.max || 12000;
+            for (let i = minCt; i <= maxCt; i += 100) {
                 colors.push(ct.colorTemperature2rgb(i));
             }
-            colorTemperatures[index] = colors;
-        } else {
-            colorTemperatures[index] = [];
+            _rgbObjects.color_temperature.colors = colors;
         }
+
         objects[index] = {
             widgetType: 'rgb',
+            common: _rgbObjects.oid?.common,
         };
     }
 
     rgbDestroy() {
-        for (const index in this.timeouts) {
-            for (const k in this.timeouts[index]) {
-                if (this.timeouts[index][k]) {
-                    clearTimeout(this.timeouts[index][k]);
-                    this.timeouts[index][k] = null;
+        if (this.timeouts) {
+            for (const index in this.timeouts) {
+                for (const k in this.timeouts[index]) {
+                    if (this.timeouts[index][k]) {
+                        clearTimeout(this.timeouts[index][k]);
+                        this.timeouts[index][k] = null;
+                    }
                 }
             }
         }
     }
 
-    rgbIsOnlyHue = index => this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' && (!this.state.rgbObjects[index].saturation || !this.state.rgbObjects[index].luminance);
+    rgbIsOnlyHue = index => this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' && (!this.state.secondaryObjects[index].saturation || !this.state.secondaryObjects[index].luminance);
 
     rgbGetWheelColor = index => {
         let result = {
@@ -2210,7 +2650,7 @@ class Switches extends BlindsBase {
         } else if (this.state.rxData[`rgbType${index}`] === 'rgb') {
             this.rgbSetId(index, 'oid', hsvaToHex(color));
         } else if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
-            if (this.state.rgbObjects[index].white) {
+            if (this.state.secondaryObjects[index].white) {
                 this.rgbSetId(index, 'oid', hsvaToHex(color));
             } else {
                 let val = this.getPropertyValue(`oid${index}`) || '#00000000';
@@ -2225,7 +2665,7 @@ class Switches extends BlindsBase {
             return this.getPropertyValue(`white${index}`);
         }
         if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
-            if (this.state.rgbObjects[index].white) {
+            if (this.state.secondaryObjects[index].white) {
                 return this.getPropertyValue(`white${index}`);
             }
 
@@ -2239,7 +2679,7 @@ class Switches extends BlindsBase {
         if (this.state.rxData[`rgbType${index}`] === 'r/g/b/w') {
             this.rgbSetId(index, 'white', color);
         } else if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
-            if (this.state.rgbObjects[index].white) {
+            if (this.state.secondaryObjects[index].white) {
                 this.rgbSetId(index, 'white', color);
             } else {
                 let val = this.getPropertyValue(`oid${index}`) || '#00000000';
@@ -2256,18 +2696,18 @@ class Switches extends BlindsBase {
         }
 
         return (this.state.rxData[`rgbType${index}`] === 'r/g/b' || this.state.rxData[`rgbType${index}`] === 'r/g/b/w')
-            && this.state.rgbObjects[index].red
-            && this.state.rgbObjects[index].green
-            && this.state.rgbObjects[index].blue;
+            && this.state.secondaryObjects[index].red
+            && this.state.secondaryObjects[index].green
+            && this.state.secondaryObjects[index].blue;
     };
 
     rgbIsWhite = index => (this.state.rxData[`rgbType${index}`] === 'rgbw' && this.state.rxData[`oid${index}`])
-        || (this.state.rxData[`rgbType${index}`] === 'r/g/b/w' && this.state.rgbObjects[index].white);
+        || (this.state.rxData[`rgbType${index}`] === 'r/g/b/w' && this.state.secondaryObjects[index].white);
 
-    rgbIsHSL = index => this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' && this.state.rgbObjects[index].hue;
+    rgbIsHSL = index => this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' && this.state.secondaryObjects[index].hue;
 
     rgbRenderSwitch(index) {
-        return this.state.rgbObjects[index].switch && <div
+        return this.state.secondaryObjects[index].switch && <div
             className={this.props.classes.rgbSliderContainer}
             style={{
                 justifyContent: 'center',
@@ -2283,7 +2723,7 @@ class Switches extends BlindsBase {
     }
 
     rgbRenderBrightness(index) {
-        return this.state.rgbObjects[index].brightness && <div className={this.props.classes.rgbSliderContainer}>
+        return this.state.secondaryObjects[index].brightness && <div className={this.props.classes.rgbSliderContainer}>
             <Tooltip title={Generic.t('Brightness')}>
                 <Brightness6 />
             </Tooltip>
@@ -2327,7 +2767,7 @@ class Switches extends BlindsBase {
     }
 
     rgbRenderBrightnessSlider(index, isWheelVisible) {
-        if (!isWheelVisible) {
+        if (!isWheelVisible || this.state.sketch[index]) {
             return null;
         }
         return !this.rgbIsOnlyHue(index) && <ShadeSlider
@@ -2358,7 +2798,7 @@ class Switches extends BlindsBase {
         }
         let min;
         let max;
-        if (!this.state.rgbObjects[index].white) {
+        if (!this.state.secondaryObjects[index].white) {
             min = 0;
             max = 255;
         } else {
@@ -2389,7 +2829,7 @@ class Switches extends BlindsBase {
                 className={this.props.classes.rgbSliderContainer}
                 style={{
                     background:
-                        `linear-gradient(to right, ${this.state.colorTemperatures[index].map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
+                        `linear-gradient(to right, ${this.state.secondaryObjects[index].color_temperature.colors.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
                     flex: '1',
                     borderRadius: 4,
                 }}

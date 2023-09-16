@@ -44,7 +44,7 @@ const BUTTONS = {
 };
 
 const styles = () => ({
-    circleDiv: {
+    thermostatCircleDiv: {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -64,7 +64,7 @@ const styles = () => ({
         top: 4,
         right: 4,
     },
-    buttonsDiv: {
+    thermostatButtonsDiv: {
         textAlign: 'center',
         display: 'flex',
         justifyContent: 'center',
@@ -73,7 +73,7 @@ const styles = () => ({
         bottom: 8,
         left: 0,
     },
-    newValueLight: {
+    thermostatNewValueLight: {
         animation: '$newValueAnimationLight 2s ease-in-out',
     },
     '@keyframes newValueAnimationLight': {
@@ -87,7 +87,7 @@ const styles = () => ({
             color: '#000',
         },
     },
-    newValueDark: {
+    thermostatNewValueDark: {
         animation: '$newValueAnimationDark 2s ease-in-out',
     },
     '@keyframes newValueAnimationDark': {
@@ -101,7 +101,7 @@ const styles = () => ({
             color: '#ffffff',
         },
     },
-    desiredTemp: {
+    thermostatDesiredTemp: {
         fontWeight: 'bold',
         display: 'flex',
         alignItems: 'center',
@@ -281,7 +281,7 @@ class Thermostat extends Generic {
         };
     }
 
-    async propertiesUpdate() {
+    async thermostatReadObjects() {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
             return;
@@ -361,11 +361,11 @@ class Thermostat extends Generic {
 
     async componentDidMount() {
         super.componentDidMount();
-        await this.propertiesUpdate();
+        await this.thermostatReadObjects();
     }
 
     async onRxDataChanged() {
-        await this.propertiesUpdate();
+        await this.thermostatReadObjects();
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -390,7 +390,7 @@ class Thermostat extends Generic {
         return value === undefined || value === null ? '' : value.toString();
     }
 
-    renderDialog() {
+    renderChartDialog() {
         if (!this.state.showDialog) {
             return null;
         }
@@ -453,7 +453,7 @@ class Thermostat extends Generic {
                         obj2={!this.state.tempStateObject ? null : this.state.tempObject}
                         objLineType={this.state.tempStateObject ? 'line' : 'step'}
                         obj2LineType="step"
-                        themeType={this.props.themeType}
+                        themeType={this.props.context.themeType}
                         defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
                         noToolbar={false}
                         systemConfig={this.props.context.systemConfig}
@@ -479,7 +479,7 @@ class Thermostat extends Generic {
             }
 
             const withTitle = this.state.rxData.widgetTitle && !this.state.rxData.noCard && !widget.usedInWidget;
-            const withModes = this.isWithModeButtons() || this.isWithPowerButton();
+            const withModes = this.thermIsWithModeButtons() || this.thermIsWithPowerButton();
 
             if (withTitle && withModes) {
                 h -= 36 + 28; // title and mode buttons
@@ -510,11 +510,11 @@ class Thermostat extends Generic {
         }
     }
 
-    isWithPowerButton() {
+    thermIsWithPowerButton() {
         return this.state.rxData['oid-power'] && this.state.rxData['oid-power'] !== 'nothing_selected';
     }
 
-    isWithModeButtons() {
+    thermIsWithModeButtons() {
         return (this.state.modes?.length || this.state.rxData['oid-party'] || this.state.rxData['oid-boost']) &&
             // if no power button or power is on
             (!this.state.rxData['oid-power'] || this.state.values[`${this.state.rxData['oid-power']}.val`]);
@@ -550,7 +550,7 @@ class Thermostat extends Generic {
         if (this.lastRxData !== actualRxData) {
             this.updateTimeout = this.updateTimeout || setTimeout(async () => {
                 this.updateTimeout = null;
-                await this.propertiesUpdate();
+                await this.thermostatReadObjects();
             }, 50);
         }
 
@@ -589,12 +589,12 @@ class Thermostat extends Generic {
 
         actualTemp = actualTemp !== null ? this.formatValue(actualTemp) : null;
 
-        const isWithModeButtons = this.isWithModeButtons();
-        const isWithPowerButton = this.isWithPowerButton();
+        const thermIsWithModeButtons = this.thermIsWithModeButtons();
+        const thermIsWithPowerButton = this.thermIsWithPowerButton();
         const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme?.palette.primary.main || '#448aff';
 
         let modesButton = null;
-        if (isWithModeButtons) {
+        if (thermIsWithModeButtons) {
             modesButton = [];
 
             if (this.state.modes?.length) {
@@ -706,7 +706,7 @@ class Thermostat extends Generic {
         }
 
         const content = <div
-            className={this.props.classes.circleDiv}
+            className={this.props.classes.thermostatCircleDiv}
             style={{ height: withTitle ? 'calc(100% - 36px)' : '100%' }}
         >
             {/* if no header, draw button here */}
@@ -717,7 +717,7 @@ class Thermostat extends Generic {
                     maxValue={this.state.max}
                     size={this.state.size}
                     arcColor={arcColor}
-                    arcBackgroundColor={this.props.themeType === 'dark' ? '#DDD' : '#222'}
+                    arcBackgroundColor={this.props.context.themeType === 'dark' ? '#DDD' : '#222'}
                     startAngle={40}
                     step={0.5}
                     handleSize={handleSize}
@@ -739,7 +739,7 @@ class Thermostat extends Generic {
                 >
                     {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
                         <div
-                            className={this.props.classes.desiredTemp}
+                            className={this.props.classes.thermostatDesiredTemp}
                             style={{ fontSize: Math.round(this.state.size / 6), ...this.customStyle }}
                         >
                             <ThermostatIcon style={{ width: this.state.size / 8, height: this.state.size / 8 }} />
@@ -753,7 +753,7 @@ class Thermostat extends Generic {
                         <div
                             style={{ fontSize: Math.round((this.state.size * 0.6) / 6), opacity: 0.7, ...this.customStyle }}
                             key={`${actualTemp}valText`}
-                            className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
+                            className={this.props.context.themeType === 'dark' ? this.props.classes.thermostatNewValueDark : this.props.classes.thermostatNewValueLight}
                         >
                             {actualTemp}
                             {this.state.rxData.unit || this.state.tempStateObject?.common?.unit}
@@ -762,11 +762,11 @@ class Thermostat extends Generic {
                 </CircularSliderWithChildren>
                 : null}
             <div
-                className={this.props.classes.buttonsDiv}
+                className={this.props.classes.thermostatButtonsDiv}
                 style={{ bottom: 8 }}
             >
                 {modesButton}
-                {isWithPowerButton ?
+                {thermIsWithPowerButton ?
                     <Tooltip title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
                         <IconButton
                             color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'grey'}
@@ -782,7 +782,7 @@ class Thermostat extends Generic {
                         </IconButton>
                     </Tooltip> : null}
             </div>
-            {this.renderDialog()}
+            {this.renderChartDialog()}
         </div>;
 
         if (!withCard) {

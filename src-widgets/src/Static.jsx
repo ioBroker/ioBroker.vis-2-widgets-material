@@ -317,7 +317,7 @@ class Static extends Generic {
                     obj={this.state.objects[index]}
                     chartTitle={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
                     title=""
-                    themeType={this.props.themeType}
+                    themeType={this.props.context.themeType}
                     defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
                     systemConfig={this.props.context.systemConfig}
@@ -340,7 +340,7 @@ class Static extends Generic {
 
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
-        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
+        const classUpdateVal = this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
         const content = <>
             {this.renderDialog()}

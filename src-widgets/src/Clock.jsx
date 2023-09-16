@@ -298,11 +298,11 @@ class Clock extends Generic {
 
         return <svg
             viewBox="0 0 100 100"
-            color={data.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
+            color={data.ticksColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
             fill="currentColor"
             width={this.state.width}
             height={this.state.width}
-            style={{ backgroundColor: data.backgroundColor || (this.props.themeType === 'dark' ? '#111' : '#EEE') }}
+            style={{ backgroundColor: data.backgroundColor || (this.props.context.themeType === 'dark' ? '#111' : '#EEE') }}
             className={this.props.classes.uClock}
         >
             {[...Array(12)].map((_, idx) => (
@@ -321,7 +321,7 @@ class Clock extends Generic {
                 />
             ))}
             <line
-                stroke={data.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
+                stroke={data.handsColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
                 style={{ transform: `rotate(${hoursDeg}deg)`, transformOrigin: 'center' }}
                 className={this.props.classes.uClockHand}
                 strokeLinecap="round"
@@ -332,7 +332,7 @@ class Clock extends Generic {
                 y2="50"
             />
             <line
-                stroke={data.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
+                stroke={data.handsColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
                 style={{ transform: `rotate(${minutesDeg}deg)`, transformOrigin: 'center' }}
                 className={this.props.classes.uClockHand}
                 strokeLinecap="round"
@@ -398,7 +398,7 @@ class Clock extends Generic {
             withSeconds={data.withSeconds}
             handsColor={data.handsColor}
             secondHandColor={data.secondHandColor}
-            themeType={this.props.themeType}
+            themeType={this.props.context.themeType}
         />;
     }
 
@@ -469,7 +469,7 @@ class Clock extends Generic {
 
         return <svg
             viewBox={`0 0 100 ${svgHeight}`}
-            color={data.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
+            color={data.ticksColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
             fill="currentColor"
             width={this.state.width}
             height={this.state.height}

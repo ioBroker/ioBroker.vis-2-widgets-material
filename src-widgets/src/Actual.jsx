@@ -572,7 +572,7 @@ class Actual extends Generic {
                     obj2Color="rgba(77,134,255,0.44)"
                     objBackgroundColor={this.state.objects.main ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'}
                     obj2BackgroundColor="rgba(77,134,255,0.14)"
-                    themeType={this.props.themeType}
+                    themeType={this.props.context.themeType}
                     defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
                     noToolbar={false}
                     systemConfig={this.props.context.systemConfig}
@@ -600,7 +600,7 @@ class Actual extends Generic {
             this.setState({ showDialog: true });
         } : undefined;
 
-        const classUpdateVal = this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
+        const classUpdateVal = this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
         const mainValue = this.state.objects && this.state.objects.main && this.state.values[`${this.state.rxData['oid-main']}.val`] !== undefined ?
             this.formatValue(this.state.values[`${this.state.rxData['oid-main']}.val`]) : undefined;
@@ -658,7 +658,7 @@ class Actual extends Generic {
                     option={this.getOptions()}
                     notMerge
                     lazyUpdate
-                    theme={this.props.themeType === 'dark' ? 'dark' : ''}
+                    theme={this.props.context.themeType === 'dark' ? 'dark' : ''}
                     style={{
                         height: this.state.containerHeight - 26,
                         width: '100%',

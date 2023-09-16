@@ -590,7 +590,7 @@ class SimpleState extends Generic {
             maxValue={object.common.max}
             size={size * 1.1}
             arcColor={this.props.context.theme.palette.primary.main}
-            arcBackgroundColor={this.props.themeType === 'dark' ? '#DDD' : '#222'}
+            arcBackgroundColor={this.props.context.themeType === 'dark' ? '#DDD' : '#222'}
             startAngle={0}
             step={1}
             endAngle={360}
@@ -599,7 +599,7 @@ class SimpleState extends Generic {
             <div
                 key={`_${value}`}
                 style={{ fontSize: Math.round(size / 8), fontWeight: 'bold' }}
-                className={this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
+                className={this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
             >
                 {value + (this.state.rxData.unit || this.state.object.common?.unit || '')}
             </div>
@@ -678,7 +678,7 @@ class SimpleState extends Generic {
                                 key={` ${stateTitle || value}`}
                                 className={Utils.clsx(
                                     this.props.classes.value,
-                                    !color ? (this.props.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight) : null,
+                                    !color ? (this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight) : null,
                                 )}
                                 style={{ color }}
                             >
