@@ -19,8 +19,6 @@ import {
     Cancel,
 } from '@mui/icons-material';
 
-import { Message as DialogMessage } from '@iobroker/adapter-react-v5';
-
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
@@ -34,58 +32,20 @@ const styles = () => ({
         justifyContent: 'center',
         flexWrap: 'wrap',
     },
-    pinGrid:  {
+    lockPinGrid:  {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr 1fr',
         gridGap: '10px',
     },
-    pinInput:  {
+    lockPinInput:  {
         padding: '10px 0px',
     },
-    lockedButton: {
-        display: 'flex',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 1,
-        gap: 8,
-    },
-    unlockedButtons: {
-        display: 'flex',
-        width: '100%',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        flex: 1,
-        gap: 8,
-    },
-    lockButton: {
-        display: 'flex',
-        gap: 8,
-        alignItems: 'center',
-    },
-    icon: {
-        height: 20,
-    },
-    status: {
-        display: 'flex',
-        alignItems: 'center',
-    },
-    noCardContainer: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-    },
-    noCardLocked: {
-        width: '100%',
-        textAlign: 'right',
-    },
-    workingIcon: {
+    lockWorkingIcon: {
         position: 'absolute',
         top: 10,
         left: 10,
     },
-    svgIcon: {
+    lockSvgIcon: {
         // width: '100%',
         // height: '100%',
     },
@@ -94,9 +54,8 @@ const styles = () => ({
 class Lock extends Generic {
     constructor(props) {
         super(props);
-        this.state.objects = {};
-        this.state.dialog = false;
-        this.state.pinInput = '';
+        this.state.dialogPin = false;
+        this.state.lockPinInput = '';
         this.state.invalidPin = false;
         this.state.confirmDialog = false;
     }
@@ -167,8 +126,10 @@ class Lock extends Generic {
                             name: 'pincode',
                             label: 'pincode',
                             onChange: async (field, data, changeData /* , socket */) => {
-                                data[`pincode${field.index}`] = (data[`pincode${field.index}`] || '').replace(/[^0-9]/g, '');
-                                changeData(data);
+                                if (data.pincode && data.pincode.match(/[^0-9]/g)) {
+                                    data.pincode = data.pincode.replace(/[^0-9]/g, '');
+                                    changeData(data);
+                                }
                             },
                             hidden: data => !!data['pincode-oid'],
                         },
@@ -239,17 +200,17 @@ class Lock extends Generic {
         return Lock.getWidgetInfo();
     }
 
-    renderUnlockDialog() {
-        if (!this.state.dialog) {
+    lockRenderUnlockDialog() {
+        if (!this.state.dialogPin) {
             return null;
         }
-        const pincode = this.getPincode();
+        const pincode = this.lockGetPinCode();
         const pincodeReturnButton = this.state.rxData.pincodeReturnButton === 'backspace' ? 'backspace' : 'submit';
 
-        return <Dialog open={!0} onClose={() => this.setState({ dialog: false })}>
+        return <Dialog open={!0} onClose={() => this.setState({ dialogPin: false })}>
             <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
             <DialogContent>
-                <div className={this.props.classes.pinInput}>
+                <div className={this.props.classes.lockPinInput}>
                     <TextField
                         variant="outlined"
                         fullWidth
@@ -261,10 +222,10 @@ class Lock extends Generic {
                                 color: this.state.invalidPin ? '#ff3e3e' : 'inherit',
                             },
                         }}
-                        value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.pinInput}
+                        value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.lockPinInput}
                     />
                 </div>
-                <div className={this.props.classes.pinGrid}>
+                <div className={this.props.classes.lockPinGrid}>
                     {
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
                             pincodeReturnButton].map(button => {
@@ -278,44 +239,44 @@ class Lock extends Generic {
                                 variant="outlined"
                                 key={button}
                                 title={button === 'R' ?
-                                    (this.state.pinInput ? Generic.t('reset') : Generic.t('close')) :
+                                    (this.state.lockPinInput ? Generic.t('reset') : Generic.t('close')) :
                                     (button === pincodeReturnButton ? 'enter' : '')}
                                 onClick={() => {
                                     if (button === 'submit') {
-                                        if (this.state.pinInput === pincode) {
-                                            if (this.state.dialog === 'doorOpen-oid') {
+                                        if (this.state.lockPinInput === pincode) {
+                                            if (this.state.dialogPin === 'doorOpen-oid') {
                                                 this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
                                             } else {
                                                 this.props.context.socket.setState(this.state.rxData['lock-oid'], true);
                                             }
-                                            this.setState({ dialog: false });
+                                            this.setState({ dialogPin: false });
                                         } else {
-                                            this.setState({ pinInput: '', invalidPin: true });
+                                            this.setState({ lockPinInput: '', invalidPin: true });
                                             setTimeout(() => this.setState({ invalidPin: false }), 500);
                                         }
                                     } else if (button === 'backspace') {
-                                        this.setState({ pinInput: this.state.pinInput.slice(0, -1) });
+                                        this.setState({ lockPinInput: this.state.lockPinInput.slice(0, -1) });
                                     } else if (button === 'R') {
-                                        if (!this.state.pinInput) {
-                                            this.setState({ dialog: false });
+                                        if (!this.state.lockPinInput) {
+                                            this.setState({ dialogPin: false });
                                         } else {
-                                            this.setState({ pinInput: '' });
+                                            this.setState({ lockPinInput: '' });
                                         }
                                     } else {
-                                        const pinInput = this.state.pinInput + button;
-                                        this.setState({ pinInput });
-                                        if (pincodeReturnButton === 'backspace' && pinInput === pincode) {
-                                            if (this.state.dialog === 'doorOpen-oid') {
+                                        const lockPinInput = this.state.lockPinInput + button;
+                                        this.setState({ lockPinInput });
+                                        if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
+                                            if (this.state.dialogPin === 'doorOpen-oid') {
                                                 this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
                                             } else {
                                                 this.props.context.socket.setState(this.state.rxData['lock-oid'], true);
                                             }
-                                            this.setState({ dialog: false });
+                                            this.setState({ dialogPin: false });
                                         }
                                     }
                                 }}
                             >
-                                {buttonTitle === 'R' ? (this.state.pinInput ? 'R' : 'x') : buttonTitle}
+                                {buttonTitle === 'R' ? (this.state.lockPinInput ? 'R' : 'x') : buttonTitle}
                             </Button>;
                         })
                     }
@@ -324,20 +285,13 @@ class Lock extends Generic {
         </Dialog>;
     }
 
-    getPincode() {
+    lockGetPinCode() {
         return this.state.rxData['pincode-oid'] ?
             this.getPropertyValue('pincode-oid') :
             this.state.rxData.pincode;
     }
 
-    renderMessageDialog() {
-        return this.state.message ? <DialogMessage
-            text={this.state.message}
-            onClose={() => this.setState({ message: null })}
-        /> : null;
-    }
-
-    renderConfirmDialog() {
+    lockRenderConfirmDialog() {
         if (!this.state.confirmDialog) {
             return null;
         }
@@ -384,15 +338,15 @@ class Lock extends Generic {
         const working = this.state.rxData['lockWorking-oid'] && this.getPropertyValue('lockWorking-oid');
 
         const content = <div>
-            {this.renderUnlockDialog()}
-            {this.renderConfirmDialog()}
+            {this.lockRenderUnlockDialog()}
+            {this.lockRenderConfirmDialog()}
             {this.state.rxData['doorSensor-oid'] || this.state.rxData['doorOpen-oid'] ?
                 <IconButton
                     disabled={!this.state.rxData['doorOpen-oid']}
                     title={this.state.rxData['doorOpen-oid'] ? Generic.t('open_door') : null}
                     onClick={() => {
-                        if (this.getPincode()) {
-                            this.setState({ dialog: 'doorOpen-oid', pinInput: '' });
+                        if (this.lockGetPinCode()) {
+                            this.setState({ dialogPin: 'doorOpen-oid', lockPinInput: '' });
                         } else if (this.state.rxData.doNotConfirm) {
                             this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
                         } else {
@@ -406,8 +360,8 @@ class Lock extends Generic {
                 <IconButton
                     title={lockOpened ? Generic.t('close_lock') : Generic.t('open_lock')}
                     onClick={() => {
-                        if (!lockOpened && this.getPincode()) {
-                            this.setState({ dialog: 'lock-oid', pinInput: '' });
+                        if (!lockOpened && this.lockGetPinCode()) {
+                            this.setState({ dialogPin: 'lock-oid', lockPinInput: '' });
                         } else if (lockOpened || this.state.rxData.doNotConfirm) {
                             this.props.context.socket.setState(this.state.rxData['lock-oid'], !this.getPropertyValue('lock-oid'));
                         } else {
@@ -415,16 +369,16 @@ class Lock extends Generic {
                         }
                     }}
                 >
-                    {working ? <CircularProgress className={this.props.classes.workingIcon} size={this.state.rxData.lockSize || 40} /> : null}
+                    {working ? <CircularProgress className={this.props.classes.lockWorkingIcon} size={this.state.rxData.lockSize || 40} /> : null}
                     {this.state.rxData.noLockAnimation ? (lockOpened ?
                         <LockOpenedIcon
                             style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
-                            className={this.props.classes.svgIcon}
+                            className={this.props.classes.lockSvgIcon}
                             sx={theme => ({ color: theme.palette.primary.main })}
                         /> :
                         <LockClosedIcon
                             style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
-                            className={this.props.classes.svgIcon}
+                            className={this.props.classes.lockSvgIcon}
                         />) :
                         <LockAnimation
                             open={lockOpened}

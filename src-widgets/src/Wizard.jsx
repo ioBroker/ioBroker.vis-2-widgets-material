@@ -61,9 +61,7 @@ const WizardDialog = props => {
                 _roomsChecked[room._id] = true;
                 room.devices.forEach(device => {
                     _devicesChecked[device._id] = true;
-                    device.states.forEach(state => {
-                        _checked[state._id] = true;
-                    });
+                    device.states.forEach(state => _checked[state._id] = true);
                 });
             });
             setDevicesChecked(_devicesChecked);

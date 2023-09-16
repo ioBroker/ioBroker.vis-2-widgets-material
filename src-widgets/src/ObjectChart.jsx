@@ -312,7 +312,7 @@ class ObjectChart extends Component {
             .then(_list => {
                 list = _list;
                 // read default history
-                return this.props.context.systemConfig ? Promise.resolve(this.props.context.systemConfig) : this.props.socket.getSystemConfig();
+                return this.props.systemConfig ? Promise.resolve(this.props.systemConfig) : this.props.socket.getSystemConfig();
             })
             .then(config => {
                 const defaultHistory = config && config.common && config.common.defaultHistory;

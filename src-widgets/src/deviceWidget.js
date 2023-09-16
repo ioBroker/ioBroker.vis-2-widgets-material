@@ -15,30 +15,36 @@ const ICONS = {
 };
 
 const DEVICE_ICONS = {
-    blinds:       'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMjAsMTlWM0g0djE2SDJ2MmgyMHYtMkgyMHogTTE2LDloMnYyaC0yVjl6IE0xNCwxMUg2VjloOFYxMXogTTE4LDdoLTJWNWgyVjd6IE0xNCw1djJINlY1SDE0eiBNNiwxOXYtNmg4djEuODIgYy0wLjQ1LDAuMzItMC43NSwwLjg0LTAuNzUsMS40M2MwLDAuOTcsMC43OCwxLjc1LDEuNzUsMS43NXMxLjc1LTAuNzgsMS43NS0xLjc1YzAtMC41OS0wLjMtMS4xMi0wLjc1LTEuNDNWMTNoMnY2SDZ6IiAvPg0KPC9zdmc+',
-    dimmer:       'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNNywyMGg0YzAsMS4xLTAuOSwyLTIsMlM3LDIxLjEsNywyMHogTTUsMTloOHYtMkg1VjE5eiBNMTYuNSw5LjVjMCwzLjgyLTIuNjYsNS44Ni0zLjc3LDYuNUg1LjI3IEM0LjE2LDE1LjM2LDEuNSwxMy4zMiwxLjUsOS41QzEuNSw1LjM2LDQuODYsMiw5LDJTMTYuNSw1LjM2LDE2LjUsOS41eiBNMTQuNSw5LjVDMTQuNSw2LjQ3LDEyLjAzLDQsOSw0UzMuNSw2LjQ3LDMuNSw5LjUgYzAsMi40NywxLjQ5LDMuODksMi4zNSw0LjVoNi4zQzEzLjAxLDEzLjM5LDE0LjUsMTEuOTcsMTQuNSw5LjV6IE0yMS4zNyw3LjM3TDIwLDhsMS4zNywwLjYzTDIyLDEwbDAuNjMtMS4zN0wyNCw4bC0xLjM3LTAuNjNMMjIsNiBMMjEuMzcsNy4zN3ogTTE5LDZsMC45NC0yLjA2TDIyLDNsLTIuMDYtMC45NEwxOSwwbC0wLjk0LDIuMDZMMTYsM2wyLjA2LDAuOTRMMTksNnoiLz4NCjwvc3ZnPg==',
-    door:         'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPGc+DQogICAgICAgIDxyZWN0IGZpbGw9Im5vbmUiIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xOCw0djE2SDZWNEgxOCBNMTgsMkg2QzQuOSwyLDQsMi45LDQsNHYxOGgxNlY0QzIwLDIuOSwxOS4xLDIsMTgsMkwxOCwyeiBNMTUuNSwxMC41Yy0wLjgzLDAtMS41LDAuNjctMS41LDEuNSBzMC42NywxLjUsMS41LDEuNWMwLjgzLDAsMS41LTAuNjcsMS41LTEuNVMxNi4zMywxMC41LDE1LjUsMTAuNXoiLz4NCiAgICA8L2c+DQo8L3N2Zz4=',
-    fireAlarm:    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYsNmwtMC40NCwwLjU1Yy0wLjQyLDAuNTItMC45OCwwLjc1LTEuNTQsMC43NUMxMyw3LjMsMTIsNi41MiwxMiw1LjNWMmMwLDAtOCw0LTgsMTFjMCw0LjQyLDMuNTgsOCw4LDhzOC0zLjU4LDgtOCBDMjAsMTAuMDQsMTguMzksNy4zOCwxNiw2eiBNMTIsMTljLTEuMSwwLTItMC44Ny0yLTEuOTRjMC0wLjUxLDAuMi0wLjk5LDAuNTgtMS4zNmwxLjQyLTEuNGwxLjQzLDEuNCBDMTMuOCwxNi4wNywxNCwxNi41NSwxNCwxNy4wNkMxNCwxOC4xMywxMy4xLDE5LDEyLDE5eiBNMTUuOTYsMTcuNUwxNS45NiwxNy41YzAuMDQtMC4zNiwwLjIyLTEuODktMS4xMy0zLjIybDAsMEwxMiwxMS41IGwtMi44MywyLjc4bDAsMGMtMS4zNiwxLjM0LTEuMTcsMi44OC0xLjEzLDMuMjJDNi43OSwxNi40LDYsMTQuNzksNiwxM2MwLTMuMTYsMi4xMy01LjY1LDQuMDMtNy4yNWMwLjIzLDEuOTksMS45MywzLjU1LDMuOTksMy41NSBjMC43OCwwLDEuNTQtMC4yMywyLjE4LTAuNjZDMTcuMzQsOS43OCwxOCwxMS4zNSwxOCwxM0MxOCwxNC43OSwxNy4yMSwxNi40LDE1Ljk2LDE3LjV6IiAvPg0KPC9zdmc+',
-    floodAlarm:   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMjEuOTgsMTRIMjJIMjEuOTh6IE01LjM1LDEzYzEuMTksMCwxLjQyLDEsMy4zMywxYzEuOTUsMCwyLjA5LTEsMy4zMy0xYzEuMTksMCwxLjQyLDEsMy4zMywxYzEuOTUsMCwyLjA5LTEsMy4zMy0xIGMxLjE5LDAsMS40LDAuOTgsMy4zMSwxdi0yYy0xLjE5LDAtMS40Mi0xLTMuMzMtMWMtMS45NSwwLTIuMDksMS0zLjMzLDFjLTEuMTksMC0xLjQyLTEtMy4zMy0xYy0xLjk1LDAtMi4wOSwxLTMuMzMsMSBjLTEuMTksMC0xLjQyLTEtMy4zMy0xQzMuMzgsMTEsMy4yNCwxMiwyLDEydjJDMy45LDE0LDQuMTcsMTMsNS4zNSwxM3ogTTE4LjY3LDE1Yy0xLjk1LDAtMi4wOSwxLTMuMzMsMWMtMS4xOSwwLTEuNDItMS0zLjMzLTEgYy0xLjk1LDAtMi4xLDEtMy4zNCwxYy0xLjI0LDAtMS4zOC0xLTMuMzMtMWMtMS45NSwwLTIuMSwxLTMuMzQsMXYyYzEuOTUsMCwyLjExLTEsMy4zNC0xYzEuMjQsMCwxLjM4LDEsMy4zMywxIGMxLjk1LDAsMi4xLTEsMy4zNC0xYzEuMTksMCwxLjQyLDEsMy4zMywxYzEuOTQsMCwyLjA5LTEsMy4zMy0xYzEuMTksMCwxLjQyLDEsMy4zMywxdi0yQzIwLjc2LDE2LDIwLjYyLDE1LDE4LjY3LDE1eiBNNS4zNSw5IGMxLjE5LDAsMS40MiwxLDMuMzMsMWMxLjk1LDAsMi4wOS0xLDMuMzMtMWMxLjE5LDAsMS40MiwxLDMuMzMsMWMxLjk1LDAsMi4wOS0xLDMuMzMtMWMxLjE5LDAsMS40LDAuOTgsMy4zMSwxVjggYy0xLjE5LDAtMS40Mi0xLTMuMzMtMWMtMS45NSwwLTIuMDksMS0zLjMzLDFjLTEuMTksMC0xLjQyLTEtMy4zMy0xQzEwLjA0LDcsOS45LDgsOC42Niw4QzcuNDcsOCw3LjI0LDcsNS4zMyw3IEMzLjM4LDcsMy4yNCw4LDIsOHYyQzMuOSwxMCw0LjE3LDksNS4zNSw5eiIgLz4NCjwvc3ZnPg==',
-    humidity:     'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTIsMmMtNS4zMyw0LjU1LTgsOC40OC04LDExLjhjMCw0Ljk4LDMuOCw4LjIsOCw4LjJzOC0zLjIyLDgtOC4yQzIwLDEwLjQ4LDE3LjMzLDYuNTUsMTIsMnogTTEyLDIwYy0zLjM1LDAtNi0yLjU3LTYtNi4yIGMwLTIuMzQsMS45NS01LjQ0LDYtOS4xNGM0LjA1LDMuNyw2LDYuNzksNiw5LjE0QzE4LDE3LjQzLDE1LjM1LDIwLDEyLDIweiBNNy44MywxNGMwLjM3LDAsMC42NywwLjI2LDAuNzQsMC42MiBjMC40MSwyLjIyLDIuMjgsMi45OCwzLjY0LDIuODdjMC40My0wLjAyLDAuNzksMC4zMiwwLjc5LDAuNzVjMCwwLjQtMC4zMiwwLjczLTAuNzIsMC43NWMtMi4xMywwLjEzLTQuNjItMS4wOS01LjE5LTQuMTIgQzcuMDEsMTQuNDIsNy4zNywxNCw3LjgzLDE0eiIgLz4NCjwvc3ZnPg==',
-    levelSlider:  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMyAxN3YyaDZ2LTJIM3pNMyA1djJoMTBWNUgzem0xMCAxNnYtMmg4di0yaC04di0yaC0ydjZoMnpNNyA5djJIM3YyaDR2MmgyVjlIN3ptMTQgNHYtMkgxMXYyaDEwem0tNi00aDJWN2g0VjVoLTRWM2gtMnY2eiIgLz4NCjwvc3ZnPg==',
-    light:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNOSAyMWMwIC41NS40NSAxIDEgMWg0Yy41NSAwIDEtLjQ1IDEtMXYtMUg5djF6bTMtMTlDOC4xNCAyIDUgNS4xNCA1IDljMCAyLjM4IDEuMTkgNC40NyAzIDUuNzRWMTdjMCAuNTUuNDUgMSAxIDFoNmMuNTUgMCAxLS40NSAxLTF2LTIuMjZjMS44MS0xLjI3IDMtMy4zNiAzLTUuNzQgMC0zLjg2LTMuMTQtNy03LTd6bTIuODUgMTEuMWwtLjg1LjZWMTZoLTR2LTIuM2wtLjg1LS42QzcuOCAxMi4xNiA3IDEwLjYzIDcgOWMwLTIuNzYgMi4yNC01IDUtNXM1IDIuMjQgNSA1YzAgMS42My0uOCAzLjE2LTIuMTUgNC4xeiIgLz4NCjwvc3ZnPg==',
-    lock:         'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTggOGgtMVY2YzAtMi43Ni0yLjI0LTUtNS01UzcgMy4yNCA3IDZ2Mkg2Yy0xLjEgMC0yIC45LTIgMnYxMGMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjEwYzAtMS4xLS45LTItMi0yek05IDZjMC0xLjY2IDEuMzQtMyAzLTNzMyAxLjM0IDMgM3YySDlWNnptOSAxNEg2VjEwaDEydjEwem0tNi0zYzEuMSAwIDItLjkgMi0ycy0uOS0yLTItMi0yIC45LTIgMiAuOSAyIDIgMnoiIC8+DQo8L3N2Zz4=',
-    media:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTIsMkM2LjQ4LDIsMiw2LjQ4LDIsMTJzNC40OCwxMCwxMCwxMHMxMC00LjQ4LDEwLTEwUzE3LjUyLDIsMTIsMnogTTEyLDIwYy00LjQxLDAtOC0zLjU5LTgtOHMzLjU5LTgsOC04czgsMy41OSw4LDggUzE2LjQxLDIwLDEyLDIweiBNOS41LDE2LjVsNy00LjVsLTctNC41VjE2LjV6IiAvPg0KPC9zdmc+',
-    motion:       'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iNDgiPg0KICAgIDxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTUzNS00MHYtMjM5bC0xMDgtOTktNDIgMTg4LTI2NS01NSAxMS01NiAxOTkgNDAgNzMtMzY5LTEwMCA0N3YxMzRoLTYwdi0xNzVsMTY0LTY5cTMyLTE0IDQ1LjUtMTcuNVQ0ODAtNzE0cTIwIDAgMzUuNSA4LjVUNTQyLTY4MGw0MiA2N3EyNiA0MiA3MSA3M3QxMDUgMzF2NjBxLTY3IDAtMTE5LjUtMzFUNTQzLTU3M2wtMzkgMTU4IDkxIDg0djI5MWgtNjBabTUtNzE0cS0zMCAwLTUxLjUtMjEuNVQ0NjctODI3cTAtMzAgMjEuNS01MS41VDU0MC05MDBxMzAgMCA1MS41IDIxLjVUNjEzLTgyN3EwIDMwLTIxLjUgNTEuNVQ1NDAtNzU0WiIgLz4NCjwvc3ZnPg==',
-    rgb:          'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTIgMjJDNi40OSAyMiAyIDE3LjUxIDIgMTJTNi40OSAyIDEyIDJzMTAgNC4wNCAxMCA5YzAgMy4zMS0yLjY5IDYtNiA2aC0xLjc3Yy0uMjggMC0uNS4yMi0uNS41IDAgLjEyLjA1LjIzLjEzLjMzLjQxLjQ3LjY0IDEuMDYuNjQgMS42NyAwIDEuMzgtMS4xMiAyLjUtMi41IDIuNXptMC0xOGMtNC40MSAwLTggMy41OS04IDhzMy41OSA4IDggOGMuMjggMCAuNS0uMjIuNS0uNSAwLS4xNi0uMDgtLjI4LS4xNC0uMzUtLjQxLS40Ni0uNjMtMS4wNS0uNjMtMS42NSAwLTEuMzggMS4xMi0yLjUgMi41LTIuNUgxNmMyLjIxIDAgNC0xLjc5IDQtNCAwLTMuODYtMy41OS03LTgtN3oiLz4NCiAgICA8Y2lyY2xlIGZpbGw9ImN1cnJlbnRDb2xvciIgY3g9IjYuNSIgY3k9IjExLjUiIHI9IjEuNSIvPg0KICAgIDxjaXJjbGUgZmlsbD0iY3VycmVudENvbG9yIiBjeD0iOS41IiBjeT0iNy41IiByPSIxLjUiLz4NCiAgICA8Y2lyY2xlIGZpbGw9ImN1cnJlbnRDb2xvciIgY3g9IjE0LjUiIGN5PSI3LjUiIHI9IjEuNSIvPg0KICAgIDxjaXJjbGUgZmlsbD0iY3VycmVudENvbG9yIiBjeD0iMTcuNSIgY3k9IjExLjUiIHI9IjEuNSIvPg0KPC9zdmc+',
-    socket:       'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYgOXY0LjY2bC0zLjUgMy41MVYxOWgtMXYtMS44M0w4IDEzLjY1VjloOG0wLTZoLTJ2NGgtNFYzSDh2NGgtLjAxQzYuOSA2Ljk5IDYgNy44OSA2IDguOTh2NS41Mkw5LjUgMTh2M2g1di0zbDMuNS0zLjUxVjljMC0xLjEtLjktMi0yLTJWM3oiIC8+DQo8L3N2Zz4=',
-    temperature:  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTUgMTNWNWMwLTEuNjYtMS4zNC0zLTMtM1M5IDMuMzQgOSA1djhjLTEuMjEuOTEtMiAyLjM3LTIgNCAwIDIuNzYgMi4yNCA1IDUgNXM1LTIuMjQgNS01YzAtMS42My0uNzktMy4wOS0yLTR6bS00LThjMC0uNTUuNDUtMSAxLTFzMSAuNDUgMSAxaC0xdjFoMXYyaC0xdjFoMXYyaC0yVjV6IiAvPg0KPC9zdmc+',
-    thermostat:   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NS42NTkgNDUuNjU5Ij4NCgk8cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0zMC42MTksMjcuMzA5VjcuNzgxQzMwLjYxOSwzLjQ5LDI3LjEyNCwwLDIyLjgzMywwYy00LjI5LDAtNy43ODUsMy40OTEtNy43ODUsNy43OHYxOS41MjgNCgkJYy0xLjkwMiwxLjk0OS0zLjA1LDQuNjA0LTMuMDUsNy41MjJjMCw1Ljk3Miw0Ljg1NywxMC44MjgsMTAuODI5LDEwLjgyOGM1Ljk3LDAsMTAuODM0LTQuODU2LDEwLjgzNC0xMC44MjgNCgkJQzMzLjY2MSwzMS45MTIsMzIuNTIsMjkuMjU4LDMwLjYxOSwyNy4zMDl6IE0yMi44MjUsNDIuNjZjLTQuMzE2LDAtNy44MjQtMy41MTItNy44MjQtNy44MjhjMC0yLjUyNywxLjE3NC00Ljc3OSwzLjA3Ny02LjIxMQ0KCQlWMTYuMjM3aDMuMzcyYzAuNTUyLDAsMS0wLjQ3LDEtMS4wMjJjMC0wLjU1My0wLjQ0OC0xLjAyMS0xLTEuMDIxaC0zLjM3MnYtMi40NjZoMy4zNzJjMC41NTIsMCwxLTAuNDM0LDEtMC45ODYNCgkJYzAtMC41NTItMC40NDgtMC45ODYtMS0wLjk4NmgtMy4zNzJWNy43OGMwLTIuNjM2LDIuMTE5LTQuNzgsNC43NTQtNC43OGMyLjYzNywwLDQuNzU2LDIuMTQ0LDQuNzU2LDQuNzgxdjIwLjg3MQ0KCQljMS45MDMsMS40MzQsMy4wNDcsMy42NzEsMy4wNDcsNi4xOEMzMC42MzUsMzkuMTQ4LDI3LjE0MSw0Mi42NiwyMi44MjUsNDIuNjZ6IiAvPg0KCTxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTI1LjMzNCwzMC40NjNWMTguNjMyaC01LjAwMnYxMS44MzFjLTEuNTQ5LDAuODc0LTIuNTM3LDIuNTAyLTIuNTM3LDQuMzY5YzAsMi43ODgsMi4yNTEsNS4wNDYsNS4wMzgsNS4wNDYNCgkJYzIuNzg4LDAsNS4wMzQtMi4yNTgsNS4wMzQtNS4wNDZDMjcuODY3LDMyLjk2NiwyNi44ODUsMzEuMzM3LDI1LjMzNCwzMC40NjN6IiAvPg0KPC9zdmc+DQo=',
-    volume:       'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYgNy45N3Y4LjA1YzEuNDgtLjczIDIuNS0yLjI1IDIuNS00LjAyIDAtMS43Ny0xLjAyLTMuMjktMi41LTQuMDN6TTUgOXY2aDRsNSA1VjRMOSA5SDV6bTctLjE3djYuMzRMOS44MyAxM0g3di0yaDIuODNMMTIgOC44M3oiIC8+DQo8L3N2Zz4=',
-    volumeGroup:  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYgNy45N3Y4LjA1YzEuNDgtLjczIDIuNS0yLjI1IDIuNS00LjAyIDAtMS43Ny0xLjAyLTMuMjktMi41LTQuMDN6TTUgOXY2aDRsNSA1VjRMOSA5SDV6bTctLjE3djYuMzRMOS44MyAxM0g3di0yaDIuODNMMTIgOC44M3oiIC8+DQo8L3N2Zz4=',
-    window:       'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNjEgMzYxIj4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lOyBzdHJva2U6IGN1cnJlbnRDb2xvcjtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlLW1pdGVybGltaXQ6MTA7IiBkPSJNMjY3LjgyNiwyNjMuMzAzYzAsMy45MS0zLjE1Niw3LjA4Mi03LjA1LDcuMDgyDQoJCWwtMTU3Ljg4NSwwLjAyMWMtMy44OTQsMC03LjA1LTMuMTcxLTcuMDUtNy4wODN2LTE1Ny41YzAtMy45MTEsMy4xNTYtNy4wODMsNy4wNS03LjA4M2wxNTcuODg1LTAuMDIxDQoJCWMzLjg5NCwwLDcuMDUsMy4xNzIsNy4wNSw3LjA4M1YyNjMuMzAzeiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiBjdXJyZW50Q29sb3I7IiBkPSJNMjU4LjUsMTg1LjU4NGMyLjIxMywwLDQuNDI2LDAsNi42MzksMGMyLjcyNiwwLDUtMi4yNzQsNS01cy0yLjI3NC01LTUtNQ0KCQljLTIuMjEzLDAtNC40MjYsMC02LjYzOSwwYy0yLjcyNiwwLTUsMi4yNzQtNSw1UzI1NS43NzQsMTg1LjU4NCwyNTguNSwxODUuNTg0TDI1OC41LDE4NS41ODR6Ii8+DQoJPHBhdGggc3R5bGU9ImZpbGw6bm9uZTsgc3Ryb2tlOiBjdXJyZW50Q29sb3I7IHN0cm9rZS13aWR0aDogMTA7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsiIGQ9Ik0yNjcuODI2LDEwMy4yMDhjMCwyLjQ4NS0yLjcxMSw0LjUtNi4wNTMsNC41DQoJCWwtMTU5Ljg4LDAuMDIxYy0zLjM0MiwwLTYuMDUyLTIuMDE1LTYuMDUyLTQuNXYtOWMwLTIuNDg1LDIuNzEtNC41LDYuMDUyLTQuNWwxNTkuODgtMC4wMjFjMy4zNDIsMCw2LjA1MywyLjAxNSw2LjA1Myw0LjVWMTAzLjIwOA0KCQl6IiAvPg0KPC9zdmc+DQo=',
-    windowTilt:   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNjEgMzYxIj4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTpjdXJyZW50Q29sb3I7c3Ryb2tlLXdpZHRoOjEwO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIgZD0iTTI2Ny44MjYsMjYzLjMwM2MwLDMuOTEtMy4xNTYsNy4wODItNy4wNSw3LjA4Mg0KCQlsLTE1Ny44ODUsMC4wMjFjLTMuODk0LDAtNy4wNS0zLjE3MS03LjA1LTcuMDgzdi0xNTcuNWMwLTMuOTExLDMuMTU2LTcuMDgzLDcuMDUtNy4wODNsMTU3Ljg4NS0wLjAyMQ0KCQljMy44OTQsMCw3LjA1LDMuMTcyLDcuMDUsNy4wODNWMjYzLjMwM3oiLz4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTpjdXJyZW50Q29sb3I7c3Ryb2tlLXdpZHRoOjEwO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIgZD0iTTI2Ny44MjYsMTAzLjIwOGMwLDIuNDg1LTIuNzExLDQuNS02LjA1Myw0LjUNCgkJbC0xNTkuODgsMC4wMjFjLTMuMzQyLDAtNi4wNTItMi4wMTUtNi4wNTItNC41di05YzAtMi40ODUsMi43MS00LjUsNi4wNTItNC41bDE1OS44OC0wLjAyMWMzLjM0MiwwLDYuMDUzLDIuMDE1LDYuMDUzLDQuNVYxMDMuMjA4DQoJCXoiLz4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTpjdXJyZW50Q29sb3I7c3Ryb2tlLXdpZHRoOjEwO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIgZD0iTTI2NS43MzIsMjY1LjE3OA0KCQljMC41ODQsMi44ODctMS42MjksNS4yMjgtNC45NDIsNS4yMjhIMTAzLjQ1N2MtMy4zMTMsMC02LjQ3NC0yLjM0MS03LjA1OC01LjIyOEw3NS4yNCwxMzAuNjMzDQoJCWMtMC41ODQtMi44ODcsMS42MjgtNS4yMjgsNC45NDItNS4yMjhoMTU3LjMzM2MzLjMxMywwLDYuNDc0LDIuMzQsNy4wNTgsNS4yMjhMMjY1LjczMiwyNjUuMTc4eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOmN1cnJlbnRDb2xvcjsiIGQ9Ik0yNDcuMTk0LDE5OS42NjdjMi4yMTMsMCw0LjQyNiwwLDYuNjM5LDBjMi43MjYsMCw1LTIuMjc0LDUtNXMtMi4yNzQtNS01LTUNCgkJYy0yLjIxMywwLTQuNDI2LDAtNi42MzksMGMtMi43MjYsMC01LDIuMjc0LTUsNVMyNDQuNDY5LDE5OS42NjcsMjQ3LjE5NCwxOTkuNjY3TDI0Ny4xOTQsMTk5LjY2N3oiLz4NCjwvc3ZnPg0K',
+    blinds:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMjAsMTlWM0g0djE2SDJ2MmgyMHYtMkgyMHogTTE2LDloMnYyaC0yVjl6IE0xNCwxMUg2VjloOFYxMXogTTE4LDdoLTJWNWgyVjd6IE0xNCw1djJINlY1SDE0eiBNNiwxOXYtNmg4djEuODIgYy0wLjQ1LDAuMzItMC43NSwwLjg0LTAuNzUsMS40M2MwLDAuOTcsMC43OCwxLjc1LDEuNzUsMS43NXMxLjc1LTAuNzgsMS43NS0xLjc1YzAtMC41OS0wLjMtMS4xMi0wLjc1LTEuNDNWMTNoMnY2SDZ6IiAvPg0KPC9zdmc+',
+    dimmer:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNNywyMGg0YzAsMS4xLTAuOSwyLTIsMlM3LDIxLjEsNywyMHogTTUsMTloOHYtMkg1VjE5eiBNMTYuNSw5LjVjMCwzLjgyLTIuNjYsNS44Ni0zLjc3LDYuNUg1LjI3IEM0LjE2LDE1LjM2LDEuNSwxMy4zMiwxLjUsOS41QzEuNSw1LjM2LDQuODYsMiw5LDJTMTYuNSw1LjM2LDE2LjUsOS41eiBNMTQuNSw5LjVDMTQuNSw2LjQ3LDEyLjAzLDQsOSw0UzMuNSw2LjQ3LDMuNSw5LjUgYzAsMi40NywxLjQ5LDMuODksMi4zNSw0LjVoNi4zQzEzLjAxLDEzLjM5LDE0LjUsMTEuOTcsMTQuNSw5LjV6IE0yMS4zNyw3LjM3TDIwLDhsMS4zNywwLjYzTDIyLDEwbDAuNjMtMS4zN0wyNCw4bC0xLjM3LTAuNjNMMjIsNiBMMjEuMzcsNy4zN3ogTTE5LDZsMC45NC0yLjA2TDIyLDNsLTIuMDYtMC45NEwxOSwwbC0wLjk0LDIuMDZMMTYsM2wyLjA2LDAuOTRMMTksNnoiLz4NCjwvc3ZnPg==',
+    door:          'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPGc+DQogICAgICAgIDxyZWN0IGZpbGw9Im5vbmUiIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xOCw0djE2SDZWNEgxOCBNMTgsMkg2QzQuOSwyLDQsMi45LDQsNHYxOGgxNlY0QzIwLDIuOSwxOS4xLDIsMTgsMkwxOCwyeiBNMTUuNSwxMC41Yy0wLjgzLDAtMS41LDAuNjctMS41LDEuNSBzMC42NywxLjUsMS41LDEuNWMwLjgzLDAsMS41LTAuNjcsMS41LTEuNVMxNi4zMywxMC41LDE1LjUsMTAuNXoiLz4NCiAgICA8L2c+DQo8L3N2Zz4=',
+    fireAlarm:     'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYsNmwtMC40NCwwLjU1Yy0wLjQyLDAuNTItMC45OCwwLjc1LTEuNTQsMC43NUMxMyw3LjMsMTIsNi41MiwxMiw1LjNWMmMwLDAtOCw0LTgsMTFjMCw0LjQyLDMuNTgsOCw4LDhzOC0zLjU4LDgtOCBDMjAsMTAuMDQsMTguMzksNy4zOCwxNiw2eiBNMTIsMTljLTEuMSwwLTItMC44Ny0yLTEuOTRjMC0wLjUxLDAuMi0wLjk5LDAuNTgtMS4zNmwxLjQyLTEuNGwxLjQzLDEuNCBDMTMuOCwxNi4wNywxNCwxNi41NSwxNCwxNy4wNkMxNCwxOC4xMywxMy4xLDE5LDEyLDE5eiBNMTUuOTYsMTcuNUwxNS45NiwxNy41YzAuMDQtMC4zNiwwLjIyLTEuODktMS4xMy0zLjIybDAsMEwxMiwxMS41IGwtMi44MywyLjc4bDAsMGMtMS4zNiwxLjM0LTEuMTcsMi44OC0xLjEzLDMuMjJDNi43OSwxNi40LDYsMTQuNzksNiwxM2MwLTMuMTYsMi4xMy01LjY1LDQuMDMtNy4yNWMwLjIzLDEuOTksMS45MywzLjU1LDMuOTksMy41NSBjMC43OCwwLDEuNTQtMC4yMywyLjE4LTAuNjZDMTcuMzQsOS43OCwxOCwxMS4zNSwxOCwxM0MxOCwxNC43OSwxNy4yMSwxNi40LDE1Ljk2LDE3LjV6IiAvPg0KPC9zdmc+',
+    floodAlarm:    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMjEuOTgsMTRIMjJIMjEuOTh6IE01LjM1LDEzYzEuMTksMCwxLjQyLDEsMy4zMywxYzEuOTUsMCwyLjA5LTEsMy4zMy0xYzEuMTksMCwxLjQyLDEsMy4zMywxYzEuOTUsMCwyLjA5LTEsMy4zMy0xIGMxLjE5LDAsMS40LDAuOTgsMy4zMSwxdi0yYy0xLjE5LDAtMS40Mi0xLTMuMzMtMWMtMS45NSwwLTIuMDksMS0zLjMzLDFjLTEuMTksMC0xLjQyLTEtMy4zMy0xYy0xLjk1LDAtMi4wOSwxLTMuMzMsMSBjLTEuMTksMC0xLjQyLTEtMy4zMy0xQzMuMzgsMTEsMy4yNCwxMiwyLDEydjJDMy45LDE0LDQuMTcsMTMsNS4zNSwxM3ogTTE4LjY3LDE1Yy0xLjk1LDAtMi4wOSwxLTMuMzMsMWMtMS4xOSwwLTEuNDItMS0zLjMzLTEgYy0xLjk1LDAtMi4xLDEtMy4zNCwxYy0xLjI0LDAtMS4zOC0xLTMuMzMtMWMtMS45NSwwLTIuMSwxLTMuMzQsMXYyYzEuOTUsMCwyLjExLTEsMy4zNC0xYzEuMjQsMCwxLjM4LDEsMy4zMywxIGMxLjk1LDAsMi4xLTEsMy4zNC0xYzEuMTksMCwxLjQyLDEsMy4zMywxYzEuOTQsMCwyLjA5LTEsMy4zMy0xYzEuMTksMCwxLjQyLDEsMy4zMywxdi0yQzIwLjc2LDE2LDIwLjYyLDE1LDE4LjY3LDE1eiBNNS4zNSw5IGMxLjE5LDAsMS40MiwxLDMuMzMsMWMxLjk1LDAsMi4wOS0xLDMuMzMtMWMxLjE5LDAsMS40MiwxLDMuMzMsMWMxLjk1LDAsMi4wOS0xLDMuMzMtMWMxLjE5LDAsMS40LDAuOTgsMy4zMSwxVjggYy0xLjE5LDAtMS40Mi0xLTMuMzMtMWMtMS45NSwwLTIuMDksMS0zLjMzLDFjLTEuMTksMC0xLjQyLTEtMy4zMy0xQzEwLjA0LDcsOS45LDgsOC42Niw4QzcuNDcsOCw3LjI0LDcsNS4zMyw3IEMzLjM4LDcsMy4yNCw4LDIsOHYyQzMuOSwxMCw0LjE3LDksNS4zNSw5eiIgLz4NCjwvc3ZnPg==',
+    humidity:      'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTIsMmMtNS4zMyw0LjU1LTgsOC40OC04LDExLjhjMCw0Ljk4LDMuOCw4LjIsOCw4LjJzOC0zLjIyLDgtOC4yQzIwLDEwLjQ4LDE3LjMzLDYuNTUsMTIsMnogTTEyLDIwYy0zLjM1LDAtNi0yLjU3LTYtNi4yIGMwLTIuMzQsMS45NS01LjQ0LDYtOS4xNGM0LjA1LDMuNyw2LDYuNzksNiw5LjE0QzE4LDE3LjQzLDE1LjM1LDIwLDEyLDIweiBNNy44MywxNGMwLjM3LDAsMC42NywwLjI2LDAuNzQsMC42MiBjMC40MSwyLjIyLDIuMjgsMi45OCwzLjY0LDIuODdjMC40My0wLjAyLDAuNzksMC4zMiwwLjc5LDAuNzVjMCwwLjQtMC4zMiwwLjczLTAuNzIsMC43NWMtMi4xMywwLjEzLTQuNjItMS4wOS01LjE5LTQuMTIgQzcuMDEsMTQuNDIsNy4zNywxNCw3LjgzLDE0eiIgLz4NCjwvc3ZnPg==',
+    levelSlider:   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMyAxN3YyaDZ2LTJIM3pNMyA1djJoMTBWNUgzem0xMCAxNnYtMmg4di0yaC04di0yaC0ydjZoMnpNNyA5djJIM3YyaDR2MmgyVjlIN3ptMTQgNHYtMkgxMXYyaDEwem0tNi00aDJWN2g0VjVoLTRWM2gtMnY2eiIgLz4NCjwvc3ZnPg==',
+    light:         'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNOSAyMWMwIC41NS40NSAxIDEgMWg0Yy41NSAwIDEtLjQ1IDEtMXYtMUg5djF6bTMtMTlDOC4xNCAyIDUgNS4xNCA1IDljMCAyLjM4IDEuMTkgNC40NyAzIDUuNzRWMTdjMCAuNTUuNDUgMSAxIDFoNmMuNTUgMCAxLS40NSAxLTF2LTIuMjZjMS44MS0xLjI3IDMtMy4zNiAzLTUuNzQgMC0zLjg2LTMuMTQtNy03LTd6bTIuODUgMTEuMWwtLjg1LjZWMTZoLTR2LTIuM2wtLjg1LS42QzcuOCAxMi4xNiA3IDEwLjYzIDcgOWMwLTIuNzYgMi4yNC01IDUtNXM1IDIuMjQgNSA1YzAgMS42My0uOCAzLjE2LTIuMTUgNC4xeiIgLz4NCjwvc3ZnPg==',
+    lock:          'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTggOGgtMVY2YzAtMi43Ni0yLjI0LTUtNS01UzcgMy4yNCA3IDZ2Mkg2Yy0xLjEgMC0yIC45LTIgMnYxMGMwIDEuMS45IDIgMiAyaDEyYzEuMSAwIDItLjkgMi0yVjEwYzAtMS4xLS45LTItMi0yek05IDZjMC0xLjY2IDEuMzQtMyAzLTNzMyAxLjM0IDMgM3YySDlWNnptOSAxNEg2VjEwaDEydjEwem0tNi0zYzEuMSAwIDItLjkgMi0ycy0uOS0yLTItMi0yIC45LTIgMiAuOSAyIDIgMnoiIC8+DQo8L3N2Zz4=',
+    media:         'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTIsMkM2LjQ4LDIsMiw2LjQ4LDIsMTJzNC40OCwxMCwxMCwxMHMxMC00LjQ4LDEwLTEwUzE3LjUyLDIsMTIsMnogTTEyLDIwYy00LjQxLDAtOC0zLjU5LTgtOHMzLjU5LTgsOC04czgsMy41OSw4LDggUzE2LjQxLDIwLDEyLDIweiBNOS41LDE2LjVsNy00LjVsLTctNC41VjE2LjV6IiAvPg0KPC9zdmc+',
+    motion:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iNDgiPg0KICAgIDxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTUzNS00MHYtMjM5bC0xMDgtOTktNDIgMTg4LTI2NS01NSAxMS01NiAxOTkgNDAgNzMtMzY5LTEwMCA0N3YxMzRoLTYwdi0xNzVsMTY0LTY5cTMyLTE0IDQ1LjUtMTcuNVQ0ODAtNzE0cTIwIDAgMzUuNSA4LjVUNTQyLTY4MGw0MiA2N3EyNiA0MiA3MSA3M3QxMDUgMzF2NjBxLTY3IDAtMTE5LjUtMzFUNTQzLTU3M2wtMzkgMTU4IDkxIDg0djI5MWgtNjBabTUtNzE0cS0zMCAwLTUxLjUtMjEuNVQ0NjctODI3cTAtMzAgMjEuNS01MS41VDU0MC05MDBxMzAgMCA1MS41IDIxLjVUNjEzLTgyN3EwIDMwLTIxLjUgNTEuNVQ1NDAtNzU0WiIgLz4NCjwvc3ZnPg==',
+    rgb:           'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTIgMjJDNi40OSAyMiAyIDE3LjUxIDIgMTJTNi40OSAyIDEyIDJzMTAgNC4wNCAxMCA5YzAgMy4zMS0yLjY5IDYtNiA2aC0xLjc3Yy0uMjggMC0uNS4yMi0uNS41IDAgLjEyLjA1LjIzLjEzLjMzLjQxLjQ3LjY0IDEuMDYuNjQgMS42NyAwIDEuMzgtMS4xMiAyLjUtMi41IDIuNXptMC0xOGMtNC40MSAwLTggMy41OS04IDhzMy41OSA4IDggOGMuMjggMCAuNS0uMjIuNS0uNSAwLS4xNi0uMDgtLjI4LS4xNC0uMzUtLjQxLS40Ni0uNjMtMS4wNS0uNjMtMS42NSAwLTEuMzggMS4xMi0yLjUgMi41LTIuNUgxNmMyLjIxIDAgNC0xLjc5IDQtNCAwLTMuODYtMy41OS03LTgtN3oiLz4NCiAgICA8Y2lyY2xlIGZpbGw9ImN1cnJlbnRDb2xvciIgY3g9IjYuNSIgY3k9IjExLjUiIHI9IjEuNSIvPg0KICAgIDxjaXJjbGUgZmlsbD0iY3VycmVudENvbG9yIiBjeD0iOS41IiBjeT0iNy41IiByPSIxLjUiLz4NCiAgICA8Y2lyY2xlIGZpbGw9ImN1cnJlbnRDb2xvciIgY3g9IjE0LjUiIGN5PSI3LjUiIHI9IjEuNSIvPg0KICAgIDxjaXJjbGUgZmlsbD0iY3VycmVudENvbG9yIiBjeD0iMTcuNSIgY3k9IjExLjUiIHI9IjEuNSIvPg0KPC9zdmc+',
+    socket:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYgOXY0LjY2bC0zLjUgMy41MVYxOWgtMXYtMS44M0w4IDEzLjY1VjloOG0wLTZoLTJ2NGgtNFYzSDh2NGgtLjAxQzYuOSA2Ljk5IDYgNy44OSA2IDguOTh2NS41Mkw5LjUgMTh2M2g1di0zbDMuNS0zLjUxVjljMC0xLjEtLjktMi0yLTJWM3oiIC8+DQo8L3N2Zz4=',
+    temperature:   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTUgMTNWNWMwLTEuNjYtMS4zNC0zLTMtM1M5IDMuMzQgOSA1djhjLTEuMjEuOTEtMiAyLjM3LTIgNCAwIDIuNzYgMi4yNCA1IDUgNXM1LTIuMjQgNS01YzAtMS42My0uNzktMy4wOS0yLTR6bS00LThjMC0uNTUuNDUtMSAxLTFzMSAuNDUgMSAxaC0xdjFoMXYyaC0xdjFoMXYyaC0yVjV6IiAvPg0KPC9zdmc+',
+    thermostat:    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NS42NTkgNDUuNjU5Ij4NCgk8cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0zMC42MTksMjcuMzA5VjcuNzgxQzMwLjYxOSwzLjQ5LDI3LjEyNCwwLDIyLjgzMywwYy00LjI5LDAtNy43ODUsMy40OTEtNy43ODUsNy43OHYxOS41MjgNCgkJYy0xLjkwMiwxLjk0OS0zLjA1LDQuNjA0LTMuMDUsNy41MjJjMCw1Ljk3Miw0Ljg1NywxMC44MjgsMTAuODI5LDEwLjgyOGM1Ljk3LDAsMTAuODM0LTQuODU2LDEwLjgzNC0xMC44MjgNCgkJQzMzLjY2MSwzMS45MTIsMzIuNTIsMjkuMjU4LDMwLjYxOSwyNy4zMDl6IE0yMi44MjUsNDIuNjZjLTQuMzE2LDAtNy44MjQtMy41MTItNy44MjQtNy44MjhjMC0yLjUyNywxLjE3NC00Ljc3OSwzLjA3Ny02LjIxMQ0KCQlWMTYuMjM3aDMuMzcyYzAuNTUyLDAsMS0wLjQ3LDEtMS4wMjJjMC0wLjU1My0wLjQ0OC0xLjAyMS0xLTEuMDIxaC0zLjM3MnYtMi40NjZoMy4zNzJjMC41NTIsMCwxLTAuNDM0LDEtMC45ODYNCgkJYzAtMC41NTItMC40NDgtMC45ODYtMS0wLjk4NmgtMy4zNzJWNy43OGMwLTIuNjM2LDIuMTE5LTQuNzgsNC43NTQtNC43OGMyLjYzNywwLDQuNzU2LDIuMTQ0LDQuNzU2LDQuNzgxdjIwLjg3MQ0KCQljMS45MDMsMS40MzQsMy4wNDcsMy42NzEsMy4wNDcsNi4xOEMzMC42MzUsMzkuMTQ4LDI3LjE0MSw0Mi42NiwyMi44MjUsNDIuNjZ6IiAvPg0KCTxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTI1LjMzNCwzMC40NjNWMTguNjMyaC01LjAwMnYxMS44MzFjLTEuNTQ5LDAuODc0LTIuNTM3LDIuNTAyLTIuNTM3LDQuMzY5YzAsMi43ODgsMi4yNTEsNS4wNDYsNS4wMzgsNS4wNDYNCgkJYzIuNzg4LDAsNS4wMzQtMi4yNTgsNS4wMzQtNS4wNDZDMjcuODY3LDMyLjk2NiwyNi44ODUsMzEuMzM3LDI1LjMzNCwzMC40NjN6IiAvPg0KPC9zdmc+DQo=',
+    volume:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYgNy45N3Y4LjA1YzEuNDgtLjczIDIuNS0yLjI1IDIuNS00LjAyIDAtMS43Ny0xLjAyLTMuMjktMi41LTQuMDN6TTUgOXY2aDRsNSA1VjRMOSA5SDV6bTctLjE3djYuMzRMOS44MyAxM0g3di0yaDIuODNMMTIgOC44M3oiIC8+DQo8L3N2Zz4=',
+    volumeGroup:   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTYgNy45N3Y4LjA1YzEuNDgtLjczIDIuNS0yLjI1IDIuNS00LjAyIDAtMS43Ny0xLjAyLTMuMjktMi41LTQuMDN6TTUgOXY2aDRsNSA1VjRMOSA5SDV6bTctLjE3djYuMzRMOS44MyAxM0g3di0yaDIuODNMMTIgOC44M3oiIC8+DQo8L3N2Zz4=',
+    window:        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNjEgMzYxIj4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lOyBzdHJva2U6IGN1cnJlbnRDb2xvcjtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlLW1pdGVybGltaXQ6MTA7IiBkPSJNMjY3LjgyNiwyNjMuMzAzYzAsMy45MS0zLjE1Niw3LjA4Mi03LjA1LDcuMDgyDQoJCWwtMTU3Ljg4NSwwLjAyMWMtMy44OTQsMC03LjA1LTMuMTcxLTcuMDUtNy4wODN2LTE1Ny41YzAtMy45MTEsMy4xNTYtNy4wODMsNy4wNS03LjA4M2wxNTcuODg1LTAuMDIxDQoJCWMzLjg5NCwwLDcuMDUsMy4xNzIsNy4wNSw3LjA4M1YyNjMuMzAzeiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiBjdXJyZW50Q29sb3I7IiBkPSJNMjU4LjUsMTg1LjU4NGMyLjIxMywwLDQuNDI2LDAsNi42MzksMGMyLjcyNiwwLDUtMi4yNzQsNS01cy0yLjI3NC01LTUtNQ0KCQljLTIuMjEzLDAtNC40MjYsMC02LjYzOSwwYy0yLjcyNiwwLTUsMi4yNzQtNSw1UzI1NS43NzQsMTg1LjU4NCwyNTguNSwxODUuNTg0TDI1OC41LDE4NS41ODR6Ii8+DQoJPHBhdGggc3R5bGU9ImZpbGw6bm9uZTsgc3Ryb2tlOiBjdXJyZW50Q29sb3I7IHN0cm9rZS13aWR0aDogMTA7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsiIGQ9Ik0yNjcuODI2LDEwMy4yMDhjMCwyLjQ4NS0yLjcxMSw0LjUtNi4wNTMsNC41DQoJCWwtMTU5Ljg4LDAuMDIxYy0zLjM0MiwwLTYuMDUyLTIuMDE1LTYuMDUyLTQuNXYtOWMwLTIuNDg1LDIuNzEtNC41LDYuMDUyLTQuNWwxNTkuODgtMC4wMjFjMy4zNDIsMCw2LjA1MywyLjAxNSw2LjA1Myw0LjVWMTAzLjIwOA0KCQl6IiAvPg0KPC9zdmc+DQo=',
+    windowTilt:    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNjEgMzYxIj4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTpjdXJyZW50Q29sb3I7c3Ryb2tlLXdpZHRoOjEwO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIgZD0iTTI2Ny44MjYsMjYzLjMwM2MwLDMuOTEtMy4xNTYsNy4wODItNy4wNSw3LjA4Mg0KCQlsLTE1Ny44ODUsMC4wMjFjLTMuODk0LDAtNy4wNS0zLjE3MS03LjA1LTcuMDgzdi0xNTcuNWMwLTMuOTExLDMuMTU2LTcuMDgzLDcuMDUtNy4wODNsMTU3Ljg4NS0wLjAyMQ0KCQljMy44OTQsMCw3LjA1LDMuMTcyLDcuMDUsNy4wODNWMjYzLjMwM3oiLz4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTpjdXJyZW50Q29sb3I7c3Ryb2tlLXdpZHRoOjEwO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIgZD0iTTI2Ny44MjYsMTAzLjIwOGMwLDIuNDg1LTIuNzExLDQuNS02LjA1Myw0LjUNCgkJbC0xNTkuODgsMC4wMjFjLTMuMzQyLDAtNi4wNTItMi4wMTUtNi4wNTItNC41di05YzAtMi40ODUsMi43MS00LjUsNi4wNTItNC41bDE1OS44OC0wLjAyMWMzLjM0MiwwLDYuMDUzLDIuMDE1LDYuMDUzLDQuNVYxMDMuMjA4DQoJCXoiLz4NCgk8cGF0aCBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTpjdXJyZW50Q29sb3I7c3Ryb2tlLXdpZHRoOjEwO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIgZD0iTTI2NS43MzIsMjY1LjE3OA0KCQljMC41ODQsMi44ODctMS42MjksNS4yMjgtNC45NDIsNS4yMjhIMTAzLjQ1N2MtMy4zMTMsMC02LjQ3NC0yLjM0MS03LjA1OC01LjIyOEw3NS4yNCwxMzAuNjMzDQoJCWMtMC41ODQtMi44ODcsMS42MjgtNS4yMjgsNC45NDItNS4yMjhoMTU3LjMzM2MzLjMxMywwLDYuNDc0LDIuMzQsNy4wNTgsNS4yMjhMMjY1LjczMiwyNjUuMTc4eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOmN1cnJlbnRDb2xvcjsiIGQ9Ik0yNDcuMTk0LDE5OS42NjdjMi4yMTMsMCw0LjQyNiwwLDYuNjM5LDBjMi43MjYsMCw1LTIuMjc0LDUtNXMtMi4yNzQtNS01LTUNCgkJYy0yLjIxMywwLTQuNDI2LDAtNi42MzksMGMtMi43MjYsMC01LDIuMjc0LTUsNVMyNDQuNDY5LDE5OS42NjcsMjQ3LjE5NCwxOTkuNjY3TDI0Ny4xOTQsMTk5LjY2N3oiLz4NCjwvc3ZnPg0K',
+    vacuumCleaner: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+DQogICAgPHBhdGggc3Ryb2tlPSJjdXJyZW50Q29sb3IiIGZpbGw9Im5vbmUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMjEgMTJhOSA5IDAgMSAxIC0xOCAwYTkgOSAwIDAgMSAxOCAweiIgLz4NCiAgICA8cGF0aCBzdHJva2U9ImN1cnJlbnRDb2xvciIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0xNCA5YTIgMiAwIDEgMSAtNCAwYTIgMiAwIDAgMSA0IDB6IiAvPg0KICAgIDxwYXRoIHN0cm9rZT0iY3VycmVudENvbG9yIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgZD0iTTEyIDE2aC4wMSIgLz4NCjwvc3ZnPg==',
 };
 DEVICE_ICONS.blind = DEVICE_ICONS.blinds;
+DEVICE_ICONS.rgbSingle = DEVICE_ICONS.rgb;
+DEVICE_ICONS.rgbwSingle = DEVICE_ICONS.rgb;
+DEVICE_ICONS.hue = DEVICE_ICONS.rgb;
+DEVICE_ICONS.ct = DEVICE_ICONS.rgb;
+const MEDIA_TYPES = ['title', 'artist', 'cover', 'state', 'duration', 'elapsed', 'prev', 'next', 'volume', 'mute', 'repeat', 'shuffle'];
 
 const simpleState = (device, role, style, settings) => {
-    const set = device.states.find(state => state.common.role === role);
+    const set = device.states.find(state => state.common.role === role || state.name === role);
     if (!set) {
         return null;
     }
@@ -79,40 +85,66 @@ const simpleState = (device, role, style, settings) => {
 
 export const getDeviceWidget = (device, standardIcons) => {
     const style = {
-        left: '0px',
-        top: '0px',
+        left: '0px', // here must be string
+        top: '0px', // here must be string
         width: '100%',
         position: 'relative',
     };
     // const widgetTitle = Generic.getText(device.common.name);
 
     if (device.deviceType === 'thermostat') {
-        const set = device.states.find(state => state.common.role === 'level.temperature');
-        const actual = device.states.find(state => state.common.role === 'value.temperature');
+        const _set = device.states.find(state => state.name === 'SET');
+        const actual = device.states.find(state => state.name === 'ACTUAL');
+        // const humidity = device.states.find(state => state.name === 'HUMIDITY');
+        const mode = device.states.find(state => state.name === 'MODE');
+        const power = device.states.find(state => state.name === 'POWER');
+        const party = device.states.find(state => state.name === 'PARTY');
+        const boost = device.states.find(state => state.name === 'BOOST');
         style.height = 160;
-        return {
+
+        const widget = {
             tpl: 'tplMaterial2Thermostat',
             style,
             data: {
                 name: Generic.getText(device.common.name),
                 widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
                 wizardId: device._id,
-                'oid-step': '1',
+                step: _set.common.step === 0.5 ? '0.5' : '1',
                 g_common: true,
                 count: 5,
-                'oid-temp-set': set?._id || '',
+                'oid-temp-set': _set?._id || '',
                 'oid-temp-actual': actual?._id || '',
+                'oid-power': power?._id || '',
+                'oid-mode': mode?._id || '',
+                'oid-boost': boost?._id || '',
+                'oid-party': party?._id || '',
             },
         };
+        if (mode?.common?.states) {
+            if (Array.isArray(mode.common.states)) {
+                const states = {};
+                mode.common.states.forEach(key => states[key] = key);
+                mode.common.states = states;
+            }
+            widget.data.count = Object.keys(mode.common.states).length;
+            Object.keys(mode.common.states).forEach((_mode, i) => {
+                widget.data[`g_modes-${i}`] = true;
+                widget.data[`title${i}`] = mode.common.states[_mode].toString().toUpperCase();
+            });
+        }
+        return widget;
     }
+
     if (device.deviceType === 'light') {
-        return simpleState(device, 'switch.light', style, { standardIcons });
+        return simpleState(device, 'SET', style, { standardIcons });
     }
+
     if (device.deviceType === 'dimmer') {
-        return simpleState(device, 'level.dimmer', style, { standardIcons });
+        return simpleState(device, 'SET', style, { standardIcons });
     }
+
     if (device.deviceType === 'blind') {
-        const set = device.states.find(state => state.common.role === 'level.blind');
+        const set = device.states.find(state => state.name === 'SET');
         style.height = 120;
         return {
             tpl: 'tplMaterial2Blinds',
@@ -129,9 +161,10 @@ export const getDeviceWidget = (device, standardIcons) => {
             },
         };
     }
+
     if (device.deviceType === 'temperature') {
-        const actual = device.states.find(state => state.common.role === 'value.temperature');
-        const humidity = device.states.find(state => state.common.role === 'value.humidity');
+        const actual = device.states.find(state => state.name === 'ACTUAL');
+        const humidity = device.states.find(state => state.name === 'SECOND');
         return {
             tpl: 'tplMaterial2Actual',
             style,
@@ -146,51 +179,72 @@ export const getDeviceWidget = (device, standardIcons) => {
             },
         };
     }
+
     if (device.deviceType === 'motion') {
-        return simpleState(device, 'sensor.motion', style, {
+        return simpleState(device, 'ACTUAL', style, {
             colorEnabled: 'rgba(52,170,68,1)',
             iconSmall: ICONS.noMotion,
             iconEnabledSmall: ICONS.motion,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'fireAlarm') {
-        return simpleState(device, 'sensor.alarm.fire', style, {
+        return simpleState(device, 'ACTUAL', style, {
             colorEnabled: '#F00',
             iconSmall:  ICONS.fire,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'floodAlarm') {
-        return simpleState(device, 'sensor.alarm.flood', style, {
+        return simpleState(device, 'ACTUAL', style, {
             colorEnabled: '#00F',
             iconSmall: ICONS.flood,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'door') {
-        return simpleState(device, 'sensor.door', style, {
+        return simpleState(device, 'ACTUAL', style, {
             colorEnabled: '#F00',
             iconSmall: ICONS.doorClosed,
             iconEnabledSmall: ICONS.doorOpened,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'levelSlider') {
-        return simpleState(device, 'level', style, { standardIcons });
+        return simpleState(device, 'SET', style, { standardIcons });
     }
+
     if (device.deviceType === 'lock') {
-        return simpleState(device, 'switch.lock', style, { standardIcons });
+        const _set = device.states.find(state => state.name === 'SET');
+        const open = device.states.find(state => state.name === 'OPEN');
+        const working = device.states.find(state => state.name === 'WORKING');
+        return {
+            tpl: 'tplMaterial2Lock',
+            style,
+            data: {
+                name: Generic.getText(device.common.name),
+                widgetTitle: Generic.t(device.deviceType).replace('vis_2_widgets_material_', ''),
+                wizardId: device._id,
+                'lock-oid': _set?._id,
+                'doorOpen-oid': open?._id,
+                'lockWorking-oid': working?._id,
+            },
+        };
     }
+
     if (device.deviceType === 'socket') {
-        return simpleState(device, 'socket', style, {
+        return simpleState(device, 'SET', style, {
             iconSmall: ICONS.socket,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'media') {
-        const mediaTypes = ['title', 'artist', 'cover', 'state', 'duration', 'elapsed', 'prev', 'next', 'volume', 'mute', 'repeat', 'shuffle'];
-        const currentMediaTypes = [...mediaTypes];
+        const currentMediaTypes = [...MEDIA_TYPES];
 
         const result = {
             tpl: 'tplMaterial2Player',
@@ -211,18 +265,21 @@ export const getDeviceWidget = (device, standardIcons) => {
         });
         return result;
     }
+
     if (device.deviceType === 'volume') {
-        return simpleState(device, 'level.volume', style, {
+        return simpleState(device, 'SET', style, {
             iconSmall: ICONS.volume,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'volumeGroup') {
-        return simpleState(device, 'level.volume.group', style, {
+        return simpleState(device, 'SET', style, {
             iconSmall: ICONS.volume,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'weatherForecast') {
         return {
             tpl: 'tplOpenWeatherMapWeather',
@@ -238,16 +295,18 @@ export const getDeviceWidget = (device, standardIcons) => {
             },
         };
     }
+
     if (device.deviceType === 'window') {
-        return simpleState(device, 'sensor.window', style, {
+        return simpleState(device, 'ACTUAL', style, {
             colorEnabled: '#F00',
             iconSmall: ICONS.windowClosed,
             iconEnabledSmall: ICONS.windowOpened,
             standardIcons,
         });
     }
+
     if (device.deviceType === 'windowTilt') {
-        return simpleState(device, 'value.window', style, {
+        return simpleState(device, 'ACTUAL', style, {
             colorEnabled: '#F00',
             iconSmall: ICONS.windowClosed,
             iconEnabledSmall: ICONS.windowTilted,
@@ -276,17 +335,17 @@ export const getDeviceWidgetOnePage = (device, widgetId, parentWidget, viewObj, 
                 settings = { icon: device.common.icon };
             }
         }
-        const set = device.states.find(state => state.common.role === role);
-        if (set) {
+        const _set = device.states.find(state => state.common.role === role);
+        if (_set) {
             // add only if the state does not exist
             for (let i = 1; i <= parentWidget.data.count; i++) {
-                if (parentWidget.data[`oid${i}`] === set._id) {
+                if (!_set || parentWidget.data[`oid${i}`] === _set._id) {
                     return false;
                 }
             }
 
             parentWidget.data.count++;
-            parentWidget.data[`oid${parentWidget.data.count}`] = set._id;
+            parentWidget.data[`oid${parentWidget.data.count}`] = _set._id;
             if (role === 'value.temperature' && settings.type === 'info') {
                 parentWidget.data[`title${parentWidget.data.count}`] = Generic.t('Temperature');
             } else if (role === 'value.humidity' && settings.type === 'info') {
@@ -295,32 +354,239 @@ export const getDeviceWidgetOnePage = (device, widgetId, parentWidget, viewObj, 
                 parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
             }
             // apply settings
-            settings && Object.keys(settings).forEach(setting => {
-                parentWidget.data[`${setting}${parentWidget.data.count}`] = settings[setting];
-            });
+            settings && Object.keys(settings)
+                .filter(s => settings[s] !== undefined)
+                .forEach(setting =>
+                    parentWidget.data[`${setting}${parentWidget.data.count}`] = settings[setting]);
         }
         return false;
     };
 
     if (device.deviceType === 'thermostat') {
-        // If it is a simple widget (only set temperature) => use slider
-        if (device.states.length === 1) {
-            return addSwitch('level.temperature', { type: 'slider', standardIcons });
+        const _set = device.states.find(state => state.name === 'SET') || undefined;
+        const actual = device.states.find(state => state.name === 'ACTUAL') || undefined;
+        const humidity = device.states.find(state => state.name === 'HUMIDITY') || undefined;
+        const power = device.states.find(state => state.name === 'POWER') || undefined;
+        const party = device.states.find(state => state.name === 'PARTY') || undefined;
+        const boost = device.states.find(state => state.name === 'BOOST') || undefined;
+        // add only if the state does not exist
+        for (let i = 1; i <= parentWidget.data.count; i++) {
+            if (!_set || parentWidget.data[`oid${i}`] === _set._id) {
+                return false;
+            }
         }
 
-        // try to find existing widget
-        if (Object.values(viewObj.widgets).find(widget => widget.data.wizardId === device._id)) {
-            return false;
+        parentWidget.data.count++;
+        parentWidget.data[`type${parentWidget.data.count}`] = 'thermostat';
+        parentWidget.data[`oid${parentWidget.data.count}`] = _set._id;
+        if (actual) {
+            parentWidget.data[`actual${parentWidget.data.count}`] = actual._id;
+        }
+        if (humidity) {
+            parentWidget.data[`humidity${parentWidget.data.count}`] = humidity._id;
+        }
+        if (power) {
+            parentWidget.data[`switch${parentWidget.data.count}`] = power._id;
+        }
+        if (party) {
+            parentWidget.data[`party${parentWidget.data.count}`] = party._id;
+        }
+        if (boost) {
+            parentWidget.data[`boost${parentWidget.data.count}`] = boost._id;
+        }
+        parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
+        return true;
+    }
+    if (device.deviceType === 'rgb') {
+        const red = device.states.find(state => state.name === 'RED') || undefined;
+        const green = device.states.find(state => state.name === 'GREEN') || undefined;
+        const blue = device.states.find(state => state.name === 'BLUE') || undefined;
+        const power = device.states.find(state => state.name === 'ON' && state.common.write !== false) || undefined;
+        const white = device.states.find(state => state.name === 'WHITE') || undefined;
+        const saturation = device.states.find(state => state.name === 'SATURATION') || undefined;
+        const dimmer = device.states.find(state => state.name === 'DIMMER' || state.name === 'BRIGHTNESS') || undefined;
+        const temperature = device.states.find(state => state.name === 'TEMPERATURE') || undefined;
+        // add only if the state does not exist
+        for (let i = 1; i <= parentWidget.data.count; i++) {
+            if (!red || parentWidget.data[`red${i}`] === red._id) {
+                return false;
+            }
         }
 
-        const widget = getDeviceWidget(device);
-        if (widget) {
-            widget.usedInWidget = true;
-            viewObj.widgets[widgetId] = widget;
-            parentWidget.data.count++;
-            parentWidget.data[`widget${parentWidget.data.count}`] = widgetId;
-            return true;
+        parentWidget.data.count++;
+        parentWidget.data[`type${parentWidget.data.count}`] = 'rgb';
+        parentWidget.data[`rgbType${parentWidget.data.count}`] = white ? 'r/g/b/w' : 'r/g/b';
+        parentWidget.data[`red${parentWidget.data.count}`] = red._id;
+        parentWidget.data[`green${parentWidget.data.count}`] = green._id;
+        parentWidget.data[`blue${parentWidget.data.count}`] = blue._id;
+        if (white) {
+            parentWidget.data[`white${parentWidget.data.count}`] = white._id;
         }
+        if (saturation) {
+            parentWidget.data[`saturation${parentWidget.data.count}`] = saturation._id;
+        }
+        if (temperature) {
+            parentWidget.data[`color_temperature${parentWidget.data.count}`] = temperature._id;
+        }
+        if (power) {
+            parentWidget.data[`switch${parentWidget.data.count}`] = power._id;
+        }
+        if (dimmer) {
+            parentWidget.data[`brightness${parentWidget.data.count}`] = dimmer._id;
+        }
+        parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
+        return true;
+    }
+    if (device.deviceType === 'rgbSingle') {
+        const rgb = device.states.find(state => state.name === 'RGB') || undefined;
+        const power = device.states.find(state => state.name === 'ON' && state.common.write !== false) || undefined;
+        const dimmer = device.states.find(state => state.name === 'DIMMER' || state.name === 'BRIGHTNESS') || undefined;
+        const temperature = device.states.find(state => state.name === 'TEMPERATURE') || undefined;
+        const saturation = device.states.find(state => state.name === 'SATURATION') || undefined;
+        // add only if the state does not exist
+        for (let i = 1; i <= parentWidget.data.count; i++) {
+            if (!rgb || parentWidget.data[`oid${i}`] === rgb._id) {
+                return false;
+            }
+        }
+
+        parentWidget.data.count++;
+        parentWidget.data[`type${parentWidget.data.count}`] = 'rgb';
+        parentWidget.data[`rgbType${parentWidget.data.count}`] = 'rgb';
+        parentWidget.data[`oid${parentWidget.data.count}`] = rgb._id;
+        if (saturation) {
+            parentWidget.data[`saturation${parentWidget.data.count}`] = saturation._id;
+        }
+        if (temperature) {
+            parentWidget.data[`color_temperature${parentWidget.data.count}`] = temperature._id;
+        }
+        if (power) {
+            parentWidget.data[`switch${parentWidget.data.count}`] = power._id;
+        }
+        if (dimmer) {
+            parentWidget.data[`brightness${parentWidget.data.count}`] = dimmer._id;
+        }
+        parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
+        return true;
+    }
+    if (device.deviceType === 'rgbwSingle') {
+        const rgbw = device.states.find(state => state.name === 'RGBW') || undefined;
+        const power = device.states.find(state => state.name === 'ON' && state.common.write !== false) || undefined;
+        const dimmer = device.states.find(state => state.name === 'DIMMER' || state.name === 'BRIGHTNESS') || undefined;
+        const temperature = device.states.find(state => state.name === 'TEMPERATURE') || undefined;
+        const saturation = device.states.find(state => state.name === 'SATURATION') || undefined;
+        // add only if the state does not exist
+        for (let i = 1; i <= parentWidget.data.count; i++) {
+            if (!rgbw || parentWidget.data[`oid${i}`] === rgbw._id) {
+                return false;
+            }
+        }
+
+        parentWidget.data.count++;
+        parentWidget.data[`type${parentWidget.data.count}`] = 'rgb';
+        parentWidget.data[`rgbType${parentWidget.data.count}`] = 'rgbw';
+        parentWidget.data[`oid${parentWidget.data.count}`] = rgbw._id;
+        if (saturation) {
+            parentWidget.data[`saturation${parentWidget.data.count}`] = saturation._id;
+        }
+        if (temperature) {
+            parentWidget.data[`color_temperature${parentWidget.data.count}`] = temperature._id;
+        }
+        if (power) {
+            parentWidget.data[`switch${parentWidget.data.count}`] = power._id;
+        }
+        if (dimmer) {
+            parentWidget.data[`brightness${parentWidget.data.count}`] = dimmer._id;
+        }
+        parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
+        return true;
+    }
+    if (device.deviceType === 'hue') {
+        const hue = device.states.find(state => state.name === 'HUE') || undefined;
+        const power = device.states.find(state => state.name === 'ON' && state.common.write !== false) || undefined;
+        const dimmer = device.states.find(state => state.name === 'DIMMER' || state.name === 'BRIGHTNESS') || undefined;
+        const temperature = device.states.find(state => state.name === 'TEMPERATURE') || undefined;
+        const saturation = device.states.find(state => state.name === 'SATURATION') || undefined;
+        // add only if the state does not exist
+        for (let i = 1; i <= parentWidget.data.count; i++) {
+            if (!hue || parentWidget.data[`hue${i}`] === hue._id) {
+                return false;
+            }
+        }
+
+        parentWidget.data.count++;
+        parentWidget.data[`type${parentWidget.data.count}`] = 'rgb';
+        parentWidget.data[`rgbType${parentWidget.data.count}`] = 'hue/sat/lum';
+        parentWidget.data[`hue${parentWidget.data.count}`] = hue._id;
+        if (saturation) {
+            parentWidget.data[`saturation${parentWidget.data.count}`] = saturation._id;
+        }
+        if (temperature) {
+            parentWidget.data[`color_temperature${parentWidget.data.count}`] = temperature._id;
+        }
+        if (power) {
+            parentWidget.data[`switch${parentWidget.data.count}`] = power._id;
+        }
+        if (dimmer) {
+            parentWidget.data[`brightness${parentWidget.data.count}`] = dimmer._id;
+        }
+        parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
+        return true;
+    }
+    if (device.deviceType === 'ct') {
+        const temperature = device.states.find(state => state.name === 'TEMPERATURE') || undefined;
+        const power = device.states.find(state => state.name === 'ON' && state.common.write !== false) || undefined;
+        const dimmer = device.states.find(state => state.name === 'DIMMER' || state.name === 'BRIGHTNESS') || undefined;
+        const saturation = device.states.find(state => state.name === 'SATURATION') || undefined;
+        // add only if the state does not exist
+        for (let i = 1; i <= parentWidget.data.count; i++) {
+            if (!temperature || parentWidget.data[`color_temperature${i}`] === temperature._id) {
+                return false;
+            }
+        }
+
+        parentWidget.data.count++;
+        parentWidget.data[`type${parentWidget.data.count}`] = 'rgb';
+        parentWidget.data[`rgbType${parentWidget.data.count}`] = 'ct';
+        parentWidget.data[`color_temperature${parentWidget.data.count}`] = temperature._id;
+        if (saturation) {
+            parentWidget.data[`saturation${parentWidget.data.count}`] = saturation._id;
+        }
+        if (power) {
+            parentWidget.data[`switch${parentWidget.data.count}`] = power._id;
+        }
+        if (dimmer) {
+            parentWidget.data[`brightness${parentWidget.data.count}`] = dimmer._id;
+        }
+        parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
+        return true;
+    }
+    if (device.deviceType === 'lock') {
+        const _set = device.states.find(state => state.name === 'SET') || undefined;
+        const open = device.states.find(state => state.name === 'OPEN') || undefined;
+        const working = device.states.find(state => state.name === 'WORKING') || undefined;
+        // add only if the state does not exist
+        for (let i = 1; i <= parentWidget.data.count; i++) {
+            if (!_set || parentWidget.data[`oid${i}`] === _set._id) {
+                return false;
+            }
+        }
+
+        parentWidget.data.count++;
+        parentWidget.data[`type${parentWidget.data.count}`] = 'lock';
+        parentWidget.data[`oid${parentWidget.data.count}`] = _set._id;
+        if (open) {
+            parentWidget.data[`open${parentWidget.data.count}`] = open._id;
+        }
+        if (working) {
+            parentWidget.data[`working${parentWidget.data.count}`] = working._id;
+        }
+        parentWidget.data[`title${parentWidget.data.count}`] = Generic.getText(device.common.name);
+        return true;
+    }
+
+    if (device.deviceType === 'vacuumCleaner') {
+        // todo
     }
 
     if (device.deviceType === 'media' || device.deviceType === 'weatherForecast') {

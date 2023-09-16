@@ -68,7 +68,7 @@ const LockAnimation = props => {
         autoPlay={false}
         loop={false}
         // start={200}
-        style={{ height: props.size || 40 }}
+        style={{ height: props.size || 40, ...props.style }}
     />;
 };
 

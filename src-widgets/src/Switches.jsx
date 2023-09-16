@@ -24,7 +24,7 @@ import {
     CircularProgress,
     InputAdornment,
     InputLabel,
-    FormControl, Tooltip,
+    FormControl, Tooltip, DialogActions,
 } from '@mui/material';
 
 import {
@@ -39,7 +39,7 @@ import {
     Celebration as CelebrationIcon,
     ElectricBolt as BoostIcon, Thermostat as ThermostatIcon, PowerSettingsNew as PowerSettingsNewIcon,
     LockOpen,
-    Lock,
+    Lock, Backspace, MeetingRoom as DoorOpenedIcon, LockOpen as LockOpenedIcon, Cancel, Lock as LockClosedIcon,
 } from '@mui/icons-material';
 
 import ct from 'color-temperature';
@@ -55,13 +55,15 @@ import {
     Wheel,
 } from '@uiw/react-color';
 import { TbSquareLetterW } from 'react-icons/tb';
-import { CircularSliderWithChildren } from "react-circular-slider-svg";
+import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import BlindsBase, { STYLES } from './Components/BlindsBase';
 import WindowClosed from './Components/WindowClosed';
+import DoorAnimation from './Components/DoorAnimation';
+import LockAnimation from './Components/LockAnimation';
 
 // import ObjectChart from './ObjectChart';
 
@@ -284,6 +286,24 @@ const styles = () => ({
         transform: 'none',
     },
 
+    lockPinGrid:  {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gridGap: '10px',
+    },
+    lockPinInput:  {
+        padding: '10px 0px',
+    },
+    lockWorkingIcon: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
+    },
+    lockSvgIcon: {
+        // width: '100%',
+        // height: '100%',
+    },
+
     ...STYLES,
 });
 
@@ -300,6 +320,7 @@ class Switches extends BlindsBase {
         this.state.chartWidth = {};
         this.state.chartHeight = {};
         this.state.sketch = {};
+        this.state.dialogPin = null;
         this.timeouts = {};
         this.history = {};
         this._refs = {}; // this.refs name does not work (I don't know why)
@@ -404,7 +425,8 @@ class Switches extends BlindsBase {
                                     if (object?.common?.role &&
                                         (
                                             object.common.role.includes('level.temperature') ||
-                                            object.common.role.includes('rgb')
+                                            object.common.role.includes('rgb') ||
+                                            object.common.role.includes('lock')
                                         )
                                     ) {
                                         const id = data[field.name].split('.');
@@ -419,6 +441,10 @@ class Switches extends BlindsBase {
                                             if (data[`type${index}`] !== 'rgb' && object.common.role.includes('rgb')) {
                                                 changed = true;
                                                 data[`type${index}`] = 'rgb';
+                                            }
+                                            if (data[`type${index}`] !== 'lock' && object.common.role.includes('lock')) {
+                                                changed = true;
+                                                data[`type${index}`] = 'lock';
                                             }
                                             if (object.common.role.includes('level.temperature')) {
                                                 Object.values(states).forEach(state => {
@@ -438,11 +464,30 @@ class Switches extends BlindsBase {
                                                     }
                                                 });
                                             } else if (object.common.role.includes('rgb')) {
+                                                if (data[`rgbType${index}`] !== 'rgb' && object.common.role.includes('rgbw')) {
+                                                    changed = true;
+                                                    data[`rgbType${index}`] = 'rgbw';
+                                                } else if (data[`rgbType${index}`] !== 'rgb') {
+                                                    changed = true;
+                                                    data[`rgbType${index}`] = 'rgb';
+                                                }
+
                                                 Object.values(states).forEach(state => {
                                                     const role = state.common.role;
                                                     if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
                                                         changed = true;
                                                         data[stateRoles[role] + index] = state._id;
+                                                    }
+                                                });
+                                            } else if (object.common.role.includes('lock')) {
+                                                Object.values(states).forEach(state => {
+                                                    const role = state.common.role;
+                                                    if (role && role.includes('button')) {
+                                                        data[`open${index}`] = state._id;
+                                                        changed = true;
+                                                    } else if (role && role.includes('working')) {
+                                                        data[`working${index}`] = state._id;
+                                                        changed = true;
                                                     }
                                                 });
                                             }
@@ -497,6 +542,10 @@ class Switches extends BlindsBase {
                                 {
                                     value: 'rgb',
                                     label: 'rgb',
+                                },
+                                {
+                                    value: 'lock',
+                                    label: 'lock',
                                 },
                             ],
                             hidden: '!data["oid" + index]',
@@ -796,6 +845,67 @@ class Switches extends BlindsBase {
                             onChange: loadStates,
                         },
                         {
+                            name: 'open',
+                            type: 'id',
+                            label: 'doorOpen-oid',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock',
+                        },
+                        {
+                            name: 'working',
+                            type: 'id',
+                            label: 'lockWorking-oid',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock',
+                        },
+                        {
+                            name: 'sensor',
+                            type: 'id',
+                            label: 'doorSensor-oid',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock',
+                        },
+                        {
+                            name: 'pincode',
+                            label: 'pincode',
+                            onChange: async (field, data, changeData, socket, index) => {
+                                if (data[`pincode${index}`] && data[`pincode${index}`].match(/[^0-9]/g)) {
+                                    data[`pincode${index}`] = data[`pincode${index}`].replace(/[^0-9]/g, '');
+                                    changeData(data);
+                                }
+                            },
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock' || !!data[`oid-pincode${index}`],
+                        },
+                        {
+                            name: 'oid-pincode',
+                            type: 'id',
+                            label: 'pincode_oid',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock' || !!data[`pincode${index}`],
+                        },
+                        {
+                            name: 'doNotConfirm',
+                            type: 'checkbox',
+                            label: 'doNotConfirm',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock' || (!!data[`oid-pincode${index}`] && !!data[`pincode${index}`]),
+                        },
+                        {
+                            name: 'noLockAnimation',
+                            label: 'noLockAnimation',
+                            type: 'checkbox',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock' || !data[`oid${index}`],
+                        },
+                        {
+                            name: 'lockColor',
+                            label: 'Lock color',
+                            type: 'color',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock' || !data[`oid${index}`] || !!data[`noLockAnimation${index}`],
+                        },
+                        {
+                            name: 'pincodeReturnButton',
+                            type: 'select',
+                            options: ['submit', 'backspace'],
+                            default: 'submit',
+                            label: 'pincode_return_button',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'lock' || (!!data[`oid-pincode${index}`] && !!data[`pincode${index}`]),
+                        },
+                        {
                             name: 'timeout',
                             label: 'controlTimeout',
                             help: 'In milliseconds',
@@ -837,8 +947,6 @@ class Switches extends BlindsBase {
                 this.rgbObjectIDs(index, ids);
             } else if (this.state.rxData[`type${index}`] === 'thermostat') {
                 this.thermostatObjectIDs(index, ids);
-            } else if (this.state.rxData[`type${index}`] === 'lock') {
-                // this.lockObjectIDs(index, ids);
             } else if (this.state.rxData[`type${index}`] === 'vacuum') {
                 // this.vacuumObjectIDs(index, ids);
             } else if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
@@ -853,8 +961,6 @@ class Switches extends BlindsBase {
                 this.rgbReadObjects(index, _objects, objects, secondaryObjects);
             } else if (this.state.rxData[`type${index}`] === 'thermostat') {
                 this.thermostatReadObjects(index, _objects, objects, secondaryObjects);
-            } else if (this.state.rxData[`type${index}`] === 'lock') {
-                // this.lockReadObjects(index, _objects, objects, secondaryObjects);
             } else if (this.state.rxData[`type${index}`] === 'vacuum') {
                 // this.vacuumReadObjects(index, _objects, objects, secondaryObjects);
             } else if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
@@ -1501,6 +1607,10 @@ class Switches extends BlindsBase {
                     }}
                 />
             </IconButton>;
+        }
+
+        if (this.state.objects[index].widgetType === 'lock') {
+            return this.lockRenderLine(index);
         }
 
         if (this.state.objects[index].widgetType === 'button') {
@@ -2252,6 +2362,10 @@ class Switches extends BlindsBase {
             buttonHeight = this.state.rxData[`height${index}`] || this.state.rxData.buttonsHeight || 80;
         }
 
+        if (this.state.objects[index].widgetType === 'lock') {
+            return this.lockRenderLine(index, buttonWidth, buttonHeight);
+        }
+
         return <div
             key={index}
             className={this.props.classes.buttonDiv}
@@ -2280,6 +2394,231 @@ class Switches extends BlindsBase {
                         {secondary}
                     </div> : null}
             </Button>
+        </div>;
+    }
+
+    lockRenderUnlockDialog() {
+        if (this.state.dialogPin === null) {
+            return null;
+        }
+        const index = this.state.dialogPin.index;
+        const pincode = this.lockGetPinCode(index);
+        const pincodeReturnButton = this.state.rxData[`pincodeReturnButton${index}`] === 'backspace' ? 'backspace' : 'submit';
+
+        return <Dialog open={!0} onClose={() => this.setState({ dialogPin: null })}>
+            <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
+            <DialogContent>
+                <div className={this.props.classes.lockPinInput}>
+                    <TextField
+                        variant="outlined"
+                        fullWidth
+                        type={this.state.invalidPin ? 'text' : 'password'}
+                        inputProps={{
+                            readOnly: true,
+                            style: {
+                                textAlign: 'center',
+                                color: this.state.invalidPin ? '#ff3e3e' : 'inherit',
+                            },
+                        }}
+                        value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.lockPinInput}
+                    />
+                </div>
+                <div className={this.props.classes.lockPinGrid}>
+                    {
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
+                            pincodeReturnButton].map(button => {
+                            let buttonTitle = button;
+                            if (button === 'backspace') {
+                                buttonTitle = <Backspace />;
+                            } else if (button === 'submit') {
+                                buttonTitle = <Check />;
+                            }
+                            return <Button
+                                variant="outlined"
+                                key={button}
+                                title={button === 'R' ?
+                                    (this.state.lockPinInput ? Generic.t('reset') : Generic.t('close')) :
+                                    (button === pincodeReturnButton ? 'enter' : '')}
+                                onClick={() => {
+                                    if (button === 'submit') {
+                                        if (this.state.lockPinInput === pincode) {
+                                            if (this.state.dialogPin.oid === 'open') {
+                                                this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                                            } else {
+                                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+                                            }
+                                            this.setState({ dialogPin: null });
+                                        } else {
+                                            this.setState({ lockPinInput: '', invalidPin: true });
+                                            setTimeout(() => this.setState({ invalidPin: false }), 500);
+                                        }
+                                    } else if (button === 'backspace') {
+                                        this.setState({ lockPinInput: this.state.lockPinInput.slice(0, -1) });
+                                    } else if (button === 'R') {
+                                        if (!this.state.lockPinInput) {
+                                            this.setState({ dialogPin: null });
+                                        } else {
+                                            this.setState({ lockPinInput: '' });
+                                        }
+                                    } else {
+                                        const lockPinInput = this.state.lockPinInput + button;
+                                        this.setState({ lockPinInput });
+                                        if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
+                                            if (this.state.dialogPin.oid === 'open') {
+                                                this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                                            } else {
+                                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+                                            }
+                                            this.setState({ dialogPin: null });
+                                        }
+                                    }
+                                }}
+                            >
+                                {buttonTitle === 'R' ? (this.state.lockPinInput ? 'R' : 'x') : buttonTitle}
+                            </Button>;
+                        })
+                    }
+                </div>
+            </DialogContent>
+        </Dialog>;
+    }
+
+    lockGetPinCode(index) {
+        return this.state.rxData[`oid-pincode${index}`] ?
+            this.getPropertyValue(`oid-pincode${index}`) :
+            this.state.rxData[`pincode${index}`];
+    }
+
+    lockRenderConfirmDialog() {
+        if (!this.state.lockConfirmDialog) {
+            return null;
+        }
+        const index = this.state.lockConfirmDialog.index;
+        return <Dialog
+            open={!0}
+            onClose={() => this.setState({ lockConfirmDialog: null })}
+        >
+            <DialogContent>
+                {Generic.t('please_confirm')}
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                        this.setState({ lockConfirmDialog: null });
+                        if (this.state.lockConfirmDialog.oid === 'open') {
+                            this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                        } else {
+                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+                        }
+                    }}
+                    startIcon={this.state.lockConfirmDialog.oid === 'open' ? <DoorOpenedIcon /> : <LockOpenedIcon />}
+                >
+                    {Generic.t('Open')}
+                </Button>
+                <Button
+                    variant="contained"
+                    color="grey"
+                    autoFocus
+                    onClick={() => this.setState({ lockConfirmDialog: null })}
+                    startIcon={<Cancel />}
+                >
+                    {Generic.t('Cancel')}
+                </Button>
+            </DialogActions>
+        </Dialog>;
+    }
+
+    lockRenderLine(index, buttonWidth, buttonHeight) {
+        let size = 30;
+        if (buttonWidth) {
+            size = Math.min((buttonWidth - 32) / 2, buttonHeight - 16);
+        }
+
+        const doorOpened = this.state.rxData[`sensor${index}`] && this.getPropertyValue(`sensor${index}`);
+        const lockOpened = this.getPropertyValue(`oid${index}`);
+        const working = this.state.rxData[`working${index}`] && this.getPropertyValue(`working${index}`);
+
+        const content = <div style={{ display: 'flex' }}>
+            {this.state.rxData[`sensor${index}`] || this.state.rxData[`open${index}`] ?
+                <IconButton
+                    key="door"
+                    disabled={!this.state.rxData[`open${index}`]}
+                    title={this.state.rxData[`open${index}`] ? Generic.t('open_door') : null}
+                    onClick={() => {
+                        if (this.lockGetPinCode(index)) {
+                            this.setState({ dialogPin: { oid: 'open', index }, lockPinInput: '' });
+                        } else if (this.state.rxData[`doNotConfirm${index}`]) {
+                            this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                        } else {
+                            this.setState({ lockConfirmDialog: { oid: 'open', index } });
+                        }
+                    }}
+                >
+                    <DoorAnimation open={doorOpened} size={size} />
+                </IconButton> : null}
+            {this.state.rxData[`oid${index}`] ?
+                <IconButton
+                    key="lock"
+                    title={lockOpened ? Generic.t('close_lock') : Generic.t('open_lock')}
+                    onClick={() => {
+                        if (!lockOpened && this.lockGetPinCode(index)) {
+                            this.setState({ dialogPin: { oid: 'oid', index }, lockPinInput: '' });
+                        } else if (lockOpened || this.state.rxData[`doNotConfirm${index}`]) {
+                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], !this.getPropertyValue(`oid${index}`));
+                        } else {
+                            this.setState({ lockConfirmDialog: { oid: 'oid', index } });
+                        }
+                    }}
+                >
+                    {working ? <CircularProgress className={this.props.classes.workingIcon} size={size} /> : null}
+                    {this.state.rxData[`noLockAnimation${index}`] ? (lockOpened ?
+                        <LockOpenedIcon
+                            style={{ width: size, height: size }}
+                            className={this.props.classes.lockSvgIcon}
+                            sx={theme => ({ color: theme.palette.primary.main })}
+                        /> :
+                        <LockClosedIcon
+                            style={{ width: size, height: size }}
+                            className={this.props.classes.lockSvgIcon}
+                        />) :
+                        <LockAnimation
+                            style={{
+                                marginTop: -4,
+                            }}
+                            open={lockOpened}
+                            size={size}
+                            color={this.state.rxData[`lockColor${index}`]}
+                        />}
+                </IconButton> : null}
+        </div>;
+
+        if (!buttonWidth) {
+            return content;
+        }
+
+        const title = this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name) || '';
+        if (!title) {
+            return content;
+        }
+        return <div
+            key={index}
+            className={this.props.classes.buttonDiv}
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: buttonWidth || undefined,
+                height: buttonHeight || undefined,
+                border: this.state.selectedOne ? '1px dashed gray' : 'none',
+                boxSizing: 'border-box',
+            }}
+        >
+            {content}
+            <div>
+                {title}
+            </div>
         </div>;
     }
 
@@ -2371,7 +2710,7 @@ class Switches extends BlindsBase {
 
         const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme?.palette.primary.main || '#448aff';
 
-        let modesButton = [];
+        const modesButton = [];
         if (this.thermIsWithModeButtons(index)) {
             if (this.state.rxData[`party${index}`]) {
                 let currentValueStr = this.state.values[`${this.state.rxData[`party${index}`]}.val`];
@@ -2408,7 +2747,7 @@ class Switches extends BlindsBase {
                     currentValueStr = currentValueStr === '1' || currentValueStr === 'true' || currentValueStr === true;
                 }
                 modesButton.push(<Button
-                    key="party"
+                    key="boost"
                     color={currentValueStr ? 'primary' : 'grey'}
                     onClick={() => {
                         let _currentValueStr = this.state.values[`${this.state.rxData[`boost${index}`]}.val`];
@@ -2930,6 +3269,8 @@ class Switches extends BlindsBase {
         const anyIcon = icons.find(icon => icon);
 
         const content = <>
+            {this.lockRenderUnlockDialog()}
+            {this.lockRenderConfirmDialog()}
             {this.renderControlDialog()}
             {this.renderBlindsDialog()}
             {this.state.rxData.type === 'lines' ?
