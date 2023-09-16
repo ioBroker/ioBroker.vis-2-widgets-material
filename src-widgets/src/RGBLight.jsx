@@ -1,7 +1,7 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
 import {
-    Brightness6, Close, ColorLens, Thermostat,
+    Brightness6, Close as CloseIcon, Close, ColorLens, Thermostat,
 } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 import {
@@ -561,8 +561,16 @@ class RGBLight extends Generic {
         if (!this.state.dialog) {
             return null;
         }
-        return <Dialog open={!0} onClose={() => this.setState({ dialog: false })}>
-            <DialogTitle>{this.state.rxData.widgetTitle}</DialogTitle>
+        return <Dialog
+            fullWidth
+            maxWidth="sm"
+            open={!0}
+            onClose={() => this.setState({ dialog: false })}
+        >
+            <DialogTitle>
+                {this.state.rxData.widgetTitle}
+                <IconButton style={{ float: 'right' }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
+            </DialogTitle>
             <DialogContent style={{ maxWidth: 400 }}>
                 <div className={this.props.classes.rgbDialogContainer}>
                     {this.rgbRenderSwitch()}
@@ -574,15 +582,6 @@ class RGBLight extends Generic {
                     {this.rgbRenderColorTemperature()}
                 </div>
             </DialogContent>
-            <DialogActions>
-                <Button
-                    variant="contained"
-                    startIcon={<Close />}
-                    onClick={() => this.setState({ dialog: false })}
-                >
-                    {Generic.t('Close')}
-                </Button>
-            </DialogActions>
         </Dialog>;
     }
 
