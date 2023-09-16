@@ -205,7 +205,7 @@ class Thermostat extends Generic {
                             label: 'mode_party',
                         },
                         {
-                            name: 'oid-step',
+                            name: 'step',
                             type: 'select',
                             disabled: '!data["oid-temp-set"]',
                             label: 'step',
@@ -306,29 +306,31 @@ class Thermostat extends Generic {
             let modes = modeObj?.common?.states;
             newState.modeObject = { common: modeObj.common, _id: modeObj._id };
             // convert the array to the object
-            if (Array.isArray(modes)) {
+            if (modes && Array.isArray(modes)) {
                 const result = {};
                 modes.forEach(m => result[m] = m);
                 modes = result;
             }
             newState.modes = [];
             const max = parseInt(this.state.rxData.count, 10) || 10;
-            Object.keys(modes).forEach((m, i) => {
-                if (this.state.rxData[`hide${i + 1}`] || i >= max) {
-                    return;
-                }
-                const mode = { value: m, label: modes[m] };
-                mode.tooltip = this.state.rxData[`tooltip${i + 1}`] || modes.label;
-                mode.icon = this.state.rxData[`icon${i + 1}`] || this.state.rxData[`iconSmall${i + 1}`] || !!BUTTONS[modes[m]];
-                mode.label = mode.icon && this.state.rxData[`noText${i + 1}`] && !this.state.rxData[`title${i + 1}`] ? null : (this.state.rxData[`title${i + 1}`] || mode.label);
-                // if icon present, and it is a standard icon and no title provided
-                if (!this.state.rxData[`noText${i + 1}`] && mode.icon === true && !this.state.rxData[`title${i + 1}`]) {
-                    mode.label = null;
-                }
-                mode.color = this.state.rxData[`color${i + 1}`];
-                mode.original = modes[m];
-                newState.modes.push(mode);
-            });
+            if (modes) {
+                Object.keys(modes).forEach((m, i) => {
+                    if (this.state.rxData[`hide${i + 1}`] || i >= max) {
+                        return;
+                    }
+                    const mode = { value: m, label: modes[m] };
+                    mode.tooltip = this.state.rxData[`tooltip${i + 1}`] || modes.label;
+                    mode.icon = this.state.rxData[`icon${i + 1}`] || this.state.rxData[`iconSmall${i + 1}`] || !!BUTTONS[modes[m]];
+                    mode.label = mode.icon && this.state.rxData[`noText${i + 1}`] && !this.state.rxData[`title${i + 1}`] ? null : (this.state.rxData[`title${i + 1}`] || mode.label);
+                    // if icon present, and it is a standard icon and no title provided
+                    if (!this.state.rxData[`noText${i + 1}`] && mode.icon === true && !this.state.rxData[`title${i + 1}`]) {
+                        mode.label = null;
+                    }
+                    mode.color = this.state.rxData[`color${i + 1}`];
+                    mode.original = modes[m];
+                    newState.modes.push(mode);
+                });
+            }
         } else {
             newState.modes = null;
             newState.mode = null;
@@ -408,42 +410,6 @@ class Thermostat extends Generic {
                 </IconButton>
             </DialogTitle>
             <DialogContent>
-                {/* <Tabs value={this.state.dialogTab} onChange={(e, value) => this.setState({ dialogTab: value })}>
-                    <Tab label={Generic.t('Properties')} value={0} />
-                    <Tab label={Generic.t('History')} value={1} />
-                </Tabs>
-                {this.state.dialogTab === 0 && <div>
-                    <TextField
-                        fullWidth
-                        value={this.state.temp || null}
-                        onChange={e => {
-                            this.setState({ temp: Math.round(e.target.value) });
-                            this.props.context.socket.setState(this.state.rxData['oid-temp-set'], Math.round(e.target.value));
-                        }}
-                        variant="standard"
-                        type="number"
-                        inputProps={{
-                            min: this.state.min,
-                            max: this.state.max,
-                        }}
-                        label={Generic.t('Temperature')}
-                    />
-                    <FormControl fullWidth variant="standard">
-                        <InputLabel>{Generic.t('Mode')}</InputLabel>
-                        <Select
-                            value={this.state.mode}
-                            onChange={e => {
-                                this.setState({ mode: parseInt(e.target.value) });
-                                this.props.context.socket.setState(this.state.rxData['oid-mode'], parseInt(e.target.value));
-                            }}
-                        >
-                            {this.state.modes ? Object.keys(this.state.modes).map(modeIndex => {
-                                const mode = this.state.modes[modeIndex];
-                                return <MenuItem key={modeIndex} value={modeIndex}>{Generic.t(mode)}</MenuItem>;
-                            }) : null}
-                        </Select>
-                    </FormControl>
-                </div> */}
                 {this.state.dialogTab === 1 && <div style={{ height: '100%' }}>
                     <ObjectChart
                         t={Generic.t}
@@ -593,10 +559,8 @@ class Thermostat extends Generic {
         const thermIsWithPowerButton = this.thermIsWithPowerButton();
         const arcColor = this.props.customSettings?.viewStyle?.overrides?.palette?.primary?.main || this.props.context.theme?.palette.primary.main || '#448aff';
 
-        let modesButton = null;
+        let modesButton = [];
         if (thermIsWithModeButtons) {
-            modesButton = [];
-
             if (this.state.modes?.length) {
                 modesButton = this.state.modes.map(mode => {
                     const icon = mode.icon === true && BUTTONS[mode.original] ? true : (mode.icon ? <Icon src={mode.icon} style={{ width: 24, height: 24 }} /> : null);
@@ -684,7 +648,7 @@ class Thermostat extends Generic {
                     currentValueStr = currentValueStr === '1' || currentValueStr === 'true' || currentValueStr === true;
                 }
                 modesButton.push(<Button
-                    key="party"
+                    key="boost"
                     color={currentValueStr ? 'primary' : 'grey'}
                     onClick={() => {
                         let _currentValueStr = this.state.values[`${this.state.rxData['oid-boost']}.val`];
@@ -703,6 +667,23 @@ class Thermostat extends Generic {
                     {Generic.t('Boost')}
                 </Button>);
             }
+        }
+
+        if (thermIsWithPowerButton) {
+            modesButton.push(<Tooltip key="power" title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
+                <IconButton
+                    color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'grey'}
+                    onClick={() => {
+                        const values = JSON.parse(JSON.stringify(this.state.values));
+                        const id = `${this.state.rxData['oid-power']}.val`;
+                        values[id] = !values[id];
+                        this.setState(values);
+                        this.props.context.socket.setState(this.state.rxData['oid-power'], values[id]);
+                    }}
+                >
+                    <PowerSettingsNewIcon />
+                </IconButton>
+            </Tooltip>);
         }
 
         const content = <div
@@ -726,7 +707,7 @@ class Thermostat extends Generic {
                         value: tempValue,
                         onChange: value => {
                             const values = JSON.parse(JSON.stringify(this.state.values));
-                            if (this.state.rxData['oid-step'] === '0.5') {
+                            if (this.state.rxData.step === '0.5') {
                                 values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value * 2) / 2;
                             } else {
                                 values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value);
@@ -766,21 +747,6 @@ class Thermostat extends Generic {
                 style={{ bottom: 8 }}
             >
                 {modesButton}
-                {thermIsWithPowerButton ?
-                    <Tooltip title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
-                        <IconButton
-                            color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'grey'}
-                            onClick={() => {
-                                const values = JSON.parse(JSON.stringify(this.state.values));
-                                const id = `${this.state.rxData['oid-power']}.val`;
-                                values[id] = !values[id];
-                                this.setState(values);
-                                this.props.context.socket.setState(this.state.rxData['oid-power'], values[id]);
-                            }}
-                        >
-                            <PowerSettingsNewIcon />
-                        </IconButton>
-                    </Tooltip> : null}
             </div>
             {this.renderChartDialog()}
         </div>;
