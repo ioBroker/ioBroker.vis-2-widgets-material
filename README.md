@@ -110,7 +110,7 @@ Additionally, you can show image or iframe with this widget too.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.2.0 (2023-09-16)
 * (bluefox) Added door lock, rgb and thermostat to switches widget
 
 ### 1.1.3 (2023-09-10)
