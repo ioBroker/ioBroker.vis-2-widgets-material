@@ -326,5 +326,6 @@
   "Party": "Festa",
   "Boost": "Aumento",
   "mode_boost": "Aumenta l'ID",
-  "mode_party": "Identificativo del partito"
+  "mode_party": "Identificativo del partito",
+  "rgbType": "Tipo RGB"
 }

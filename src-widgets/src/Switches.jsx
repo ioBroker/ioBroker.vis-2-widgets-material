@@ -194,6 +194,9 @@ const styles = () => ({
         display: 'flex',
         justifyContent: 'center',
     },
+    rgbDialog: {
+        maxWidth: 400,
+    },
     ...STYLES,
 });
 
@@ -1257,6 +1260,7 @@ class Switches extends BlindsBase {
             return <Dialog
                 fullWidth
                 maxWidth="sm"
+                classes={{ paper: this.props.classes.rgbDialog }}
                 open={!0}
                 onClose={() => {
                     this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
@@ -1335,6 +1339,8 @@ class Switches extends BlindsBase {
                     backgroundColor: switchState === null || switchState ? this.rgbGetColor(index) :
                         (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
                     color: this.rgbGetTextColor(index),
+                    width: 36,
+                    height: 36,
                 }}
                 onClick={() => this.setState({ showControlDialog: index })}
             >
@@ -2074,6 +2080,7 @@ class Switches extends BlindsBase {
     rgbSetId = (index, id, value) => {
         if (this.state.rgbObjects[index][id]) {
             this.timeouts = this.timeouts || {};
+            this.timeouts[index] = this.timeouts[index] || {};
             this.timeouts[index][id] && clearTimeout(this.timeouts[index][id]);
 
             // control switch directly without timeout
@@ -2105,8 +2112,8 @@ class Switches extends BlindsBase {
 
         for (const k in ids) {
             const id = ids[k];
-            if (this.state.rxData[id]) {
-                const object = _objects[this.state.rxData[id]];
+            if (this.state.rxData[id + index]) {
+                const object = _objects[this.state.rxData[id + index]];
                 if (object) {
                     _rgbObjects[id] = object;
                 }
@@ -2276,7 +2283,7 @@ class Switches extends BlindsBase {
     }
 
     rgbRenderBrightness(index) {
-        return this.state.rgbObjects.brightness && <div className={this.props.classes.rgbSliderContainer}>
+        return this.state.rgbObjects[index].brightness && <div className={this.props.classes.rgbSliderContainer}>
             <Tooltip title={Generic.t('Brightness')}>
                 <Brightness6 />
             </Tooltip>
@@ -2382,7 +2389,7 @@ class Switches extends BlindsBase {
                 className={this.props.classes.rgbSliderContainer}
                 style={{
                     background:
-                        `linear-gradient(to right, ${this.state.colorTemperatures.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
+                        `linear-gradient(to right, ${this.state.colorTemperatures[index].map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
                     flex: '1',
                     borderRadius: 4,
                 }}

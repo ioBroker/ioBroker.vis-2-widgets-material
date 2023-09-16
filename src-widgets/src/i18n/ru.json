@@ -326,5 +326,6 @@
   "Party": "Вечеринка",
   "Boost": "Boost",
   "mode_boost": "Boost-ID",
-  "mode_party": "Идентификатор вечеринки"
+  "mode_party": "Идентификатор вечеринки",
+  "rgbType": "Тип RGB"
 }

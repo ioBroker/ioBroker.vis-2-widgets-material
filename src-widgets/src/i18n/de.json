@@ -326,5 +326,6 @@
   "Party": "Party",
   "Boost": "Schub",
   "mode_boost": "Boost-ID",
-  "mode_party": "Party-ID"
+  "mode_party": "Party-ID",
+  "rgbType": "RGB-Typ"
 }

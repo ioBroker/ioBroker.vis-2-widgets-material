@@ -326,5 +326,6 @@
   "Party": "Faire la fête",
   "Boost": "Booster",
   "mode_boost": "Identifiant Boost",
-  "mode_party": "ID de partie"
+  "mode_party": "ID de partie",
+  "rgbType": "Type RVB"
 }

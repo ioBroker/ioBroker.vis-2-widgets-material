@@ -326,5 +326,6 @@
   "Party": "Festa",
   "Boost": "Impulsionar",
   "mode_boost": "ID de impulso",
-  "mode_party": "ID da festa"
+  "mode_party": "ID da festa",
+  "rgbType": "Tipo RGB"
 }

@@ -326,5 +326,6 @@
   "Party": "Impreza",
   "Boost": "Zwiększyć",
   "mode_boost": "Zwiększ identyfikator",
-  "mode_party": "Identyfikator partii"
+  "mode_party": "Identyfikator partii",
+  "rgbType": "Typ RGB"
 }
