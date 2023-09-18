@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "news": {
+      "1.2.1": {
+        "en": "Added door lock, rgb and thermostat to switches widget",
+        "de": "Türschloss, Rgb und Thermostat hinzugefügt, um Widget zu wechseln",
+        "ru": "Добавлен замок двери, rgb и термостат для переключения виджета",
+        "pt": "Fechadura de porta adicionada, rgb e termostato para interruptores widget",
+        "nl": "Gevoegd deurslot, RGB en thermostat om Widget te verwisselen",
+        "fr": "Ajout de verrouillage de porte, rgb et thermostat aux commutateurs widget",
+        "it": "Aggiunto serratura della porta, rgb e termostato per interruttori widget",
+        "es": "Cierre de puerta, rgb y termostato para interruptores widget",
+        "pl": "Wejście do drzwi, rgb i termostat przełącza widget",
+        "uk": "Додано замок дверей, rgb і термостат для перемикання віджетів",
+        "zh-cn": "添加大门锁、旁观和动荡局,以改变人们的焦虑。"
+      },
       "1.1.3": {
         "en": "Door lock improved",
         "de": "Türschloss verbessert",
