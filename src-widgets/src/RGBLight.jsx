@@ -1,12 +1,11 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
 import {
-    Brightness6, Close as CloseIcon, Close, ColorLens, Thermostat,
+    Brightness6, Close, ColorLens, Thermostat,
 } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 import {
-    Button,
-    Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip,
+    Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip,
 } from '@mui/material';
 import {
     Wheel, rgbaToHsva, hsvaToHsla, hsvaToRgba, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
