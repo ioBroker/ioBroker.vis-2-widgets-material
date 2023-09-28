@@ -24,6 +24,7 @@ import WasherDryer from './WasherDryer';
 import Wizard from './Wizard';
 import RGBLight from './RGBLight';
 import Lock from './Lock';
+import Vacuum from './Vacuum';
 
 const styles = theme => ({
     app: {
@@ -391,6 +392,30 @@ class App extends WidgetDemoApp {
                     'doorOpen-oid': 'javascript.0.doorOpen',
                     // pincode: '1234',
                     pincodeReturnButton: 'backspace',
+                }}
+            />,
+            vacuum: <Vacuum
+                key="Vacuum"
+                context={{
+                    socket: this.socket,
+                    systemConfig: this.state.systemConfig,
+                }}
+                style={{
+                    width: 400,
+                    height: 180,
+                }}
+                data={{
+                    name: 'Vacuum',
+                    'status-oid': 'mihome-vacuum.0.info.state',
+                    'battery-oid': 'mihome-vacuum.0.info.battery',
+                    'fan_speed-oid': 'mihome-vacuum.0.control.fan_power',
+                    'sensors_left-oid': 'mihome-vacuum.0.consumable.sensors',
+                    'filter_left-oid': 'mihome-vacuum.0.consumable.filter',
+                    'main_brush_left-oid': 'mihome-vacuum.0.consumable.main_brush',
+                    'side_brush_left-oid': 'mihome-vacuum.0.consumable.side_brush',
+                    'cleaning_count-oid': 'mihome-vacuum.0.history.total_cleanups',
+                    'start-oid': 'mihome-vacuum.0.control.start',
+                    'home-oid': 'mihome-vacuum.0.control.home',
                 }}
             />,
 
