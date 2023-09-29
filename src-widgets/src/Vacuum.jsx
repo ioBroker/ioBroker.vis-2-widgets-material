@@ -1,5 +1,8 @@
-import { Card, CardContent, IconButton } from '@mui/material';
+import {
+    Button, Card, CardContent, IconButton,
+} from '@mui/material';
 import { Home, PlayArrow } from '@mui/icons-material';
+import { Icon } from '@iobroker/adapter-react-v5';
 import Generic from './Generic';
 
 class Vacuum extends Generic {
@@ -125,11 +128,15 @@ class Vacuum extends Generic {
         this.setState({ objects });
     }
 
+    async loadRooms() {
+        const rooms = await this.props.context.socket.getObjectView('enum.rooms.', 'enum.rooms.\u9999', 'enum');
+        this.setState({ rooms: Object.values(rooms) });
+    }
+
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
-        const rooms = await this.props.context.socket.getObjectView('enum.rooms.', 'enum.rooms.\u9999', 'enum');
-        this.setState({ rooms: Object.values(rooms) });
+        this.loadRooms();
     }
 
     async onRxDataChanged(/* prevRxData */) {
@@ -150,6 +157,32 @@ class Vacuum extends Generic {
 
     renderSpeed() {
 
+    }
+
+    renderRooms() {
+        return <div style={{ display: 'flex', alignItems: 'center' }}>
+            {
+                this.state.rooms.map(room => <div key={room._id}>
+                    <Button sx={
+                        theme => ({
+                            color: theme.palette.text.primary,
+                        })
+                    }
+                    >
+                        {room.common.icon ?
+                            <Icon
+                                src={room.common.icon}
+                                alt={room.common.name}
+                                style={{
+                                    height: 16,
+                                }}
+                            />
+                            :
+                            room.common.name}
+                    </Button>
+                </div>)
+            }
+        </div>;
     }
 
     renderSensors() {
@@ -213,9 +246,12 @@ class Vacuum extends Generic {
 
         console.log(this.state);
 
-        const content = <div style={{ width: '100%' }}>
+        const content = <div style={{ width: '100%', overflow: 'auto' }}>
             {this.renderSensors()}
-            {this.renderButtons()}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {this.renderButtons()}
+                {this.renderRooms()}
+            </div>
         </div>;
 
         return this.wrapContent(
