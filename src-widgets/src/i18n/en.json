@@ -327,5 +327,10 @@
   "Boost": "Boost",
   "mode_boost": "Boost ID",
   "mode_party": "Party ID",
-  "rgbType": "RGB Type"
+  "rgbType": "RGB Type",
+  "filter_left": "Filter left",
+  "side_brush_left": "Side brush left",
+  "main_brush_left": "Main brush left",
+  "sensors_left": "Sensors left",
+  "cleaning_count": "Cleaning count"
 }

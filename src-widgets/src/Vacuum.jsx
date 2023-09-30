@@ -1,7 +1,8 @@
 import {
     Button, Card, CardContent, IconButton,
 } from '@mui/material';
-import { Home, PlayArrow } from '@mui/icons-material';
+import { BatteryFull, Home, PlayArrow } from '@mui/icons-material';
+import { FaFan } from 'react-icons/fa';
 import { Icon } from '@iobroker/adapter-react-v5';
 import Generic from './Generic';
 
@@ -10,6 +11,7 @@ class Vacuum extends Generic {
         super(props);
         this.state.objects = {};
         this.state.rooms = [];
+        this.state.currentRoom = '';
     }
 
     static getWidgetInfo() {
@@ -143,7 +145,10 @@ class Vacuum extends Generic {
         await this.propertiesUpdate();
     }
 
-    getValue(id) {
+    getValue(id, isEnum) {
+        if (isEnum) {
+            return this.getObj(id).common.states[this.state.values[`${this.state.rxData[`${id}-oid`]}.val`]];
+        }
         return this.state.values[`${this.state.rxData[`${id}-oid`]}.val`];
     }
 
@@ -152,22 +157,50 @@ class Vacuum extends Generic {
     }
 
     renderBattery() {
-
+        return this.getObj('battery') && <div
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+            }}
+        >
+            <BatteryFull />
+            {this.getValue('battery') || 0}
+            {' '}
+            {this.getObj('battery').common.unit}
+        </div>;
     }
 
     renderSpeed() {
-
+        return this.getObj('fan_speed') && <Button
+            onClick={() => {
+                const states = Object.keys(this.getObj('fan_speed').common.states);
+                const index = states.indexOf(this.getValue('fan_speed'));
+                const next = index + 1 < states.length ? index + 1 : 0;
+                this.props.context.socket.setState(this.state.rxData['fan_speed-oid'], states[next]);
+            }}
+            sx={theme => ({
+                color: theme.palette.text.primary,
+            })}
+        >
+            <FaFan />
+            {this.getValue('fan_speed', true)}
+        </Button>;
     }
 
     renderRooms() {
         return <div style={{ display: 'flex', alignItems: 'center' }}>
             {
                 this.state.rooms.map(room => <div key={room._id}>
-                    <Button sx={
-                        theme => ({
-                            color: theme.palette.text.primary,
-                        })
-                    }
+                    <Button
+                        sx={
+                            theme => ({
+                                color: theme.palette.text.primary,
+                            })
+                        }
+                        onClick={() => {
+                            this.setState({ currentRoom: room._id });
+                        }}
                     >
                         {room.common.icon ?
                             <Icon
@@ -209,12 +242,12 @@ class Vacuum extends Generic {
                     return <Card key={sensor}>
                         <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <div>
-                                {this.getValue(sensor)}
+                                <span style={{ fontSize: 20 }}>{this.getValue(sensor) || 0}</span>
                                 {' '}
-                                {object.common.unit}
+                                <span style={{ fontSize: 12 }}>{object.common.unit}</span>
                             </div>
                             <div>
-                                {Generic.t(sensor)}
+                                <span style={{ fontSize: 12 }}>{Generic.t(sensor)}</span>
                             </div>
                         </CardContent>
                     </Card>;
@@ -241,12 +274,30 @@ class Vacuum extends Generic {
         </div>;
     }
 
+    renderMap() {
+        return <div>{this.state.currentRoom}</div>;
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
         console.log(this.state);
 
-        const content = <div style={{ width: '100%', overflow: 'auto' }}>
+        const content = <div style={{
+            width: '100%',
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+        }}
+        >
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                {this.renderSpeed()}
+                {this.renderBattery()}
+            </div>
+            <div style={{ flex: 1 }}>
+                {this.renderMap()}
+            </div>
             {this.renderSensors()}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {this.renderButtons()}

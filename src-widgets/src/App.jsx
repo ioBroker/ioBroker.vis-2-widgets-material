@@ -401,8 +401,8 @@ class App extends WidgetDemoApp {
                     systemConfig: this.state.systemConfig,
                 }}
                 style={{
-                    width: 400,
-                    height: 180,
+                    width: 600,
+                    height: 400,
                 }}
                 data={{
                     name: 'Vacuum',
