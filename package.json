@@ -24,7 +24,7 @@
     "@alcalzone/release-script-plugin-license": "^3.5.9",
     "@iobroker/vis-2-widgets-react-dev": "^0.4.6",
     "@types/gulp": "^4.0.14",
-    "@types/mocha": "^10.0.1",
+    "@types/mocha": "^10.0.2",
     "@types/node": "^20.8.0",
     "eslint": "^8.50.0",
     "gulp": "^4.0.2",
