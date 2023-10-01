@@ -43,7 +43,7 @@
         "react-icons": "^4.11.0",
         "react-leaflet": "^4.2.1",
         "react-scripts": "^5.0.1",
-        "sass": "^1.67.0",
+        "sass": "^1.68.0",
         "uuid": "^9.0.1"
     },
     "scripts": {
