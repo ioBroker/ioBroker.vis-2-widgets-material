@@ -1,5 +1,5 @@
 import {
-    Button, Card, CardContent, IconButton,
+    Button, Card, CardContent, IconButton, Tooltip,
 } from '@mui/material';
 import { BatteryFull, Home, PlayArrow } from '@mui/icons-material';
 import { FaFan } from 'react-icons/fa';
@@ -182,6 +182,9 @@ class Vacuum extends Generic {
             sx={theme => ({
                 color: theme.palette.text.primary,
             })}
+            style={{
+                gap: 4,
+            }}
         >
             <FaFan />
             {this.getValue('fan_speed', true)}
@@ -192,27 +195,29 @@ class Vacuum extends Generic {
         return <div style={{ display: 'flex', alignItems: 'center' }}>
             {
                 this.state.rooms.map(room => <div key={room._id}>
-                    <Button
-                        sx={
-                            theme => ({
-                                color: theme.palette.text.primary,
-                            })
-                        }
-                        onClick={() => {
-                            this.setState({ currentRoom: room._id });
-                        }}
-                    >
-                        {room.common.icon ?
-                            <Icon
-                                src={room.common.icon}
-                                alt={room.common.name}
-                                style={{
-                                    height: 16,
-                                }}
-                            />
-                            :
-                            room.common.name}
-                    </Button>
+                    <Tooltip title={Generic.getText(room.common.name)}>
+                        <Button
+                            sx={
+                                theme => ({
+                                    color: this.state.currentRoom === room._id ? undefined : theme.palette.text.primary,
+                                })
+                            }
+                            onClick={() => {
+                                this.setState({ currentRoom: room._id });
+                            }}
+                        >
+                            {room.common.icon ?
+                                <Icon
+                                    src={room.common.icon}
+                                    alt={room.common.name}
+                                    style={{
+                                        height: 16,
+                                    }}
+                                />
+                                :
+                                Generic.getText(room.common.name)}
+                        </Button>
+                    </Tooltip>
                 </div>)
             }
         </div>;
@@ -261,16 +266,20 @@ class Vacuum extends Generic {
             display: 'flex', alignItems: 'center', gap: 4,
         }}
         >
-            {this.getObj('start') && <IconButton
-                onClick={() => this.props.context.socket.setState(this.state.rxData['start-oid'], true)}
-            >
-                <PlayArrow />
-            </IconButton>}
-            {this.getObj('home') && <IconButton
-                onClick={() => this.props.context.socket.setState(this.state.rxData['home-oid'], true)}
-            >
-                <Home />
-            </IconButton>}
+            {this.getObj('start') && <Tooltip title={Generic.t('Start')}>
+                <IconButton
+                    onClick={() => this.props.context.socket.setState(this.state.rxData['start-oid'], true)}
+                >
+                    <PlayArrow />
+                </IconButton>
+            </Tooltip>}
+            {this.getObj('home') && <Tooltip title={Generic.t('Home')}>
+                <IconButton
+                    onClick={() => this.props.context.socket.setState(this.state.rxData['home-oid'], true)}
+                >
+                    <Home />
+                </IconButton>
+            </Tooltip>}
         </div>;
     }
 
