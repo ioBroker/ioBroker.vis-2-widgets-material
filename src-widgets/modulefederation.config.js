@@ -20,6 +20,7 @@ module.exports = makeFederation(
         './Wizard': './src/Wizard',
         './RGBLight': './src/RGBLight',
         './Lock': './src/Lock',
+        './Vacuum': './src/Vacuum',
         './translations': './src/translations',
     }
 );

@@ -408,6 +408,7 @@ class App extends WidgetDemoApp {
                     name: 'Vacuum',
                     'status-oid': 'mihome-vacuum.0.info.state',
                     'battery-oid': 'mihome-vacuum.0.info.battery',
+                    'is_charging-oid': 'mihome-vacuum.0.info.is_charging',
                     'fan_speed-oid': 'mihome-vacuum.0.control.fan_power',
                     'sensors_left-oid': 'mihome-vacuum.0.consumable.sensors',
                     'filter_left-oid': 'mihome-vacuum.0.consumable.filter',

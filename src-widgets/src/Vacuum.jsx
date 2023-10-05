@@ -1,10 +1,54 @@
 import {
     Button, Card, CardContent, IconButton, Tooltip,
 } from '@mui/material';
-import { BatteryFull, Home, PlayArrow } from '@mui/icons-material';
+import PropTypes from 'prop-types';
+import {
+    BatteryChargingFull, BatteryFull, Home, PlayArrow,
+} from '@mui/icons-material';
 import { FaFan } from 'react-icons/fa';
 import { Icon } from '@iobroker/adapter-react-v5';
+import { withStyles } from '@mui/styles';
 import Generic from './Generic';
+
+const styles = theme => ({
+    battery: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+    },
+    sensorsContainer: {
+        overflow: 'auto',
+    },
+    sensors: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 4,
+        minWidth: 'min-content',
+    },
+    rooms: { display: 'flex', alignItems: 'center' },
+    buttons: {
+        display: 'flex', alignItems: 'center', gap: 4,
+    },
+    content: {
+        width: '100%',
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+    },
+    mapContainer: { flex: 1 },
+    topPanel: { display: 'flex', alignItems: 'center' },
+    bottomPanel: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    speed: { gap: 4, color: theme.palette.text.primary },
+    roomIcon: { height: 16 },
+    sensorCard: { boxShadow: 'none' },
+    sensorCardContent: {
+        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+    },
+    sensorBigText: { fontSize: 20 },
+    sensorSmallText: { fontSize: 12 },
+});
 
 class Vacuum extends Generic {
     constructor(props) {
@@ -41,6 +85,7 @@ class Vacuum extends Generic {
                     ],
                 }, {
                     name: 'sensors',
+                    label: 'sensors',
                     fields: [
                         {
                             label: 'status',
@@ -50,6 +95,11 @@ class Vacuum extends Generic {
                         {
                             label: 'battery',
                             name: 'battery-oid',
+                            type: 'id',
+                        },
+                        {
+                            label: 'is_charging',
+                            name: 'is_charging-oid',
                             type: 'id',
                         },
                         {
@@ -86,15 +136,16 @@ class Vacuum extends Generic {
                 },
                 {
                     name: 'actions',
+                    label: 'actions',
                     fields: [
                         {
-                            label: 'start-oid',
-                            name: 'start',
+                            label: 'start',
+                            name: 'start-oid',
                             type: 'id',
                         },
                         {
-                            label: 'home-oid',
-                            name: 'home',
+                            label: 'home',
+                            name: 'home-oid',
                             type: 'id',
                         },
                     ],
@@ -116,7 +167,7 @@ class Vacuum extends Generic {
 
     async propertiesUpdate() {
         const objects = {};
-        const oids = ['status', 'battery', 'fan_speed', 'sensors_left', 'filter_left', 'main_brush_left', 'side_brush_left', 'cleaning_count',
+        const oids = ['status', 'battery', 'is_charging', 'fan_speed', 'sensors_left', 'filter_left', 'main_brush_left', 'side_brush_left', 'cleaning_count',
             'start', 'home'];
         for (const k in oids) {
             const oid = this.state.rxData[`${oids[k]}-oid`];
@@ -157,14 +208,8 @@ class Vacuum extends Generic {
     }
 
     renderBattery() {
-        return this.getObj('battery') && <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-            }}
-        >
-            <BatteryFull />
+        return this.getObj('battery') && <div className={this.props.classes.battery}>
+            {this.getObj('is_charging') && this.getValue('is_charging') ? <BatteryChargingFull /> : <BatteryFull />}
             {this.getValue('battery') || 0}
             {' '}
             {this.getObj('battery').common.unit}
@@ -179,12 +224,7 @@ class Vacuum extends Generic {
                 const next = index + 1 < states.length ? index + 1 : 0;
                 this.props.context.socket.setState(this.state.rxData['fan_speed-oid'], states[next]);
             }}
-            sx={theme => ({
-                color: theme.palette.text.primary,
-            })}
-            style={{
-                gap: 4,
-            }}
+            className={this.props.classes.speed}
         >
             <FaFan />
             {this.getValue('fan_speed', true)}
@@ -192,7 +232,7 @@ class Vacuum extends Generic {
     }
 
     renderRooms() {
-        return <div style={{ display: 'flex', alignItems: 'center' }}>
+        return <div className={this.props.classes.rooms}>
             {
                 this.state.rooms.map(room => <div key={room._id}>
                     <Tooltip title={Generic.getText(room.common.name)}>
@@ -210,9 +250,7 @@ class Vacuum extends Generic {
                                 <Icon
                                     src={room.common.icon}
                                     alt={room.common.name}
-                                    style={{
-                                        height: 16,
-                                    }}
+                                    className={this.props.classes.roomIcon}
                                 />
                                 :
                                 Generic.getText(room.common.name)}
@@ -232,27 +270,26 @@ class Vacuum extends Generic {
             }
         });
 
-        return <div style={{ overflow: 'auto' }}>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 4,
-                minWidth: 'min-content',
-            }}
-            >
+        return <div className={this.props.classes.sensorsContainer}>
+            <div className={this.props.classes.sensors}>
                 {sensors.map(sensor => {
                     const object = this.getObj(sensor);
 
-                    return <Card key={sensor}>
-                        <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    return <Card key={sensor} className={this.props.classes.sensorCard}>
+                        <CardContent className={this.props.classes.sensorCardContent}>
                             <div>
-                                <span style={{ fontSize: 20 }}>{this.getValue(sensor) || 0}</span>
+                                <span className={this.props.classes.sensorBigText}>
+                                    {this.getValue(sensor) || 0}
+                                </span>
                                 {' '}
-                                <span style={{ fontSize: 12 }}>{object.common.unit}</span>
+                                <span className={this.props.classes.sensorSmallText}>
+                                    {object.common.unit}
+                                </span>
                             </div>
                             <div>
-                                <span style={{ fontSize: 12 }}>{Generic.t(sensor)}</span>
+                                <span className={this.props.classes.sensorSmallText}>
+                                    {Generic.t(sensor)}
+                                </span>
                             </div>
                         </CardContent>
                     </Card>;
@@ -262,10 +299,7 @@ class Vacuum extends Generic {
     }
 
     renderButtons() {
-        return <div style={{
-            display: 'flex', alignItems: 'center', gap: 4,
-        }}
-        >
+        return <div className={this.props.classes.buttons}>
             {this.getObj('start') && <Tooltip title={Generic.t('Start')}>
                 <IconButton
                     onClick={() => this.props.context.socket.setState(this.state.rxData['start-oid'], true)}
@@ -290,25 +324,16 @@ class Vacuum extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        console.log(this.state);
-
-        const content = <div style={{
-            width: '100%',
-            overflow: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            flex: 1,
-        }}
-        >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+        const content = <div className={this.props.classes.content}>
+            <div className={this.props.classes.topPanel}>
                 {this.renderSpeed()}
                 {this.renderBattery()}
             </div>
-            <div style={{ flex: 1 }}>
+            <div className={this.props.classes.mapContainer}>
                 {this.renderMap()}
             </div>
             {this.renderSensors()}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className={this.props.classes.bottomPanel}>
                 {this.renderButtons()}
                 {this.renderRooms()}
             </div>
@@ -320,4 +345,8 @@ class Vacuum extends Generic {
     }
 }
 
-export default Vacuum;
+Vacuum.propTypes = {
+    context: PropTypes.object,
+};
+
+export default withStyles(styles)(Vacuum);

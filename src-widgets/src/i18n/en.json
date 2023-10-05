@@ -332,5 +332,14 @@
   "side_brush_left": "Side brush left",
   "main_brush_left": "Main brush left",
   "sensors_left": "Sensors left",
-  "cleaning_count": "Cleaning count"
+  "cleaning_count": "Cleaning count",
+  "start": "Start",
+  "home": "Home",
+  "is_charging": "Is charging",
+  "vacuum": "Vacuum cleaner",
+  "status": "Status",
+  "battery": "Battery",
+  "fan_speed": "Fan speed",
+  "sensors": "Sensors",
+  "actions": "Actions"
 }
