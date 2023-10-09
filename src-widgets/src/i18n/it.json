@@ -327,5 +327,19 @@
   "Boost": "Aumento",
   "mode_boost": "Aumenta l'ID",
   "mode_party": "Identificativo del partito",
-  "rgbType": "Tipo RGB"
+  "rgbType": "Tipo RGB",
+  "actions": "Azioni",
+  "battery": "Batteria",
+  "cleaning_count": "Conteggio delle pulizie",
+  "fan_speed": "Velocità della ventola",
+  "filter_left": "Filtro",
+  "home": "Casa",
+  "is_charging": "Si sta caricando",
+  "main_brush_left": "Spazzola principale",
+  "sensors": "Sensori",
+  "sensors_left": "Sensori",
+  "side_brush_left": "Spazzola laterale",
+  "start": "Inizio",
+  "status": "Stato",
+  "vacuum": "Aspirapolvere"
 }

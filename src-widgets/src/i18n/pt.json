@@ -327,5 +327,19 @@
   "Boost": "Impulsionar",
   "mode_boost": "ID de impulso",
   "mode_party": "ID da festa",
-  "rgbType": "Tipo RGB"
+  "rgbType": "Tipo RGB",
+  "actions": "Ações",
+  "battery": "Bateria",
+  "cleaning_count": "Contagem de limpeza",
+  "fan_speed": "Velocidade do ventilador",
+  "filter_left": "Filtro",
+  "home": "Lar",
+  "is_charging": "Está carregando",
+  "main_brush_left": "Escova principal",
+  "sensors": "Sensores",
+  "sensors_left": "Sensores",
+  "side_brush_left": "Escova lateral",
+  "start": "Começar",
+  "status": "Status",
+  "vacuum": "Aspirador de pó"
 }

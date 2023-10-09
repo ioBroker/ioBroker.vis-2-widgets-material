@@ -327,5 +327,19 @@
   "Boost": "Booster",
   "mode_boost": "Identifiant Boost",
   "mode_party": "ID de partie",
-  "rgbType": "Type RVB"
+  "rgbType": "Type RVB",
+  "actions": "Actions",
+  "battery": "Batterie",
+  "cleaning_count": "Nombre de nettoyages",
+  "fan_speed": "Vitesse du ventilateur",
+  "filter_left": "Filtre",
+  "home": "Maison",
+  "is_charging": "Est en train de charger",
+  "main_brush_left": "Brosse principale",
+  "sensors": "Capteurs",
+  "sensors_left": "Capteurs",
+  "side_brush_left": "Brosse latérale",
+  "start": "Commencer",
+  "status": "Statut",
+  "vacuum": "aspirateur"
 }

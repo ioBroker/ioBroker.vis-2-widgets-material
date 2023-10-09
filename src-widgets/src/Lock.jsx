@@ -369,7 +369,7 @@ class Lock extends Generic {
                         }
                     }}
                 >
-                    {working ? <CircularProgress className={this.props.classes.lockWorkingIcon} size={this.state.rxData.lockSize || 40} /> : null}
+                    {working && working !== 3 /* 3 = UNDEFINED */ ? <CircularProgress className={this.props.classes.lockWorkingIcon} size={this.state.rxData.lockSize || 40} /> : null}
                     {this.state.rxData.noLockAnimation ? (lockOpened ?
                         <LockOpenedIcon
                             style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}

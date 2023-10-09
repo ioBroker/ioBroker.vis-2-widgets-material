@@ -327,5 +327,19 @@
   "Boost": "Підвищення",
   "mode_boost": "Boost ID",
   "mode_party": "ID партії",
-  "rgbType": "Тип RGB"
+  "rgbType": "Тип RGB",
+  "actions": "Дії",
+  "battery": "Акумулятор",
+  "cleaning_count": "Підрахунок прибирання",
+  "fan_speed": "Швидкість вентилятора",
+  "filter_left": "фільтр",
+  "home": "додому",
+  "is_charging": "Заряджається",
+  "main_brush_left": "Основна щітка",
+  "sensors": "Датчики",
+  "sensors_left": "Датчики",
+  "side_brush_left": "Бічна щітка",
+  "start": "Почніть",
+  "status": "Статус",
+  "vacuum": "Пилосос"
 }

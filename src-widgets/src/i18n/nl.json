@@ -327,5 +327,19 @@
   "Boost": "Boost",
   "mode_boost": "Boost-ID",
   "mode_party": "Partij-ID",
-  "rgbType": "RGB-type"
+  "rgbType": "RGB-type",
+  "actions": "Acties",
+  "battery": "Accu",
+  "cleaning_count": "Reinigingstelling",
+  "fan_speed": "Ventilator snelheid",
+  "filter_left": "Filter",
+  "home": "Thuis",
+  "is_charging": "Is aan het opladen",
+  "main_brush_left": "Hoofdborstel",
+  "sensors": "Sensoren",
+  "sensors_left": "Sensoren",
+  "side_brush_left": "Zijborstel",
+  "start": "Begin",
+  "status": "Toestand",
+  "vacuum": "Stofzuiger"
 }

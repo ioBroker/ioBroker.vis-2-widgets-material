@@ -327,5 +327,19 @@
   "Boost": "Aumentar",
   "mode_boost": "Impulsar identificación",
   "mode_party": "Identificación del partido",
-  "rgbType": "Tipo RGB"
+  "rgbType": "Tipo RGB",
+  "actions": "Comportamiento",
+  "battery": "Batería",
+  "cleaning_count": "Recuento de limpieza",
+  "fan_speed": "Velocidad del ventilador",
+  "filter_left": "Filtrar",
+  "home": "Hogar",
+  "is_charging": "Está cargando",
+  "main_brush_left": "Cepillo principal",
+  "sensors": "Sensores",
+  "sensors_left": "Sensores",
+  "side_brush_left": "Сepillo lateral",
+  "start": "Comenzar",
+  "status": "Estado",
+  "vacuum": "aspiradora"
 }

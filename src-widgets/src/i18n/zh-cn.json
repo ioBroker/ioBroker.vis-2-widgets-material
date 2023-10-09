@@ -327,5 +327,19 @@
   "Boost": "促进",
   "mode_boost": "升压ID",
   "mode_party": "派对 ID",
-  "rgbType": "RGB类型"
+  "rgbType": "RGB类型",
+  "actions": "行动",
+  "battery": "电池",
+  "cleaning_count": "清洗次数",
+  "fan_speed": "风扇转速",
+  "filter_left": "筛选",
+  "home": "家",
+  "is_charging": "正在充电",
+  "main_brush_left": "主刷",
+  "sensors": "传感器",
+  "sensors_left": "传感器",
+  "side_brush_left": "边刷",
+  "start": "开始",
+  "status": "地位",
+  "vacuum": "吸尘器"
 }

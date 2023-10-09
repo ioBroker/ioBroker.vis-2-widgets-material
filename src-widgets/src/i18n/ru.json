@@ -327,5 +327,19 @@
   "Boost": "Boost",
   "mode_boost": "Boost-ID",
   "mode_party": "Идентификатор вечеринки",
-  "rgbType": "Тип RGB"
+  "rgbType": "Тип RGB",
+  "actions": "Действия",
+  "battery": "Батарея",
+  "cleaning_count": "Уборок",
+  "fan_speed": "Скорость вентилятора",
+  "filter_left": "Фильтр",
+  "home": "Домой",
+  "is_charging": "Заряжается",
+  "main_brush_left": "Основная щётка",
+  "sensors": "Датчики",
+  "sensors_left": "Датчики",
+  "side_brush_left": "Боковая щетка",
+  "start": "Начать",
+  "status": "Состояние",
+  "vacuum": "Пылесос"
 }

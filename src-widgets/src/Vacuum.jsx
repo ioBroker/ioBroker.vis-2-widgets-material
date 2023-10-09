@@ -1,13 +1,19 @@
+import PropTypes from 'prop-types';
+import { withStyles } from '@mui/styles';
+
 import {
     Button, Card, CardContent, IconButton, Tooltip,
 } from '@mui/material';
-import PropTypes from 'prop-types';
+
 import {
     BatteryChargingFull, BatteryFull, Home, PlayArrow,
 } from '@mui/icons-material';
 import { FaFan } from 'react-icons/fa';
+
 import { Icon } from '@iobroker/adapter-react-v5';
-import { withStyles } from '@mui/styles';
+
+import vacuumIcon from './assets/vacuum_icon.svg';
+
 import Generic from './Generic';
 
 const styles = theme => ({
@@ -32,10 +38,8 @@ const styles = theme => ({
     },
     content: {
         width: '100%',
+        height: '100%',
         overflow: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1,
     },
     mapContainer: { flex: 1 },
     topPanel: { display: 'flex', alignItems: 'center' },
@@ -44,11 +48,92 @@ const styles = theme => ({
     roomIcon: { height: 16 },
     sensorCard: { boxShadow: 'none' },
     sensorCardContent: {
-        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: 2,
+        paddingBottom: 2,
     },
     sensorBigText: { fontSize: 20 },
     sensorSmallText: { fontSize: 12 },
+    image: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+    },
 });
+
+const ID_ROLES = {
+    status: { role: 'value.state' },
+    battery: { role: 'value.battery' },
+    is_charging: { name: 'is_charging' },
+    fan_speed: { role: 'level.suction' },
+    sensors_left: { role: 'value.usage.sensors' },
+    filter_left: { role: 'value.usage.filter' },
+    main_brush_left: { role: 'value.usage.brush' },
+    side_brush_left: { role: 'value.usage.brush.side' },
+    cleaning_count: { name: 'cleanups' },
+    start: { role: 'button', name:'start' },
+    home: { role: 'button', name: 'home' },
+    pause: { role: 'button', name: 'pause' },
+    map64: { role: 'vacuum.map.base64' },
+};
+
+const loadStates = async (field, data, changeData, socket) => {
+    if (data[field.name]) {
+        const object = await socket.getObject(data[field.name]);
+        if (object && object.common) {
+            let parts = object._id.split('.');
+            parts.pop();
+            // try to find a device object
+            let device = await socket.getObject(parts.join('.'));
+            if (!device) {
+                return;
+            }
+            if (device.type === 'channel' || device.type === 'folder') {
+                parts.pop();
+                device = await socket.getObject(parts.join('.'));
+            }
+            if (device.type !== 'device') {
+                parts = object._id.split('.');
+                parts.pop();
+            }
+
+            const states = await socket.getObjectView(`${parts.join('.')}.`, `${parts.join('.')}.\u9999`, 'state');
+            if (states) {
+                let changed = false;
+                Object.keys(ID_ROLES).forEach(name => {
+                    if (!data[`${name}-oid`]) {
+                        // try to find state
+                        Object.values(states).forEach(state => {
+                            const _parts = state._id.split('.');
+                            if (_parts.includes('rooms')) {
+                                return;
+                            }
+
+                            const role = state.common.role;
+                            if (ID_ROLES[name].role && !role?.includes(ID_ROLES[name].role)) {
+                                return;
+                            }
+                            if (ID_ROLES[name].name) {
+                                const last = state._id.split('.').pop().toLowerCase();
+                                if (!last.includes(ID_ROLES[name].name)) {
+                                    return;
+                                }
+                            }
+
+                            changed = true;
+                            data[`${name}-oid`] = state._id;
+                        });
+                    }
+                });
+
+                changed && changeData(data);
+            }
+        }
+    }
+};
 
 class Vacuum extends Generic {
     constructor(props) {
@@ -62,10 +147,6 @@ class Vacuum extends Generic {
         return {
             id: 'tplMaterial2Vacuum',
             visSet: 'vis-2-widgets-material',
-
-            visSetLabel: 'set_label', // Label of this widget set
-            visSetColor: '#0783ff', // Color of this widget set
-
             visWidgetLabel: 'vacuum',  // Label of widget
             visName: 'Vacuum',
             visAttrs: [
@@ -83,7 +164,8 @@ class Vacuum extends Generic {
                             hidden: '!!data.noCard',
                         },
                     ],
-                }, {
+                },
+                {
                     name: 'sensors',
                     label: 'sensors',
                     fields: [
@@ -91,46 +173,80 @@ class Vacuum extends Generic {
                             label: 'status',
                             name: 'status-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'battery',
                             name: 'battery-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'is_charging',
                             name: 'is_charging-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'fan_speed',
                             name: 'fan_speed-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'sensors_left',
                             name: 'sensors_left-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'filter_left',
                             name: 'filter_left-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'main_brush_left',
                             name: 'main_brush_left-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'side_brush_left',
                             name: 'side_brush_left-oid',
                             type: 'id',
+                            onChange: loadStates,
                         },
                         {
                             label: 'cleaning_count',
                             name: 'cleaning_count-oid',
                             type: 'id',
+                            onChange: loadStates,
+                        },
+                    ],
+                },
+                {
+                    name: 'map',
+                    label: 'map',
+                    fields: [
+                        {
+                            label: 'map64',
+                            name: 'map64-oid',
+                            type: 'id',
+                            onChange: loadStates,
+                        },
+                        {
+                            label: 'useDefaultPicture',
+                            name: 'useDefaultPicture',
+                            type: 'checkbox',
+                            default: true,
+                            hidden: '!!data.["map64-oid"]',
+                        },
+                        {
+                            label: 'ownImage',
+                            name: 'ownImage',
+                            type: 'image',
+                            hidden: '!!data.["map64-oid"] || !data.useDefaultPicture',
                         },
                     ],
                 },
@@ -148,6 +264,11 @@ class Vacuum extends Generic {
                             name: 'home-oid',
                             type: 'id',
                         },
+                        {
+                            label: 'pause',
+                            name: 'pause-oid',
+                            type: 'id',
+                        },
                     ],
                 },
             ],
@@ -156,7 +277,7 @@ class Vacuum extends Generic {
                 height: 120,
                 position: 'relative',
             },
-            visPrev: 'widgets/vis-2-widgets-material/img/prev_actual.png',
+            visPrev: 'widgets/vis-2-widgets-material/img/prev_vacuum.png',
         };
     }
 
@@ -167,17 +288,24 @@ class Vacuum extends Generic {
 
     async propertiesUpdate() {
         const objects = {};
-        const oids = ['status', 'battery', 'is_charging', 'fan_speed', 'sensors_left', 'filter_left', 'main_brush_left', 'side_brush_left', 'cleaning_count',
-            'start', 'home'];
-        for (const k in oids) {
-            const oid = this.state.rxData[`${oids[k]}-oid`];
+        const oids = [];
+        const keys = Object.keys(ID_ROLES);
+        for (let k = 0; k < keys.length; k++) {
+            const oid = this.state.rxData[`${keys[k]}-oid`];
             if (oid) {
-                const object = await this.props.context.socket.getObject(oid);
-                if (object) {
-                    objects[oids[k]] = object;
-                }
+                oids.push(oid);
             }
         }
+        const _objects = await this.props.context.socket.getObjects(oids);
+
+        // read all objects at once
+        Object.values(_objects).forEach(obj => {
+            const oid = keys.find(_oid => this.state.rxData[`${_oid}-oid`] === obj._id);
+            if (oid) {
+                objects[oid] = obj;
+            }
+        });
+
         this.setState({ objects });
     }
 
@@ -233,50 +361,47 @@ class Vacuum extends Generic {
 
     renderRooms() {
         return <div className={this.props.classes.rooms}>
-            {
-                this.state.rooms.map(room => <div key={room._id}>
-                    <Tooltip title={Generic.getText(room.common.name)}>
-                        <Button
-                            sx={
-                                theme => ({
-                                    color: this.state.currentRoom === room._id ? undefined : theme.palette.text.primary,
-                                })
-                            }
-                            onClick={() => {
-                                this.setState({ currentRoom: room._id });
-                            }}
-                        >
-                            {room.common.icon ?
-                                <Icon
-                                    src={room.common.icon}
-                                    alt={room.common.name}
-                                    className={this.props.classes.roomIcon}
-                                />
-                                :
-                                Generic.getText(room.common.name)}
-                        </Button>
-                    </Tooltip>
-                </div>)
-            }
+            {this.state.rooms.map(room => <div key={room._id}>
+                <Tooltip title={Generic.getText(room.common.name)}>
+                    <Button
+                        sx={
+                            theme => ({
+                                color: this.state.currentRoom === room._id ? undefined : theme.palette.text.primary,
+                            })
+                        }
+                        onClick={() => this.setState({ currentRoom: room._id })}
+                    >
+                        {room.common.icon ?
+                            <Icon
+                                src={room.common.icon}
+                                alt={room.common.name}
+                                className={this.props.classes.roomIcon}
+                            />
+                            :
+                            Generic.getText(room.common.name)}
+                    </Button>
+                </Tooltip>
+            </div>)}
         </div>;
     }
 
     renderSensors() {
-        const sensors = [];
+        const sensors = ['filter_left', 'side_brush_left', 'main_brush_left', 'sensors_left', 'cleaning_count'].filter(sensor =>
+            this.getObj(sensor));
 
-        ['filter_left', 'side_brush_left', 'main_brush_left', 'sensors_left', 'cleaning_count'].forEach(sensor => {
-            if (this.getObj(sensor)) {
-                sensors.push(sensor);
-            }
-        });
-
-        return <div className={this.props.classes.sensorsContainer}>
+        return sensors.length ? <div className={this.props.classes.sensorsContainer}>
             <div className={this.props.classes.sensors}>
                 {sensors.map(sensor => {
                     const object = this.getObj(sensor);
 
-                    return <Card key={sensor} className={this.props.classes.sensorCard}>
-                        <CardContent className={this.props.classes.sensorCardContent}>
+                    return <Card
+                        key={sensor}
+                        className={this.props.classes.sensorCard}
+                    >
+                        <CardContent
+                            className={this.props.classes.sensorCardContent}
+                            style={{ paddingBottom: 2 }}
+                        >
                             <div>
                                 <span className={this.props.classes.sensorBigText}>
                                     {this.getValue(sensor) || 0}
@@ -295,7 +420,7 @@ class Vacuum extends Generic {
                     </Card>;
                 })}
             </div>
-        </div>;
+        </div> : null;
     }
 
     renderButtons() {
@@ -318,30 +443,58 @@ class Vacuum extends Generic {
     }
 
     renderMap() {
-        return <div>{this.state.currentRoom}</div>;
+        const obj = this.getObj('map64');
+        if (!obj) {
+            if (this.state.rxData.useDefaultPicture) {
+                return <img src={vacuumIcon} alt="vacuum" className={this.props.classes.image} />;
+            }
+            if (this.state.rxData.ownImage) {
+                return <Icon src={this.state.rxData.ownImage} className={this.props.classes.image} />;
+            }
+            return null;
+        }
+
+        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" className={this.props.classes.image} />;
     }
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
+        const speed = this.renderSpeed();
+        const battery = this.renderBattery();
+        let height = 0;
+        if (speed || battery) {
+            height += 26;
+        }
+        const sensors = this.renderSensors();
+        if (sensors) {
+            height += 52;
+        }
+
+        const buttons = this.renderButtons();
+        const rooms = this.renderRooms();
+
+        if (buttons || rooms) {
+            height += 40;
+        }
+
+        const map = this.renderMap();
 
         const content = <div className={this.props.classes.content}>
-            <div className={this.props.classes.topPanel}>
-                {this.renderSpeed()}
-                {this.renderBattery()}
-            </div>
-            <div className={this.props.classes.mapContainer}>
-                {this.renderMap()}
-            </div>
-            {this.renderSensors()}
-            <div className={this.props.classes.bottomPanel}>
-                {this.renderButtons()}
-                {this.renderRooms()}
-            </div>
+            {speed || battery ? <div className={this.props.classes.topPanel}>
+                {speed}
+                {battery}
+            </div> : null}
+            {map ? <div className={this.props.classes.mapContainer} style={{ height: `calc(100% - ${height}px)`, width: '100%' }}>
+                {map}
+            </div> : null}
+            {sensors}
+            {buttons || rooms ? <div className={this.props.classes.bottomPanel}>
+                {buttons}
+                {rooms}
+            </div> : null}
         </div>;
 
-        return this.wrapContent(
-            content,
-        );
+        return this.wrapContent(content);
     }
 }
 

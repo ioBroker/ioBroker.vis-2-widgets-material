@@ -327,5 +327,19 @@
   "Boost": "Schub",
   "mode_boost": "Boost-ID",
   "mode_party": "Party-ID",
-  "rgbType": "RGB-Typ"
+  "rgbType": "RGB-Typ",
+  "actions": "Aktionen",
+  "battery": "Batterie",
+  "cleaning_count": "Reinigungs",
+  "fan_speed": "Lüftergeschwindigkeit",
+  "filter_left": "Filter",
+  "home": "Heim",
+  "is_charging": "Lädt",
+  "main_brush_left": "Hauptbürste",
+  "sensors": "Sensoren",
+  "sensors_left": "Sensoren",
+  "side_brush_left": "Seitenbürste",
+  "start": "Start",
+  "status": "Status",
+  "vacuum": "Staubsauger"
 }

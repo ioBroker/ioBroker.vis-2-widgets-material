@@ -327,5 +327,19 @@
   "Boost": "Zwiększyć",
   "mode_boost": "Zwiększ identyfikator",
   "mode_party": "Identyfikator partii",
-  "rgbType": "Typ RGB"
+  "rgbType": "Typ RGB",
+  "actions": "działania",
+  "battery": "Bateria",
+  "cleaning_count": "Liczba sprzątań",
+  "fan_speed": "Prędkość wiatraka",
+  "filter_left": "Filtr",
+  "home": "Dom",
+  "is_charging": "Ładuje się",
+  "main_brush_left": "Główna szczotka",
+  "sensors": "Czujniki",
+  "sensors_left": "Czujniki",
+  "side_brush_left": "Szczotka boczna",
+  "start": "Początek",
+  "status": "Status",
+  "vacuum": "Odkurzacz"
 }
