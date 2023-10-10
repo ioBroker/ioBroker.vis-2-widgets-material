@@ -371,7 +371,7 @@ class Vacuum extends Generic {
 
     renderRooms() {
         return <div className={this.props.classes.rooms}>
-            {this.state.rooms.map(room => <div key={room._id}>
+            {/*this.state.rooms.map(room => <div key={room._id}>
                 <Tooltip title={Generic.getText(room.common.name)}>
                     <Button
                         sx={
@@ -391,7 +391,7 @@ class Vacuum extends Generic {
                             Generic.getText(room.common.name)}
                     </Button>
                 </Tooltip>
-            </div>)}
+            </div>)*/}
         </div>;
     }
 
@@ -457,7 +457,7 @@ class Vacuum extends Generic {
                 </IconButton>
             </Tooltip>}
             {this.getObj('status') && <Tooltip title={Generic.t('Status')}>
-                {Generic.t(this.getValue('status')).replace('vis-2-widgets-material-', '')}
+                {Generic.t(this.getValue('status')).replace('vis_2_widgets_material_', '')}
             </Tooltip>}
         </div>;
     }
@@ -481,7 +481,7 @@ class Vacuum extends Generic {
         super.renderWidgetBody(props);
         const speed = this.renderSpeed();
         const battery = this.renderBattery();
-        let height = 0;
+        let height = 12;
         if (speed || battery) {
             height += 26;
         }
