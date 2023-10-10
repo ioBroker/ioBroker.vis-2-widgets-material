@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 
 import {
-    BatteryChargingFull, BatteryFull, Home, PlayArrow,
+    BatteryChargingFull, BatteryFull, Home, Pause, PlayArrow,
 } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
@@ -442,12 +442,22 @@ class Vacuum extends Generic {
                     <PlayArrow />
                 </IconButton>
             </Tooltip>}
+            {this.getObj('pause') && <Tooltip title={Generic.t('Pause')}>
+                <IconButton
+                    onClick={() => this.props.context.socket.setState(this.state.rxData['pause-oid'], true)}
+                >
+                    <Pause />
+                </IconButton>
+            </Tooltip>}
             {this.getObj('home') && <Tooltip title={Generic.t('Home')}>
                 <IconButton
                     onClick={() => this.props.context.socket.setState(this.state.rxData['home-oid'], true)}
                 >
                     <Home />
                 </IconButton>
+            </Tooltip>}
+            {this.getObj('status') && <Tooltip title={Generic.t('Status')}>
+                {Generic.t(this.getValue('status')).replace('vis-2-widgets-material-', '')}
             </Tooltip>}
         </div>;
     }
