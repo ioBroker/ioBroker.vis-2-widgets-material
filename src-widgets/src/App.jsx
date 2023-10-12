@@ -405,7 +405,7 @@ class App extends WidgetDemoApp {
                     height: 400,
                 }}
                 data={{
-                    name: 'Vacuum',
+                    widgetTitle: 'Vacuum',
                     'status-oid': 'mihome-vacuum.0.info.state',
                     'battery-oid': 'mihome-vacuum.0.info.battery',
                     'is_charging-oid': 'mihome-vacuum.0.info.is_charging',
@@ -417,6 +417,10 @@ class App extends WidgetDemoApp {
                     'cleaning_count-oid': 'mihome-vacuum.0.history.total_cleanups',
                     'start-oid': 'mihome-vacuum.0.control.start',
                     'home-oid': 'mihome-vacuum.0.control.home',
+                    'pause-oid': 'mihome-vacuum.0.control.pause',
+                    'map64-oid': 'mihome-vacuum.0.cleanmap.map64',
+                    'rooms-oid': 'mihome-vacuum.0.rooms',
+                    useDefaultPicture: true,
                 }}
             />,
 

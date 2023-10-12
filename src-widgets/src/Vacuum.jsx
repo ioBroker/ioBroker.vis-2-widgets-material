@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
 import {
-    Button, Card, CardContent, IconButton, Tooltip,
+    Card, CardContent, IconButton, MenuItem, Select, Tooltip,
 } from '@mui/material';
 
 import {
@@ -52,7 +52,7 @@ const styles = theme => ({
         overflow: 'auto',
     },
     mapContainer: { flex: 1 },
-    topPanel: { display: 'flex', alignItems: 'center' },
+    topPanel: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
     bottomPanel: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     speed: { gap: 4, color: theme.palette.text.primary },
     roomIcon: { height: 16 },
@@ -72,6 +72,7 @@ const styles = theme => ({
         height: '100%',
         objectFit: 'contain',
     },
+    speedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
 });
 
 const ID_ROLES = {
@@ -144,6 +145,28 @@ const loadStates = async (field, data, changeData, socket) => {
         }
     }
 };
+
+const CLEANING_STATES = [
+    'Cleaning',
+    'Spot Cleaning',
+    'Zone cleaning',
+    'Room cleaning',
+];
+
+const PAUSE_STATES = [
+    'Pause',
+    'Waiting',
+];
+
+const CHARGING_STATES = [
+    'Charging',
+    'Charging Erro',
+];
+
+const GOING_HOME_STATES = [
+    'Back to home',
+    'Docking',
+];
 
 class Vacuum extends Generic {
     constructor(props) {
@@ -240,6 +263,12 @@ class Vacuum extends Generic {
                     label: 'map',
                     fields: [
                         {
+                            label: 'rooms',
+                            name: 'rooms-oid',
+                            type: 'id',
+                            onChange: loadStates,
+                        },
+                        {
                             label: 'map64',
                             name: 'map64-oid',
                             type: 'id',
@@ -317,17 +346,19 @@ class Vacuum extends Generic {
         });
 
         this.setState({ objects });
+        this.loadRooms();
     }
 
     async loadRooms() {
-        const rooms = await this.props.context.socket.getObjectView('enum.rooms.', 'enum.rooms.\u9999', 'enum');
-        this.setState({ rooms: Object.values(rooms) });
+        if (this.state.rxData['rooms-oid']) {
+            const rooms = await this.props.context.socket.getObjectView(`${this.state.rxData['rooms-oid']}.room`, `${this.state.rxData['rooms-oid']}.room\u9999`, 'channel');
+            this.setState({ rooms: Object.values(rooms) });
+        }
     }
 
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
-        this.loadRooms();
     }
 
     async onRxDataChanged(/* prevRxData */) {
@@ -335,6 +366,9 @@ class Vacuum extends Generic {
     }
 
     getValue(id, isEnum) {
+        if (!this.getObj(id)) {
+            return null;
+        }
         if (isEnum) {
             return this.getObj(id).common.states[this.state.values[`${this.state.rxData[`${id}-oid`]}.val`]];
         }
@@ -355,44 +389,30 @@ class Vacuum extends Generic {
     }
 
     renderSpeed() {
-        return this.getObj('fan_speed') && <Button
-            onClick={() => {
-                const states = Object.keys(this.getObj('fan_speed').common.states);
-                const index = states.indexOf(this.getValue('fan_speed'));
-                const next = index + 1 < states.length ? index + 1 : 0;
-                this.props.context.socket.setState(this.state.rxData['fan_speed-oid'], states[next]);
-            }}
-            className={this.props.classes.speed}
-        >
+        return this.getObj('fan_speed') && <div className={this.props.classes.speedContainer}>
             <FanIcon />
-            {this.getValue('fan_speed', true)}
-        </Button>;
+            <Select
+                value={this.getValue('fan_speed') || ''}
+                variant="standard"
+                onChange={e => this.props.context.socket.setState(this.state.rxData['fan_speed-oid'], e.target.value)}
+            >
+                {Object.keys(this.getObj('fan_speed').common.states).map(state => <MenuItem key={state} value={state}>
+                    {Generic.t(this.getObj('fan_speed').common.states[state]).replace('vis_2_widgets_material_', '')}
+                </MenuItem>)}
+            </Select>
+        </div>;
     }
 
     renderRooms() {
-        return <div className={this.props.classes.rooms}>
-            {/*this.state.rooms.map(room => <div key={room._id}>
-                <Tooltip title={Generic.getText(room.common.name)}>
-                    <Button
-                        sx={
-                            theme => ({
-                                color: this.state.currentRoom === room._id ? undefined : theme.palette.text.primary,
-                            })
-                        }
-                        onClick={() => this.setState({ currentRoom: room._id })}
-                    >
-                        {room.common.icon ?
-                            <Icon
-                                src={room.common.icon}
-                                alt={room.common.name}
-                                className={this.props.classes.roomIcon}
-                            />
-                            :
-                            Generic.getText(room.common.name)}
-                    </Button>
-                </Tooltip>
-            </div>)*/}
-        </div>;
+        return <Select
+            value={this.state.currentRoom}
+            variant="standard"
+            onChange={e => this.setState({ currentRoom: e.target.value })}
+        >
+            {this.state.rooms.map(room => <MenuItem key={room._id} value={room._id}>
+                {Generic.getText(room.common.name)}
+            </MenuItem>)}
+        </Select>;
     }
 
     renderSensors() {
@@ -434,22 +454,39 @@ class Vacuum extends Generic {
     }
 
     renderButtons() {
+        let statusColor;
+        if (CLEANING_STATES.includes(this.getValue('status', true))) {
+            statusColor = 'green';
+        }
+        if (PAUSE_STATES.includes(this.getValue('status', true))) {
+            statusColor = 'yellow';
+        }
+        if (CHARGING_STATES.includes(this.getValue('status', true))) {
+            statusColor = 'gray';
+        }
+        if (GOING_HOME_STATES.includes(this.getValue('status', true))) {
+            statusColor = 'blue';
+        }
+
         return <div className={this.props.classes.buttons}>
-            {this.getObj('start') && <Tooltip title={Generic.t('Start')}>
+            {this.getObj('start') && !CLEANING_STATES.includes(this.getValue('status', true)) &&
+            <Tooltip title={Generic.t('Start')}>
                 <IconButton
                     onClick={() => this.props.context.socket.setState(this.state.rxData['start-oid'], true)}
                 >
                     <PlayArrow />
                 </IconButton>
             </Tooltip>}
-            {this.getObj('pause') && <Tooltip title={Generic.t('Pause')}>
+            {this.getObj('pause') && !PAUSE_STATES.includes(this.getValue('status', true)) && !CHARGING_STATES.includes(this.getValue('status', true)) &&
+            <Tooltip title={Generic.t('Pause')}>
                 <IconButton
                     onClick={() => this.props.context.socket.setState(this.state.rxData['pause-oid'], true)}
                 >
                     <Pause />
                 </IconButton>
             </Tooltip>}
-            {this.getObj('home') && <Tooltip title={Generic.t('Home')}>
+            {this.getObj('home') && !CHARGING_STATES.includes(this.getValue('status', true)) &&
+            <Tooltip title={Generic.t('Home')}>
                 <IconButton
                     onClick={() => this.props.context.socket.setState(this.state.rxData['home-oid'], true)}
                 >
@@ -457,7 +494,9 @@ class Vacuum extends Generic {
                 </IconButton>
             </Tooltip>}
             {this.getObj('status') && <Tooltip title={Generic.t('Status')}>
-                {Generic.t(this.getValue('status')).replace('vis_2_widgets_material_', '')}
+                <div style={{ color: statusColor }}>
+                    {Generic.t(this.getValue('status', true)).replace('vis_2_widgets_material_', '')}
+                </div>
             </Tooltip>}
         </div>;
     }
@@ -500,17 +539,17 @@ class Vacuum extends Generic {
         const map = this.renderMap();
 
         const content = <div className={this.props.classes.content}>
-            {speed || battery ? <div className={this.props.classes.topPanel}>
-                {speed}
+            {battery || rooms ? <div className={this.props.classes.topPanel}>
+                {rooms}
                 {battery}
             </div> : null}
             {map ? <div className={this.props.classes.mapContainer} style={{ height: `calc(100% - ${height}px)`, width: '100%' }}>
                 {map}
             </div> : null}
             {sensors}
-            {buttons || rooms ? <div className={this.props.classes.bottomPanel}>
+            {buttons || speed ? <div className={this.props.classes.bottomPanel}>
                 {buttons}
-                {rooms}
+                {speed}
             </div> : null}
         </div>;
 
