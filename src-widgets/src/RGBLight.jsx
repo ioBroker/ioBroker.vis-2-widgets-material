@@ -38,7 +38,7 @@ const styles = () => ({
     },
 });
 
-const stateRoles = {
+export const RGB_ROLES = {
     'switch.light': 'switch',
     switch: 'switch',
     'level.brightness': 'brightness',
@@ -115,9 +115,9 @@ const loadStates = async (field, data, changeData, socket) => {
             if (states) {
                 Object.values(states).forEach(state => {
                     const role = state.common.role;
-                    if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
-                        data[stateRoles[role]] = state._id;
-                        if (stateRoles[role] === 'color_temperature') {
+                    if (role && RGB_ROLES[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                        data[RGB_ROLES[role]] = state._id;
+                        if (RGB_ROLES[role] === 'color_temperature') {
                             if (!data.ct_min && state.common.min) {
                                 data.ct_min = state.common.min;
                             }
@@ -132,6 +132,8 @@ const loadStates = async (field, data, changeData, socket) => {
         }
     }
 };
+
+export const RGB_NAMES = ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
 
 class RGBLight extends Generic {
     constructor(props) {
@@ -344,10 +346,9 @@ class RGBLight extends Generic {
 
     async rgbReadObjects() {
         const rgbObjects = {};
-        const ids = ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
         const idToRead = [];
-        for (const k in ids) {
-            const id = ids[k];
+        for (const k in RGB_NAMES) {
+            const id = RGB_NAMES[k];
             if (this.state.rxData[id] && this.state.rxData[id] !== 'nothing_selected') {
                 idToRead.push(this.state.rxData[id]);
             }
@@ -355,8 +356,8 @@ class RGBLight extends Generic {
         const _objects = await this.props.context.socket.getObjectsById(idToRead);
         const newState = {};
 
-        for (const k in ids) {
-            const id = ids[k];
+        for (const k in RGB_NAMES) {
+            const id = RGB_NAMES[k];
             if (this.state.rxData[id]) {
                 const object = _objects[this.state.rxData[id]];
                 if (object) {

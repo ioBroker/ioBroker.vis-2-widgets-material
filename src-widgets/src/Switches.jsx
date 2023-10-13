@@ -24,7 +24,7 @@ import {
     CircularProgress,
     InputAdornment,
     InputLabel,
-    FormControl, Tooltip, DialogActions,
+    FormControl, Tooltip, DialogActions, Menu, Card, CardContent,
 } from '@mui/material';
 
 import {
@@ -37,12 +37,19 @@ import {
     ColorLens,
     Brightness6,
     Celebration as CelebrationIcon,
-    ElectricBolt as BoostIcon, Thermostat as ThermostatIcon, PowerSettingsNew as PowerSettingsNewIcon,
+    ElectricBolt as BoostIcon,
+    Thermostat as ThermostatIcon,
+    PowerSettingsNew as PowerSettingsNewIcon,
     LockOpen,
-    Lock, Backspace, MeetingRoom as DoorOpenedIcon, LockOpen as LockOpenedIcon, Cancel, Lock as LockClosedIcon,
+    Lock,
+    Backspace,
+    MeetingRoom as DoorOpenedIcon,
+    LockOpen as LockOpenedIcon,
+    Cancel,
+    Lock as LockClosedIcon,
+    BatteryChargingFull, BatteryFull, PlayArrow, Pause, Home,
 } from '@mui/icons-material';
 
-import ct from 'color-temperature';
 import {
     hexToHsva,
     hslaToHsva,
@@ -64,30 +71,22 @@ import BlindsBase, { STYLES } from './Components/BlindsBase';
 import WindowClosed from './Components/WindowClosed';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
-import {colorTemperatureToRGB} from "./RGBLight";
+import { colorTemperatureToRGB, RGB_NAMES, RGB_ROLES } from './RGBLight';
+import vacuumIcon from './assets/vacuum_icon.svg';
+import {
+    FanIcon,
+    VACUUM_CHARGING_STATES,
+    VACUUM_CLEANING_STATES,
+    VACUUM_GOING_HOME_STATES,
+    VACUUM_ID_ROLES,
+    VACUUM_PAUSE_STATES,
+} from './Vacuum';
 
 // import ObjectChart from './ObjectChart';
 
 const HISTORY = ['influxdb', 'sql', 'history'];
-const RGB_NAMES = ['switch', 'brightness', 'oid', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
 
 echarts.use([TimelineComponent, LineChart, SVGRenderer]);
-
-const stateRoles = {
-    'switch.light': 'switch',
-    switch: 'switch',
-    'level.brightness': 'brightness',
-    'level.dimmer': 'brightness',
-    'level.color.red': 'red',
-    'level.color.green': 'green',
-    'level.color.blue': 'blue',
-    'level.color.white': 'white',
-    'level.color.rgb': 'oid',
-    'level.color.hue': 'hue',
-    'level.color.saturation': 'saturation',
-    'level.color.luminance': 'luminance',
-    'level.color.temperature': 'color_temperature',
-};
 
 const loadStates = async (field, data, changeData, socket, index) => {
     if (data[field.name]) {
@@ -100,10 +99,14 @@ const loadStates = async (field, data, changeData, socket, index) => {
                 let changed = false;
                 Object.values(states).forEach(state => {
                     const role = state.common.role;
-                    if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                    if (role && RGB_ROLES[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
                         changed = true;
-                        data[stateRoles[role] + index] = state._id;
-                        if (stateRoles[role] === 'color_temperature') {
+                        if (RGB_ROLES[role] === 'rgb') {
+                            data[`oid${index}`] = state._id;
+                        } else {
+                            data[RGB_ROLES[role] + index] = state._id;
+                        }
+                        if (RGB_ROLES[role] === 'color_temperature') {
                             if (!data[`ct_min${index}`] && state.common.min) {
                                 data[`ct_min${index}`] = state.common.min;
                             }
@@ -113,6 +116,71 @@ const loadStates = async (field, data, changeData, socket, index) => {
                         }
                     }
                 });
+                changed && changeData(data);
+            }
+        }
+    }
+};
+
+const vacuumLoadStates = async (field, data, changeData, socket, index) => {
+    if (data[field.name]) {
+        const object = await socket.getObject(data[field.name]);
+        if (object && object.common) {
+            let parts = object._id.split('.');
+            parts.pop();
+            // try to find a device object
+            let device = await socket.getObject(parts.join('.'));
+            if (!device) {
+                return;
+            }
+            if (device.type === 'channel' || device.type === 'folder') {
+                parts.pop();
+                device = await socket.getObject(parts.join('.'));
+            }
+            if (device.type !== 'device') {
+                parts = object._id.split('.');
+                parts.pop();
+            }
+
+            const states = await socket.getObjectView(`${parts.join('.')}.`, `${parts.join('.')}.\u9999`, 'state');
+            if (states) {
+                let changed = false;
+
+                if (data[`type${index}`] !== 'vacuum' && data[field.name].startsWith('mihome-vacuum.')) {
+                    changed = true;
+                    data[`type${index}`] = 'vacuum';
+                }
+
+                Object.keys(VACUUM_ID_ROLES).forEach(name => {
+                    if (!data[`vacuum-${name}-oid${index}`]) {
+                        // try to find state
+                        Object.values(states).forEach(state => {
+                            const _parts = state._id.split('.');
+                            if (_parts.includes('rooms')) {
+                                if (!data[`vacuum-rooms${index}`]) {
+                                    changed = true;
+                                    data[`vacuum-rooms${index}`] = true;
+                                }
+                                return;
+                            }
+
+                            const role = state.common.role;
+                            if (VACUUM_ID_ROLES[name].role && !role?.includes(VACUUM_ID_ROLES[name].role)) {
+                                return;
+                            }
+                            if (VACUUM_ID_ROLES[name].name) {
+                                const last = state._id.split('.').pop().toLowerCase();
+                                if (!last.includes(VACUUM_ID_ROLES[name].name)) {
+                                    return;
+                                }
+                            }
+
+                            changed = true;
+                            data[`vacuum-${name}-oid${index}`] = state._id;
+                        });
+                    }
+                });
+
                 changed && changeData(data);
             }
         }
@@ -313,6 +381,50 @@ const styles = () => ({
         // height: '100%',
     },
 
+    vacuumBattery: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+    },
+    vacuumSensorsContainer: {
+        overflow: 'auto',
+    },
+    vacuumSensors: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 4,
+        minWidth: 'min-content',
+    },
+    vacuumButtons: {
+        display: 'flex', alignItems: 'center', gap: 4,
+    },
+    vacuumContent: {
+        width: '100%',
+        height: '100%',
+        overflow: 'auto',
+    },
+    vacuumMapContainer: { flex: 1 },
+    vacuumTopPanel: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+    vacuumBottomPanel: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    vacuumSensorCard: { boxShadow: 'none' },
+    vacuumSensorCardContent: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: 2,
+        paddingBottom: 2,
+    },
+    vacuumSensorBigText: { fontSize: 20 },
+    vacuumSensorSmallText: { fontSize: 12 },
+    vacuumImage: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+    },
+    vacuumSpeedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
+
     ...STYLES,
 });
 
@@ -430,7 +542,12 @@ class Switches extends BlindsBase {
                             hidden: 'data["widget" + index]',
                             onChange: async (field, data, changeData, socket, index) => {
                                 if (data[field.name]) {
+                                    if (data[field.name].startsWith('mihome-vacuum.')) {
+                                        await vacuumLoadStates(field, data, changeData, socket, index);
+                                        return;
+                                    }
                                     const object = await socket.getObject(data[field.name]);
+
                                     if (object?.common?.role &&
                                         (
                                             object.common.role.includes('level.temperature') ||
@@ -483,9 +600,13 @@ class Switches extends BlindsBase {
 
                                                 Object.values(states).forEach(state => {
                                                     const role = state.common.role;
-                                                    if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                                                    if (role && RGB_ROLES[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
                                                         changed = true;
-                                                        data[stateRoles[role] + index] = state._id;
+                                                        if (RGB_ROLES[role] === 'rgb') {
+                                                            data[`oid${index}`] = state._id;
+                                                        } else {
+                                                            data[RGB_ROLES[role] + index] = state._id;
+                                                        }
                                                     }
                                                 });
                                             } else if (object.common.role.includes('lock')) {
@@ -555,6 +676,10 @@ class Switches extends BlindsBase {
                                 {
                                     value: 'lock',
                                     label: 'lock',
+                                },
+                                {
+                                    value: 'vacuum',
+                                    label: 'vacuum',
                                 },
                             ],
                             hidden: '!data["oid" + index]',
@@ -940,6 +1065,101 @@ class Switches extends BlindsBase {
                             default: 500,
                             hidden: '!!data["widget" + index] || (data["type" + index] !== "rgb" && data["type" + index] !== "slider" && data["type" + index] !== "thermostat")',
                         },
+
+                        {
+                            label: 'status',
+                            name: 'vacuum-status-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'battery',
+                            name: 'vacuum-battery-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'is_charging',
+                            name: 'vacuum-is-charging-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'fan_speed',
+                            name: 'vacuum-fan-speed-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'sensors_left',
+                            name: 'vacuum-sensors-left-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'filter_left',
+                            name: 'vacuum-filter-left-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'main_brush_left',
+                            name: 'vacuum-main-brush-left-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'side_brush_left',
+                            name: 'vacuum-side-brush-left-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'cleaning_count',
+                            name: 'vacuum-cleaning-count-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'rooms',
+                            name: 'vacuum-use-rooms',
+                            type: 'checkbox',
+                            tooltip: 'rooms_tooltip',
+                        },
+                        {
+                            label: 'map64',
+                            name: 'vacuum-map64-oid',
+                            type: 'id',
+                            onChange: vacuumLoadStates,
+                        },
+                        {
+                            label: 'useDefaultPicture',
+                            name: 'vacuum-use-default-picture',
+                            type: 'checkbox',
+                            default: true,
+                            hidden: '!!data["vacuum-map64-oid"]',
+                        },
+                        {
+                            label: 'ownImage',
+                            name: 'vacuum-own-image',
+                            type: 'image',
+                            hidden: '!!data["vacuum-map64-oid"] || !data["vacuum-use-default-picture"]',
+                        },
+                        {
+                            label: 'start',
+                            name: 'vacuum-start-oid',
+                            type: 'id',
+                        },
+                        {
+                            label: 'home',
+                            name: 'vacuum-home-oid',
+                            type: 'id',
+                        },
+                        {
+                            label: 'pause',
+                            name: 'vacuum-pause-oid',
+                            type: 'id',
+                        },
                     ],
                 },
             ],
@@ -974,7 +1194,7 @@ class Switches extends BlindsBase {
             } else if (this.state.rxData[`type${index}`] === 'thermostat') {
                 this.thermostatObjectIDs(index, ids);
             } else if (this.state.rxData[`type${index}`] === 'vacuum') {
-                // this.vacuumObjectIDs(index, ids);
+                this.vacuumObjectIDs(index, ids);
             } else if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 ids.push(this.state.rxData[`oid${index}`]);
             }
@@ -988,7 +1208,7 @@ class Switches extends BlindsBase {
             } else if (this.state.rxData[`type${index}`] === 'thermostat') {
                 this.thermostatReadObjects(index, _objects, objects, secondaryObjects);
             } else if (this.state.rxData[`type${index}`] === 'vacuum') {
-                // this.vacuumReadObjects(index, _objects, objects, secondaryObjects);
+                await this.vacuumReadObjects(index, _objects, objects, secondaryObjects);
             } else if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 // read an object itself
                 const object = _objects[this.state.rxData[`oid${index}`]];
@@ -3266,6 +3486,330 @@ class Switches extends BlindsBase {
         const color = hsvaToRgba(this.rgbGetWheelColor(index));
         return color.r + color.g + color.b > 3 * 128 ? '#000000' : '#ffffff';
     };
+
+    vacuumObjectIDs(index, ids) {
+        const keys = Object.keys(VACUUM_ID_ROLES);
+        for (let k = 0; k < keys.length; k++) {
+            const oid = this.state.rxData[`vacuum-${keys[k]}-oid${index}`];
+            if (oid) {
+                ids.push(oid);
+            }
+        }
+    }
+
+    async vacuumReadObjects(index, _objects, objects, secondaryObjects) {
+        secondaryObjects[index] = {};
+
+        const keys = Object.keys(VACUUM_ID_ROLES);
+        // read all objects at once
+        Object.values(_objects).forEach(obj => {
+            const oid = keys.find(_oid => this.state.rxData[`vacuum-${_oid}-oid`] === obj._id);
+            if (oid) {
+                objects[oid] = obj;
+            }
+        });
+
+        secondaryObjects[index].rooms = await this.vacuumLoadRooms();
+    }
+
+    async vacuumLoadRooms(index) {
+        if (this.state.rxData[`vacuum-use-rooms${index}`]) {
+            // try to detect the `rooms` object according to status OID
+            // mihome-vacuum.0.info.state => mihome-vacuum.0.rooms
+            if (this.state.rxData[`vacuum-status-oid${index}`]) {
+                const parts = this.state.rxData[`vacuum-status-oid${index}`].split('.');
+                if (parts.length === 4) {
+                    parts.pop();
+                    parts.pop();
+                    parts.push('rooms');
+                    const rooms = await this.props.context.socket.getObjectView(`${parts.join('.')}.room`, `${parts.join('.')}.room\u9999`, 'channel');
+                    const result = [];
+                    Object.keys(rooms).forEach(id =>
+                        result.push({
+                            value: `${id}.roomClean`,
+                            label: Generic.getText(rooms[id].common?.name || id.split('.').pop()),
+                        }));
+                    result.sort((a, b) => a.label.localeCompare(b.label));
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    vacuumGetValue(index, id, numberValue) {
+        const obj = this.vacuumGetObj(index, id);
+        if (!obj) {
+            return null;
+        }
+        const value = this.state.values[`${obj._id}.val`];
+        if (!numberValue && obj.common?.states) {
+            if (obj.common.states[value] !== undefined && obj.common.states[value] !== null) {
+                return obj.common.states[value];
+            }
+        }
+        return value;
+    }
+
+    vacuumGetObj(index, id) {
+        return this.state.secondaryObjects[index][id];
+    }
+
+    vacuumRenderBattery(index) {
+        return this.vacuumGetObj(index, 'battery') && <div className={this.props.classes.vacuumBattery}>
+            {this.vacuumGetObj(index, 'is-charging') && this.vacuumGetValue(index, 'is-charging') ? <BatteryChargingFull /> : <BatteryFull />}
+            {this.vacuumGetValue(index, 'battery') || 0}
+            {' '}
+            {this.vacuumGetObj(index, 'battery').common?.unit}
+        </div>;
+    }
+
+    vacuumRenderSpeed(index) {
+        const obj = this.vacuumGetObj(index, 'fan-speed');
+        if (!obj) {
+            return null;
+        }
+        let options = null;
+        options = obj.common.states;
+        if (Array.isArray(options)) {
+            const result = {};
+            options.forEach(item => result[item] = item);
+            options = result;
+        }
+
+        let value = this.vacuumGetValue(index, 'fan-speed', true);
+        if (value === null || value === undefined) {
+            value = '';
+        }
+        value = value.toString();
+
+        return [
+            <Button
+                variant="standard"
+                key="speed"
+                className={this.props.classes.vacuumSpeedContainer}
+                endIcon={<FanIcon />}
+                onClick={e => {
+                    e.stopPropagation();
+                    this.setState({ showSpeedMenu: e.currentTarget });
+                }}
+            >
+                {options[value] !== undefined && options[value] !== null ? Generic.t(options[value]).replace('vis_2_widgets_material_', '') : value}
+            </Button>,
+            this.state.showSpeedMenu ? <Menu
+                open={!0}
+                anchorEl={this.state.showSpeedMenu}
+                key="speedMenu"
+                onClose={() => this.setState({ showSpeedMenu: null })}
+            >
+                {Object.keys(options).map(state => <MenuItem
+                    key={state}
+                    value={state}
+                    selected={value === state}
+                    onClick={e => {
+                        const _value = e.target.value;
+                        this.setState({ showSpeedMenu: null }, () =>
+                            this.props.context.socket.setState(this.state.rxData[`vacuum-fan-speed-oid${index}`], _value));
+                    }}
+                >
+                    {Generic.t(options[state]).replace('vis_2_widgets_material_', '')}
+                </MenuItem>)}
+            </Menu> : null,
+        ];
+    }
+
+    vacuumRenderRooms(index) {
+        if (!this.state.secondaryObjects[index] || !this.state.secondaryObjects[index].rooms?.length) {
+            return null;
+        }
+        return [
+            <Button
+                variant="outlined"
+                color="grey"
+                key="rooms"
+                onClick={e => this.setState({ showRoomsMenu: e.currentTarget })}
+            >
+                {Generic.t('Room')}
+            </Button>,
+            this.state.showRoomsMenu ? <Menu
+                onClose={() => this.setState({ showRoomsMenu: null })}
+                open={!0}
+                anchorEl={this.state.showRoomsMenu}
+                key="roomsMenu"
+            >
+                {this.state.secondaryObjects[index].rooms.map(room => <MenuItem
+                    key={room.value}
+                    value={room.value}
+                    onClick={() => {
+                        // build together mihome-vacuum.0.rooms.room1.roomClean
+                        const id = room.value;
+                        this.setState({ showRoomsMenu: null }, () =>
+                            this.props.context.socket.setState(id, true));
+                    }}
+                >
+                    {room.label}
+                </MenuItem>)}
+            </Menu> : null,
+        ];
+    }
+
+    vacuumRenderSensors(index) {
+        const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(sensor =>
+            this.vacuumGetObj(index, sensor));
+
+        return sensors.length ? <div className={this.props.classes.vacuumSensorsContainer}>
+            <div className={this.props.classes.vacuumSensors}>
+                {sensors.map(sensor => {
+                    const object = this.vacuumGetObj(index, sensor);
+
+                    return <Card
+                        key={sensor}
+                        className={this.props.classes.vacuumSensorCard}
+                    >
+                        <CardContent
+                            className={this.props.classes.vacuumSensorCardContent}
+                            style={{ paddingBottom: 2 }}
+                        >
+                            <div>
+                                <span className={this.props.classes.vacuumSensorBigText}>
+                                    {this.vacuumGetValue(index, sensor) || 0}
+                                </span>
+                                {' '}
+                                <span className={this.props.classes.vacuumSensorSmallText}>
+                                    {object.common.unit}
+                                </span>
+                            </div>
+                            <div>
+                                <span className={this.props.classes.vacuumSensorSmallText}>
+                                    {Generic.t(sensor.replaceAll('-', '_'))}
+                                </span>
+                            </div>
+                        </CardContent>
+                    </Card>;
+                })}
+            </div>
+        </div> : null;
+    }
+
+    vacuumRenderButtons(index) {
+        let statusColor;
+        const statusObj = this.vacuumGetObj(index, 'status');
+        let status;
+        let smallStatus;
+        if (statusObj) {
+            status = this.vacuumGetValue(index, 'status');
+            if (typeof status === 'boolean') {
+                if (status) {
+                    statusColor = 'green';
+                }
+                smallStatus = status ? 'cleaning' : 'pause';
+                status = status ? 'Cleaning' : 'Pause';
+            } else {
+                smallStatus = status.toLowerCase();
+                if (VACUUM_CLEANING_STATES.includes(smallStatus)) {
+                    statusColor = 'green';
+                }
+                if (VACUUM_PAUSE_STATES.includes(smallStatus)) {
+                    statusColor = 'yellow';
+                }
+                if (VACUUM_CHARGING_STATES.includes(smallStatus)) {
+                    statusColor = 'gray';
+                }
+                if (VACUUM_GOING_HOME_STATES.includes(smallStatus)) {
+                    statusColor = 'blue';
+                }
+            }
+        }
+
+        return <div className={this.props.classes.vacuumButtons}>
+            {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
+                <Tooltip title={Generic.t('Start')}>
+                    <IconButton
+                        onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-start-oid${index}`], true)}
+                    >
+                        <PlayArrow />
+                    </IconButton>
+                </Tooltip>}
+            {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
+                <Tooltip title={Generic.t('Pause')}>
+                    <IconButton
+                        onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-pause-oid${index}`], true)}
+                    >
+                        <Pause />
+                    </IconButton>
+                </Tooltip>}
+            {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
+                <Tooltip title={Generic.t('Home')}>
+                    <IconButton
+                        onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-home-oid${index}`], true)}
+                    >
+                        <Home />
+                    </IconButton>
+                </Tooltip>}
+            {statusObj && <Tooltip title={Generic.t('Status')}>
+                <div style={{ color: statusColor }}>
+                    {Generic.t(status).replace('vis_2_widgets_material_', '')}
+                </div>
+            </Tooltip>}
+        </div>;
+    }
+
+    vacuumRenderMap(index) {
+        const obj = this.vacuumGetObj(index, 'map64');
+        if (!obj) {
+            if (this.state.rxData[`vacuum-use-default-picture${index}`]) {
+                return <img src={vacuumIcon} alt="vacuum" className={this.props.classes.vacuumImage} />;
+            }
+            if (this.state.rxData[`vacuum-own-image${index}`]) {
+                return <Icon src={this.state.rxData[`vacuum-own-image${index}`]} className={this.props.classes.vacuumImage} />;
+            }
+            return null;
+        }
+
+        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" className={this.props.classes.vacuumImage} />;
+    }
+
+    vacuumRenderDialog(index) {
+        const rooms = this.vacuumRenderRooms(index);
+        const battery = this.vacuumRenderBattery(index);
+        let height = 0;
+        if (rooms) {
+            height += 36;
+        } else if (battery) {
+            height += 24;
+        }
+        const sensors = this.vacuumRenderSensors(index);
+        if (sensors) {
+            height += 46;
+        }
+
+        const buttons = this.vacuumRenderButtons(index);
+        const speed = this.vacuumRenderSpeed(index);
+
+        if (buttons || rooms) {
+            height += 40;
+        }
+
+        const map = this.vacuumRenderMap(index);
+
+        const content = <div className={this.props.classes.vacuumContent}>
+            {battery || rooms ? <div className={this.props.classes.vacuumTopPanel}>
+                {rooms}
+                {battery}
+            </div> : null}
+            {map ? <div className={this.props.classes.vacuumMapContainer} style={{ height: `calc(100% - ${height}px)`, width: '100%' }}>
+                {map}
+            </div> : null}
+            {sensors}
+            {buttons || speed ? <div className={this.props.classes.vacuumBottomPanel}>
+                {buttons}
+                {speed}
+            </div> : null}
+        </div>;
+
+        return content;
+    }
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);

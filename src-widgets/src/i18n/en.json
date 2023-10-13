@@ -369,7 +369,7 @@
   "MAXIMUM": "Maximum",
   "CUSTOM": "Custom",
   "rooms": "Rooms",
-  "map64": "Map64",
+  "map64": "Map (base64)",
   "useDefaultPicture": "Use default picture",
   "ownImage": "Own image",
   "pause": "Pause",

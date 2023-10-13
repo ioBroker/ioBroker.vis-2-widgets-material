@@ -16,7 +16,7 @@ import vacuumIcon from './assets/vacuum_icon.svg';
 
 import Generic from './Generic';
 
-const FanIcon = props => <svg
+export const FanIcon = props => <svg
     viewBox="0 0 512 512"
     width={props.width || 20}
     height={props.height || props.width || 20}
@@ -27,38 +27,35 @@ const FanIcon = props => <svg
     <path fill="currentColor" d="M352.57 128c-28.09 0-54.09 4.52-77.06 12.86l12.41-123.11C289 7.31 279.81-1.18 269.33.13 189.63 10.13 128 77.64 128 159.43c0 28.09 4.52 54.09 12.86 77.06L17.75 224.08C7.31 223-1.18 232.19.13 242.67c10 79.7 77.51 141.33 159.3 141.33 28.09 0 54.09-4.52 77.06-12.86l-12.41 123.11c-1.05 10.43 8.11 18.93 18.59 17.62 79.7-10 141.33-77.51 141.33-159.3 0-28.09-4.52-54.09-12.86-77.06l123.11 12.41c10.44 1.05 18.93-8.11 17.62-18.59-10-79.7-77.51-141.33-159.3-141.33zM256 288a32 32 0 1 1 32-32 32 32 0 0 1-32 32z" />
 </svg>;
 
-const styles = theme => ({
-    battery: {
+const styles = () => ({
+    vacuumBattery: {
         display: 'flex',
         alignItems: 'center',
         gap: 4,
     },
-    sensorsContainer: {
+    vacuumSensorsContainer: {
         overflow: 'auto',
     },
-    sensors: {
+    vacuumSensors: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         gap: 4,
         minWidth: 'min-content',
     },
-    rooms: { display: 'flex', alignItems: 'center' },
-    buttons: {
+    vacuumButtons: {
         display: 'flex', alignItems: 'center', gap: 4,
     },
-    content: {
+    vacuumContent: {
         width: '100%',
         height: '100%',
         overflow: 'auto',
     },
-    mapContainer: { flex: 1 },
-    topPanel: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-    bottomPanel: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    speed: { gap: 4, color: theme.palette.text.primary },
-    roomIcon: { height: 16 },
-    sensorCard: { boxShadow: 'none' },
-    sensorCardContent: {
+    vacuumMapContainer: { flex: 1 },
+    vacuumTopPanel: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+    vacuumBottomPanel: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    vacuumSensorCard: { boxShadow: 'none' },
+    vacuumSensorCardContent: {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -66,33 +63,33 @@ const styles = theme => ({
         padding: 2,
         paddingBottom: 2,
     },
-    sensorBigText: { fontSize: 20 },
-    sensorSmallText: { fontSize: 12 },
-    image: {
+    vacuumSensorBigText: { fontSize: 20 },
+    vacuumSensorSmallText: { fontSize: 12 },
+    vacuumImage: {
         width: '100%',
         height: '100%',
         objectFit: 'contain',
     },
-    speedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
+    vacuumSpeedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
 });
 
-const ID_ROLES = {
+export const VACUUM_ID_ROLES = {
     status: { role: 'value.state' },
     battery: { role: 'value.battery' },
-    is_charging: { name: 'is_charging' },
-    fan_speed: { role: 'level.suction' },
-    sensors_left: { role: 'value.usage.sensors' },
-    filter_left: { role: 'value.usage.filter' },
-    main_brush_left: { role: 'value.usage.brush' },
-    side_brush_left: { role: 'value.usage.brush.side' },
-    cleaning_count: { name: 'cleanups' },
+    'is-charging': { name: 'is_charging' },
+    'fan-speed': { role: 'level.suction' },
+    'sensors-left': { role: 'value.usage.sensors' },
+    'filter-left': { role: 'value.usage.filter' },
+    'main-brush-left': { role: 'value.usage.brush' },
+    'side-brush-left': { role: 'value.usage.brush.side' },
+    'cleaning-count': { name: 'cleanups' },
     start: { role: 'button', name:'start' },
     home: { role: 'button', name: 'home' },
     pause: { role: 'button', name: 'pause' },
     map64: { role: 'vacuum.map.base64' },
 };
 
-const loadStates = async (field, data, changeData, socket) => {
+const vacuumLoadStates = async (field, data, changeData, socket) => {
     if (data[field.name]) {
         const object = await socket.getObject(data[field.name]);
         if (object && object.common) {
@@ -115,28 +112,32 @@ const loadStates = async (field, data, changeData, socket) => {
             const states = await socket.getObjectView(`${parts.join('.')}.`, `${parts.join('.')}.\u9999`, 'state');
             if (states) {
                 let changed = false;
-                Object.keys(ID_ROLES).forEach(name => {
-                    if (!data[`${name}-oid`]) {
+                Object.keys(VACUUM_ID_ROLES).forEach(name => {
+                    if (!data[`vacuum-${name}-oid`]) {
                         // try to find state
                         Object.values(states).forEach(state => {
                             const _parts = state._id.split('.');
                             if (_parts.includes('rooms')) {
+                                if (!data['vacuum-rooms']) {
+                                    changed = true;
+                                    data['vacuum-rooms'] = true;
+                                }
                                 return;
                             }
 
                             const role = state.common.role;
-                            if (ID_ROLES[name].role && !role?.includes(ID_ROLES[name].role)) {
+                            if (VACUUM_ID_ROLES[name].role && !role?.includes(VACUUM_ID_ROLES[name].role)) {
                                 return;
                             }
-                            if (ID_ROLES[name].name) {
+                            if (VACUUM_ID_ROLES[name].name) {
                                 const last = state._id.split('.').pop().toLowerCase();
-                                if (!last.includes(ID_ROLES[name].name)) {
+                                if (!last.includes(VACUUM_ID_ROLES[name].name)) {
                                     return;
                                 }
                             }
 
                             changed = true;
-                            data[`${name}-oid`] = state._id;
+                            data[`vacuum-${name}-oid`] = state._id;
                         });
                     }
                 });
@@ -147,26 +148,26 @@ const loadStates = async (field, data, changeData, socket) => {
     }
 };
 
-const CLEANING_STATES = [
-    'Cleaning',
-    'Spot Cleaning',
-    'Zone cleaning',
-    'Room cleaning',
+export const VACUUM_CLEANING_STATES = [
+    'cleaning',
+    'spot Cleaning',
+    'zone cleaning',
+    'room cleaning',
 ];
 
-const PAUSE_STATES = [
-    'Pause',
-    'Waiting',
+export const VACUUM_PAUSE_STATES = [
+    'pause',
+    'waiting',
 ];
 
-const CHARGING_STATES = [
-    'Charging',
-    'Charging Erro',
+export const VACUUM_CHARGING_STATES = [
+    'charging',
+    'charging Erro',
 ];
 
-const GOING_HOME_STATES = [
-    'Back to home',
-    'Docking',
+export const VACUUM_GOING_HOME_STATES = [
+    'back to home',
+    'docking',
 ];
 
 class Vacuum extends Generic {
@@ -204,57 +205,57 @@ class Vacuum extends Generic {
                     fields: [
                         {
                             label: 'status',
-                            name: 'status-oid',
+                            name: 'vacuum-status-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'battery',
-                            name: 'battery-oid',
+                            name: 'vacuum-battery-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'is_charging',
-                            name: 'is_charging-oid',
+                            name: 'vacuum-is-charging-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'fan_speed',
-                            name: 'fan_speed-oid',
+                            name: 'vacuum-fan-speed-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'sensors_left',
-                            name: 'sensors_left-oid',
+                            name: 'vacuum-sensors-left-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'filter_left',
-                            name: 'filter_left-oid',
+                            name: 'vacuum-filter-left-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'main_brush_left',
-                            name: 'main_brush_left-oid',
+                            name: 'vacuum-main-brush-left-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'side_brush_left',
-                            name: 'side_brush_left-oid',
+                            name: 'vacuum-side-brush-left-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'cleaning_count',
-                            name: 'cleaning_count-oid',
+                            name: 'vacuum-cleaning-count-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                     ],
                 },
@@ -264,28 +265,28 @@ class Vacuum extends Generic {
                     fields: [
                         {
                             label: 'rooms',
-                            name: 'useRooms',
+                            name: 'vacuum-use-rooms',
                             type: 'checkbox',
                             tooltip: 'rooms_tooltip',
                         },
                         {
                             label: 'map64',
-                            name: 'map64-oid',
+                            name: 'vacuum-map64-oid',
                             type: 'id',
-                            onChange: loadStates,
+                            onChange: vacuumLoadStates,
                         },
                         {
                             label: 'useDefaultPicture',
-                            name: 'useDefaultPicture',
+                            name: 'vacuum-use-default-picture',
                             type: 'checkbox',
                             default: true,
-                            hidden: '!!data["map64-oid"]',
+                            hidden: '!!data["vacuum-map64-oid"]',
                         },
                         {
                             label: 'ownImage',
-                            name: 'ownImage',
+                            name: 'vacuum-own-image',
                             type: 'image',
-                            hidden: '!!data["map64-oid"] || !data.useDefaultPicture',
+                            hidden: '!!data["vacuum-map64-oid"] || !data["vacuum-use-default-picture"]',
                         },
                     ],
                 },
@@ -295,17 +296,17 @@ class Vacuum extends Generic {
                     fields: [
                         {
                             label: 'start',
-                            name: 'start-oid',
+                            name: 'vacuum-start-oid',
                             type: 'id',
                         },
                         {
                             label: 'home',
-                            name: 'home-oid',
+                            name: 'vacuum-home-oid',
                             type: 'id',
                         },
                         {
                             label: 'pause',
-                            name: 'pause-oid',
+                            name: 'vacuum-pause-oid',
                             type: 'id',
                         },
                     ],
@@ -313,7 +314,7 @@ class Vacuum extends Generic {
             ],
             visDefaultStyle: {
                 width: '100%',
-                height: 120,
+                height: 400,
                 position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_vacuum.png',
@@ -325,12 +326,21 @@ class Vacuum extends Generic {
         return Vacuum.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async componentDidMount() {
+        super.componentDidMount();
+        await this.vacuumPropertiesUpdate();
+    }
+
+    async onRxDataChanged(/* prevRxData */) {
+        await this.vacuumPropertiesUpdate();
+    }
+
+    async vacuumPropertiesUpdate() {
         const objects = {};
         const oids = [];
-        const keys = Object.keys(ID_ROLES);
+        const keys = Object.keys(VACUUM_ID_ROLES);
         for (let k = 0; k < keys.length; k++) {
-            const oid = this.state.rxData[`${keys[k]}-oid`];
+            const oid = this.state.rxData[`vacuum-${keys[k]}-oid`];
             if (oid) {
                 oids.push(oid);
             }
@@ -339,22 +349,22 @@ class Vacuum extends Generic {
 
         // read all objects at once
         Object.values(_objects).forEach(obj => {
-            const oid = keys.find(_oid => this.state.rxData[`${_oid}-oid`] === obj._id);
+            const oid = keys.find(_oid => this.state.rxData[`vacuum-${_oid}-oid`] === obj._id);
             if (oid) {
                 objects[oid] = obj;
             }
         });
 
-        this.setState({ objects });
-        await this.loadRooms();
+        const rooms = await this.vacuumLoadRooms();
+        this.setState({ objects, rooms });
     }
 
-    async loadRooms() {
-        if (this.state.rxData.useRooms) {
+    async vacuumLoadRooms() {
+        if (this.state.rxData['vacuum-use-rooms']) {
             // try to detect the `rooms` object according to status OID
             // mihome-vacuum.0.info.state => mihome-vacuum.0.rooms
-            if (this.state.rxData['status-oid']) {
-                const parts = this.state.rxData['status-oid'].split('.');
+            if (this.state.rxData['vacuum-status-oid']) {
+                const parts = this.state.rxData['vacuum-status-oid'].split('.');
                 if (parts.length === 4) {
                     parts.pop();
                     parts.pop();
@@ -367,57 +377,55 @@ class Vacuum extends Generic {
                             label: Generic.getText(rooms[id].common?.name || id.split('.').pop()),
                         }));
                     result.sort((a, b) => a.label.localeCompare(b.label));
-                    this.setState({ rooms: result });
+                    return result;
                 }
             }
         }
+
+        return null;
     }
 
-    async componentDidMount() {
-        super.componentDidMount();
-        await this.propertiesUpdate();
-    }
-
-    async onRxDataChanged(/* prevRxData */) {
-        await this.propertiesUpdate();
-    }
-
-    getValue(id, isEnum) {
-        if (!this.getObj(id)) {
+    vacuumGetValue(id, numberValue) {
+        const obj = this.vacuumGetObj(id);
+        if (!obj) {
             return null;
         }
-        if (isEnum) {
-            return this.getObj(id).common.states[this.state.values[`${this.state.rxData[`${id}-oid`]}.val`]];
+        const value = this.state.values[`${obj._id}.val`];
+        if (!numberValue && obj.common?.states) {
+            if (obj.common.states[value] !== undefined && obj.common.states[value] !== null) {
+                return obj.common.states[value];
+            }
         }
-        return this.state.values[`${this.state.rxData[`${id}-oid`]}.val`];
+        return value;
     }
 
-    getObj(id) {
+    vacuumGetObj(id) {
         return this.state.objects[id];
     }
 
-    renderBattery() {
-        return this.getObj('battery') && <div className={this.props.classes.battery}>
-            {this.getObj('is_charging') && this.getValue('is_charging') ? <BatteryChargingFull /> : <BatteryFull />}
-            {this.getValue('battery') || 0}
+    vacuumRenderBattery() {
+        return this.vacuumGetObj('battery') && <div className={this.props.classes.vacuumBattery}>
+            {this.vacuumGetObj('is-charging') && this.vacuumGetValue('is-charging') ? <BatteryChargingFull /> : <BatteryFull />}
+            {this.vacuumGetValue('battery') || 0}
             {' '}
-            {this.getObj('battery').common.unit}
+            {this.vacuumGetObj('battery').common?.unit}
         </div>;
     }
 
-    renderSpeed() {
-        if (!this.getObj('fan_speed')) {
+    vacuumRenderSpeed() {
+        const obj = this.vacuumGetObj('fan-speed');
+        if (!obj) {
             return null;
         }
         let options = null;
-        options = this.getObj('fan_speed').common.states;
+        options = obj.common.states;
         if (Array.isArray(options)) {
             const result = {};
             options.forEach(item => result[item] = item);
             options = result;
         }
 
-        let value = this.getValue('fan_speed');
+        let value = this.vacuumGetValue('fan-speed', true);
         if (value === null || value === undefined) {
             value = '';
         }
@@ -427,7 +435,7 @@ class Vacuum extends Generic {
             <Button
                 variant="standard"
                 key="speed"
-                className={this.props.classes.speedContainer}
+                className={this.props.classes.vacuumSpeedContainer}
                 endIcon={<FanIcon />}
                 onClick={e => {
                     e.stopPropagation();
@@ -440,6 +448,7 @@ class Vacuum extends Generic {
                 open={!0}
                 anchorEl={this.state.showSpeedMenu}
                 key="speedMenu"
+                onClose={() => this.setState({ showSpeedMenu: null })}
             >
                 {Object.keys(options).map(state => <MenuItem
                     key={state}
@@ -448,7 +457,7 @@ class Vacuum extends Generic {
                     onClick={e => {
                         const _value = e.target.value;
                         this.setState({ showSpeedMenu: null }, () =>
-                            this.props.context.socket.setState(this.state.rxData['fan_speed-oid'], _value));
+                            this.props.context.socket.setState(this.state.rxData['vacuum-fan-speed-oid'], _value));
                     }}
                 >
                     {Generic.t(options[state]).replace('vis_2_widgets_material_', '')}
@@ -457,7 +466,7 @@ class Vacuum extends Generic {
         ];
     }
 
-    renderRooms() {
+    vacuumRenderRooms() {
         if (!this.state.rooms?.length) {
             return null;
         }
@@ -471,6 +480,7 @@ class Vacuum extends Generic {
                 {Generic.t('Room')}
             </Button>,
             this.state.showRoomsMenu ? <Menu
+                onClose={() => this.setState({ showRoomsMenu: null })}
                 open={!0}
                 anchorEl={this.state.showRoomsMenu}
                 key="roomsMenu"
@@ -491,35 +501,35 @@ class Vacuum extends Generic {
         ];
     }
 
-    renderSensors() {
-        const sensors = ['filter_left', 'side_brush_left', 'main_brush_left', 'sensors_left', 'cleaning_count'].filter(sensor =>
-            this.getObj(sensor));
+    vacuumRenderSensors() {
+        const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(sensor =>
+            this.vacuumGetObj(sensor));
 
-        return sensors.length ? <div className={this.props.classes.sensorsContainer}>
-            <div className={this.props.classes.sensors}>
+        return sensors.length ? <div className={this.props.classes.vacuumSensorsContainer}>
+            <div className={this.props.classes.vacuumSensors}>
                 {sensors.map(sensor => {
-                    const object = this.getObj(sensor);
+                    const object = this.vacuumGetObj(sensor);
 
                     return <Card
                         key={sensor}
-                        className={this.props.classes.sensorCard}
+                        className={this.props.classes.vacuumSensorCard}
                     >
                         <CardContent
-                            className={this.props.classes.sensorCardContent}
+                            className={this.props.classes.vacuumSensorCardContent}
                             style={{ paddingBottom: 2 }}
                         >
                             <div>
-                                <span className={this.props.classes.sensorBigText}>
-                                    {this.getValue(sensor) || 0}
+                                <span className={this.props.classes.vacuumSensorBigText}>
+                                    {this.vacuumGetValue(sensor) || 0}
                                 </span>
                                 {' '}
-                                <span className={this.props.classes.sensorSmallText}>
+                                <span className={this.props.classes.vacuumSensorSmallText}>
                                     {object.common.unit}
                                 </span>
                             </div>
                             <div>
-                                <span className={this.props.classes.sensorSmallText}>
-                                    {Generic.t(sensor)}
+                                <span className={this.props.classes.vacuumSensorSmallText}>
+                                    {Generic.t(sensor.replaceAll('-', '_'))}
                                 </span>
                             </div>
                         </CardContent>
@@ -529,103 +539,118 @@ class Vacuum extends Generic {
         </div> : null;
     }
 
-    renderButtons() {
+    vacuumRenderButtons() {
         let statusColor;
-        if (CLEANING_STATES.includes(this.getValue('status', true))) {
-            statusColor = 'green';
-        }
-        if (PAUSE_STATES.includes(this.getValue('status', true))) {
-            statusColor = 'yellow';
-        }
-        if (CHARGING_STATES.includes(this.getValue('status', true))) {
-            statusColor = 'gray';
-        }
-        if (GOING_HOME_STATES.includes(this.getValue('status', true))) {
-            statusColor = 'blue';
+        const statusObj = this.vacuumGetObj('status');
+        let status;
+        let smallStatus;
+        if (statusObj) {
+            status = this.vacuumGetValue('status');
+            if (typeof status === 'boolean') {
+                if (status) {
+                    statusColor = 'green';
+                }
+                smallStatus = status ? 'cleaning' : 'pause';
+                status = status ? 'Cleaning' : 'Pause';
+            } else {
+                smallStatus = status.toLowerCase();
+                if (VACUUM_CLEANING_STATES.includes(smallStatus)) {
+                    statusColor = 'green';
+                }
+                if (VACUUM_PAUSE_STATES.includes(smallStatus)) {
+                    statusColor = 'yellow';
+                }
+                if (VACUUM_CHARGING_STATES.includes(smallStatus)) {
+                    statusColor = 'gray';
+                }
+                if (VACUUM_GOING_HOME_STATES.includes(smallStatus)) {
+                    statusColor = 'blue';
+                }
+            }
         }
 
-        return <div className={this.props.classes.buttons}>
-            {this.getObj('start') && !CLEANING_STATES.includes(this.getValue('status', true)) &&
+        return <div className={this.props.classes.vacuumButtons}>
+            {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
             <Tooltip title={Generic.t('Start')}>
                 <IconButton
-                    onClick={() => this.props.context.socket.setState(this.state.rxData['start-oid'], true)}
+                    onClick={() => this.props.context.socket.setState(this.state.rxData['vacuum-start-oid'], true)}
                 >
                     <PlayArrow />
                 </IconButton>
             </Tooltip>}
-            {this.getObj('pause') && !PAUSE_STATES.includes(this.getValue('status', true)) && !CHARGING_STATES.includes(this.getValue('status', true)) &&
+            {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip title={Generic.t('Pause')}>
                 <IconButton
-                    onClick={() => this.props.context.socket.setState(this.state.rxData['pause-oid'], true)}
+                    onClick={() => this.props.context.socket.setState(this.state.rxData['vacuum-pause-oid'], true)}
                 >
                     <Pause />
                 </IconButton>
             </Tooltip>}
-            {this.getObj('home') && !CHARGING_STATES.includes(this.getValue('status', true)) &&
+            {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip title={Generic.t('Home')}>
                 <IconButton
-                    onClick={() => this.props.context.socket.setState(this.state.rxData['home-oid'], true)}
+                    onClick={() => this.props.context.socket.setState(this.state.rxData['vacuum-home-oid'], true)}
                 >
                     <Home />
                 </IconButton>
             </Tooltip>}
-            {this.getObj('status') && <Tooltip title={Generic.t('Status')}>
+            {statusObj && <Tooltip title={Generic.t('Status')}>
                 <div style={{ color: statusColor }}>
-                    {Generic.t(this.getValue('status', true)).replace('vis_2_widgets_material_', '')}
+                    {Generic.t(status).replace('vis_2_widgets_material_', '')}
                 </div>
             </Tooltip>}
         </div>;
     }
 
-    renderMap() {
-        const obj = this.getObj('map64');
+    vacuumRenderMap() {
+        const obj = this.vacuumGetObj('map64');
         if (!obj) {
-            if (this.state.rxData.useDefaultPicture) {
-                return <img src={vacuumIcon} alt="vacuum" className={this.props.classes.image} />;
+            if (this.state.rxData['vacuum-use-default-picture']) {
+                return <img src={vacuumIcon} alt="vacuum" className={this.props.classes.vacuumImage} />;
             }
-            if (this.state.rxData.ownImage) {
-                return <Icon src={this.state.rxData.ownImage} className={this.props.classes.image} />;
+            if (this.state.rxData['vacuum-own-image']) {
+                return <Icon src={this.state.rxData['vacuum-own-image']} className={this.props.classes.vacuumImage} />;
             }
             return null;
         }
 
-        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" className={this.props.classes.image} />;
+        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" className={this.props.classes.vacuumImage} />;
     }
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
-        const rooms = this.renderRooms();
-        const battery = this.renderBattery();
+        const rooms = this.vacuumRenderRooms();
+        const battery = this.vacuumRenderBattery();
         let height = 0;
         if (rooms) {
             height += 36;
         } else if (battery) {
             height += 24;
         }
-        const sensors = this.renderSensors();
+        const sensors = this.vacuumRenderSensors();
         if (sensors) {
             height += 46;
         }
 
-        const buttons = this.renderButtons();
-        const speed = this.renderSpeed();
+        const buttons = this.vacuumRenderButtons();
+        const speed = this.vacuumRenderSpeed();
 
         if (buttons || rooms) {
             height += 40;
         }
 
-        const map = this.renderMap();
+        const map = this.vacuumRenderMap();
 
-        const content = <div className={this.props.classes.content}>
-            {battery || rooms ? <div className={this.props.classes.topPanel}>
+        const content = <div className={this.props.classes.vacuumContent}>
+            {battery || rooms ? <div className={this.props.classes.vacuumTopPanel}>
                 {rooms}
                 {battery}
             </div> : null}
-            {map ? <div className={this.props.classes.mapContainer} style={{ height: `calc(100% - ${height}px)`, width: '100%' }}>
+            {map ? <div className={this.props.classes.vacuumMapContainer} style={{ height: `calc(100% - ${height}px)`, width: '100%' }}>
                 {map}
             </div> : null}
             {sensors}
-            {buttons || speed ? <div className={this.props.classes.bottomPanel}>
+            {buttons || speed ? <div className={this.props.classes.vacuumBottomPanel}>
                 {buttons}
                 {speed}
             </div> : null}
