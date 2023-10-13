@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "news": {
+      "1.3.0": {
+        "en": "Added the vacuum cleaner widget",
+        "de": "Hinzugefügt Staubsauger Widget",
+        "ru": "Добавлен виджет пылесос",
+        "pt": "Adicionado o widget de aspirador de pó",
+        "nl": "Voeg de stofzuiger widget toe",
+        "fr": "Ajouté le widget aspirateur",
+        "it": "Aggiunto il widget aspirapolvere",
+        "es": "Añadido el widget aspirador",
+        "pl": "Dodać do czystego widżetu próżniowego",
+        "uk": "Додано віджет пилососа",
+        "zh-cn": "添加了更清洁的焦虑"
+      },
       "1.2.1": {
         "en": "Added door lock, rgb and thermostat to switches widget",
         "de": "Türschloss, Rgb und Thermostat hinzugefügt, um Widget zu wechseln",
@@ -80,19 +93,6 @@
         "pl": "Poprawa wizardów",
         "uk": "Удосконалення майстра",
         "zh-cn": "改善妻子"
-      },
-      "0.8.3": {
-        "en": "Font styles are applied to all buttons",
-        "de": "Schriftarten werden auf alle Tasten angewendet",
-        "ru": "Шрифты применяются ко всем кнопкам",
-        "pt": "Estilos de fonte são aplicados a todos os botões",
-        "nl": "Font stijl is toegewijd aan alle knoppen",
-        "fr": "Les styles de police sont appliqués à tous les boutons",
-        "it": "Gli stili di carattere sono applicati a tutti i pulsanti",
-        "es": "Los estilos de fuente se aplican a todos los botones",
-        "pl": "Styl fonsu jest używany do wszystkich przycisków",
-        "uk": "Стилі шрифту наносяться на всі кнопки",
-        "zh-cn": "对所有但各州都使用了代金风格。"
       }
     },
     "title": "Vis 2 Widgets Material",
