@@ -79,8 +79,9 @@ import {
     VACUUM_CLEANING_STATES,
     VACUUM_GOING_HOME_STATES,
     VACUUM_ID_ROLES,
-    VACUUM_PAUSE_STATES,
+    VACUUM_PAUSE_STATES, vacuumGetStatusColor,
 } from './Vacuum';
+import VacuumCleanerIcon from "./Components/VacuumIcon";
 
 // import ObjectChart from './ObjectChart';
 
@@ -407,7 +408,11 @@ const styles = () => ({
     vacuumMapContainer: { flex: 1 },
     vacuumTopPanel: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
     vacuumBottomPanel: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    vacuumSensorCard: { boxShadow: 'none' },
+    vacuumSensorCard: {
+        boxShadow: 'none',
+        backgroundColor: 'transparent',
+        backgroundImage: 'none',
+    },
     vacuumSensorCardContent: {
         display: 'flex',
         flexDirection: 'column',
@@ -422,6 +427,7 @@ const styles = () => ({
         width: '100%',
         height: '100%',
         objectFit: 'contain',
+        color: 'grey',
     },
     vacuumSpeedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
 
@@ -1627,7 +1633,7 @@ class Switches extends BlindsBase {
             } else if (this.state.objects[index].widgetType === 'lock') {
                 // control = this.lockRenderDialog(index);
             } else if (this.state.objects[index].widgetType === 'vacuum') {
-                // control = this.vacuumRenderDialog(index);
+                control = this.vacuumRenderDialog(index);
             } else if (this.state.objects[index].widgetType === 'info') {
                 if (this._refs[index]) {
                     // update width and height of chart container
@@ -1853,6 +1859,10 @@ class Switches extends BlindsBase {
                     }}
                 />
             </IconButton>;
+        }
+
+        if (this.state.objects[index].widgetType === 'vacuum') {
+            return this.vacuumRenderButtons(index, true);
         }
 
         if (this.state.objects[index].widgetType === 'lock') {
@@ -2605,6 +2615,12 @@ class Switches extends BlindsBase {
                     </div>;
                 }
             }
+        } else if (this.state.objects[index].widgetType === 'vacuum') {
+            const status = this.vacuumGetValue(index, 'status');
+            const statusColor = vacuumGetStatusColor(status);
+
+            icon = <VacuumCleanerIcon style={{ color: statusColor, width: '100%', height: '100%' }} />;
+            value = <span style={{ color: statusColor }}>{Generic.t(status).replace('vis_2_widgets_material_', '')}</span>;
         }
 
         let buttonWidth;
@@ -2641,12 +2657,12 @@ class Switches extends BlindsBase {
             >
                 {icon ? <div className={this.props.classes.iconButton}>{icon}</div> : null}
                 <div className={this.props.classes.text} style={this.customStyle}>
-                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name) || ''}
+                    {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name) || ''}
                 </div>
                 {(value !== undefined && value !== null) || secondary ?
                     <div className={this.props.classes.value}>
                         <div>{value}</div>
-                        {this.state.rxData[`unit${index}`] || this.state.objects[index].common.unit || ''}
+                        {this.state.rxData[`unit${index}`] || this.state.objects[index].common?.unit || ''}
                         {secondary}
                     </div> : null}
             </Button>
@@ -3500,12 +3516,19 @@ class Switches extends BlindsBase {
     async vacuumReadObjects(index, _objects, objects, secondaryObjects) {
         secondaryObjects[index] = {};
 
+        objects[index] = {
+            widgetType: 'vacuum',
+            common: {
+                name: Generic.t('vacuum'),
+            },
+        };
+
         const keys = Object.keys(VACUUM_ID_ROLES);
         // read all objects at once
         Object.values(_objects).forEach(obj => {
-            const oid = keys.find(_oid => this.state.rxData[`vacuum-${_oid}-oid`] === obj._id);
+            const oid = keys.find(_oid => this.state.rxData[`vacuum-${_oid}-oid${index}`] === obj._id);
             if (oid) {
-                objects[oid] = obj;
+                secondaryObjects[index][oid] = obj;
             }
         });
 
@@ -3553,6 +3576,9 @@ class Switches extends BlindsBase {
     }
 
     vacuumGetObj(index, id) {
+        if (!this.state.secondaryObjects[index]) {
+            return null;
+        }
         return this.state.secondaryObjects[index][id];
     }
 
@@ -3692,38 +3718,37 @@ class Switches extends BlindsBase {
         </div> : null;
     }
 
-    vacuumRenderButtons(index) {
+    vacuumRenderButtons(index, withDialog) {
         let statusColor;
         const statusObj = this.vacuumGetObj(index, 'status');
         let status;
         let smallStatus;
         if (statusObj) {
             status = this.vacuumGetValue(index, 'status');
+            statusColor = vacuumGetStatusColor(status);
+
             if (typeof status === 'boolean') {
-                if (status) {
-                    statusColor = 'green';
-                }
                 smallStatus = status ? 'cleaning' : 'pause';
                 status = status ? 'Cleaning' : 'Pause';
             } else {
+                if (status === null || status === undefined) {
+                    status = '';
+                }
+                status = status.toString();
                 smallStatus = status.toLowerCase();
-                if (VACUUM_CLEANING_STATES.includes(smallStatus)) {
-                    statusColor = 'green';
-                }
-                if (VACUUM_PAUSE_STATES.includes(smallStatus)) {
-                    statusColor = 'yellow';
-                }
-                if (VACUUM_CHARGING_STATES.includes(smallStatus)) {
-                    statusColor = 'gray';
-                }
-                if (VACUUM_GOING_HOME_STATES.includes(smallStatus)) {
-                    statusColor = 'blue';
-                }
             }
         }
 
-        return <div className={this.props.classes.vacuumButtons}>
-            {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
+        return <div
+            className={this.props.classes.vacuumButtons}
+            style={withDialog ? { cursor: 'pointer' } : null}
+            onClick={withDialog ? e => {
+                e.stopPropagation();
+                e.preventDefault();
+                this.setState({ showControlDialog: index });
+            } : undefined}
+        >
+            {this.vacuumGetObj(index, 'start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Start')}>
                     <IconButton
                         onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-start-oid${index}`], true)}
@@ -3731,7 +3756,7 @@ class Switches extends BlindsBase {
                         <PlayArrow />
                     </IconButton>
                 </Tooltip>}
-            {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
+            {this.vacuumGetObj(index, 'pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Pause')}>
                     <IconButton
                         onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-pause-oid${index}`], true)}
@@ -3739,7 +3764,7 @@ class Switches extends BlindsBase {
                         <Pause />
                     </IconButton>
                 </Tooltip>}
-            {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
+            {this.vacuumGetObj(index, 'home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Home')}>
                     <IconButton
                         onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-home-oid${index}`], true)}
@@ -3759,7 +3784,7 @@ class Switches extends BlindsBase {
         const obj = this.vacuumGetObj(index, 'map64');
         if (!obj) {
             if (this.state.rxData[`vacuum-use-default-picture${index}`]) {
-                return <img src={vacuumIcon} alt="vacuum" className={this.props.classes.vacuumImage} />;
+                return <VacuumCleanerIcon className={this.props.classes.vacuumImage} />;
             }
             if (this.state.rxData[`vacuum-own-image${index}`]) {
                 return <Icon src={this.state.rxData[`vacuum-own-image${index}`]} className={this.props.classes.vacuumImage} />;
@@ -3793,7 +3818,7 @@ class Switches extends BlindsBase {
 
         const map = this.vacuumRenderMap(index);
 
-        const content = <div className={this.props.classes.vacuumContent}>
+        return <div className={this.props.classes.vacuumContent}>
             {battery || rooms ? <div className={this.props.classes.vacuumTopPanel}>
                 {rooms}
                 {battery}
@@ -3807,8 +3832,6 @@ class Switches extends BlindsBase {
                 {speed}
             </div> : null}
         </div>;
-
-        return content;
     }
 
     renderWidgetBody(props) {

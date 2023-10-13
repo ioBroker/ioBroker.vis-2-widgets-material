@@ -15,6 +15,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import vacuumIcon from './assets/vacuum_icon.svg';
 
 import Generic from './Generic';
+import VacuumCleanerIcon from "./Components/VacuumIcon";
 
 export const FanIcon = props => <svg
     viewBox="0 0 512 512"
@@ -69,6 +70,7 @@ const styles = () => ({
         width: '100%',
         height: '100%',
         objectFit: 'contain',
+        color: 'grey',
     },
     vacuumSpeedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
 });
@@ -169,6 +171,32 @@ export const VACUUM_GOING_HOME_STATES = [
     'back to home',
     'docking',
 ];
+
+export const vacuumGetStatusColor = status => {
+    if (typeof status === 'boolean') {
+        if (status) {
+            return 'green';
+        }
+    } else {
+        if (status === null || status === undefined) {
+            status = '';
+        }
+        const smallStatus = status.toString().toLowerCase();
+        if (VACUUM_CLEANING_STATES.includes(smallStatus)) {
+            return 'green';
+        }
+        if (VACUUM_PAUSE_STATES.includes(smallStatus)) {
+            return 'yellow';
+        }
+        if (VACUUM_CHARGING_STATES.includes(smallStatus)) {
+            return 'gray';
+        }
+        if (VACUUM_GOING_HOME_STATES.includes(smallStatus)) {
+            return 'blue';
+        }
+    }
+    return null;
+};
 
 class Vacuum extends Generic {
     constructor(props) {
@@ -546,26 +574,16 @@ class Vacuum extends Generic {
         let smallStatus;
         if (statusObj) {
             status = this.vacuumGetValue('status');
+            statusColor = vacuumGetStatusColor(status);
             if (typeof status === 'boolean') {
-                if (status) {
-                    statusColor = 'green';
-                }
                 smallStatus = status ? 'cleaning' : 'pause';
                 status = status ? 'Cleaning' : 'Pause';
             } else {
+                if (status === null || status === undefined) {
+                    status = '';
+                }
+                status = status.toString();
                 smallStatus = status.toLowerCase();
-                if (VACUUM_CLEANING_STATES.includes(smallStatus)) {
-                    statusColor = 'green';
-                }
-                if (VACUUM_PAUSE_STATES.includes(smallStatus)) {
-                    statusColor = 'yellow';
-                }
-                if (VACUUM_CHARGING_STATES.includes(smallStatus)) {
-                    statusColor = 'gray';
-                }
-                if (VACUUM_GOING_HOME_STATES.includes(smallStatus)) {
-                    statusColor = 'blue';
-                }
             }
         }
 
@@ -606,7 +624,7 @@ class Vacuum extends Generic {
         const obj = this.vacuumGetObj('map64');
         if (!obj) {
             if (this.state.rxData['vacuum-use-default-picture']) {
-                return <img src={vacuumIcon} alt="vacuum" className={this.props.classes.vacuumImage} />;
+                return <VacuumCleanerIcon className={this.props.classes.vacuumImage} />;
             }
             if (this.state.rxData['vacuum-own-image']) {
                 return <Icon src={this.state.rxData['vacuum-own-image']} className={this.props.classes.vacuumImage} />;
