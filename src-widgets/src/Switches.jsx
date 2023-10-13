@@ -920,6 +920,7 @@ class Switches extends BlindsBase {
                             name: 'rgbType',
                             label: 'rgbType',
                             type: 'select',
+                            noTranslation: true,
                             options: [
                                 'rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct',
                             ],

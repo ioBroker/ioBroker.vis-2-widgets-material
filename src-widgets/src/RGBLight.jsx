@@ -187,6 +187,7 @@ class RGBLight extends Generic {
                             name: 'rgbType',
                             label: 'type',
                             type: 'select',
+                            noTranslation: true,
                             options: [
                                 'rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct',
                             ],
