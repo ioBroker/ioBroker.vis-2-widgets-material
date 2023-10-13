@@ -908,10 +908,11 @@ class Switches extends BlindsBase {
                         {
                             name: 'timeout',
                             label: 'controlTimeout',
-                            help: 'In milliseconds',
-                            type: 'number',
+                            tooltip: 'timeout_tooltip',
+                            type: 'slider',
                             min: 0,
                             max: 2000,
+                            default: 500,
                             hidden: '!!data["widget" + index] || (data["type" + index] !== "rgb" && data["type" + index] !== "slider" && data["type" + index] !== "thermostat")',
                         },
                     ],
@@ -1652,13 +1653,18 @@ class Switches extends BlindsBase {
                         const oid = `${this.state.objects[index]._id}.val`;
                         values[oid] = newValue;
                         this.setState({ values }, () => {
-                            if (this.state.rxData[`timeout${index}`]) {
+                            let timeout = this.state.rxData[`timeout${index}`];
+                            if (timeout === null || timeout === undefined || timeout === '') {
+                                timeout = 500;
+                            }
+
+                            if (timeout) {
                                 this.timeouts[index] = this.timeouts[index] || {};
                                 this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
                                 this.timeouts[index][oid] = setTimeout(_newValue => {
                                     this.timeouts[index][oid] = null;
                                     this.props.context.socket.setState(this.state.rxData[`oid${index}`], _newValue);
-                                }, parseInt(this.state.rxData[`timeout${index}`], 10), newValue);
+                                }, parseInt(timeout, 10), newValue);
                             } else {
                                 this.props.context.socket.setState(this.state.rxData[`oid${index}`], newValue);
                             }
@@ -1704,13 +1710,18 @@ class Switches extends BlindsBase {
                         const oid = `${this.state.objects[index]._id}.val`;
                         values[oid] = newValue;
                         this.setState({ values }, () => {
-                            if (this.state.rxData[`timeout${index}`]) {
+                            let timeout = this.state.rxData[`timeout${index}`];
+                            if (timeout === null || timeout === undefined || timeout === '') {
+                                timeout = 500;
+                            }
+
+                            if (timeout) {
                                 this.timeouts[index] = this.timeouts[index] || {};
                                 this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
                                 this.timeouts[index][oid] = setTimeout(_newValue => {
                                     this.timeouts[index][oid] = null;
                                     this.props.context.socket.setState(this.state.rxData[`oid${index}`], _newValue);
-                                }, parseInt(this.state.rxData[`timeout${index}`], 10), newValue);
+                                }, parseInt(timeout, 10), newValue);
                             } else {
                                 this.props.context.socket.setState(this.state.rxData[`oid${index}`], newValue);
                             }

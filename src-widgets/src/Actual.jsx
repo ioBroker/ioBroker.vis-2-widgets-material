@@ -354,7 +354,7 @@ class Actual extends Generic {
             await this.readHistory(objects.main._id);
             this.mainTimer = this.mainTimer || setInterval(async () => {
                 await this.readHistory(this.state.objects.main._id);
-                if (!this.state.rxData['noChart-secondary'] && this.state.objects.secondary?.common?.custom && this.state.objects.secondary.common.custom[defaultHistory]) {
+                if (!this.state.rxData['noChart-secondary'] && this.state.objects?.secondary?.common?.custom && this.state.objects.secondary.common.custom[defaultHistory]) {
                     await this.readHistory(this.state.objects.secondary._id);
                 }
             }, (parseInt(this.state.rxData.updateInterval, 10) * 1000) || 60000); // every minute by default
@@ -366,7 +366,7 @@ class Actual extends Generic {
         if (!this.state.rxData['noChart-secondary'] && objects.secondary?.common?.custom && objects.secondary.common.custom[defaultHistory]) {
             await this.readHistory(objects.secondary._id);
             this.mainTimer = this.mainTimer || setInterval(() =>
-                this.readHistory(this.state.objects.secondary._id), (parseInt(this.state.rxData.updateInterval, 10) * 60) || 60000); // every minute by default
+                this.readHistory(this.state.objects.secondary?._id), (parseInt(this.state.rxData.updateInterval, 10) * 60) || 60000); // every minute by default
         } else if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) {
             // delete chart data
             newState[`chart-data-${this.state.rxData['oid-secondary']}`] = null;
@@ -464,9 +464,9 @@ class Actual extends Generic {
     getOptions() {
         const series = [];
         if (this.state[`chart-data-${this.state.rxData['oid-main']}`] && !this.state.rxData.noChart) {
-            let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name) || '';
+            let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || '';
             if (!name) {
-                if (this.state.objects.secondary.common.role?.includes('temperature')) {
+                if (this.state.objects?.secondary?.common?.role?.includes('temperature')) {
                     name = Generic.t('temperature').replace('vis_2_widgets_material_', '');
                 }
             }
@@ -482,9 +482,9 @@ class Actual extends Generic {
             });
         }
         if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`] && !this.state.rxData['noData-secondary']) {
-            let name = this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name) || '';
+            let name = this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name) || '';
             if (!name) {
-                if (this.state.objects.secondary.common.role?.includes('humidity')) {
+                if (this.state.objects?.secondary?.common?.role?.includes('humidity')) {
                     name = Generic.t('humidity').replace('vis_2_widgets_material_', '');
                 }
             }
@@ -559,13 +559,13 @@ class Actual extends Generic {
                     obj={this.state.objects.main || this.state.objects.secondary}
                     obj2={this.state.objects.main ? this.state.objects.secondary : null}
                     unit={this.state.objects.main ?
-                        (this.state.rxData['unit-main'] || this.state.objects.main.common.unit) :
-                        (this.state.rxData['unit-secondary'] || this.state.objects.secondary.common.unit)}
-                    unit2={this.state.rxData['unit-secondary'] || this.state.objects.secondary.common.unit}
+                        (this.state.rxData['unit-main'] || this.state.objects.main.common?.unit || '') :
+                        (this.state.rxData['unit-secondary'] || this.state.objects.secondary?.common?.unit || '')}
+                    unit2={this.state.rxData['unit-secondary'] || this.state.objects.secondary?.common?.unit || ''}
                     title={this.state.objects.main ?
-                        (this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name)) :
-                        (this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name))}
-                    title2={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name)}
+                        (this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common?.name)) :
+                        (this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary?.common?.name))}
+                    title2={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary?.common?.name)}
                     objLineType="line"
                     obj2LineType="line"
                     objColor={this.state.objects.main ? 'rgba(243,177,31,0.65)' : 'rgba(77,134,255,0.44)'}
@@ -605,7 +605,7 @@ class Actual extends Generic {
         const mainValue = this.state.objects && this.state.objects.main && this.state.values[`${this.state.rxData['oid-main']}.val`] !== undefined ?
             this.formatValue(this.state.values[`${this.state.rxData['oid-main']}.val`]) : undefined;
 
-        const secondaryValue = this.state.objects && this.state.objects.secondary && this.state.values[`${this.state.rxData['oid-secondary']}.val`] !== undefined ?
+        const secondaryValue = this.state.objects?.secondary && this.state.values[`${this.state.rxData['oid-secondary']}.val`] !== undefined ?
             this.formatValue(this.state.values[`${this.state.rxData['oid-secondary']}.val`], 0) : undefined;
 
         let mainIcon = this.state.rxData['icon-main'] || this.state.objects?.main?.common?.icon;
@@ -634,20 +634,20 @@ class Actual extends Generic {
             ref={this.refContainer}
         >
             {mainValue !== undefined ?
-                <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common.name) || null}>
+                <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects.main?.common?.name) || null}>
                     <div className={this.props.classes.mainDiv}>
                         {mainIcon}
                         <span key={`${mainValue}valText`} className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}>{mainValue}</span>
-                        <span className={this.props.classes.temperatureUnit}>{this.state.rxData['unit-main'] || this.state.objects.main.common.unit}</span>
+                        <span className={this.props.classes.temperatureUnit}>{this.state.rxData['unit-main'] || this.state.objects?.main?.common?.unit}</span>
                     </div>
                 </Tooltip>
                 : null}
             {secondaryValue !== undefined ?
-                <Tooltip title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary.common.name) || null}>
+                <Tooltip title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name) || null}>
                     <div className={this.props.classes.secondaryDiv}>
                         {secondaryIcon}
                         <span key={`${secondaryValue}valText`} className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}>{secondaryValue}</span>
-                        <span className={this.props.classes.humidityUnit}>{this.state.rxData['unit-secondary'] || this.state.objects.secondary.common.unit}</span>
+                        <span className={this.props.classes.humidityUnit}>{this.state.rxData['unit-secondary'] || this.state.objects?.secondary?.common?.unit}</span>
                     </div>
                 </Tooltip>
                 : null}

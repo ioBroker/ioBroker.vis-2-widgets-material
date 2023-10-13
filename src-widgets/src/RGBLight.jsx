@@ -548,7 +548,7 @@ class RGBLight extends Generic {
                 <Slider
                     valueLabelDisplay="auto"
                     min={this.rgbGetIdMin('color_temperature') || 3000}
-                    max={this.rgbGetIdMax('color_temperature') || 12000}
+                    max={this.rgbGetIdMax('color_temperature') || 6000}
                     value={this.getPropertyValue('color_temperature') || 0}
                     onChange={(e, value) => this.rgbSetId('color_temperature', value)}
                 />
