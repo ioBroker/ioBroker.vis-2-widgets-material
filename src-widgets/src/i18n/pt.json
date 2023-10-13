@@ -375,5 +375,7 @@
   "rooms": "quartos",
   "useDefaultPicture": "Usar imagem padrão",
   "Room": "Sala",
-  "rooms_tooltip": "Compatível apenas com dispositivos \"mihome aspirador\""
+  "rooms_tooltip": "Compatível apenas com dispositivos \"mihome aspirador\"",
+  "color_temperature_min": "Temperatura de cor mínima",
+  "color_temperature_max": "Temperatura máxima de cor"
 }

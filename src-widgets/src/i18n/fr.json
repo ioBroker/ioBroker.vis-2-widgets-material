@@ -375,5 +375,7 @@
   "rooms": "Pièces",
   "useDefaultPicture": "Utiliser l'image par défaut",
   "Room": "Chambre",
-  "rooms_tooltip": "Pris en charge uniquement pour les appareils \"Mihome Vacuum\""
+  "rooms_tooltip": "Pris en charge uniquement pour les appareils \"Mihome Vacuum\"",
+  "color_temperature_min": "Température de couleur minimale",
+  "color_temperature_max": "Température de couleur maximale"
 }

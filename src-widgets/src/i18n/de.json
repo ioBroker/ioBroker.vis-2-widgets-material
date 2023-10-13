@@ -375,5 +375,7 @@
   "rooms": "Räume",
   "useDefaultPicture": "Standardbild verwenden",
   "Room": "Raum",
-  "rooms_tooltip": "Wird nur für „mihome Vacuum“-Geräte unterstützt"
+  "rooms_tooltip": "Wird nur für „mihome Vacuum“-Geräte unterstützt",
+  "color_temperature_min": "Minimale Farbtemperatur",
+  "color_temperature_max": "Maximale Farbtemperatur"
 }

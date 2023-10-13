@@ -10,7 +10,6 @@ import {
 import {
     Wheel, rgbaToHsva, hsvaToHsla, hsvaToRgba, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
 } from '@uiw/react-color';
-import ct from 'color-temperature';
 import Generic from './Generic';
 import './sketch.css';
 
@@ -55,6 +54,57 @@ const stateRoles = {
     'level.color.temperature': 'color_temperature',
 };
 
+// From http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
+
+// Start with a temperature, in Kelvin, somewhere between 1000 and 40000.  (Other values may work,
+//  but I can't make any promises about the quality of the algorithm's estimates above 40000 K.)
+function limit(x, min, max) {
+    if (x < min) {
+        return min;
+    }
+    if (x > max) {
+        return max;
+    }
+
+    return x;
+}
+
+export const colorTemperatureToRGB = kelvin => {
+    const temp = kelvin / 100;
+
+    let red;
+    let green;
+    let blue;
+
+    if (temp <= 66) {
+        red = 255;
+
+        green = temp;
+        green = 99.4708025861 * Math.log(green) - 161.1195681661;
+
+        if (temp <= 19) {
+            blue = 0;
+        } else {
+            blue = temp - 10;
+            blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
+        }
+    } else {
+        red = temp - 60;
+        red = 329.698727446 * (red ** (-0.1332047592));
+
+        green = temp - 60;
+        green = 288.1221695283 * (green ** (-0.0755148492));
+
+        blue = 255;
+    }
+
+    return {
+        red: limit(red,   0, 255),
+        green: limit(green, 0, 255),
+        blue: limit(blue,  0, 255),
+    };
+};
+
 const loadStates = async (field, data, changeData, socket) => {
     if (data[field.name]) {
         const object = await socket.getObject(data[field.name]);
@@ -67,6 +117,14 @@ const loadStates = async (field, data, changeData, socket) => {
                     const role = state.common.role;
                     if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
                         data[stateRoles[role]] = state._id;
+                        if (stateRoles[role] === 'color_temperature') {
+                            if (!data.ct_min && state.common.min) {
+                                data.ct_min = state.common.min;
+                            }
+                            if (!data.ct_max && state.common.max) {
+                                data.ct_max = state.common.max;
+                            }
+                        }
                     }
                 });
                 changeData(data);
@@ -175,6 +233,22 @@ class RGBLight extends Generic {
                             onChange: loadStates,
                         },
                         {
+                            name: 'ct_min',
+                            type: 'number',
+                            min: 500,
+                            max: 10000,
+                            label: 'color_temperature_min',
+                            hidden: data => data.rgbType !== 'ct' && !data.color_temperature,
+                        },
+                        {
+                            name: 'ct_max',
+                            type: 'number',
+                            min: 500,
+                            max: 10000,
+                            label: 'color_temperature_max',
+                            hidden: data => data.rgbType !== 'ct' && !data.color_temperature,
+                        },
+                        {
                             name: 'hue',
                             type: 'id',
                             label: 'hue',
@@ -234,9 +308,20 @@ class RGBLight extends Generic {
         return RGBLight.getWidgetInfo();
     }
 
-    rgbGetIdMin = id => this.state.rgbObjects[id]?.common?.min || 0;
+    rgbGetIdMin = id => {
+        if (id === 'color_temperature') {
+            return this.state.rxData.ct_min || this.state.rgbObjects[id]?.common?.min || 0;
+        }
+        return this.state.rgbObjects[id]?.common?.min || 0;
+    };
 
-    rgbGetIdMax = id => this.state.rgbObjects[id]?.common?.max || 0;
+    rgbGetIdMax = id => {
+        if (id === 'color_temperature') {
+            return this.state.rxData.ct_max || this.state.rgbObjects[id]?.common?.max || 0;
+        }
+
+        return this.state.rgbObjects[id]?.common?.max || 0;
+    };
 
     rgbSetId = (id, value) => {
         if (this.state.rgbObjects[id]) {
@@ -281,10 +366,14 @@ class RGBLight extends Generic {
         }
         newState.rgbObjects = rgbObjects;
 
+        // calculate array of color temperatures to draw slider
         if (rgbObjects.color_temperature) {
             const colors = [];
-            for (let i = (rgbObjects.color_temperature?.common?.min || 3000); i <= (rgbObjects.color_temperature?.common?.max || 12000); i += 100) {
-                colors.push(ct.colorTemperature2rgb(i));
+            const min = parseInt(this.state.rxData.ct_min || rgbObjects.color_temperature?.common?.min, 10) || 2700;
+            const max = parseInt(this.state.rxData.ct_max || rgbObjects.color_temperature?.common?.max, 10) || 6000;
+            const step = (max - min) / 20;
+            for (let i = min; i <= max; i += step) {
+                colors.push(colorTemperatureToRGB(i));
             }
             newState.colorTemperatures = colors;
         } else {
@@ -530,9 +619,10 @@ class RGBLight extends Generic {
     }
 
     rgbRenderColorTemperature() {
-        return this.state.rxData.rgbType === 'ct' && <div
-            className={this.props.classes.rgbSliderContainer}
-        >
+        if (this.state.rxData.rgbType !== 'ct') {
+            return null;
+        }
+        return <div className={this.props.classes.rgbSliderContainer}>
             <Tooltip title={Generic.t('Color temperature')}>
                 <Thermostat />
             </Tooltip>
@@ -547,7 +637,7 @@ class RGBLight extends Generic {
             >
                 <Slider
                     valueLabelDisplay="auto"
-                    min={this.rgbGetIdMin('color_temperature') || 3000}
+                    min={this.rgbGetIdMin('color_temperature') || 2700}
                     max={this.rgbGetIdMax('color_temperature') || 6000}
                     value={this.getPropertyValue('color_temperature') || 0}
                     onChange={(e, value) => this.rgbSetId('color_temperature', value)}
@@ -586,7 +676,7 @@ class RGBLight extends Generic {
 
     rgbGetColor = () => {
         if (this.state.rxData.rgbType === 'ct') {
-            const color = ct.colorTemperature2rgb(this.getPropertyValue('color_temperature'));
+            const color = colorTemperatureToRGB(this.getPropertyValue('color_temperature'));
             return rgbaToHex({
                 r: color.red,
                 g: color.green,
@@ -598,7 +688,7 @@ class RGBLight extends Generic {
 
     rgbGetTextColor = () => {
         if (this.state.rxData.rgbType === 'ct') {
-            const color = ct.colorTemperature2rgb(this.getPropertyValue('color_temperature'));
+            const color = colorTemperatureToRGB(this.getPropertyValue('color_temperature'));
             return color.red + color.green + color.blue > 3 * 128 ? '#000000' : '#ffffff';
         }
         const color = hsvaToRgba(this.rgbGetWheelColor());

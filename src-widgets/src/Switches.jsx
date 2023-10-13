@@ -64,6 +64,7 @@ import BlindsBase, { STYLES } from './Components/BlindsBase';
 import WindowClosed from './Components/WindowClosed';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
+import {colorTemperatureToRGB} from "./RGBLight";
 
 // import ObjectChart from './ObjectChart';
 
@@ -102,6 +103,14 @@ const loadStates = async (field, data, changeData, socket, index) => {
                     if (role && stateRoles[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
                         changed = true;
                         data[stateRoles[role] + index] = state._id;
+                        if (stateRoles[role] === 'color_temperature') {
+                            if (!data[`ct_min${index}`] && state.common.min) {
+                                data[`ct_min${index}`] = state.common.min;
+                            }
+                            if (!data[`ct_max${index}`] && state.common.max) {
+                                data[`ct_max${index}`] = state.common.max;
+                            }
+                        }
                     }
                 });
                 changed && changeData(data);
@@ -822,6 +831,22 @@ class Switches extends BlindsBase {
                             label: 'color_temperature',
                             hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'ct',
                             onChange: loadStates,
+                        },
+                        {
+                            name: 'ct_min',
+                            type: 'number',
+                            min: 500,
+                            max: 10000,
+                            label: 'color_temperature_min',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'ct' || !data[`color_temperature${index}`],
+                        },
+                        {
+                            name: 'ct_max',
+                            type: 'number',
+                            min: 500,
+                            max: 10000,
+                            label: 'color_temperature_max',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'ct' || !data[`color_temperature${index}`],
                         },
                         {
                             name: 'hue',
@@ -2859,9 +2884,19 @@ class Switches extends BlindsBase {
         </div>;
     }
 
-    rgbGetIdMin = (index, id) => this.state.secondaryObjects[index][id]?.common?.min || 0;
+    rgbGetIdMin = (index, id) => {
+        if (id === 'color_temperature') {
+            return this.state.rxData[`ct_min${index}`] || this.state.secondaryObjects[index][id]?.common?.min || 0;
+        }
+        return this.state.secondaryObjects[index][id]?.common?.min || 0;
+    };
 
-    rgbGetIdMax = (index, id) => this.state.secondaryObjects[index][id]?.common?.max || 0;
+    rgbGetIdMax = (index, id) => {
+        if (id === 'color_temperature') {
+            return this.state.rxData[`ct_max${index}`] || this.state.secondaryObjects[index][id]?.common?.max || 0;
+        }
+        return this.state.secondaryObjects[index][id]?.common?.min || 0;
+    };
 
     rgbSetId = (index, id, value) => {
         if (this.state.secondaryObjects[index][id]) {
@@ -2909,10 +2944,11 @@ class Switches extends BlindsBase {
 
         if (_rgbObjects.color_temperature) {
             const colors = [];
-            const minCt = _rgbObjects.color_temperature?.common?.min || 3000;
-            const maxCt = _rgbObjects.color_temperature?.common?.max || 12000;
-            for (let i = minCt; i <= maxCt; i += 100) {
-                colors.push(ct.colorTemperature2rgb(i));
+            const minCt = parseInt(this.state.rxData[`ct_min${index}`] || _rgbObjects.color_temperature?.common?.min, 10) || 2700;
+            const maxCt = parseInt(this.state.rxData[`ct_max${index}`] || _rgbObjects.color_temperature?.common?.max, 10) || 6000;
+            const step = (maxCt - minCt) / 20;
+            for (let i = minCt; i <= maxCt; i += step) {
+                colors.push(colorTemperatureToRGB(i));
             }
             _rgbObjects.color_temperature.colors = colors;
         }
@@ -3169,9 +3205,10 @@ class Switches extends BlindsBase {
     }
 
     rgbRenderColorTemperature(index) {
-        return this.state.rxData[`rgbType${index}`] === 'ct' && <div
-            className={this.props.classes.rgbSliderContainer}
-        >
+        if (this.state.rxData[`rgbType${index}`] !== 'ct') {
+            return null;
+        }
+        return <div className={this.props.classes.rgbSliderContainer}>
             <Tooltip title={Generic.t('Color temperature')}>
                 <Thermostat />
             </Tooltip>
@@ -3186,8 +3223,8 @@ class Switches extends BlindsBase {
             >
                 <Slider
                     valueLabelDisplay="auto"
-                    min={this.rgbGetIdMin(index, 'color_temperature') || 3000}
-                    max={this.rgbGetIdMax(index, 'color_temperature') || 12000}
+                    min={this.rgbGetIdMin(index, 'color_temperature') || 2700}
+                    max={this.rgbGetIdMax(index, 'color_temperature') || 6000}
                     value={this.getPropertyValue(`color_temperature${index}`) || 0}
                     onChange={(e, value) => this.rgbSetId(index, 'color_temperature', value)}
                 />
@@ -3211,7 +3248,7 @@ class Switches extends BlindsBase {
 
     rgbGetColor = index => {
         if (this.state.rxData[`rgbType${index}`] === 'ct') {
-            const color = ct.colorTemperature2rgb(this.getPropertyValue(`color_temperature${index}`));
+            const color = colorTemperatureToRGB(this.getPropertyValue(`color_temperature${index}`));
             return rgbaToHex({
                 r: color.red,
                 g: color.green,
@@ -3223,7 +3260,7 @@ class Switches extends BlindsBase {
 
     rgbGetTextColor = index => {
         if (this.state.rxData[`rgbType${index}`] === 'ct') {
-            const color = ct.colorTemperature2rgb(this.getPropertyValue(`color_temperature${index}`));
+            const color = colorTemperatureToRGB(this.getPropertyValue(`color_temperature${index}`));
             return color.red + color.green + color.blue > 3 * 128 ? '#000000' : '#ffffff';
         }
         const color = hsvaToRgba(this.rgbGetWheelColor(index));

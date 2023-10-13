@@ -375,5 +375,7 @@
   "pause": "Pause",
   "timeout_tooltip": "Delay in milliseconds when moving the slider thumb. The value is sent to the device if there was no movement of the thumb for that many milliseconds or immediately upon releasing the mouse button.",
   "Room": "Room",
-  "rooms_tooltip": "Supported only for \"mihome vacuum\" devices"
+  "rooms_tooltip": "Supported only for \"mihome vacuum\" devices",
+  "color_temperature_min": "Minimal color temperature",
+  "color_temperature_max": "Maximal color temperature"
 }

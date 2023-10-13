@@ -375,5 +375,7 @@
   "rooms": "Pokoje",
   "useDefaultPicture": "Użyj domyślnego obrazu",
   "Room": "Pokój",
-  "rooms_tooltip": "Obsługiwane tylko dla urządzeń „mihome Vacuum”."
+  "rooms_tooltip": "Obsługiwane tylko dla urządzeń „mihome Vacuum”.",
+  "color_temperature_min": "Minimalna temperatura barwowa",
+  "color_temperature_max": "Maksymalna temperatura barwowa"
 }

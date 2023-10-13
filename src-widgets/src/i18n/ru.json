@@ -375,5 +375,7 @@
   "rooms": "Номера",
   "useDefaultPicture": "Использовать изображение по умолчанию",
   "Room": "Комната",
-  "rooms_tooltip": "Поддерживается только для устройств mihome Vacuum."
+  "rooms_tooltip": "Поддерживается только для устройств mihome Vacuum.",
+  "color_temperature_min": "Минимальная цветовая температура",
+  "color_temperature_max": "Максимальная цветовая температура"
 }
