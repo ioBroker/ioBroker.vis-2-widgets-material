@@ -72,16 +72,14 @@ import WindowClosed from './Components/WindowClosed';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
 import { colorTemperatureToRGB, RGB_NAMES, RGB_ROLES } from './RGBLight';
-import vacuumIcon from './assets/vacuum_icon.svg';
 import {
     FanIcon,
     VACUUM_CHARGING_STATES,
     VACUUM_CLEANING_STATES,
-    VACUUM_GOING_HOME_STATES,
     VACUUM_ID_ROLES,
     VACUUM_PAUSE_STATES, vacuumGetStatusColor,
 } from './Vacuum';
-import VacuumCleanerIcon from "./Components/VacuumIcon";
+import VacuumCleanerIcon from './Components/VacuumIcon';
 
 // import ObjectChart from './ObjectChart';
 

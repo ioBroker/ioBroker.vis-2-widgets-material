@@ -12,10 +12,8 @@ import {
 
 import { Icon } from '@iobroker/adapter-react-v5';
 
-import vacuumIcon from './assets/vacuum_icon.svg';
-
 import Generic from './Generic';
-import VacuumCleanerIcon from "./Components/VacuumIcon";
+import VacuumCleanerIcon from './Components/VacuumIcon';
 
 export const FanIcon = props => <svg
     viewBox="0 0 512 512"
