@@ -373,5 +373,7 @@
   "ownImage": "Propre image",
   "pause": "Pause",
   "rooms": "Pièces",
-  "useDefaultPicture": "Utiliser l'image par défaut"
+  "useDefaultPicture": "Utiliser l'image par défaut",
+  "Room": "Chambre",
+  "rooms_tooltip": "Pris en charge uniquement pour les appareils \"Mihome Vacuum\""
 }

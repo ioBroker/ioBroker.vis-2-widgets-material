@@ -373,5 +373,7 @@
   "ownImage": "Własny obraz",
   "pause": "Pauza",
   "rooms": "Pokoje",
-  "useDefaultPicture": "Użyj domyślnego obrazu"
+  "useDefaultPicture": "Użyj domyślnego obrazu",
+  "Room": "Pokój",
+  "rooms_tooltip": "Obsługiwane tylko dla urządzeń „mihome Vacuum”."
 }

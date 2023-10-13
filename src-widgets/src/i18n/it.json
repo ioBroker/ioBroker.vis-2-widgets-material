@@ -373,5 +373,7 @@
   "ownImage": "Propria immagine",
   "pause": "Pausa",
   "rooms": "Camere",
-  "useDefaultPicture": "Usa l'immagine predefinita"
+  "useDefaultPicture": "Usa l'immagine predefinita",
+  "Room": "Camera",
+  "rooms_tooltip": "Supportato solo per i dispositivi \"mihome Vacuum\"."
 }

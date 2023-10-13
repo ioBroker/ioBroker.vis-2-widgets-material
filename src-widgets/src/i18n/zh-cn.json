@@ -373,5 +373,7 @@
   "ownImage": "自己的形象",
   "pause": "暂停",
   "rooms": "客房",
-  "useDefaultPicture": "使用默认图片"
+  "useDefaultPicture": "使用默认图片",
+  "Room": "房间",
+  "rooms_tooltip": "仅支持“mihomevacuum”设备"
 }

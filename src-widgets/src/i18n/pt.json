@@ -373,5 +373,7 @@
   "ownImage": "Imagem própria",
   "pause": "Pausa",
   "rooms": "quartos",
-  "useDefaultPicture": "Usar imagem padrão"
+  "useDefaultPicture": "Usar imagem padrão",
+  "Room": "Sala",
+  "rooms_tooltip": "Compatível apenas com dispositivos \"mihome aspirador\""
 }

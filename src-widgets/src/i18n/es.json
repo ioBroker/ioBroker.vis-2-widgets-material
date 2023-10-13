@@ -373,5 +373,7 @@
   "ownImage": "Imagen propia",
   "pause": "Pausa",
   "rooms": "Habitaciones",
-  "useDefaultPicture": "Usar imagen predeterminada"
+  "useDefaultPicture": "Usar imagen predeterminada",
+  "Room": "Habitación",
+  "rooms_tooltip": "Compatible solo con dispositivos \"aspiradora mihome\""
 }

@@ -373,5 +373,7 @@
   "ownImage": "Eigen afbeelding",
   "pause": "Pauze",
   "rooms": "Kamers",
-  "useDefaultPicture": "Gebruik standaardafbeelding"
+  "useDefaultPicture": "Gebruik standaardafbeelding",
+  "Room": "Kamer",
+  "rooms_tooltip": "Alleen ondersteund voor \"mihome vacuüm\"-apparaten"
 }

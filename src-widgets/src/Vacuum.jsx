@@ -2,7 +2,8 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
 import {
-    Card, CardContent, IconButton, MenuItem, Select, Tooltip,
+    Button,
+    Card, CardContent, IconButton, Menu, MenuItem, Tooltip,
 } from '@mui/material';
 
 import {
@@ -173,7 +174,6 @@ class Vacuum extends Generic {
         super(props);
         this.state.objects = {};
         this.state.rooms = [];
-        this.state.currentRoom = '';
     }
 
     static getWidgetInfo() {
@@ -264,9 +264,9 @@ class Vacuum extends Generic {
                     fields: [
                         {
                             label: 'rooms',
-                            name: 'rooms-oid',
-                            type: 'id',
-                            onChange: loadStates,
+                            name: 'useRooms',
+                            type: 'checkbox',
+                            tooltip: 'rooms_tooltip',
                         },
                         {
                             label: 'map64',
@@ -279,13 +279,13 @@ class Vacuum extends Generic {
                             name: 'useDefaultPicture',
                             type: 'checkbox',
                             default: true,
-                            hidden: '!!data.["map64-oid"]',
+                            hidden: '!!data["map64-oid"]',
                         },
                         {
                             label: 'ownImage',
                             name: 'ownImage',
                             type: 'image',
-                            hidden: '!!data.["map64-oid"] || !data.useDefaultPicture',
+                            hidden: '!!data["map64-oid"] || !data.useDefaultPicture',
                         },
                     ],
                 },
@@ -346,13 +346,30 @@ class Vacuum extends Generic {
         });
 
         this.setState({ objects });
-        this.loadRooms();
+        await this.loadRooms();
     }
 
     async loadRooms() {
-        if (this.state.rxData['rooms-oid']) {
-            const rooms = await this.props.context.socket.getObjectView(`${this.state.rxData['rooms-oid']}.room`, `${this.state.rxData['rooms-oid']}.room\u9999`, 'channel');
-            this.setState({ rooms: Object.values(rooms) });
+        if (this.state.rxData.useRooms) {
+            // try to detect the `rooms` object according to status OID
+            // mihome-vacuum.0.info.state => mihome-vacuum.0.rooms
+            if (this.state.rxData['status-oid']) {
+                const parts = this.state.rxData['status-oid'].split('.');
+                if (parts.length === 4) {
+                    parts.pop();
+                    parts.pop();
+                    parts.push('rooms');
+                    const rooms = await this.props.context.socket.getObjectView(`${parts.join('.')}.room`, `${parts.join('.')}.room\u9999`, 'channel');
+                    const result = [];
+                    Object.keys(rooms).forEach(id =>
+                        result.push({
+                            value: `${id}.roomClean`,
+                            label: Generic.getText(rooms[id].common?.name || id.split('.').pop()),
+                        }));
+                    result.sort((a, b) => a.label.localeCompare(b.label));
+                    this.setState({ rooms: result });
+                }
+            }
         }
     }
 
@@ -389,30 +406,89 @@ class Vacuum extends Generic {
     }
 
     renderSpeed() {
-        return this.getObj('fan_speed') && <div className={this.props.classes.speedContainer}>
-            <FanIcon />
-            <Select
-                value={this.getValue('fan_speed') || ''}
+        if (!this.getObj('fan_speed')) {
+            return null;
+        }
+        let options = null;
+        options = this.getObj('fan_speed').common.states;
+        if (Array.isArray(options)) {
+            const result = {};
+            options.forEach(item => result[item] = item);
+            options = result;
+        }
+
+        let value = this.getValue('fan_speed');
+        if (value === null || value === undefined) {
+            value = '';
+        }
+        value = value.toString();
+
+        return [
+            <Button
                 variant="standard"
-                onChange={e => this.props.context.socket.setState(this.state.rxData['fan_speed-oid'], e.target.value)}
+                key="speed"
+                className={this.props.classes.speedContainer}
+                endIcon={<FanIcon />}
+                onClick={e => {
+                    e.stopPropagation();
+                    this.setState({ showSpeedMenu: e.currentTarget });
+                }}
             >
-                {Object.keys(this.getObj('fan_speed').common.states).map(state => <MenuItem key={state} value={state}>
-                    {Generic.t(this.getObj('fan_speed').common.states[state]).replace('vis_2_widgets_material_', '')}
+                {options[value] !== undefined && options[value] !== null ? Generic.t(options[value]).replace('vis_2_widgets_material_', '') : value}
+            </Button>,
+            this.state.showSpeedMenu ? <Menu
+                open={!0}
+                anchorEl={this.state.showSpeedMenu}
+                key="speedMenu"
+            >
+                {Object.keys(options).map(state => <MenuItem
+                    key={state}
+                    value={state}
+                    selected={value === state}
+                    onClick={e => {
+                        const _value = e.target.value;
+                        this.setState({ showSpeedMenu: null }, () =>
+                            this.props.context.socket.setState(this.state.rxData['fan_speed-oid'], _value));
+                    }}
+                >
+                    {Generic.t(options[state]).replace('vis_2_widgets_material_', '')}
                 </MenuItem>)}
-            </Select>
-        </div>;
+            </Menu> : null,
+        ];
     }
 
     renderRooms() {
-        return <Select
-            value={this.state.currentRoom}
-            variant="standard"
-            onChange={e => this.setState({ currentRoom: e.target.value })}
-        >
-            {this.state.rooms.map(room => <MenuItem key={room._id} value={room._id}>
-                {Generic.getText(room.common.name)}
-            </MenuItem>)}
-        </Select>;
+        if (!this.state.rooms?.length) {
+            return null;
+        }
+        return [
+            <Button
+                variant="outlined"
+                color="grey"
+                key="rooms"
+                onClick={e => this.setState({ showRoomsMenu: e.currentTarget })}
+            >
+                {Generic.t('Room')}
+            </Button>,
+            this.state.showRoomsMenu ? <Menu
+                open={!0}
+                anchorEl={this.state.showRoomsMenu}
+                key="roomsMenu"
+            >
+                {this.state.rooms.map(room => <MenuItem
+                    key={room.value}
+                    value={room.value}
+                    onClick={() => {
+                        // build together mihome-vacuum.0.rooms.room1.roomClean
+                        const id = room.value;
+                        this.setState({ showRoomsMenu: null }, () =>
+                            this.props.context.socket.setState(id, true));
+                    }}
+                >
+                    {room.label}
+                </MenuItem>)}
+            </Menu> : null,
+        ];
     }
 
     renderSensors() {
@@ -518,19 +594,21 @@ class Vacuum extends Generic {
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
-        const speed = this.renderSpeed();
+        const rooms = this.renderRooms();
         const battery = this.renderBattery();
-        let height = 12;
-        if (speed || battery) {
-            height += 26;
+        let height = 0;
+        if (rooms) {
+            height += 36;
+        } else if (battery) {
+            height += 24;
         }
         const sensors = this.renderSensors();
         if (sensors) {
-            height += 52;
+            height += 46;
         }
 
         const buttons = this.renderButtons();
-        const rooms = this.renderRooms();
+        const speed = this.renderSpeed();
 
         if (buttons || rooms) {
             height += 40;
