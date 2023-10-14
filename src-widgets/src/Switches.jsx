@@ -81,6 +81,12 @@ import {
 } from './Vacuum';
 import VacuumCleanerIcon from './Components/VacuumIcon';
 
+const VacuumIcon = props => <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z" />
+    <path strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M14 9a2 2 0 1 1 -4 0a2 2 0 0 1 4 0z" />
+    <path strokeWidth="2"strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M12 16h.01" />
+</svg>;
+
 // import ObjectChart from './ObjectChart';
 
 const HISTORY = ['influxdb', 'sql', 'history'];
@@ -492,7 +498,7 @@ class Switches extends BlindsBase {
                                     label: 'buttons',
                                 },
                             ],
-                            default: 'switches',
+                            default: 'lines',
                         },
                         {
                             name: 'allSwitch',
@@ -1406,6 +1412,8 @@ class Switches extends BlindsBase {
             />;
         } else if (obj?.widgetType === 'blinds') {
             icon = <WindowClosed style={{ color }} />;
+        } else if (obj?.widgetType === 'vacuum') {
+            icon = <VacuumIcon />;
         } else if (obj?.widgetType === 'thermostat') {
             if (this.state.rxData[`switch${index}`] && this.state.values[`${this.state.rxData[`switch${index}`]}.val`]) {
                 icon = <Thermostat color="primary" style={{ color }} />;

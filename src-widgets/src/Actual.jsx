@@ -556,21 +556,21 @@ class Actual extends Generic {
                     t={key => Generic.t(key)}
                     lang={Generic.getLanguage()}
                     socket={this.props.context.socket}
-                    obj={this.state.objects.main || this.state.objects.secondary}
-                    obj2={this.state.objects.main ? this.state.objects.secondary : null}
-                    unit={this.state.objects.main ?
+                    obj={this.state.objects?.main || this.state.objects?.secondary}
+                    obj2={this.state.objects?.main ? this.state.objects?.secondary : null}
+                    unit={this.state.objects?.main ?
                         (this.state.rxData['unit-main'] || this.state.objects.main.common?.unit || '') :
-                        (this.state.rxData['unit-secondary'] || this.state.objects.secondary?.common?.unit || '')}
-                    unit2={this.state.rxData['unit-secondary'] || this.state.objects.secondary?.common?.unit || ''}
-                    title={this.state.objects.main ?
+                        (this.state.rxData['unit-secondary'] || this.state.objects?.secondary?.common?.unit || '')}
+                    unit2={this.state.rxData['unit-secondary'] || this.state.objects?.secondary?.common?.unit || ''}
+                    title={this.state.objects?.main ?
                         (this.state.rxData['title-main'] || Generic.getText(this.state.objects.main.common?.name)) :
-                        (this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary?.common?.name))}
-                    title2={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects.secondary?.common?.name)}
+                        (this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name))}
+                    title2={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name)}
                     objLineType="line"
                     obj2LineType="line"
-                    objColor={this.state.objects.main ? 'rgba(243,177,31,0.65)' : 'rgba(77,134,255,0.44)'}
+                    objColor={this.state.objects?.main ? 'rgba(243,177,31,0.65)' : 'rgba(77,134,255,0.44)'}
                     obj2Color="rgba(77,134,255,0.44)"
-                    objBackgroundColor={this.state.objects.main ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'}
+                    objBackgroundColor={this.state.objects?.main ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'}
                     obj2BackgroundColor="rgba(77,134,255,0.14)"
                     themeType={this.props.context.themeType}
                     defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
@@ -602,7 +602,7 @@ class Actual extends Generic {
 
         const classUpdateVal = this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
-        const mainValue = this.state.objects && this.state.objects.main && this.state.values[`${this.state.rxData['oid-main']}.val`] !== undefined ?
+        const mainValue = this.state.objects?.main && this.state.values[`${this.state.rxData['oid-main']}.val`] !== undefined ?
             this.formatValue(this.state.values[`${this.state.rxData['oid-main']}.val`]) : undefined;
 
         const secondaryValue = this.state.objects?.secondary && this.state.values[`${this.state.rxData['oid-secondary']}.val`] !== undefined ?
@@ -634,7 +634,7 @@ class Actual extends Generic {
             ref={this.refContainer}
         >
             {mainValue !== undefined ?
-                <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects.main?.common?.name) || null}>
+                <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || null}>
                     <div className={this.props.classes.mainDiv}>
                         {mainIcon}
                         <span key={`${mainValue}valText`} className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}>{mainValue}</span>
