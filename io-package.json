@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.1",
+    "version": "1.3.2",
     "news": {
+      "1.3.2": {
+        "en": "Small improvements done",
+        "de": "Kleine Verbesserungen",
+        "ru": "Небольшие улучшения сделали",
+        "pt": "Pequenas melhorias realizadas",
+        "nl": "Kleine verbetering gedaan",
+        "fr": "De petites améliorations ont été apportées",
+        "it": "Piccoli miglioramenti",
+        "es": "Pequeñas mejoras",
+        "pl": "Drobne ulepszenia",
+        "uk": "Невеликі покращення",
+        "zh-cn": "小额改进"
+      },
       "1.3.1": {
         "en": "Added the vacuum cleaner widget",
         "de": "Hinzugefügt Staubsauger Widget",
@@ -80,19 +93,6 @@
         "pl": "Poprawa obciążenia widget",
         "uk": "Покращення завантаження віджету",
         "zh-cn": "A. 改善令人发指的装载"
-      },
-      "0.8.4": {
-        "en": "Improvement of wizard",
-        "de": "Verbesserung des Assistenten",
-        "ru": "Улучшение мастера",
-        "pt": "Melhoria do assistente",
-        "nl": "Inbreuk op tovenaar",
-        "fr": "Amélioration du sorcier",
-        "it": "Miglioramento della procedura guidata",
-        "es": "Mejora del mago",
-        "pl": "Poprawa wizardów",
-        "uk": "Удосконалення майстра",
-        "zh-cn": "改善妻子"
       }
     },
     "title": "Vis 2 Widgets Material",
