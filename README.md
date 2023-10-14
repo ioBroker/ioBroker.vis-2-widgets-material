@@ -117,6 +117,9 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Small improvements done
+
 ### 1.3.1 (2023-10-13)
 * (bluefox) Added the vacuum cleaner widget
 

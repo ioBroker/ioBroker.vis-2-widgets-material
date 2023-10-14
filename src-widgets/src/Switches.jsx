@@ -81,10 +81,10 @@ import {
 } from './Vacuum';
 import VacuumCleanerIcon from './Components/VacuumIcon';
 
-const VacuumIcon = props => <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z" />
-    <path strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M14 9a2 2 0 1 1 -4 0a2 2 0 0 1 4 0z" />
-    <path strokeWidth="2"strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M12 16h.01" />
+const VacuumIcon = () => <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeWidth="1" fill="none" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z" />
+    <path strokeWidth="1" fill="none" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M14 9a2 2 0 1 1 -4 0a2 2 0 0 1 4 0z" />
+    <path strokeWidth="2" fill="none" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" d="M12 16h.01" />
 </svg>;
 
 // import ObjectChart from './ObjectChart';
@@ -3758,7 +3758,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Start')}>
                     <IconButton
-                        onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-start-oid${index}`], true)}
+                        onClick={withDialog ? null : () => this.props.context.socket.setState(this.state.rxData[`vacuum-start-oid${index}`], true)}
                     >
                         <PlayArrow />
                     </IconButton>
@@ -3766,7 +3766,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Pause')}>
                     <IconButton
-                        onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-pause-oid${index}`], true)}
+                        onClick={withDialog ? null : () => this.props.context.socket.setState(this.state.rxData[`vacuum-pause-oid${index}`], true)}
                     >
                         <Pause />
                     </IconButton>
@@ -3774,7 +3774,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Home')}>
                     <IconButton
-                        onClick={() => this.props.context.socket.setState(this.state.rxData[`vacuum-home-oid${index}`], true)}
+                        onClick={withDialog ? null : () => this.props.context.socket.setState(this.state.rxData[`vacuum-home-oid${index}`], true)}
                     >
                         <Home />
                     </IconButton>
