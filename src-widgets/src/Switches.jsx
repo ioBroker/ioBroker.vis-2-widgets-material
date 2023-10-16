@@ -1426,12 +1426,6 @@ class Switches extends BlindsBase {
             } else {
                 icon = <Lock style={{ color }} />;
             }
-        } else if (obj?.widgetType === 'vacuum') {
-            if (isOn) {
-                icon = <LightbulbIconOn color="primary" style={{ color }} />;
-            } else {
-                icon = <LightbulbIconOff style={{ color }} />;
-            }
         } else if (obj?.widgetType === 'rgb') {
             // check if rgb has power
             if (this.state.rxData[`switch${index}`]) {

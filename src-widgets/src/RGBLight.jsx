@@ -14,6 +14,9 @@ import Generic from './Generic';
 import './sketch.css';
 
 const styles = () => ({
+    rgbDialog: {
+        maxWidth: 400,
+    },
     rgbSliderContainer: {
         display: 'flex',
         alignItems: 'center',
@@ -24,6 +27,7 @@ const styles = () => ({
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
+        width: 'calc(100% - 20px)', // handler of slider is 20px
     },
     rgbWheel: {
         display: 'flex',
@@ -656,6 +660,7 @@ class RGBLight extends Generic {
             fullWidth
             maxWidth="sm"
             open={!0}
+            classes={{ paper: this.props.classes.rgbDialog }}
             onClose={() => this.setState({ dialog: false })}
         >
             <DialogTitle>
