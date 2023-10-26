@@ -213,6 +213,15 @@ class Thermostat extends Generic {
                             default: '1',
                         },
                         {
+                            name: 'timeout',
+                            label: 'controlTimeout',
+                            tooltip: 'timeout_tooltip',
+                            type: 'slider',
+                            min: 0,
+                            max: 2000,
+                            default: 500,
+                        },
+                        {
                             name: 'count',
                             type: 'slider',
                             min: 1,
