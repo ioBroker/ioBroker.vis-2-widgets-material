@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "news": {
+      "1.3.3": {
+        "en": "Corrected layout of RGB widget\nAdded color settings to actual\nVacuum settings were hidden",
+        "de": "Korrigiertes Layout des RGB-Widgets\nHinzufügen von Farbeinstellungen zu Ist\nVakuumeinstellungen wurden versteckt",
+        "ru": "Исправлена планировка виджета RGB\nДобавлены цветовые настройки к актуальным\nВакуумные настройки были скрыты",
+        "pt": "Layout corrigido do widget RGB\nConfigurações de cor adicionadas para real\nAs configurações de vácuo foram ocultas",
+        "nl": "Vertaling:\nGeadresseerde kleuren aan werkelijke\nVacuüm settings waren verborgen",
+        "fr": "Mise en page corrigée du widget RGB\nAjout de paramètres de couleur à réel\nLes paramètres d'aspirateur ont été cachés",
+        "it": "Layout corretto del widget RGB\nImpostazioni di colore aggiunto a reale\nLe impostazioni del vuoto sono state nascoste",
+        "es": "Diseño corregido del widget RGB\nAjustes de color añadido a la real\nLos ajustes de vacío estaban ocultos",
+        "pl": "Poprawny układ RGB\nDodrukowane kolory dla rzeczywistych\nUstawienia Vacuum zostały ukryte",
+        "uk": "Виправлено макет RGB віджет\nДодано параметри кольору до фактичного\nВакуумні налаштування були приховані",
+        "zh-cn": "B. 改编\n增加实际的颜色环境\n秘密环境"
+      },
       "1.3.2": {
         "en": "Small improvements done",
         "de": "Kleine Verbesserungen",
@@ -80,19 +93,6 @@
         "pl": "Added RGB widget",
         "uk": "Додано RGB віджет",
         "zh-cn": "增加RGB wid目标"
-      },
-      "0.8.5": {
-        "en": "Improvement of the widget loading",
-        "de": "Verbesserung der Widget-Ladung",
-        "ru": "Улучшение загрузки виджета",
-        "pt": "Melhoria do carregamento do widget",
-        "nl": "Improviseren van de widget lading",
-        "fr": "Amélioration du chargement du widget",
-        "it": "Miglioramento del caricamento dei widget",
-        "es": "Mejora de la carga del widget",
-        "pl": "Poprawa obciążenia widget",
-        "uk": "Покращення завантаження віджету",
-        "zh-cn": "A. 改善令人发指的装载"
       }
     },
     "title": "Vis 2 Widgets Material",

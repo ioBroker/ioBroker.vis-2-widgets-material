@@ -117,7 +117,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.3 (2023-10-26)
 * (bluefox) Corrected layout of RGB widget
 * (bluefox) Added color settings to actual
 * (bluefox) Vacuum settings were hidden
