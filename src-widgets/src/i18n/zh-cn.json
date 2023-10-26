@@ -377,5 +377,7 @@
   "Room": "房间",
   "rooms_tooltip": "仅支持“mihomevacuum”设备",
   "color_temperature_min": "最低色温",
-  "color_temperature_max": "最大色温"
+  "color_temperature_max": "最大色温",
+  "font_size": "",
+  "font_style": "字体样式"
 }

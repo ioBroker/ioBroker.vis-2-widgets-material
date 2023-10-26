@@ -377,5 +377,7 @@
   "Room": "Camera",
   "rooms_tooltip": "Supportato solo per i dispositivi \"mihome Vacuum\".",
   "color_temperature_min": "Temperatura di colore minima",
-  "color_temperature_max": "Temperatura colore massima"
+  "color_temperature_max": "Temperatura colore massima",
+  "font_size": "",
+  "font_style": "Stile carattere"
 }

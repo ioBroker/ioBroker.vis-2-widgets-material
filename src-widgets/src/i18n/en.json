@@ -377,5 +377,7 @@
   "Room": "Room",
   "rooms_tooltip": "Supported only for \"mihome vacuum\" devices",
   "color_temperature_min": "Minimal color temperature",
-  "color_temperature_max": "Maximal color temperature"
+  "color_temperature_max": "Maximal color temperature",
+  "font_size": "Font size",
+  "font_style": "Font style"
 }

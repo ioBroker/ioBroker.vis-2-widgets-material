@@ -377,5 +377,7 @@
   "Room": "Chambre",
   "rooms_tooltip": "Pris en charge uniquement pour les appareils \"Mihome Vacuum\"",
   "color_temperature_min": "Température de couleur minimale",
-  "color_temperature_max": "Température de couleur maximale"
+  "color_temperature_max": "Température de couleur maximale",
+  "font_size": "",
+  "font_style": "Le style de police"
 }

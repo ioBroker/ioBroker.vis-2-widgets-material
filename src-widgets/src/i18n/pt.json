@@ -377,5 +377,7 @@
   "Room": "Sala",
   "rooms_tooltip": "Compatível apenas com dispositivos \"mihome aspirador\"",
   "color_temperature_min": "Temperatura de cor mínima",
-  "color_temperature_max": "Temperatura máxima de cor"
+  "color_temperature_max": "Temperatura máxima de cor",
+  "font_size": "",
+  "font_style": "Estilo de fonte"
 }

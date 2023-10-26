@@ -377,5 +377,7 @@
   "Room": "Kamer",
   "rooms_tooltip": "Alleen ondersteund voor \"mihome vacuüm\"-apparaten",
   "color_temperature_min": "Minimale kleurtemperatuur",
-  "color_temperature_max": "Maximale kleurtemperatuur"
+  "color_temperature_max": "Maximale kleurtemperatuur",
+  "font_size": "",
+  "font_style": "Lettertype"
 }

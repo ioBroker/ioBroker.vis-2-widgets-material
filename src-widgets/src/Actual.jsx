@@ -197,6 +197,28 @@ class Actual extends Generic {
                             type: 'checkbox',
                             hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
                         },
+                        {
+                            label: 'color',
+                            name: 'color-main',
+                            type: 'color',
+                        },
+                        {
+                            label: 'font_size',
+                            name: 'font-size-main',
+                            type: 'slider',
+                            min: 1,
+                            max: 100,
+                        },
+                        {
+                            label: 'font_style',
+                            name: 'font-style-main',
+                            type: 'select',
+                            noTranslation: true,
+                            options: [
+                                { value: 'normal', label: 'normal' },
+                                { value: 'italic', label: 'italic' },
+                            ],
+                        },
                     ],
                 },
                 {
@@ -233,6 +255,29 @@ class Actual extends Generic {
                             name: 'noChart-secondary',
                             type: 'checkbox',
                             hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'color',
+                            name: 'color-secondary',
+                            type: 'color',
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'font_size',
+                            name: 'font-size-secondary',
+                            type: 'slider',
+                            min: 1,
+                            max: 100,
+                        },
+                        {
+                            label: 'font_style',
+                            name: 'font-style-secondary',
+                            type: 'select',
+                            noTranslation: true,
+                            options: [
+                                { value: 'normal', label: 'normal' },
+                                { value: 'italic', label: 'italic' },
+                            ],
                         },
                     ],
                 },
@@ -461,6 +506,28 @@ class Actual extends Generic {
         await this.propertiesUpdate();
     }
 
+    static getColor(color, opacity) {
+        let r;
+        let g;
+        let b;
+        if (color.startsWith('#')) {
+            r = parseInt(color.substring(1, 3), 16);
+            g = parseInt(color.substring(3, 5), 16);
+            b = parseInt(color.substring(5, 7), 16);
+        } else if (color.startsWith('rgb(')) {
+            const parts = color.replace('rgb(', '').replace(')', '').split(',');
+            r = parseInt(parts[0], 10);
+            g = parseInt(parts[1], 10);
+            b = parseInt(parts[2], 10);
+        } else if (color.startsWith('rgba(')) {
+            const parts = color.replace('rgba(', '').replace(')', '').split(',');
+            r = parseInt(parts[0], 10);
+            g = parseInt(parts[1], 10);
+            b = parseInt(parts[2], 10);
+        }
+        return `rgba(${r},${g},${b},${opacity})`;
+    }
+
     getOptions() {
         const series = [];
         if (this.state[`chart-data-${this.state.rxData['oid-main']}`] && !this.state.rxData.noChart) {
@@ -470,9 +537,12 @@ class Actual extends Generic {
                     name = Generic.t('temperature').replace('vis_2_widgets_material_', '');
                 }
             }
+            const mainColor = Actual.getColor(this.state.rxData['color-main'] || '#F3B11F', 0.65);
+            const mainBackgroundColor = Actual.getColor(this.state.rxData['color-main'] || '#F3B11F', 0.14);
+
             series.push({
-                backgroundColor: 'rgba(243,177,31,0.14)',
-                color: 'rgba(243,177,31,0.65)',
+                backgroundColor: mainBackgroundColor,
+                color: mainColor,
                 type: 'line',
                 smooth: true,
                 showSymbol: false,
@@ -488,10 +558,12 @@ class Actual extends Generic {
                     name = Generic.t('humidity').replace('vis_2_widgets_material_', '');
                 }
             }
+            const secondaryColor = Actual.getColor(this.state.rxData['color-secondary'] || '#F3B11F', 0.65);
+            const secondaryBackgroundColor = Actual.getColor(this.state.rxData['color-secondary'] || '#F3B11F', 0.14);
 
             series.push({
-                backgroundColor: 'rgba(77,134,255,0.14)',
-                color: 'rgba(77,134,255,0.44)',
+                backgroundColor: secondaryBackgroundColor,
+                color: secondaryColor,
                 type: 'line',
                 smooth: true,
                 showSymbol: false,
@@ -625,6 +697,8 @@ class Actual extends Generic {
         } else {
             secondaryIcon = null;
         }
+        const mainFontSize = parseInt(this.state.rxData['font-size-main'], 10) || 0;
+        const secondaryFontSize = parseInt(this.state.rxData['font-size-secondary'], 10) || 0;
 
         const content = <div
             style={{
@@ -637,8 +711,27 @@ class Actual extends Generic {
                 <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || null}>
                     <div className={this.props.classes.mainDiv}>
                         {mainIcon}
-                        <span key={`${mainValue}valText`} className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}>{mainValue}</span>
-                        <span className={this.props.classes.temperatureUnit}>{this.state.rxData['unit-main'] || this.state.objects?.main?.common?.unit}</span>
+                        <span
+                            key={`${mainValue}valText`}
+                            className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}
+                            style={{
+                                fontSize: mainFontSize || undefined,
+                                fontStyle: this.state.rxData['font-style-main'],
+                                color: this.state.rxData['color-main'],
+                            }}
+                        >
+                            {mainValue}
+                        </span>
+                        <span
+                            className={this.props.classes.temperatureUnit}
+                            style={{
+                                fontSize: mainFontSize ? mainFontSize * 0.5 : undefined,
+                                fontStyle: this.state.rxData['font-style-main'],
+                                color: this.state.rxData['color-main'],
+                            }}
+                        >
+                            {this.state.rxData['unit-main'] || this.state.objects?.main?.common?.unit}
+                        </span>
                     </div>
                 </Tooltip>
                 : null}
@@ -646,8 +739,27 @@ class Actual extends Generic {
                 <Tooltip title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name) || null}>
                     <div className={this.props.classes.secondaryDiv}>
                         {secondaryIcon}
-                        <span key={`${secondaryValue}valText`} className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}>{secondaryValue}</span>
-                        <span className={this.props.classes.humidityUnit}>{this.state.rxData['unit-secondary'] || this.state.objects?.secondary?.common?.unit}</span>
+                        <span
+                            key={`${secondaryValue}valText`}
+                            className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}
+                            style={{
+                                fontSize: secondaryFontSize || undefined,
+                                fontStyle: this.state.rxData['font-style-secondary'],
+                                color: this.state.rxData['color-secondary'],
+                            }}
+                        >
+                            {secondaryValue}
+                        </span>
+                        <span
+                            className={this.props.classes.humidityUnit}
+                            style={{
+                                fontSize: secondaryFontSize ? secondaryFontSize / 2 : undefined,
+                                fontStyle: this.state.rxData['font-style-secondary'],
+                                color: this.state.rxData['color-secondary'],
+                            }}
+                        >
+                            {this.state.rxData['unit-secondary'] || this.state.objects?.secondary?.common?.unit}
+                        </span>
                     </div>
                 </Tooltip>
                 : null}
