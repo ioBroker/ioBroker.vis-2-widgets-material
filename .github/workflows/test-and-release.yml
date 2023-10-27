@@ -31,16 +31,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 16.x
+      - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
 
       - name: Install Dependencies
         run: npm i
 
       - name: Build
-        run: npm run build
+        run: NODE_OPTIONS=--max_old_space_size=4096 npm run build
 
       - name: Run local tests
         run: npm test
