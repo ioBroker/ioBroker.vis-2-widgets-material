@@ -382,5 +382,7 @@
   "font_style": "Estilo de fonte",
   "whiteMode": "Modo branco",
   "whiteModeTooltip": "Permitir alternar entre RGB e apenas controle de cor branca",
-  "hideBrightness": "Ocultar controle deslizante de brilho"
+  "hideBrightness": "Ocultar controle deslizante de brilho",
+  "Switch white mode": "Alternar modo branco",
+  "noRgbPalette": "Sem paleta RGB"
 }

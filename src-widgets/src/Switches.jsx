@@ -47,7 +47,7 @@ import {
     LockOpen as LockOpenedIcon,
     Cancel,
     Lock as LockClosedIcon,
-    BatteryChargingFull, BatteryFull, PlayArrow, Pause, Home,
+    BatteryChargingFull, BatteryFull, PlayArrow, Pause, Home, WbAuto,
 } from '@mui/icons-material';
 
 import {
@@ -1003,6 +1003,28 @@ class Switches extends BlindsBase {
                             type: 'id',
                             label: 'luminance',
                             hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || data[`rgbType${index}`] !== 'hue/sat/lum',
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'hideBrightness',
+                            type: 'checkbox',
+                            label: 'hideBrightness',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'rgb' && data[`rgbType${index}`] !== 'rgbw' && data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'whiteMode',
+                            type: 'checkbox',
+                            label: 'whiteMode',
+                            tooltip: 'whiteModeTooltip',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'rgbw' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'noRgbPalette',
+                            type: 'checkbox',
+                            label: 'noRgbPalette',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'rgb' && data[`rgbType${index}`] !== 'rgbw' && data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
                             onChange: loadStates,
                         },
                         {
@@ -3156,7 +3178,7 @@ class Switches extends BlindsBase {
             this.timeouts[index][id] && clearTimeout(this.timeouts[index][id]);
 
             // control switch directly without timeout
-            if (id === 'switch') {
+            if (id === 'switch' || id === 'white_mode') {
                 this.props.context.socket.setState(this.state.rxData[`switch${index}`], value);
             } else {
                 const values = { ...this.state.values, [`${this.state.rxData[id + index]}.val`]: value };
@@ -3268,6 +3290,10 @@ class Switches extends BlindsBase {
                 console.error(e);
             }
         }
+
+        if (this.state.rxData[`hideBrightness${index}`]) {
+            result.v = 100;
+        }
         return result;
     };
 
@@ -3324,6 +3350,19 @@ class Switches extends BlindsBase {
                 this.rgbSetId(index, 'oid', val);
             }
         }
+    };
+
+    rgbSetWhiteMode = (index, value) => {
+        if (this.state.rxData.white_mode) {
+            this.rgbSetId(`white_mode${index}`, !!value);
+        }
+    };
+
+    rgbGetWhiteMode = index => {
+        if (!this.state.rxData.white_mode) {
+            return null;
+        }
+        return this.getPropertyValue(`white_mode${index}`);
     };
 
     rgbIsRgb = index => {
@@ -3384,12 +3423,21 @@ class Switches extends BlindsBase {
         </div>;
     }
 
-    rgbRenderWheelTypeSwitch(index, isWheelVisible, twoPanels) {
+    rgbRenderWheelTypeSwitch(index, isWheelVisible, twoPanels, whiteMode) {
         if (!isWheelVisible) {
             return null;
         }
+        if (whiteMode === null && this.state.rxData[`noRgbPalette${index}`]) {
+            return null;
+        }
+
         return !this.rgbIsOnlyHue(index) && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
-            <Tooltip title={Generic.t('Switch color picker')}>
+            {whiteMode !== null ? <Tooltip title={Generic.t('Switch white mode')}>
+                <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
+                    <WbAuto />
+                </IconButton>
+            </Tooltip> : null}
+            {!this.state.rxData[`noRgbPalette${index}`] && whiteMode !== true ? <Tooltip title={Generic.t('Switch color picker')}>
                 <IconButton
                     onClick={() => {
                         const sketch = JSON.parse(JSON.stringify(this.state.sketch));
@@ -3399,12 +3447,12 @@ class Switches extends BlindsBase {
                 >
                     <ColorLens />
                 </IconButton>
-            </Tooltip>
+            </Tooltip> : null}
         </div>;
     }
 
-    rgbRenderBrightnessSlider(index, isWheelVisible) {
-        if (!isWheelVisible || this.state.sketch[index]) {
+    rgbRenderBrightnessSlider(index, isWheelVisible, whiteMode) {
+        if (!isWheelVisible || this.state.sketch[index] || whiteMode === true || this.state.rxData[`hideBrightness${index}`]) {
             return null;
         }
         return !this.rgbIsOnlyHue(index) && <ShadeSlider
@@ -3414,8 +3462,8 @@ class Switches extends BlindsBase {
         />;
     }
 
-    rgbRenderWheel(index, isWheelVisible) {
-        if (!isWheelVisible) {
+    rgbRenderWheel(index, isWheelVisible, whiteMode) {
+        if (!isWheelVisible || whiteMode === true) {
             return null;
         }
         return this.state.sketch[index] ? this.rgbRenderSketch(index) :  <div className={this.props.classes.rgbWheel}>
@@ -3455,8 +3503,8 @@ class Switches extends BlindsBase {
         </div>;
     }
 
-    rgbRenderColorTemperature(index) {
-        if (this.state.rxData[`rgbType${index}`] !== 'ct') {
+    rgbRenderColorTemperature(index, whiteMode) {
+        if (this.state.rxData[`rgbType${index}`] !== 'ct' || whiteMode === true) {
             return null;
         }
         return <div className={this.props.classes.rgbSliderContainer}>
@@ -3485,15 +3533,16 @@ class Switches extends BlindsBase {
 
     rgbRenderDialog(index) {
         const wheelVisible = this.rgbIsRgb(index) || this.rgbIsHSL(index);
+        const whiteMode = this.rgbGetWhiteMode(index);
 
         return <div className={this.props.classes.rgbDialogContainer}>
             {this.rgbRenderSwitch(index)}
             {this.rgbRenderBrightness(index)}
             {this.rgbRenderWhite(index)}
-            {this.rgbRenderWheelTypeSwitch(index, wheelVisible)}
-            {this.rgbRenderWheel(index, wheelVisible)}
-            {this.rgbRenderBrightnessSlider(index, wheelVisible)}
-            {this.rgbRenderColorTemperature(index)}
+            {this.rgbRenderWheelTypeSwitch(index, wheelVisible, whiteMode)}
+            {this.rgbRenderWheel(index, wheelVisible, whiteMode)}
+            {this.rgbRenderBrightnessSlider(index, wheelVisible, whiteMode)}
+            {this.rgbRenderColorTemperature(index, whiteMode)}
         </div>;
     }
 

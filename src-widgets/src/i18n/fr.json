@@ -382,5 +382,7 @@
   "font_style": "Le style de police",
   "whiteMode": "Mode blanc",
   "whiteModeTooltip": "Autoriser la commutation entre RVB et uniquement le contrôle de la couleur blanche",
-  "hideBrightness": "Masquer le curseur de luminosité"
+  "hideBrightness": "Masquer le curseur de luminosité",
+  "Switch white mode": "Basculer en mode blanc",
+  "noRgbPalette": "Sans palette RVB"
 }

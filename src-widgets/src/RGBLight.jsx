@@ -9,7 +9,11 @@ import {
 } from '@mui/material';
 
 import {
-    Brightness6, Close, ColorLens, Thermostat,
+    Brightness6,
+    Close,
+    ColorLens,
+    Thermostat,
+    WbAuto,
 } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 
@@ -142,7 +146,7 @@ const loadStates = async (field, data, changeData, socket) => {
     }
 };
 
-export const RGB_NAMES = ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance'];
+export const RGB_NAMES = ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance', 'white_mode'];
 
 class RGBLight extends Generic {
     constructor(props) {
@@ -285,15 +289,22 @@ class RGBLight extends Generic {
                             name: 'hideBrightness',
                             type: 'checkbox',
                             label: 'hideBrightness',
-                            hidden: data => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw',
+                            hidden: data => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
-                            name: 'whiteMode',
-                            type: 'checkbox',
+                            name: 'white_mode',
+                            type: 'id',
                             label: 'whiteMode',
                             tooltip: 'whiteModeTooltip',
                             hidden: data => data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b/w',
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'noRgbPalette',
+                            type: 'checkbox',
+                            label: 'noRgbPalette',
+                            hidden: data => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
@@ -355,7 +366,7 @@ class RGBLight extends Generic {
             this.timeouts[id] && clearTimeout(this.timeouts[id]);
 
             // control switch directly without timeout
-            if (id === 'switch') {
+            if (id === 'switch' || id === 'white_mode') {
                 this.props.context.socket.setState(this.state.rxData[id], value);
             } else {
                 const values = { ...this.state.values, [`${this.state.rxData[id]}.val`]: value };
@@ -526,6 +537,19 @@ class RGBLight extends Generic {
         }
     };
 
+    rgbSetWhiteMode = value => {
+        if (this.state.rxData.white_mode) {
+            this.rgbSetId('white_mode', !!value);
+        }
+    };
+
+    rgbGetWhiteMode = () => {
+        if (!this.state.rxData.white_mode) {
+            return null;
+        }
+        return this.getPropertyValue('white_mode');
+    };
+
     rgbIsRgb = () => {
         if ((this.state.rxData.rgbType === 'rgb' || this.state.rxData.rgbType === 'rgbw')
         && this.state.rxData.rgb) {
@@ -584,21 +608,31 @@ class RGBLight extends Generic {
         </div>;
     }
 
-    rgbRenderWheelTypeSwitch(isWheelVisible, twoPanels) {
+    rgbRenderWheelTypeSwitch(isWheelVisible, twoPanels, whiteMode) {
         if (!isWheelVisible) {
             return null;
         }
+
+        if (whiteMode === null && this.state.rxData.noRgbPalette) {
+            return null;
+        }
+
         return !this.rgbIsOnlyHue() && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
-            <Tooltip title={Generic.t('Switch color picker')}>
+            {whiteMode !== null ? <Tooltip title={Generic.t('Switch white mode')}>
+                <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
+                    <WbAuto />
+                </IconButton>
+            </Tooltip> : null}
+            {!this.state.rxData.noRgbPalette && whiteMode !== true ? <Tooltip title={Generic.t('Switch color picker')}>
                 <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
                     <ColorLens />
                 </IconButton>
-            </Tooltip>
+            </Tooltip> : null}
         </div>;
     }
 
-    rgbRenderBrightnessSlider(isWheelVisible) {
-        if (!isWheelVisible || this.state.sketch || this.state.rxData.hideBrightness) {
+    rgbRenderBrightnessSlider(isWheelVisible, whiteMode) {
+        if (!isWheelVisible || this.state.sketch || this.state.rxData.hideBrightness || whiteMode === true) {
             return null;
         }
         return !this.rgbIsOnlyHue() && <ShadeSlider
@@ -608,8 +642,8 @@ class RGBLight extends Generic {
         />;
     }
 
-    rgbRenderWheel(isWheelVisible) {
-        if (!isWheelVisible) {
+    rgbRenderWheel(isWheelVisible, whiteMode) {
+        if (!isWheelVisible || whiteMode === true) {
             return null;
         }
         return this.state.sketch ? this.rgbRenderSketch() :  <div className={this.props.classes.rgbWheel}>
@@ -649,8 +683,8 @@ class RGBLight extends Generic {
         </div>;
     }
 
-    rgbRenderColorTemperature() {
-        if (this.state.rxData.rgbType !== 'ct') {
+    rgbRenderColorTemperature(whiteMode) {
+        if (this.state.rxData.rgbType !== 'ct' || whiteMode === true) {
             return null;
         }
         return <div className={this.props.classes.rgbSliderContainer}>
@@ -677,7 +711,7 @@ class RGBLight extends Generic {
         </div>;
     }
 
-    rgbRenderDialog(wheelVisible) {
+    rgbRenderDialog(wheelVisible, whiteMode) {
         if (!this.state.dialog) {
             return null;
         }
@@ -697,10 +731,10 @@ class RGBLight extends Generic {
                     {this.rgbRenderSwitch()}
                     {this.rgbRenderBrightness()}
                     {this.rgbRenderWhite()}
-                    {this.rgbRenderWheelTypeSwitch(wheelVisible)}
-                    {this.rgbRenderWheel(wheelVisible)}
-                    {this.rgbRenderBrightnessSlider(wheelVisible)}
-                    {this.rgbRenderColorTemperature()}
+                    {this.rgbRenderWheelTypeSwitch(wheelVisible, false, whiteMode)}
+                    {this.rgbRenderWheel(wheelVisible, whiteMode)}
+                    {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
+                    {this.rgbRenderColorTemperature(whiteMode)}
                 </div>
             </DialogContent>
         </Dialog>;
@@ -745,6 +779,8 @@ class RGBLight extends Generic {
         }
         const wheelVisible = this.rgbIsRgb() || this.rgbIsHSL();
 
+        const whiteMode = this.rgbGetWhiteMode();
+
         let rgbContent;
         if (this.state.rxData.fullSize) {
             if (wheelVisible && size >= 350) {
@@ -767,9 +803,9 @@ class RGBLight extends Generic {
                         {this.rgbRenderSwitch()}
                         {this.rgbRenderBrightness()}
                         {this.rgbRenderWhite()}
-                        {this.rgbRenderColorTemperature()}
-                        {this.rgbRenderBrightnessSlider(wheelVisible)}
-                        {this.rgbRenderWheelTypeSwitch(wheelVisible, true)}
+                        {this.rgbRenderColorTemperature(whiteMode)}
+                        {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
+                        {this.rgbRenderWheelTypeSwitch(wheelVisible, true, whiteMode)}
                     </div>
                     <div
                         style={{
@@ -777,7 +813,7 @@ class RGBLight extends Generic {
                             display: 'flex',
                         }}
                     >
-                        {this.rgbRenderWheel(wheelVisible)}
+                        {this.rgbRenderWheel(wheelVisible, whiteMode)}
                     </div>
                 </div>;
             } else {
@@ -788,10 +824,10 @@ class RGBLight extends Generic {
                     {this.rgbRenderSwitch()}
                     {this.rgbRenderBrightness()}
                     {this.rgbRenderWhite()}
-                    {this.rgbRenderWheelTypeSwitch(wheelVisible)}
-                    {this.rgbRenderWheel(wheelVisible)}
-                    {this.rgbRenderBrightnessSlider(wheelVisible)}
-                    {this.rgbRenderColorTemperature()}
+                    {this.rgbRenderWheelTypeSwitch(wheelVisible, false, whiteMode)}
+                    {this.rgbRenderWheel(wheelVisible, whiteMode)}
+                    {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
+                    {this.rgbRenderColorTemperature(whiteMode)}
                 </div>;
             }
         } else {
@@ -816,7 +852,7 @@ class RGBLight extends Generic {
                         />
                     </IconButton>
                 </div>
-                {this.rgbRenderDialog(wheelVisible)}
+                {this.rgbRenderDialog(wheelVisible, whiteMode)}
             </>;
         }
 
