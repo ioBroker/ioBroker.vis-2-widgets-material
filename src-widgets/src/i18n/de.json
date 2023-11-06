@@ -381,6 +381,8 @@
   "font_size": "Schriftgröße",
   "font_style": "Schriftstil",
   "whiteMode": "Weißmodus",
-  "whiteModeTooltip": "Ermöglichen Sie das Umschalten zwischen RGB- und reiner Weiß-Farbsteuerung",
-  "hideBrightness": "Helligkeitsregler ausblenden"
+  "whiteModeTooltip": "Ermöglicht das Umschalten zwischen RGB- und reiner Weiß-Farbsteuerung",
+  "hideBrightness": "Helligkeitsregler ausblenden",
+  "Switch white mode": "Den Weißmodus umschalten",
+  "noRgbPalette": "Ohne RGB-Palette"
 }

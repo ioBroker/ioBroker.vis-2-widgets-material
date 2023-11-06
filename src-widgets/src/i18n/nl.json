@@ -382,5 +382,7 @@
   "font_style": "Lettertype",
   "whiteMode": "Witte modus",
   "whiteModeTooltip": "Maak het mogelijk om te schakelen tussen RGB en alleen witte kleurcontrole",
-  "hideBrightness": "Schuifregelaar voor helderheid verbergen"
+  "hideBrightness": "Schuifregelaar voor helderheid verbergen",
+  "Switch white mode": "Schakel de witte modus in",
+  "noRgbPalette": "Zonder RGB-palet"
 }

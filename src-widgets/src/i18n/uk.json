@@ -382,5 +382,7 @@
   "font_style": "Стиль шрифту",
   "whiteMode": "Білий режим",
   "whiteModeTooltip": "Дозволяє перемикатися між керуванням RGB і лише білим кольором",
-  "hideBrightness": "Приховати повзунок яскравості"
+  "hideBrightness": "Приховати повзунок яскравості",
+  "Switch white mode": "Увімкнути білий режим",
+  "noRgbPalette": "Без палітри RGB"
 }

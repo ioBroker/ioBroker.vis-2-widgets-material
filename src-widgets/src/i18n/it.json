@@ -382,5 +382,7 @@
   "font_style": "Stile carattere",
   "whiteMode": "Modalità bianca",
   "whiteModeTooltip": "Consenti il passaggio tra il controllo RGB e il solo colore bianco",
-  "hideBrightness": "Nascondi il cursore della luminosità"
+  "hideBrightness": "Nascondi il cursore della luminosità",
+  "Switch white mode": "Attiva/disattiva la modalità bianca",
+  "noRgbPalette": "Senza tavolozza RGB"
 }
