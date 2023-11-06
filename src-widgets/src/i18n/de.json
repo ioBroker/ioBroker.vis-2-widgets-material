@@ -378,6 +378,9 @@
   "rooms_tooltip": "Wird nur für „mihome Vacuum“-Geräte unterstützt",
   "color_temperature_min": "Minimale Farbtemperatur",
   "color_temperature_max": "Maximale Farbtemperatur",
-  "font_size": "",
-  "font_style": "Schriftstil"
+  "font_size": "Schriftgröße",
+  "font_style": "Schriftstil",
+  "whiteMode": "Weißmodus",
+  "whiteModeTooltip": "Ermöglichen Sie das Umschalten zwischen RGB- und reiner Weiß-Farbsteuerung",
+  "hideBrightness": "Helligkeitsregler ausblenden"
 }

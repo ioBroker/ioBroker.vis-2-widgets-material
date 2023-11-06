@@ -1,15 +1,18 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
 import {
-    Brightness6, Close, ColorLens, Thermostat,
-} from '@mui/icons-material';
-import { TbSquareLetterW } from 'react-icons/tb';
+    Wheel, rgbaToHsva, hsvaToHsla, hsvaToRgba, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
+} from '@uiw/react-color';
+
 import {
     Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip,
 } from '@mui/material';
+
 import {
-    Wheel, rgbaToHsva, hsvaToHsla, hsvaToRgba, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
-} from '@uiw/react-color';
+    Brightness6, Close, ColorLens, Thermostat,
+} from '@mui/icons-material';
+import { TbSquareLetterW } from 'react-icons/tb';
+
 import Generic from './Generic';
 import './sketch.css';
 
@@ -35,10 +38,12 @@ const styles = () => ({
     },
     rgbContent: {
         width: '100%',
+        height: '100%',
         flex: 1,
         display: 'flex',
         justifyContent: 'center',
         overflow: 'hidden',
+        alignItems: 'center',
     },
 });
 
@@ -277,6 +282,21 @@ class RGBLight extends Generic {
                             onChange: loadStates,
                         },
                         {
+                            name: 'hideBrightness',
+                            type: 'checkbox',
+                            label: 'hideBrightness',
+                            hidden: data => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw',
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'whiteMode',
+                            type: 'checkbox',
+                            label: 'whiteMode',
+                            tooltip: 'whiteModeTooltip',
+                            hidden: data => data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b/w',
+                            onChange: loadStates,
+                        },
+                        {
                             name: 'timeout',
                             label: 'controlTimeout',
                             help: 'In milliseconds',
@@ -443,6 +463,11 @@ class RGBLight extends Generic {
                 console.error(e);
             }
         }
+
+        if (this.state.rxData.hideBrightness) {
+            result.v = 100;
+        }
+
         return result;
     };
 
@@ -573,7 +598,7 @@ class RGBLight extends Generic {
     }
 
     rgbRenderBrightnessSlider(isWheelVisible) {
-        if (!isWheelVisible || this.state.sketch) {
+        if (!isWheelVisible || this.state.sketch || this.state.rxData.hideBrightness) {
             return null;
         }
         return !this.rgbIsOnlyHue() && <ShadeSlider

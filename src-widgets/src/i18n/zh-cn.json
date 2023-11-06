@@ -378,6 +378,9 @@
   "rooms_tooltip": "仅支持“mihomevacuum”设备",
   "color_temperature_min": "最低色温",
   "color_temperature_max": "最大色温",
-  "font_size": "",
-  "font_style": "字体样式"
+  "font_size": "字体大小",
+  "font_style": "字体样式",
+  "whiteMode": "白色模式",
+  "whiteModeTooltip": "允许在 RGB 和白色控制之间切换",
+  "hideBrightness": "隐藏亮度滑块"
 }

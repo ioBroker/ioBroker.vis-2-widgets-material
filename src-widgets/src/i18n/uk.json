@@ -378,6 +378,9 @@
   "rooms_tooltip": "Підтримується лише для пристроїв \"mihome vacuum\".",
   "color_temperature_min": "Мінімальна колірна температура",
   "color_temperature_max": "Максимальна колірна температура",
-  "font_size": "",
-  "font_style": "Стиль шрифту"
+  "font_size": "Розмір шрифту",
+  "font_style": "Стиль шрифту",
+  "whiteMode": "Білий режим",
+  "whiteModeTooltip": "Дозволяє перемикатися між керуванням RGB і лише білим кольором",
+  "hideBrightness": "Приховати повзунок яскравості"
 }
