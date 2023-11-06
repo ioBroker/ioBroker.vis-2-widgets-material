@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "news": {
+      "1.3.4": {
+        "en": "Corrected layout of RGB widget\nAdded option for RGB widget to hide brightness control\nAdded option for white mode in RGB widget",
+        "de": "Korrigiertes Layout des RGB-Widgets\nOption für RGB Widget hinzugefügt, um Helligkeitskontrolle zu verstecken\nOption für den weißen Modus in RGB Widget hinzugefügt",
+        "ru": "Исправлена планировка виджета RGB\nДобавлена опция для RGB виджет, чтобы скрыть контроль яркости\nДобавлена опция для белого режима в виджете RGB",
+        "pt": "Layout corrigido do widget RGB\nOpção adicionada para o widget RGB para esconder o controle de brilho\nAdicionado opção para o modo branco em widget RGB",
+        "nl": "Vertaling:\nOptie voor RGB Widget om helderheidscontrole te verbergen\nOptie voor witte modus in RGB Widget",
+        "fr": "Mise en page corrigée du widget RGB\nOption supplémentaire pour le widget RGB pour cacher le contrôle de luminosité\nOption supplémentaire pour le mode blanc dans le widget RGB",
+        "it": "Layout corretto del widget RGB\nAggiunta opzione per widget RGB per nascondere il controllo della luminosità\nAggiunta opzione per la modalità bianca in widget RGB",
+        "es": "Diseño corregido del widget RGB\nOpción adicional para el widget RGB para ocultar control de brillo\nOpción adicional para el modo blanco en el widget RGB",
+        "pl": "Poprawny układ RGB\nWstępna opcja dla RGB widget by ukryć jasność sterowania\nWstępna opcja dla białego trybu w RGB",
+        "uk": "Виправлено макет RGB віджет\nДодано варіант для RGB віджет, щоб приховати яскравість управління\nДодано варіант для білого режиму в RGB віджет",
+        "zh-cn": "B. 改编\n增加区域协调会的光明控制方案\n增加RGB widget中的白模式的选择"
+      },
       "1.3.3": {
         "en": "Corrected layout of RGB widget\nAdded color settings to actual\nVacuum settings were hidden",
         "de": "Korrigiertes Layout des RGB-Widgets\nHinzufügen von Farbeinstellungen zu Ist\nVakuumeinstellungen wurden versteckt",
@@ -80,19 +93,6 @@
         "pl": "Drzwi do drzwi",
         "uk": "Доданий замок дверей",
         "zh-cn": "增加锁门"
-      },
-      "1.0.0": {
-        "en": "Added RGB widget",
-        "de": "Hinzugefügt RGB Widget",
-        "ru": "Добавлен RGB виджет",
-        "pt": "Adicionado widget RGB",
-        "nl": "Vertaling:",
-        "fr": "Ajouté RGB widget",
-        "it": "Aggiunto il widget RGB",
-        "es": "Widget RGB",
-        "pl": "Added RGB widget",
-        "uk": "Додано RGB віджет",
-        "zh-cn": "增加RGB wid目标"
       }
     },
     "title": "Vis 2 Widgets Material",

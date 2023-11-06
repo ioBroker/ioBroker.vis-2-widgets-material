@@ -128,7 +128,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.4 (2023-11-06)
 * (bluefox) Corrected layout of RGB widget
 * (bluefox) Added option for RGB widget to hide brightness control
 * (bluefox) Added option for white mode in RGB widget
