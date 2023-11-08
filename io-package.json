@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.6",
+    "version": "1.3.7",
     "news": {
+      "1.3.7": {
+        "en": "Corrected RGB widget if minimal is equal with maximal",
+        "de": "Korrigiertes RGB-Widget, wenn minimal gleich ist mit maximal",
+        "ru": "Правильный виджет RGB, если минимальная равна максимальной",
+        "pt": "Widget RGB corrigido se o mínimo é igual ao máximo",
+        "nl": "Gecorrigeerd RGB Widget als minimal gelijk is aan maximal",
+        "fr": "Widget RGB corrigé si minimal est égal au maximum",
+        "it": "Corretto widget RGB se minimo è uguale a maximal",
+        "es": "Widget RGB corregido si el mínimo es igual al máximo",
+        "pl": "Kwalifikacja RGB, jeżeli minimalny jest równy maksymalnie",
+        "uk": "Виправлений RGB віджет, якщо мінімальний дорівнює максимальному",
+        "zh-cn": "如果最低限度等于最大程度的BGB妻子被更正"
+      },
       "1.3.5": {
         "en": "Corrected layout of RGB widget\nAdded option for RGB widget to hide brightness control\nAdded option for white mode in RGB widget",
         "de": "Korrigiertes Layout des RGB-Widgets\nOption für RGB Widget hinzugefügt, um Helligkeitskontrolle zu verstecken\nOption für den weißen Modus in RGB Widget hinzugefügt",
