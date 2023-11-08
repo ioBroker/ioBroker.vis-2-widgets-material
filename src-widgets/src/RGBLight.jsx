@@ -406,11 +406,18 @@ class RGBLight extends Generic {
         // calculate array of color temperatures to draw slider
         if (rgbObjects.color_temperature) {
             const colors = [];
-            const min = parseInt(this.state.rxData.ct_min || rgbObjects.color_temperature?.common?.min, 10) || 2700;
-            const max = parseInt(this.state.rxData.ct_max || rgbObjects.color_temperature?.common?.max, 10) || 6000;
+            let min = parseInt(this.state.rxData.ct_min || rgbObjects.color_temperature?.common?.min, 10) || 2700;
+            let max = parseInt(this.state.rxData.ct_max || rgbObjects.color_temperature?.common?.max, 10) || 6000;
+            if (max < min) {
+                const tmp = max;
+                max = min;
+                min = tmp;
+            }
             const step = (max - min) / 20;
-            for (let i = min; i <= max; i += step) {
-                colors.push(colorTemperatureToRGB(i));
+            if (step) {
+                for (let i = min; i <= max; i += step) {
+                    colors.push(colorTemperatureToRGB(i));
+                }
             }
             newState.colorTemperatures = colors;
         } else {
