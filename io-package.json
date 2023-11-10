@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.8",
+    "version": "1.3.9",
     "news": {
+      "1.3.9": {
+        "en": "updated packages",
+        "de": "aktualisierte pakete",
+        "ru": "обновленные пакеты",
+        "pt": "pacotes atualizados",
+        "nl": "vertaling:",
+        "fr": "paquets mis à jour",
+        "it": "pacchetti aggiornati",
+        "es": "paquetes actualizados",
+        "pl": "pakiet aktualizowany",
+        "uk": "оновлені пакети",
+        "zh-cn": "更新的一揽子方案"
+      },
       "1.3.8": {
         "en": "Corrected RGB widget if minimal is equal with maximal",
         "de": "Korrigiertes RGB-Widget, wenn minimal gleich ist mit maximal",
@@ -80,19 +93,6 @@
         "pl": "Wejście do drzwi, rgb i termostat przełącza widget",
         "uk": "Додано замок дверей, rgb і термостат для перемикання віджетів",
         "zh-cn": "添加大门锁、旁观和动荡局,以改变人们的焦虑。"
-      },
-      "1.1.3": {
-        "en": "Door lock improved",
-        "de": "Türschloss verbessert",
-        "ru": "Дверной замок улучшен",
-        "pt": "Fechadura da porta melhorada",
-        "nl": "Deurslot verbeterd",
-        "fr": "Verrouillage de porte amélioré",
-        "it": "Blocco porta migliorato",
-        "es": "Cerradura de puerta mejorada",
-        "pl": "Ulepszyć",
-        "uk": "Дверний замок покращений",
-        "zh-cn": "装修"
       }
     },
     "title": "Vis 2 Widgets Material",
