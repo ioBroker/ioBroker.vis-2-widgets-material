@@ -367,14 +367,14 @@ class RGBLight extends Generic {
 
             // control switch directly without timeout
             if (id === 'switch' || id === 'white_mode') {
-                this.props.context.socket.setState(this.state.rxData[id], value);
+                this.props.context.setValue(this.state.rxData[id], value);
             } else {
                 const values = { ...this.state.values, [`${this.state.rxData[id]}.val`]: value };
                 this.setState({ values });
 
                 this.timeouts[id] = setTimeout(() => {
                     this.timeouts[id] = null;
-                    this.props.context.socket.setState(this.state.rxData[id], value);
+                    this.props.context.setValue(this.state.rxData[id], value);
                 }, parseInt(this.state.rxData.timeout, 10) || 200);
             }
         }

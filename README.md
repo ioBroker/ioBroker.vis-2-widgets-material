@@ -128,6 +128,9 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) updated packages
+
 ### 1.3.8 (2023-11-08)
 * (bluefox) Corrected RGB widget if minimal is equal with maximal
 

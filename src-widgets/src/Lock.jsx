@@ -245,9 +245,9 @@ class Lock extends Generic {
                                     if (button === 'submit') {
                                         if (this.state.lockPinInput === pincode) {
                                             if (this.state.dialogPin === 'doorOpen-oid') {
-                                                this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
+                                                this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
                                             } else {
-                                                this.props.context.socket.setState(this.state.rxData['lock-oid'], true);
+                                                this.props.context.setValue(this.state.rxData['lock-oid'], true);
                                             }
                                             this.setState({ dialogPin: false });
                                         } else {
@@ -267,9 +267,9 @@ class Lock extends Generic {
                                         this.setState({ lockPinInput });
                                         if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
                                             if (this.state.dialogPin === 'doorOpen-oid') {
-                                                this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
+                                                this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
                                             } else {
-                                                this.props.context.socket.setState(this.state.rxData['lock-oid'], true);
+                                                this.props.context.setValue(this.state.rxData['lock-oid'], true);
                                             }
                                             this.setState({ dialogPin: false });
                                         }
@@ -309,9 +309,9 @@ class Lock extends Generic {
                     onClick={() => {
                         this.setState({ confirmDialog: false });
                         if (this.state.confirmDialog === 'doorOpen-oid') {
-                            this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
+                            this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
                         } else {
-                            this.props.context.socket.setState(this.state.rxData['lock-oid'], true);
+                            this.props.context.setValue(this.state.rxData['lock-oid'], true);
                         }
                     }}
                     startIcon={this.state.confirmDialog === 'doorOpen-oid' ? <DoorOpenedIcon /> : <LockOpenedIcon />}
@@ -348,7 +348,7 @@ class Lock extends Generic {
                         if (this.lockGetPinCode()) {
                             this.setState({ dialogPin: 'doorOpen-oid', lockPinInput: '' });
                         } else if (this.state.rxData.doNotConfirm) {
-                            this.props.context.socket.setState(this.state.rxData['doorOpen-oid'], true);
+                            this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
                         } else {
                             this.setState({ confirmDialog: 'doorOpen-oid' });
                         }
@@ -363,7 +363,7 @@ class Lock extends Generic {
                         if (!lockOpened && this.lockGetPinCode()) {
                             this.setState({ dialogPin: 'lock-oid', lockPinInput: '' });
                         } else if (lockOpened || this.state.rxData.doNotConfirm) {
-                            this.props.context.socket.setState(this.state.rxData['lock-oid'], !this.getPropertyValue('lock-oid'));
+                            this.props.context.setValue(this.state.rxData['lock-oid'], !this.getPropertyValue('lock-oid'));
                         } else {
                             this.setState({ confirmDialog: 'lock-oid' });
                         }

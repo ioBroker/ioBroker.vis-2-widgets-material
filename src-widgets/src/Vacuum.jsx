@@ -483,7 +483,7 @@ class Vacuum extends Generic {
                     onClick={e => {
                         const _value = e.target.value;
                         this.setState({ showSpeedMenu: null }, () =>
-                            this.props.context.socket.setState(this.state.rxData['vacuum-fan-speed-oid'], _value));
+                            this.props.context.setValue(this.state.rxData['vacuum-fan-speed-oid'], _value));
                     }}
                 >
                     {Generic.t(options[state]).replace('vis_2_widgets_material_', '')}
@@ -518,7 +518,7 @@ class Vacuum extends Generic {
                         // build together mihome-vacuum.0.rooms.room1.roomClean
                         const id = room.value;
                         this.setState({ showRoomsMenu: null }, () =>
-                            this.props.context.socket.setState(id, true));
+                            this.props.context.setValue(id, true));
                     }}
                 >
                     {room.label}
@@ -589,7 +589,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
             <Tooltip title={Generic.t('Start')}>
                 <IconButton
-                    onClick={() => this.props.context.socket.setState(this.state.rxData['vacuum-start-oid'], true)}
+                    onClick={() => this.props.context.setValue(this.state.rxData['vacuum-start-oid'], true)}
                 >
                     <PlayArrow />
                 </IconButton>
@@ -597,7 +597,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip title={Generic.t('Pause')}>
                 <IconButton
-                    onClick={() => this.props.context.socket.setState(this.state.rxData['vacuum-pause-oid'], true)}
+                    onClick={() => this.props.context.setValue(this.state.rxData['vacuum-pause-oid'], true)}
                 >
                     <Pause />
                 </IconButton>
@@ -605,7 +605,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip title={Generic.t('Home')}>
                 <IconButton
-                    onClick={() => this.props.context.socket.setState(this.state.rxData['vacuum-home-oid'], true)}
+                    onClick={() => this.props.context.setValue(this.state.rxData['vacuum-home-oid'], true)}
                 >
                     <Home />
                 </IconButton>
