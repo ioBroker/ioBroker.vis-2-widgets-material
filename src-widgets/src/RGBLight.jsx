@@ -161,14 +161,21 @@ class RGBLight extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'useAsDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            hidden: '!!data.useAsDialog',
                         },
                         {
                             name: 'fullSize',
                             label: 'fullSize',
                             type: 'checkbox',
+                            hidden: '!!data.useAsDialog',
                         },
                         {
                             name: 'widgetTitle',
@@ -702,6 +709,13 @@ class RGBLight extends Generic {
         return color.r + color.g + color.b > 3 * 128 ? '#000000' : '#ffffff';
     };
 
+    onCommand(command) {
+        super.onCommand(command);
+        if (command === 'openDialog') {
+            this.setState({ dialog: true });
+        }
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
@@ -721,7 +735,7 @@ class RGBLight extends Generic {
         const wheelVisible = this.rgbIsRgb() || this.rgbIsHSL();
 
         let rgbContent;
-        if (this.state.rxData.fullSize) {
+        if (this.state.rxData.fullSize && !this.state.rxData.useAsDialog) {
             if (wheelVisible && size >= 350) {
                 rgbContent = <div
                     ref={this.contentRef}
@@ -769,7 +783,7 @@ class RGBLight extends Generic {
                     {this.rgbRenderColorTemperature()}
                 </div>;
             }
-        } else {
+        } else if (this.props.editMode || !this.state.rxData.useAsDialog) {
             rgbContent = <>
                 <div className={this.props.classes.rgbContent} ref={this.contentRef}>
                     <IconButton
@@ -793,6 +807,8 @@ class RGBLight extends Generic {
                 </div>
                 {this.rgbRenderDialog(wheelVisible)}
             </>;
+        } else if (this.state.rxData.useAsDialog) {
+            return this.rgbRenderDialog(wheelVisible);
         }
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
