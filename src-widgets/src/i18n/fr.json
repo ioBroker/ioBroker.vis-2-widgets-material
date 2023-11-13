@@ -378,6 +378,11 @@
   "rooms_tooltip": "Pris en charge uniquement pour les appareils \"Mihome Vacuum\"",
   "color_temperature_min": "Température de couleur minimale",
   "color_temperature_max": "Température de couleur maximale",
-  "font_size": "",
-  "font_style": "Le style de police"
+  "font_size": "Taille de police",
+  "font_style": "Le style de police",
+  "whiteMode": "Mode blanc",
+  "whiteModeTooltip": "Autoriser la commutation entre RVB et uniquement le contrôle de la couleur blanche",
+  "hideBrightness": "Masquer le curseur de luminosité",
+  "Switch white mode": "Basculer en mode blanc",
+  "noRgbPalette": "Sans palette RVB"
 }

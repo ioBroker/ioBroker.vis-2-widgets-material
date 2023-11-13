@@ -334,7 +334,7 @@ class Security extends Generic {
                                 onClick={() => {
                                     if (button === 'submit') {
                                         if (this.state.pinInput === pincode) {
-                                            this.props.context.socket.setState(lockedId, false);
+                                            this.props.context.setValue(lockedId, false);
                                             this.setState({ dialog: false });
                                         } else {
                                             this.setState({ pinInput: '', invalidPin: true });
@@ -352,7 +352,7 @@ class Security extends Generic {
                                         const pinInput = this.state.pinInput + button;
                                         this.setState({ pinInput });
                                         if (pincodeReturnButton === 'backspace' && pinInput === pincode) {
-                                            this.props.context.socket.setState(lockedId, false);
+                                            this.props.context.setValue(lockedId, false);
                                             this.setState({ dialog: false });
                                         }
                                     }
@@ -371,7 +371,7 @@ class Security extends Generic {
         const onClose = () => {
             this.setState({ timerDialog: false });
             if (this.state.rxData.timerSecondsOid) {
-                this.props.context.socket.setState(this.state.rxData.timerSecondsOid, -1);
+                this.props.context.setValue(this.state.rxData.timerSecondsOid, -1);
             }
             clearInterval(this.timerInterval);
         };
@@ -396,7 +396,7 @@ class Security extends Generic {
         const timerSeconds = this.state.rxData[`timerSeconds${i}`];
         this.setState({ timerSeconds, timerDialog: true });
         if (this.state.rxData[`timerSeconds-oid${i}`]) {
-            this.props.context.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
+            this.props.context.setValue(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
         }
         this.timerInterval = setInterval(() => {
             const _timerSeconds = this.state.timerSeconds - 1;
@@ -405,10 +405,10 @@ class Security extends Generic {
                 if (!this.state.rxData[`oid${i}`]) {
                     this.setState({ message: Generic.t('no_oid') });
                 } else {
-                    this.props.context.socket.setState(this.state.rxData[`oid${i}`], true);
+                    this.props.context.setValue(this.state.rxData[`oid${i}`], true);
                 }
                 if (this.state.rxData[`timerSeconds-oid${i}`]) {
-                    this.props.context.socket.setState(this.state.rxData[`timerSeconds-oid${i}`], 0);
+                    this.props.context.setValue(this.state.rxData[`timerSeconds-oid${i}`], 0);
                 }
                 this.timerInterval && clearInterval(this.timerInterval);
                 this.setState({ timerDialog: false });
@@ -463,7 +463,7 @@ class Security extends Generic {
                             if (this.getPincode(lockedButton.i)) {
                                 this.setState({ dialog: true, pinInput: '' });
                             } else {
-                                this.props.context.socket.setState(lockedButton.oid, false);
+                                this.props.context.setValue(lockedButton.oid, false);
                             }
                         }}
                     >
@@ -483,7 +483,7 @@ class Security extends Generic {
                                 } else if (!button.oid) {
                                     this.setState({ message: Generic.t('no_oid') });
                                 } else {
-                                    this.props.context.socket.setState(button.oid, true);
+                                    this.props.context.setValue(button.oid, true);
                                 }
                             }}
                         >

@@ -379,5 +379,10 @@
   "color_temperature_min": "Minimal color temperature",
   "color_temperature_max": "Maximal color temperature",
   "font_size": "Font size",
-  "font_style": "Font style"
+  "font_style": "Font style",
+  "whiteMode": "White mode",
+  "whiteModeTooltip": "Allow switching between RGB and just white color controlling",
+  "hideBrightness": "Hide brightness slider",
+  "Switch white mode": "Toggle white mode",
+  "noRgbPalette": "Whitout RGB palette"
 }

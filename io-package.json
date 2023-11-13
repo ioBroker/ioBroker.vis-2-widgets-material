@@ -1,8 +1,47 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.3",
+    "version": "1.3.9",
     "news": {
+      "1.3.9": {
+        "en": "updated packages",
+        "de": "aktualisierte pakete",
+        "ru": "обновленные пакеты",
+        "pt": "pacotes atualizados",
+        "nl": "vertaling:",
+        "fr": "paquets mis à jour",
+        "it": "pacchetti aggiornati",
+        "es": "paquetes actualizados",
+        "pl": "pakiet aktualizowany",
+        "uk": "оновлені пакети",
+        "zh-cn": "更新的一揽子方案"
+      },
+      "1.3.8": {
+        "en": "Corrected RGB widget if minimal is equal with maximal",
+        "de": "Korrigiertes RGB-Widget, wenn minimal gleich ist mit maximal",
+        "ru": "Правильный виджет RGB, если минимальная равна максимальной",
+        "pt": "Widget RGB corrigido se o mínimo é igual ao máximo",
+        "nl": "Gecorrigeerd RGB Widget als minimal gelijk is aan maximal",
+        "fr": "Widget RGB corrigé si minimal est égal au maximum",
+        "it": "Corretto widget RGB se minimo è uguale a maximal",
+        "es": "Widget RGB corregido si el mínimo es igual al máximo",
+        "pl": "Kwalifikacja RGB, jeżeli minimalny jest równy maksymalnie",
+        "uk": "Виправлений RGB віджет, якщо мінімальний дорівнює максимальному",
+        "zh-cn": "如果最低限度等于最大程度的BGB妻子被更正"
+      },
+      "1.3.5": {
+        "en": "Corrected layout of RGB widget\nAdded option for RGB widget to hide brightness control\nAdded option for white mode in RGB widget",
+        "de": "Korrigiertes Layout des RGB-Widgets\nOption für RGB Widget hinzugefügt, um Helligkeitskontrolle zu verstecken\nOption für den weißen Modus in RGB Widget hinzugefügt",
+        "ru": "Исправлена планировка виджета RGB\nДобавлена опция для RGB виджет, чтобы скрыть контроль яркости\nДобавлена опция для белого режима в виджете RGB",
+        "pt": "Layout corrigido do widget RGB\nOpção adicionada para o widget RGB para esconder o controle de brilho\nAdicionado opção para o modo branco em widget RGB",
+        "nl": "Vertaling:\nOptie voor RGB Widget om helderheidscontrole te verbergen\nOptie voor witte modus in RGB Widget",
+        "fr": "Mise en page corrigée du widget RGB\nOption supplémentaire pour le widget RGB pour cacher le contrôle de luminosité\nOption supplémentaire pour le mode blanc dans le widget RGB",
+        "it": "Layout corretto del widget RGB\nAggiunta opzione per widget RGB per nascondere il controllo della luminosità\nAggiunta opzione per la modalità bianca in widget RGB",
+        "es": "Diseño corregido del widget RGB\nOpción adicional para el widget RGB para ocultar control de brillo\nOpción adicional para el modo blanco en el widget RGB",
+        "pl": "Poprawny układ RGB\nWstępna opcja dla RGB widget by ukryć jasność sterowania\nWstępna opcja dla białego trybu w RGB",
+        "uk": "Виправлено макет RGB віджет\nДодано варіант для RGB віджет, щоб приховати яскравість управління\nДодано варіант для білого режиму в RGB віджет",
+        "zh-cn": "B. 改编\n增加区域协调会的光明控制方案\n增加RGB widget中的白模式的选择"
+      },
       "1.3.3": {
         "en": "Corrected layout of RGB widget\nAdded color settings to actual\nVacuum settings were hidden",
         "de": "Korrigiertes Layout des RGB-Widgets\nHinzufügen von Farbeinstellungen zu Ist\nVakuumeinstellungen wurden versteckt",
@@ -54,45 +93,6 @@
         "pl": "Wejście do drzwi, rgb i termostat przełącza widget",
         "uk": "Додано замок дверей, rgb і термостат для перемикання віджетів",
         "zh-cn": "添加大门锁、旁观和动荡局,以改变人们的焦虑。"
-      },
-      "1.1.3": {
-        "en": "Door lock improved",
-        "de": "Türschloss verbessert",
-        "ru": "Дверной замок улучшен",
-        "pt": "Fechadura da porta melhorada",
-        "nl": "Deurslot verbeterd",
-        "fr": "Verrouillage de porte amélioré",
-        "it": "Blocco porta migliorato",
-        "es": "Cerradura de puerta mejorada",
-        "pl": "Ulepszyć",
-        "uk": "Дверний замок покращений",
-        "zh-cn": "装修"
-      },
-      "1.1.0": {
-        "en": "Added door lock",
-        "de": "Zusätzliche Türschloss",
-        "ru": "Добавлен замок двери",
-        "pt": "Fechadura de porta adicionada",
-        "nl": "Vertaling:",
-        "fr": "Ajout de la serrure de porte",
-        "it": "Aggiunto serratura porta",
-        "es": "Cierre de puerta",
-        "pl": "Drzwi do drzwi",
-        "uk": "Доданий замок дверей",
-        "zh-cn": "增加锁门"
-      },
-      "1.0.0": {
-        "en": "Added RGB widget",
-        "de": "Hinzugefügt RGB Widget",
-        "ru": "Добавлен RGB виджет",
-        "pt": "Adicionado widget RGB",
-        "nl": "Vertaling:",
-        "fr": "Ajouté RGB widget",
-        "it": "Aggiunto il widget RGB",
-        "es": "Widget RGB",
-        "pl": "Added RGB widget",
-        "uk": "Додано RGB віджет",
-        "zh-cn": "增加RGB wid目标"
       }
     },
     "title": "Vis 2 Widgets Material",

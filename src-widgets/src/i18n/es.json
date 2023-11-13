@@ -378,6 +378,11 @@
   "rooms_tooltip": "Compatible solo con dispositivos \"aspiradora mihome\"",
   "color_temperature_min": "Temperatura de color mínima",
   "color_temperature_max": "Temperatura de color máxima",
-  "font_size": "",
-  "font_style": "Estilo de fuente"
+  "font_size": "Tamaño de fuente",
+  "font_style": "Estilo de fuente",
+  "whiteMode": "Modo blanco",
+  "whiteModeTooltip": "Permitir cambiar entre RGB y solo control de color blanco",
+  "hideBrightness": "Ocultar control deslizante de brillo",
+  "Switch white mode": "Alternar modo blanco",
+  "noRgbPalette": "Sin paleta RGB"
 }

@@ -47,7 +47,7 @@ import {
     LockOpen as LockOpenedIcon,
     Cancel,
     Lock as LockClosedIcon,
-    BatteryChargingFull, BatteryFull, PlayArrow, Pause, Home,
+    BatteryChargingFull, BatteryFull, PlayArrow, Pause, Home, WbAuto,
 } from '@mui/icons-material';
 
 import {
@@ -1006,6 +1006,28 @@ class Switches extends BlindsBase {
                             onChange: loadStates,
                         },
                         {
+                            name: 'hideBrightness',
+                            type: 'checkbox',
+                            label: 'hideBrightness',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'rgb' && data[`rgbType${index}`] !== 'rgbw' && data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'whiteMode',
+                            type: 'checkbox',
+                            label: 'whiteMode',
+                            tooltip: 'whiteModeTooltip',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'rgbw' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
+                            name: 'noRgbPalette',
+                            type: 'checkbox',
+                            label: 'noRgbPalette',
+                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'rgb' && data[`rgbType${index}`] !== 'rgbw' && data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            onChange: loadStates,
+                        },
+                        {
                             name: 'open',
                             type: 'id',
                             label: 'doorOpen-oid',
@@ -1505,9 +1527,9 @@ class Switches extends BlindsBase {
             this.setState({ showControlDialog: index, inputValue: this.state.values[`${this.state.objects[index]._id}.val`] });
         } else if (this.state.objects[index].widgetType === 'button') {
             if (this.state.objects[index].common.max !== undefined) {
-                this.props.context.socket.setState(this.state.rxData[`oid${index}`], this.state.objects[index].common.max);
+                this.props.context.setValue(this.state.rxData[`oid${index}`], this.state.objects[index].common.max);
             } else {
-                this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+                this.props.context.setValue(this.state.rxData[`oid${index}`], true);
             }
         } else {
             const values = JSON.parse(JSON.stringify(this.state.values));
@@ -1518,12 +1540,12 @@ class Switches extends BlindsBase {
                 values[oid] = !values[oid];
             }
             this.setState({ values });
-            this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+            this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
         }
     };
 
     buttonPressed(index) {
-        this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+        this.props.context.setValue(this.state.rxData[`oid${index}`], true);
     }
 
     setOnOff(index, isOn) {
@@ -1531,7 +1553,7 @@ class Switches extends BlindsBase {
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = isOn ? this.state.objects[index].common.max : this.state.objects[index].common.min;
         this.setState({ values });
-        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+        this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
     }
 
     controlSpecificState(index, value) {
@@ -1539,7 +1561,7 @@ class Switches extends BlindsBase {
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = value;
         this.setState({ values, showControlDialog: null });
-        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+        this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
     }
 
     renderControlDialog() {
@@ -1636,7 +1658,7 @@ class Switches extends BlindsBase {
                                 const oid = `${this.state.objects[index]._id}.val`;
                                 values[oid] = value;
                                 this.setState({ values });
-                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
                             }}
                         />
                     </div>
@@ -1717,9 +1739,9 @@ class Switches extends BlindsBase {
                                 values[oid] = this.state.inputValue;
                                 this.setState({ values, showControlDialog: null });
                                 if (this.state.objects[index].common.type === 'number') {
-                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                    this.props.context.setValue(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                                 } else if (this.state.objects[index].common.type === 'boolean') {
-                                    this.props.context.socket.setState(
+                                    this.props.context.setValue(
                                         this.state.rxData[`oid${index}`],
                                         values[oid] === 'true' ||
                                         values[oid] === true ||
@@ -1736,7 +1758,7 @@ class Switches extends BlindsBase {
                                         values[oid] === 'An',
                                     );
                                 } else {
-                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                    this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
                                 }
                             }
                         }}
@@ -1753,9 +1775,9 @@ class Switches extends BlindsBase {
                             values[oid] = this.state.inputValue;
                             this.setState({ values, showControlDialog: null });
                             if (this.state.objects[index].common.type === 'number') {
-                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                this.props.context.setValue(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                             } else if (this.state.objects[index].common.type === 'boolean') {
-                                this.props.context.socket.setState(
+                                this.props.context.setValue(
                                     this.state.rxData[`oid${index}`],
                                     values[oid] === 'true' ||
                                     values[oid] === true ||
@@ -1772,7 +1794,7 @@ class Switches extends BlindsBase {
                                     values[oid] === 'An',
                                 );
                             } else {
-                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
                             }
                         }}
                     >
@@ -1933,10 +1955,10 @@ class Switches extends BlindsBase {
                                 this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
                                 this.timeouts[index][oid] = setTimeout(_newValue => {
                                     this.timeouts[index][oid] = null;
-                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], _newValue);
+                                    this.props.context.setValue(this.state.rxData[`oid${index}`], _newValue);
                                 }, parseInt(timeout, 10), newValue);
                             } else {
-                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], newValue);
+                                this.props.context.setValue(this.state.rxData[`oid${index}`], newValue);
                             }
                         });
                     }}
@@ -1990,10 +2012,10 @@ class Switches extends BlindsBase {
                                 this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
                                 this.timeouts[index][oid] = setTimeout(_newValue => {
                                     this.timeouts[index][oid] = null;
-                                    this.props.context.socket.setState(this.state.rxData[`oid${index}`], _newValue);
+                                    this.props.context.setValue(this.state.rxData[`oid${index}`], _newValue);
                                 }, parseInt(timeout, 10), newValue);
                             } else {
-                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], newValue);
+                                this.props.context.setValue(this.state.rxData[`oid${index}`], newValue);
                             }
                         });
                     }}
@@ -2036,9 +2058,9 @@ class Switches extends BlindsBase {
                             values[oid] = this.state.inputValues[index];
                             this.setState({ values });
                             if (this.state.objects[index].common.type === 'number') {
-                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                this.props.context.setValue(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                             } else if (this.state.objects[index].common.type === 'boolean') {
-                                this.props.context.socket.setState(
+                                this.props.context.setValue(
                                     this.state.rxData[`oid${index}`],
                                     values[oid] === 'true' ||
                                     values[oid] === true ||
@@ -2055,7 +2077,7 @@ class Switches extends BlindsBase {
                                     values[oid] === 'An',
                                 );
                             } else {
-                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                                this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
                             }
                         }
                     }}
@@ -2093,9 +2115,9 @@ class Switches extends BlindsBase {
                         showSetButton[index] = false;
                         this.setState({ values, showSetButton });
                         if (this.state.objects[index].common.type === 'number') {
-                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                            this.props.context.setValue(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
                         } else if (this.state.objects[index].common.type === 'boolean') {
-                            this.props.context.socket.setState(
+                            this.props.context.setValue(
                                 this.state.rxData[`oid${index}`],
                                 values[oid] === 'true' ||
                                 values[oid] === true ||
@@ -2112,7 +2134,7 @@ class Switches extends BlindsBase {
                                 values[oid] === 'An',
                             );
                         } else {
-                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                            this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
                         }
                     }}
                 >
@@ -2160,7 +2182,7 @@ class Switches extends BlindsBase {
                         const oid = `${this.state.objects[index]._id}.val`;
                         values[oid] = event.target.value;
                         this.setState({ values });
-                        this.props.context.socket.setState(this.state.rxData[`oid${index}`], values[oid]);
+                        this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
                     }}
                 >
                     {states.map(state => <MenuItem key={state.value} value={state.value}>{state.label}</MenuItem>)}
@@ -2730,9 +2752,9 @@ class Switches extends BlindsBase {
                                     if (button === 'submit') {
                                         if (this.state.lockPinInput === pincode) {
                                             if (this.state.dialogPin.oid === 'open') {
-                                                this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                                                this.props.context.setValue(this.state.rxData[`open${index}`], true);
                                             } else {
-                                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+                                                this.props.context.setValue(this.state.rxData[`oid${index}`], true);
                                             }
                                             this.setState({ dialogPin: null });
                                         } else {
@@ -2752,9 +2774,9 @@ class Switches extends BlindsBase {
                                         this.setState({ lockPinInput });
                                         if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
                                             if (this.state.dialogPin.oid === 'open') {
-                                                this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                                                this.props.context.setValue(this.state.rxData[`open${index}`], true);
                                             } else {
-                                                this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+                                                this.props.context.setValue(this.state.rxData[`oid${index}`], true);
                                             }
                                             this.setState({ dialogPin: null });
                                         }
@@ -2795,9 +2817,9 @@ class Switches extends BlindsBase {
                     onClick={() => {
                         this.setState({ lockConfirmDialog: null });
                         if (this.state.lockConfirmDialog.oid === 'open') {
-                            this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                            this.props.context.setValue(this.state.rxData[`open${index}`], true);
                         } else {
-                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], true);
+                            this.props.context.setValue(this.state.rxData[`oid${index}`], true);
                         }
                     }}
                     startIcon={this.state.lockConfirmDialog.oid === 'open' ? <DoorOpenedIcon /> : <LockOpenedIcon />}
@@ -2837,7 +2859,7 @@ class Switches extends BlindsBase {
                         if (this.lockGetPinCode(index)) {
                             this.setState({ dialogPin: { oid: 'open', index }, lockPinInput: '' });
                         } else if (this.state.rxData[`doNotConfirm${index}`]) {
-                            this.props.context.socket.setState(this.state.rxData[`open${index}`], true);
+                            this.props.context.setValue(this.state.rxData[`open${index}`], true);
                         } else {
                             this.setState({ lockConfirmDialog: { oid: 'open', index } });
                         }
@@ -2853,7 +2875,7 @@ class Switches extends BlindsBase {
                         if (!lockOpened && this.lockGetPinCode(index)) {
                             this.setState({ dialogPin: { oid: 'oid', index }, lockPinInput: '' });
                         } else if (lockOpened || this.state.rxData[`doNotConfirm${index}`]) {
-                            this.props.context.socket.setState(this.state.rxData[`oid${index}`], !this.getPropertyValue(`oid${index}`));
+                            this.props.context.setValue(this.state.rxData[`oid${index}`], !this.getPropertyValue(`oid${index}`));
                         } else {
                             this.setState({ lockConfirmDialog: { oid: 'oid', index } });
                         }
@@ -3019,7 +3041,7 @@ class Switches extends BlindsBase {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         values[`${this.state.rxData[`party${index}`]}.val`] = !_currentValueStr;
                         this.setState(values);
-                        this.props.context.socket.setState(this.state.rxData[`party${index}`], !_currentValueStr);
+                        this.props.context.setValue(this.state.rxData[`party${index}`], !_currentValueStr);
                     }}
                     startIcon={<CelebrationIcon />}
                 >
@@ -3046,7 +3068,7 @@ class Switches extends BlindsBase {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         values[`${this.state.rxData[`boost${index}`]}.val`] = !_currentValueStr;
                         this.setState(values);
-                        this.props.context.socket.setState(this.state.rxData[`boost${index}`], !_currentValueStr);
+                        this.props.context.setValue(this.state.rxData[`boost${index}`], !_currentValueStr);
                     }}
                     startIcon={<BoostIcon />}
                 >
@@ -3063,7 +3085,7 @@ class Switches extends BlindsBase {
                         const id = `${this.state.rxData[`switch${index}`]}.val`;
                         values[id] = !values[id];
                         this.setState(values);
-                        this.props.context.socket.setState(this.state.rxData[`switch${index}`], values[id]);
+                        this.props.context.setValue(this.state.rxData[`switch${index}`], values[id]);
                     }}
                 >
                     <PowerSettingsNewIcon />
@@ -3100,7 +3122,7 @@ class Switches extends BlindsBase {
                         },
                     }}
                     onControlFinished={() =>
-                        this.props.context.socket.setState(setObj._id, this.state.values[`${setObj._id}.val`])}
+                        this.props.context.setValue(setObj._id, this.state.values[`${setObj._id}.val`])}
                 >
                     {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
                         <div
@@ -3156,15 +3178,15 @@ class Switches extends BlindsBase {
             this.timeouts[index][id] && clearTimeout(this.timeouts[index][id]);
 
             // control switch directly without timeout
-            if (id === 'switch') {
-                this.props.context.socket.setState(this.state.rxData[`switch${index}`], value);
+            if (id === 'switch' || id === 'white_mode') {
+                this.props.context.setValue(this.state.rxData[`switch${index}`], value);
             } else {
                 const values = { ...this.state.values, [`${this.state.rxData[id + index]}.val`]: value };
                 this.setState({ values });
 
                 this.timeouts[index][id] = setTimeout(() => {
                     this.timeouts[index][id] = null;
-                    this.props.context.socket.setState(this.state.rxData[id + index], value);
+                    this.props.context.setValue(this.state.rxData[id + index], value);
                 }, parseInt(this.state.rxData[`timeout${index}`], 10) || 200);
             }
         }
@@ -3268,6 +3290,10 @@ class Switches extends BlindsBase {
                 console.error(e);
             }
         }
+
+        if (this.state.rxData[`hideBrightness${index}`]) {
+            result.v = 100;
+        }
         return result;
     };
 
@@ -3324,6 +3350,19 @@ class Switches extends BlindsBase {
                 this.rgbSetId(index, 'oid', val);
             }
         }
+    };
+
+    rgbSetWhiteMode = (index, value) => {
+        if (this.state.rxData.white_mode) {
+            this.rgbSetId(`white_mode${index}`, !!value);
+        }
+    };
+
+    rgbGetWhiteMode = index => {
+        if (!this.state.rxData.white_mode) {
+            return null;
+        }
+        return this.getPropertyValue(`white_mode${index}`);
     };
 
     rgbIsRgb = index => {
@@ -3384,12 +3423,21 @@ class Switches extends BlindsBase {
         </div>;
     }
 
-    rgbRenderWheelTypeSwitch(index, isWheelVisible, twoPanels) {
+    rgbRenderWheelTypeSwitch(index, isWheelVisible, twoPanels, whiteMode) {
         if (!isWheelVisible) {
             return null;
         }
+        if (whiteMode === null && this.state.rxData[`noRgbPalette${index}`]) {
+            return null;
+        }
+
         return !this.rgbIsOnlyHue(index) && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
-            <Tooltip title={Generic.t('Switch color picker')}>
+            {whiteMode !== null ? <Tooltip title={Generic.t('Switch white mode')}>
+                <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
+                    <WbAuto />
+                </IconButton>
+            </Tooltip> : null}
+            {!this.state.rxData[`noRgbPalette${index}`] && whiteMode !== true ? <Tooltip title={Generic.t('Switch color picker')}>
                 <IconButton
                     onClick={() => {
                         const sketch = JSON.parse(JSON.stringify(this.state.sketch));
@@ -3399,12 +3447,12 @@ class Switches extends BlindsBase {
                 >
                     <ColorLens />
                 </IconButton>
-            </Tooltip>
+            </Tooltip> : null}
         </div>;
     }
 
-    rgbRenderBrightnessSlider(index, isWheelVisible) {
-        if (!isWheelVisible || this.state.sketch[index]) {
+    rgbRenderBrightnessSlider(index, isWheelVisible, whiteMode) {
+        if (!isWheelVisible || this.state.sketch[index] || whiteMode === true || this.state.rxData[`hideBrightness${index}`]) {
             return null;
         }
         return !this.rgbIsOnlyHue(index) && <ShadeSlider
@@ -3414,8 +3462,8 @@ class Switches extends BlindsBase {
         />;
     }
 
-    rgbRenderWheel(index, isWheelVisible) {
-        if (!isWheelVisible) {
+    rgbRenderWheel(index, isWheelVisible, whiteMode) {
+        if (!isWheelVisible || whiteMode === true) {
             return null;
         }
         return this.state.sketch[index] ? this.rgbRenderSketch(index) :  <div className={this.props.classes.rgbWheel}>
@@ -3455,8 +3503,8 @@ class Switches extends BlindsBase {
         </div>;
     }
 
-    rgbRenderColorTemperature(index) {
-        if (this.state.rxData[`rgbType${index}`] !== 'ct') {
+    rgbRenderColorTemperature(index, whiteMode) {
+        if (this.state.rxData[`rgbType${index}`] !== 'ct' || whiteMode === true) {
             return null;
         }
         return <div className={this.props.classes.rgbSliderContainer}>
@@ -3485,15 +3533,16 @@ class Switches extends BlindsBase {
 
     rgbRenderDialog(index) {
         const wheelVisible = this.rgbIsRgb(index) || this.rgbIsHSL(index);
+        const whiteMode = this.rgbGetWhiteMode(index);
 
         return <div className={this.props.classes.rgbDialogContainer}>
             {this.rgbRenderSwitch(index)}
             {this.rgbRenderBrightness(index)}
             {this.rgbRenderWhite(index)}
-            {this.rgbRenderWheelTypeSwitch(index, wheelVisible)}
-            {this.rgbRenderWheel(index, wheelVisible)}
-            {this.rgbRenderBrightnessSlider(index, wheelVisible)}
-            {this.rgbRenderColorTemperature(index)}
+            {this.rgbRenderWheelTypeSwitch(index, wheelVisible, whiteMode)}
+            {this.rgbRenderWheel(index, wheelVisible, whiteMode)}
+            {this.rgbRenderBrightnessSlider(index, wheelVisible, whiteMode)}
+            {this.rgbRenderColorTemperature(index, whiteMode)}
         </div>;
     }
 
@@ -3651,7 +3700,7 @@ class Switches extends BlindsBase {
                     onClick={e => {
                         const _value = e.target.value;
                         this.setState({ showSpeedMenu: null }, () =>
-                            this.props.context.socket.setState(this.state.rxData[`vacuum-fan-speed-oid${index}`], _value));
+                            this.props.context.setValue(this.state.rxData[`vacuum-fan-speed-oid${index}`], _value));
                     }}
                 >
                     {Generic.t(options[state]).replace('vis_2_widgets_material_', '')}
@@ -3686,7 +3735,7 @@ class Switches extends BlindsBase {
                         // build together mihome-vacuum.0.rooms.room1.roomClean
                         const id = room.value;
                         this.setState({ showRoomsMenu: null }, () =>
-                            this.props.context.socket.setState(id, true));
+                            this.props.context.setValue(id, true));
                     }}
                 >
                     {room.label}
@@ -3766,7 +3815,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Start')}>
                     <IconButton
-                        onClick={withDialog ? null : () => this.props.context.socket.setState(this.state.rxData[`vacuum-start-oid${index}`], true)}
+                        onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-start-oid${index}`], true)}
                     >
                         <PlayArrow />
                     </IconButton>
@@ -3774,7 +3823,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Pause')}>
                     <IconButton
-                        onClick={withDialog ? null : () => this.props.context.socket.setState(this.state.rxData[`vacuum-pause-oid${index}`], true)}
+                        onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-pause-oid${index}`], true)}
                     >
                         <Pause />
                     </IconButton>
@@ -3782,7 +3831,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip title={Generic.t('Home')}>
                     <IconButton
-                        onClick={withDialog ? null : () => this.props.context.socket.setState(this.state.rxData[`vacuum-home-oid${index}`], true)}
+                        onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-home-oid${index}`], true)}
                     >
                         <Home />
                     </IconButton>
@@ -3942,13 +3991,13 @@ class Switches extends BlindsBase {
                         const oid = `${this.state.objects[items[i]]._id}.val`;
                         if (this.state.objects[items[i]].common.type === 'boolean') {
                             values[oid] = !allSwitchValue;
-                            await this.props.context.socket.setState(this.state.objects[items[i]]._id, values[oid]);
+                            await this.props.context.setValue(this.state.objects[items[i]]._id, values[oid]);
                         } else if (this.state.objects[items[i]].common.type === 'number') {
                             values[oid] = allSwitchValue ? this.state.objects[items[i]].common.min : this.state.objects[items[i]].common.max;
-                            await this.props.context.socket.setState(this.state.objects[items[i]]._id, values[oid]);
+                            await this.props.context.setValue(this.state.objects[items[i]]._id, values[oid]);
                         } else {
                             values[oid] = !allSwitchValue;
-                            await this.props.context.socket.setState(this.state.objects[items[i]]._id, values[oid] ? 'true' : 'false');
+                            await this.props.context.setValue(this.state.objects[items[i]]._id, values[oid] ? 'true' : 'false');
                         }
                     }
                 }

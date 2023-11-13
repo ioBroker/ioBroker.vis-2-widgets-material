@@ -378,6 +378,11 @@
   "rooms_tooltip": "Alleen ondersteund voor \"mihome vacuüm\"-apparaten",
   "color_temperature_min": "Minimale kleurtemperatuur",
   "color_temperature_max": "Maximale kleurtemperatuur",
-  "font_size": "",
-  "font_style": "Lettertype"
+  "font_size": "Lettertypegrootte",
+  "font_style": "Lettertype",
+  "whiteMode": "Witte modus",
+  "whiteModeTooltip": "Maak het mogelijk om te schakelen tussen RGB en alleen witte kleurcontrole",
+  "hideBrightness": "Schuifregelaar voor helderheid verbergen",
+  "Switch white mode": "Schakel de witte modus in",
+  "noRgbPalette": "Zonder RGB-palet"
 }

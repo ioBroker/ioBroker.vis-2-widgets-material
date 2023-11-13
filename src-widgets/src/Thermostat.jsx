@@ -594,7 +594,7 @@ class Thermostat extends Generic {
                                     const values = JSON.parse(JSON.stringify(this.state.values));
                                     values[`${this.state.rxData['oid-mode']}.val`] = value;
                                     this.setState(values);
-                                    this.props.context.socket.setState(this.state.rxData['oid-mode'], value);
+                                    this.props.context.setValue(this.state.rxData['oid-mode'], value);
                                 }}
                             >
                                 {icon === true ? <MyIcon /> : icon}
@@ -613,7 +613,7 @@ class Thermostat extends Generic {
                                 const values = JSON.parse(JSON.stringify(this.state.values));
                                 values[`${this.state.rxData['oid-mode']}.val`] = value;
                                 this.setState(values);
-                                this.props.context.socket.setState(this.state.rxData['oid-mode'], value);
+                                this.props.context.setValue(this.state.rxData['oid-mode'], value);
                             }}
                             startIcon={icon === true ? <MyIcon /> : icon}
                         >
@@ -642,7 +642,7 @@ class Thermostat extends Generic {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         values[`${this.state.rxData['oid-party']}.val`] = !_currentValueStr;
                         this.setState(values);
-                        this.props.context.socket.setState(this.state.rxData['oid-party'], !_currentValueStr);
+                        this.props.context.setValue(this.state.rxData['oid-party'], !_currentValueStr);
                     }}
                     startIcon={<CelebrationIcon />}
                 >
@@ -669,7 +669,7 @@ class Thermostat extends Generic {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         values[`${this.state.rxData['oid-boost']}.val`] = !_currentValueStr;
                         this.setState(values);
-                        this.props.context.socket.setState(this.state.rxData['oid-boost'], !_currentValueStr);
+                        this.props.context.setValue(this.state.rxData['oid-boost'], !_currentValueStr);
                     }}
                     startIcon={<BoostIcon />}
                 >
@@ -687,7 +687,7 @@ class Thermostat extends Generic {
                         const id = `${this.state.rxData['oid-power']}.val`;
                         values[id] = !values[id];
                         this.setState(values);
-                        this.props.context.socket.setState(this.state.rxData['oid-power'], values[id]);
+                        this.props.context.setValue(this.state.rxData['oid-power'], values[id]);
                     }}
                 >
                     <PowerSettingsNewIcon />
@@ -725,7 +725,7 @@ class Thermostat extends Generic {
                         },
                     }}
                     onControlFinished={() =>
-                        this.props.context.socket.setState(this.state.rxData['oid-temp-set'], this.state.values[`${this.state.rxData['oid-temp-set']}.val`])}
+                        this.props.context.setValue(this.state.rxData['oid-temp-set'], this.state.values[`${this.state.rxData['oid-temp-set']}.val`])}
                 >
                     {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
                         <div

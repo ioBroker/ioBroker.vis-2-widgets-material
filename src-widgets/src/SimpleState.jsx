@@ -462,7 +462,7 @@ class SimpleState extends Generic {
                 values[oid] = !values[oid];
             }
             this.setState({ values });
-            this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
+            this.props.context.setValue(this.state.rxData.oid, values[oid]);
         }
     };
 
@@ -471,7 +471,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = isOn ? this.state.object.common.max : this.state.object.common.min;
         this.setState({ values });
-        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
+        this.props.context.setValue(this.state.rxData.oid, values[oid]);
     }
 
     controlSpecificState(value) {
@@ -479,7 +479,7 @@ class SimpleState extends Generic {
         const oid = `${this.state.object._id}.val`;
         values[oid] = value;
         this.setState({ values });
-        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
+        this.props.context.setValue(this.state.rxData.oid, values[oid]);
     }
 
     renderDimmerDialog() {
@@ -545,7 +545,7 @@ class SimpleState extends Generic {
                                         const oid = `${this.state.object._id}.val`;
                                         values[oid] = value;
                                         this.setState({ values });
-                                        this.props.context.socket.setState(this.state.rxData.oid, values[oid]);
+                                        this.props.context.setValue(this.state.rxData.oid, values[oid]);
                                     }}
                                 />
                             </div>
