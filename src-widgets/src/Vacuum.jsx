@@ -3,11 +3,11 @@ import { withStyles } from '@mui/styles';
 
 import {
     Button,
-    Card, CardContent, IconButton, Menu, MenuItem, Tooltip,
+    Card, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Menu, MenuItem, Tooltip,
 } from '@mui/material';
 
 import {
-    BatteryChargingFull, BatteryFull, Home, Pause, PlayArrow,
+    BatteryChargingFull, BatteryFull, Close, Home, Pause, PlayArrow,
 } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
@@ -214,14 +214,20 @@ class Vacuum extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'useAsDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            hidden: '!!data.useAsDialog',
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard',
+                            hidden: '!!data.noCard || !!data.useAsDialog',
                         },
                     ],
                 },
@@ -633,6 +639,13 @@ class Vacuum extends Generic {
         return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" className={this.props.classes.vacuumImage} />;
     }
 
+    onCommand(command) {
+        super.onCommand(command);
+        if (command === 'openDialog') {
+            this.setState({ dialog: true });
+        }
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
         const rooms = this.vacuumRenderRooms();
@@ -671,6 +684,16 @@ class Vacuum extends Generic {
                 {speed}
             </div> : null}
         </div>;
+
+        if (this.state.rxData.useAsDialog && !this.props.editMode) {
+            return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: null })}>
+                <DialogTitle>
+                    {this.state.rxData.widgetTitle}
+                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
+                </DialogTitle>
+                <DialogContent>{content}</DialogContent>
+            </Dialog>;
+        }
 
         return this.wrapContent(content);
     }

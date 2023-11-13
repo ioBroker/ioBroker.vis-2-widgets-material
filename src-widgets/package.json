@@ -46,7 +46,7 @@
         "uuid": "^9.0.1"
     },
     "scripts": {
-        "start": "set PORT=4173 && craco start",
+        "start": "set PORT=4174 && craco start",
         "old-start": "set PORT=4173 && react-scripts start",
         "lint": "eslint --fix --ext .js,.jsx src",
         "build": "craco build",

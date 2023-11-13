@@ -22,6 +22,7 @@ import {
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
+import { Close } from '@mui/icons-material';
 
 const styles = () => ({
     content: {
@@ -71,14 +72,20 @@ class Lock extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'useAsDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            hidden: '!!data.useAsDialog',
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard',
+                            hidden: '!!data.noCard || !!data.useAsDialog',
                         },
                         {
                             name: 'lock-oid',
@@ -331,6 +338,13 @@ class Lock extends Generic {
         </Dialog>;
     }
 
+    onCommand(command) {
+        super.onCommand(command);
+        if (command === 'openDialog') {
+            this.setState({ dialog: true });
+        }
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
         const doorOpened = this.state.rxData['doorSensor-oid'] && this.getPropertyValue('doorSensor-oid');
@@ -387,6 +401,16 @@ class Lock extends Generic {
                         />}
                 </IconButton> : null}
         </div>;
+
+        if (this.state.rxData.useAsDialog && !this.props.editMode) {
+            return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: null })}>
+                <DialogTitle>
+                    {this.state.rxData.widgetTitle}
+                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
+                </DialogTitle>
+                <DialogContent>{content}</DialogContent>
+            </Dialog>;
+        }
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
             return content;

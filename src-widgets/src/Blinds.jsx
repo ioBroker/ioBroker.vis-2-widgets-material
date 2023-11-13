@@ -35,9 +35,15 @@ class Blinds extends BlindsBase {
                     name: 'common',
                     fields: [
                         {
+                            name: 'useAsDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            hidden: '!!data.useAsDialog',
                         },
                         {
                             name: 'widgetTitle',
@@ -295,6 +301,13 @@ class Blinds extends BlindsBase {
         await this.propertiesUpdate();
     }
 
+    onCommand(command) {
+        super.onCommand(command);
+        if (command === 'openDialog') {
+            this.setState({ showBlindsDialog: true });
+        }
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
@@ -348,6 +361,10 @@ class Blinds extends BlindsBase {
             {height ? this.renderBlindsDialog() : null}
             {height ? this.renderWindows({ height, width }) : null}
         </div>;
+
+        if (this.state.rxData.useAsDialog && !this.props.editMode) {
+            return this.renderBlindsDialog();
+        }
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
             return content;

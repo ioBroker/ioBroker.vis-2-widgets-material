@@ -24,6 +24,7 @@ import {
     Thermostat as ThermostatIcon,
     Celebration as CelebrationIcon,
     ElectricBolt as BoostIcon,
+    Close,
 } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
@@ -131,14 +132,20 @@ class Thermostat extends Generic {
                     name: 'common',
                     fields: [
                         {
+                            name: 'useAsDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                        },
+                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            hidden: '!!data.useAsDialog',
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard',
+                            hidden: '!!data.noCard || !!data.useAsDialog',
                         },
                         {
                             name: 'oid-temp-set',
@@ -495,6 +502,13 @@ class Thermostat extends Generic {
             (!this.state.rxData['oid-power'] || this.state.values[`${this.state.rxData['oid-power']}.val`]);
     }
 
+    onCommand(command) {
+        super.onCommand(command);
+        if (command === 'openDialog') {
+            this.setState({ dialog: true });
+        }
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
@@ -759,6 +773,16 @@ class Thermostat extends Generic {
             </div>
             {this.renderChartDialog()}
         </div>;
+
+        if (this.state.rxData.useAsDialog && !this.props.editMode) {
+            return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: null })}>
+                <DialogTitle>
+                    {this.state.rxData.widgetTitle}
+                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
+                </DialogTitle>
+                <DialogContent>{content}</DialogContent>
+            </Dialog>;
+        }
 
         if (!withCard) {
             return content;
