@@ -17,12 +17,12 @@ import {
     LockOpen as LockOpenedIcon,
     Lock as LockClosedIcon,
     Cancel,
+    Close,
 } from '@mui/icons-material';
 
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
-import { Close } from '@mui/icons-material';
 
 const styles = () => ({
     content: {
