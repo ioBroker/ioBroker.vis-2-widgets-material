@@ -170,7 +170,7 @@ class RGBLight extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'useAsDialog',
+                            name: 'externalDialog',
                             label: 'use_as_dialog',
                             type: 'checkbox',
                         },
@@ -178,13 +178,13 @@ class RGBLight extends Generic {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
-                            hidden: '!!data.useAsDialog',
+                            hidden: '!!data.externalDialog',
                         },
                         {
                             name: 'fullSize',
                             label: 'fullSize',
                             type: 'checkbox',
-                            hidden: '!!data.useAsDialog',
+                            hidden: '!!data.externalDialog',
                         },
                         {
                             name: 'widgetTitle',
@@ -808,7 +808,7 @@ class RGBLight extends Generic {
         const whiteMode = this.rgbGetWhiteMode();
 
         let rgbContent;
-        if (this.state.rxData.fullSize && !this.state.rxData.useAsDialog) {
+        if (this.state.rxData.fullSize && !this.state.rxData.externalDialog) {
             if (wheelVisible && size >= 350) {
                 rgbContent = <div
                     ref={this.contentRef}
@@ -856,7 +856,7 @@ class RGBLight extends Generic {
                     {this.rgbRenderColorTemperature(whiteMode)}
                 </div>;
             }
-        } else if (this.props.editMode || !this.state.rxData.useAsDialog) {
+        } else if (this.props.editMode || !this.state.rxData.externalDialog) {
             rgbContent = <>
                 <div className={this.props.classes.rgbContent} ref={this.contentRef}>
                     <IconButton
@@ -880,7 +880,7 @@ class RGBLight extends Generic {
                 </div>
                 {this.rgbRenderDialog(wheelVisible, whiteMode)}
             </>;
-        } else if (this.state.rxData.useAsDialog) {
+        } else if (this.state.rxData.externalDialog) {
             return this.rgbRenderDialog(wheelVisible);
         }
 

@@ -132,7 +132,7 @@ class Thermostat extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'useAsDialog',
+                            name: 'externalDialog',
                             label: 'use_as_dialog',
                             type: 'checkbox',
                         },
@@ -140,12 +140,12 @@ class Thermostat extends Generic {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
-                            hidden: '!!data.useAsDialog',
+                            hidden: '!!data.externalDialog',
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard || !!data.useAsDialog',
+                            hidden: '!!data.noCard || !!data.externalDialog',
                         },
                         {
                             name: 'oid-temp-set',
@@ -779,7 +779,7 @@ class Thermostat extends Generic {
             {this.renderChartDialog()}
         </div>;
 
-        if (this.state.rxData.useAsDialog && !this.props.editMode) {
+        if (this.state.rxData.externalDialog && !this.props.editMode) {
             return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: null })}>
                 <DialogTitle>
                     {this.state.rxData.widgetTitle}

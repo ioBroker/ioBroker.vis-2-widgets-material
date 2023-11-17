@@ -35,7 +35,7 @@ class Blinds extends BlindsBase {
                     name: 'common',
                     fields: [
                         {
-                            name: 'useAsDialog',
+                            name: 'externalDialog',
                             label: 'use_as_dialog',
                             type: 'checkbox',
                             tootltip: 'use_as_dialog_tooltip',
@@ -44,7 +44,7 @@ class Blinds extends BlindsBase {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
-                            hidden: '!!data.useAsDialog',
+                            hidden: '!!data.externalDialog',
                         },
                         {
                             name: 'widgetTitle',
@@ -368,7 +368,7 @@ class Blinds extends BlindsBase {
             {height ? this.renderWindows({ height, width }) : null}
         </div>;
 
-        if (this.state.rxData.useAsDialog && !this.props.editMode) {
+        if (this.state.rxData.externalDialog && !this.props.editMode) {
             return this.renderBlindsDialog();
         }
 

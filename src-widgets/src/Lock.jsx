@@ -72,7 +72,7 @@ class Lock extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'useAsDialog',
+                            name: 'externalDialog',
                             label: 'use_as_dialog',
                             type: 'checkbox',
                         },
@@ -80,12 +80,12 @@ class Lock extends Generic {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
-                            hidden: '!!data.useAsDialog',
+                            hidden: '!!data.externalDialog',
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard || !!data.useAsDialog',
+                            hidden: '!!data.noCard || !!data.externalDialog',
                         },
                         {
                             name: 'lock-oid',
@@ -407,7 +407,7 @@ class Lock extends Generic {
                 </IconButton> : null}
         </div>;
 
-        if (this.state.rxData.useAsDialog && !this.props.editMode) {
+        if (this.state.rxData.externalDialog && !this.props.editMode) {
             return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: null })}>
                 <DialogTitle>
                     {this.state.rxData.widgetTitle}
