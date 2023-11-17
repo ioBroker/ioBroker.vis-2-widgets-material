@@ -384,5 +384,7 @@
   "whiteModeTooltip": "Ermöglicht das Umschalten zwischen RGB- und reiner Weiß-Farbsteuerung",
   "hideBrightness": "Helligkeitsregler ausblenden",
   "Switch white mode": "Den Weißmodus umschalten",
-  "noRgbPalette": "Ohne RGB-Palette"
+  "noRgbPalette": "Ohne RGB-Palette",
+  "use_as_dialog": "Als Dialog verwenden",
+  "use_as_dialog_tooltip": "Spezialmodus: Das Widget wird im Laufzeitmodus ausgeblendet und andere Widgets (wie SweetHome 3D) könnten diesen Widget-Dialog öffnen"
 }

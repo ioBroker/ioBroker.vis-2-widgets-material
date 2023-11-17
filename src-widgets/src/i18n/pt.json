@@ -384,5 +384,7 @@
   "whiteModeTooltip": "Permitir alternar entre RGB e apenas controle de cor branca",
   "hideBrightness": "Ocultar controle deslizante de brilho",
   "Switch white mode": "Alternar modo branco",
-  "noRgbPalette": "Sem paleta RGB"
+  "noRgbPalette": "Sem paleta RGB",
+  "use_as_dialog": "Usar como diálogo",
+  "use_as_dialog_tooltip": "Modo especial: o widget ficará oculto no modo de execução e outros widgets (como SweetHome 3D) poderão abrir esta caixa de diálogo de widget"
 }

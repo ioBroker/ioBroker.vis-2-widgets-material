@@ -384,5 +384,7 @@
   "whiteModeTooltip": "允许在 RGB 和白色控制之间切换",
   "hideBrightness": "隐藏亮度滑块",
   "Switch white mode": "切换白色模式",
-  "noRgbPalette": "没有 RGB 调色板"
+  "noRgbPalette": "没有 RGB 调色板",
+  "use_as_dialog": "用作对话框",
+  "use_as_dialog_tooltip": "特殊模式：该小部件将在运行时模式下隐藏，其他小部件（如 SweetHome 3D）可以打开此小部件对话框"
 }

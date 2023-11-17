@@ -385,5 +385,6 @@
   "hideBrightness": "Hide brightness slider",
   "Switch white mode": "Toggle white mode",
   "noRgbPalette": "Whitout RGB palette",
-  "use_as_dialog": "Use as dialog"
+  "use_as_dialog": "Use as dialog",
+  "use_as_dialog_tooltip": "Special mode: the widget will be hidden in runtime mode and other widgets (like SweetHome 3D) could open this widget dialog"
 }

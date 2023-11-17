@@ -643,7 +643,13 @@ class Vacuum extends Generic {
         super.onCommand(command);
         if (command === 'openDialog') {
             this.setState({ dialog: true });
+            return true;
+        } else if (command === 'closeDialog') {
+            this.setState({ dialog: false });
+            return true;
         }
+
+        return false;
     }
 
     renderWidgetBody(props) {

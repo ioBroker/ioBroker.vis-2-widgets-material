@@ -384,5 +384,7 @@
   "whiteModeTooltip": "Zezwalaj na przełączanie między RGB i kontrolowaniem tylko koloru białego",
   "hideBrightness": "Ukryj suwak jasności",
   "Switch white mode": "Przełącz tryb biały",
-  "noRgbPalette": "Bez palety RGB"
+  "noRgbPalette": "Bez palety RGB",
+  "use_as_dialog": "Użyj jako okna dialogowego",
+  "use_as_dialog_tooltip": "Tryb specjalny: widżet zostanie ukryty w trybie wykonawczym, a inne widżety (takie jak SweetHome 3D) mogą otworzyć okno dialogowe tego widżetu"
 }

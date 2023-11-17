@@ -384,5 +384,7 @@
   "whiteModeTooltip": "Autoriser la commutation entre RVB et uniquement le contrôle de la couleur blanche",
   "hideBrightness": "Masquer le curseur de luminosité",
   "Switch white mode": "Basculer en mode blanc",
-  "noRgbPalette": "Sans palette RVB"
+  "noRgbPalette": "Sans palette RVB",
+  "use_as_dialog": "Utiliser comme boîte de dialogue",
+  "use_as_dialog_tooltip": "Mode spécial : le widget sera masqué en mode d'exécution et d'autres widgets (comme SweetHome 3D) pourront ouvrir cette boîte de dialogue de widget"
 }

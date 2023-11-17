@@ -38,6 +38,7 @@ class Blinds extends BlindsBase {
                             name: 'useAsDialog',
                             label: 'use_as_dialog',
                             type: 'checkbox',
+                            tootltip: 'use_as_dialog_tooltip',
                         },
                         {
                             name: 'noCard',
@@ -305,7 +306,12 @@ class Blinds extends BlindsBase {
         super.onCommand(command);
         if (command === 'openDialog') {
             this.setState({ showBlindsDialog: true });
+            return true;
+        } else if (command === 'closeDialog') {
+            this.setState({ showBlindsDialog: false });
+            return true;
         }
+        return false;
     }
 
     renderWidgetBody(props) {

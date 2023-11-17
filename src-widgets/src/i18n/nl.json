@@ -384,5 +384,7 @@
   "whiteModeTooltip": "Maak het mogelijk om te schakelen tussen RGB en alleen witte kleurcontrole",
   "hideBrightness": "Schuifregelaar voor helderheid verbergen",
   "Switch white mode": "Schakel de witte modus in",
-  "noRgbPalette": "Zonder RGB-palet"
+  "noRgbPalette": "Zonder RGB-palet",
+  "use_as_dialog": "Gebruik als dialoog",
+  "use_as_dialog_tooltip": "Speciale modus: de widget wordt verborgen in de runtimemodus en andere widgets (zoals SweetHome 3D) kunnen dit widgetdialoogvenster openen"
 }
