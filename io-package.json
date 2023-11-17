@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.10",
+    "version": "1.3.11",
     "news": {
+      "1.3.11": {
+        "en": "Allowed opening/closing dialogs of some widgets by command",
+        "de": "Erlaubt Öffnen/Verschließen von Dialogen einiger Widgets durch Befehl",
+        "ru": "Разрешено открытие/закрытие диалогов некоторых виджетов командой",
+        "pt": "Diálogos de abertura / fechamento permitidos de alguns widgets pelo comando",
+        "nl": "Gelegen opening/ gesloten dialogen van wat wedgets door commando's",
+        "fr": "Permet d'ouvrir/fermer des dialogues de certains widgets par commande",
+        "it": "Consentito apertura / chiusura finestre di alcuni widget per comando",
+        "es": "Permitido abrir / cerrar diálogos de algunos widgets por comando",
+        "pl": "Wszystkie dialogi otwierające/klonizacyjne niektórych widgetów przez komendę",
+        "uk": "Усі діалоги деяких віджетів за допомогою команди",
+        "zh-cn": "允许以指挥方式开门/默示某些阴谋。"
+      },
       "1.3.9": {
         "en": "updated packages",
         "de": "aktualisierte pakete",
