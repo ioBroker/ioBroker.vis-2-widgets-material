@@ -386,5 +386,9 @@
   "Switch white mode": "切换白色模式",
   "noRgbPalette": "没有 RGB 调色板",
   "use_as_dialog": "用作对话框",
-  "use_as_dialog_tooltip": "特殊模式：该小部件将在运行时模式下隐藏，其他小部件（如 SweetHome 3D）可以打开此小部件对话框"
+  "use_as_dialog_tooltip": "特殊模式：该小部件将在运行时模式下隐藏，其他小部件（如 SweetHome 3D）可以打开此小部件对话框",
+  "toggleOnClick": "点击切换开关",
+  "pressDuration": "按压持续时间",
+  "pressDuration_tooltip": "以毫秒为单位，按下弹出控件多长时间",
+  "borderRadius": "边界半径"
 }

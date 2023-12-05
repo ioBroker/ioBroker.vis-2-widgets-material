@@ -386,5 +386,9 @@
   "Switch white mode": "Schakel de witte modus in",
   "noRgbPalette": "Zonder RGB-palet",
   "use_as_dialog": "Gebruik als dialoog",
-  "use_as_dialog_tooltip": "Speciale modus: de widget wordt verborgen in de runtimemodus en andere widgets (zoals SweetHome 3D) kunnen dit widgetdialoogvenster openen"
+  "use_as_dialog_tooltip": "Speciale modus: de widget wordt verborgen in de runtimemodus en andere widgets (zoals SweetHome 3D) kunnen dit widgetdialoogvenster openen",
+  "toggleOnClick": "Tuimelschakelaar op klik",
+  "pressDuration": "Druk op duur",
+  "pressDuration_tooltip": "Hoe lang in ms moet worden ingedrukt voor pop-upbediening",
+  "borderRadius": "Randradius"
 }

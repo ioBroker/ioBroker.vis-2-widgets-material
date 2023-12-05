@@ -386,5 +386,9 @@
   "Switch white mode": "Alternar modo branco",
   "noRgbPalette": "Sem paleta RGB",
   "use_as_dialog": "Usar como diálogo",
-  "use_as_dialog_tooltip": "Modo especial: o widget ficará oculto no modo de execução e outros widgets (como SweetHome 3D) poderão abrir esta caixa de diálogo de widget"
+  "use_as_dialog_tooltip": "Modo especial: o widget ficará oculto no modo de execução e outros widgets (como SweetHome 3D) poderão abrir esta caixa de diálogo de widget",
+  "toggleOnClick": "Ativar botão para clicar",
+  "pressDuration": "Duração da imprensa",
+  "pressDuration_tooltip": "Em ms, quanto tempo pressionar para controle de pop-up",
+  "borderRadius": "Raio da borda"
 }

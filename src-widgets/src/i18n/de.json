@@ -386,5 +386,9 @@
   "Switch white mode": "Den Weißmodus umschalten",
   "noRgbPalette": "Ohne RGB-Palette",
   "use_as_dialog": "Als Dialog verwenden",
-  "use_as_dialog_tooltip": "Spezialmodus: Das Widget wird im Laufzeitmodus ausgeblendet und andere Widgets (wie SweetHome 3D) könnten diesen Widget-Dialog öffnen"
+  "use_as_dialog_tooltip": "Spezialmodus: Das Widget wird im Laufzeitmodus ausgeblendet und andere Widgets (wie SweetHome 3D) könnten diesen Widget-Dialog öffnen",
+  "toggleOnClick": "Kippschalter beim Klicken",
+  "pressDuration": "Drücken Sie die Dauer",
+  "pressDuration_tooltip": "Gibt in ms an, wie lange für die Popup-Steuerung gedrückt werden muss",
+  "borderRadius": "Grenzradius"
 }

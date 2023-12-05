@@ -633,6 +633,12 @@ class SimpleState extends Generic {
 
         const height = !this.state.rxData.noCard && !props.widget.usedInWidget && this.state.rxData.widgetTitle ? 'calc(100% - 36px)' : '100%';
 
+        if (!this.state.object.common.states && this.isOn()) {
+            props.className = `${props.className} vis-on`.trim();
+        } else {
+            props.className = `${props.className} vis-off`.trim();
+        }
+
         const content = <>
             {this.renderDimmerDialog()}
             <div

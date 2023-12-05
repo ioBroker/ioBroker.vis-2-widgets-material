@@ -386,5 +386,9 @@
   "Switch white mode": "Alternar modo blanco",
   "noRgbPalette": "Sin paleta RGB",
   "use_as_dialog": "Usar como diálogo",
-  "use_as_dialog_tooltip": "Modo especial: el widget estará oculto en el modo de ejecución y otros widgets (como SweetHome 3D) podrían abrir este cuadro de diálogo de widget."
+  "use_as_dialog_tooltip": "Modo especial: el widget estará oculto en el modo de ejecución y otros widgets (como SweetHome 3D) podrían abrir este cuadro de diálogo de widget.",
+  "toggleOnClick": "Alternar interruptor al hacer clic",
+  "pressDuration": "Duración de la prensa",
+  "pressDuration_tooltip": "En ms, ¿cuánto tiempo se debe presionar para controlar la ventana emergente?",
+  "borderRadius": "Radio del borde"
 }

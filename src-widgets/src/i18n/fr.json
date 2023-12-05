@@ -386,5 +386,9 @@
   "Switch white mode": "Basculer en mode blanc",
   "noRgbPalette": "Sans palette RVB",
   "use_as_dialog": "Utiliser comme boîte de dialogue",
-  "use_as_dialog_tooltip": "Mode spécial : le widget sera masqué en mode d'exécution et d'autres widgets (comme SweetHome 3D) pourront ouvrir cette boîte de dialogue de widget"
+  "use_as_dialog_tooltip": "Mode spécial : le widget sera masqué en mode d'exécution et d'autres widgets (comme SweetHome 3D) pourront ouvrir cette boîte de dialogue de widget",
+  "toggleOnClick": "Basculer l'interrupteur en cliquant sur",
+  "pressDuration": "Durée de presse",
+  "pressDuration_tooltip": "En ms, combien de temps faut-il appuyer pour contrôler les popups",
+  "borderRadius": "Rayon de la frontière"
 }

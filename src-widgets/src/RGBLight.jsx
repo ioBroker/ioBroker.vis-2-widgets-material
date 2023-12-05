@@ -322,6 +322,29 @@ class RGBLight extends Generic {
                             min: 0,
                             max: 2000,
                         },
+                        {
+                            name: 'toggleOnClick',
+                            label: 'toggleOnClick',
+                            type: 'checkbox',
+                            hidden: '!data.switch',
+                        },
+                        {
+                            label: 'pressDuration',
+                            name: 'pressDuration',
+                            tooltip: 'pressDuration_tooltip',
+                            type: 'slider',
+                            min: 100,
+                            max: 3000,
+                            hidden: '!data.toggleOnClick || !data.switch',
+                        },
+                        {
+                            label: 'borderRadius',
+                            name: 'borderRadius',
+                            type: 'slider',
+                            min: 0,
+                            max: 100,
+                            hidden: '!data.noCard',
+                        },
                     ],
                 },
             ],
@@ -858,16 +881,36 @@ class RGBLight extends Generic {
                 </div>;
             }
         } else if (this.props.editMode || !this.state.rxData.externalDialog) {
+            if (switchState) {
+                props.className = `${props.className} vis-on`.trim();
+            } else {
+                props.className = `${props.className} vis-off`.trim();
+            }
             rgbContent = <>
                 <div className={this.props.classes.rgbContent} ref={this.contentRef}>
                     <IconButton
-                        onClick={() => this.setState({ dialog: true })}
+                        onClick={!this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch ? () => this.setState({ dialog: true }) : undefined}
+                        onMouseDown={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                            this.pressTimeout && clearTimeout(this.pressTimeout);
+                            this.pressTimeout = setTimeout(() => {
+                                this.pressTimeout = null;
+                                this.setState({ dialog: true });
+                            }, parseInt(this.state.rxData.pressDuration, 10) || 300);
+                        } : undefined}
+                        onMouseUp={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                            if (this.pressTimeout) {
+                                clearTimeout(this.pressTimeout);
+                                this.pressTimeout = null;
+                                this.rgbSetId('switch', !switchState);
+                            }
+                        } : undefined}
                         style={{
                             backgroundColor: switchState === null || switchState ? this.rgbGetColor() :
                                 (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
                             color: this.rgbGetTextColor(),
                             width: size,
                             height: size,
+                            borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
                         }}
                     >
                         <ColorLens

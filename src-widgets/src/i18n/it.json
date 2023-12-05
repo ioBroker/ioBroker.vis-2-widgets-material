@@ -386,5 +386,9 @@
   "Switch white mode": "Attiva/disattiva la modalità bianca",
   "noRgbPalette": "Senza tavolozza RGB",
   "use_as_dialog": "Usa come dialogo",
-  "use_as_dialog_tooltip": "Modalità speciale: il widget verrà nascosto in modalità runtime e altri widget (come SweetHome 3D) potrebbero aprire questa finestra di dialogo del widget"
+  "use_as_dialog_tooltip": "Modalità speciale: il widget verrà nascosto in modalità runtime e altri widget (come SweetHome 3D) potrebbero aprire questa finestra di dialogo del widget",
+  "toggleOnClick": "Attiva/disattiva l'interruttore al clic",
+  "pressDuration": "Durata della stampa",
+  "pressDuration_tooltip": "In ms, quanto tempo tenere premuto per il controllo del popup",
+  "borderRadius": "Raggio del confine"
 }

@@ -386,5 +386,9 @@
   "Switch white mode": "Przełącz tryb biały",
   "noRgbPalette": "Bez palety RGB",
   "use_as_dialog": "Użyj jako okna dialogowego",
-  "use_as_dialog_tooltip": "Tryb specjalny: widżet zostanie ukryty w trybie wykonawczym, a inne widżety (takie jak SweetHome 3D) mogą otworzyć okno dialogowe tego widżetu"
+  "use_as_dialog_tooltip": "Tryb specjalny: widżet zostanie ukryty w trybie wykonawczym, a inne widżety (takie jak SweetHome 3D) mogą otworzyć okno dialogowe tego widżetu",
+  "toggleOnClick": "Przełącz przełącznik po kliknięciu",
+  "pressDuration": "Naciśnij czas trwania",
+  "pressDuration_tooltip": "W ms, jak długo należy naciskać, aby sterować wyskakującym okienkiem",
+  "borderRadius": "Promień granicy"
 }
