@@ -127,7 +127,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.13 (2023-12-05)
 * (bluefox) Allowed with on click on the widget toggling the ON/OFF state of RGB widget
 * (bluefox) Added class names to ON/OFF widgets to allow styling
 
