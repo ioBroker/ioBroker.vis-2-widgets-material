@@ -127,7 +127,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.15 (2023-12-17)
 * (foxriver76) Added option to rotate video
 
 ### 1.3.14 (2023-12-05)
