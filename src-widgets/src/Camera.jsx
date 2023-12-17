@@ -121,6 +121,14 @@ class Camera extends Generic {
                             label: 'show_refresh_time',
                             default: true,
                         },
+                        {
+                            name: 'rotateVideo',
+                            type: 'slider',
+                            label: 'rotate_video',
+                            min: 0,
+                            max: 359,
+                            default: 0,
+                        },
                     ],
                 },
             ],
@@ -233,6 +241,7 @@ class Camera extends Generic {
                             src={this.state.rxData.fullUrl || this.state.rxData.url || noImageSvg}
                             alt="Camera"
                             className={this.props.classes.fullCamera}
+                            style={{ transform: `rotate(${this.state.rxData.rotateVideo}deg)` }}
                         />
                         {this.state.rxData.showRefreshTime && this.state.fullRefreshTime ?
                             <div className={this.props.classes.dialogTime}>
@@ -260,6 +269,7 @@ class Camera extends Generic {
                     src={this.takeUrl()}
                     alt="Camera"
                     className={this.props.classes.camera}
+                    style={{ transform: `rotate(${this.state.rxData.rotateVideo}deg)` }}
                 />
                 {this.state.rxData.showRefreshTime && this.state.refreshTime ?
                     <div className={this.props.classes.time}>

@@ -87,6 +87,7 @@ class App extends WidgetDemoApp {
                     url: 'https://loremflickr.com/320/240',
                     refreshInterval: 1000,
                     showRefreshTime: true,
+                    rotateVideo: 0,
                 }}
             />,
             map: <Map
