@@ -127,7 +127,7 @@ class Camera extends Generic {
                             label: 'rotate_video',
                             min: 0,
                             max: 359,
-                            default: 0
+                            default: 0,
                         },
                     ],
                 },
