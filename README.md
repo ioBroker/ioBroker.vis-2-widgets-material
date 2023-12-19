@@ -127,7 +127,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### 1.3.16 (2023-12-19)
+### **WORK IN PROGRESS**
 * (bluefox) Added option to hide the line in switches widget
 
 ### 1.3.15 (2023-12-17)
