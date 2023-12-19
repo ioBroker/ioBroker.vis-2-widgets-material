@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.15",
+    "version": "1.3.16",
     "news": {
+      "1.3.16": {
+        "en": "Added option to hide the line in switches widget",
+        "de": "Option hinzugefügt, um die Zeile in Schalter Widget zu verstecken",
+        "ru": "Добавлена возможность скрыть строку в коммутаторах виджета",
+        "pt": "Opção adicionada para esconder a linha no widget de interruptores",
+        "nl": "De optie om de lijn te verstoppen in wisselgeld",
+        "fr": "Option supplémentaire pour cacher la ligne dans les commutateurs widget",
+        "it": "Aggiunta opzione per nascondere la linea in widget switch",
+        "es": "Opción adicional para ocultar la línea en el widget de interruptores",
+        "pl": "Wstępna możliwość ukrywania linii w przełącznikach widget",
+        "uk": "Додано варіант, щоб приховати лінію в вимикачах віджет",
+        "zh-cn": "增加在转换成目标的界线的选择"
+      },
       "1.3.15": {
         "en": "Added option to rotate video",
         "de": "Option zum Drehen von Video hinzugefügt",
@@ -80,19 +93,6 @@
         "pl": "Poprawny układ RGB\nWstępna opcja dla RGB widget by ukryć jasność sterowania\nWstępna opcja dla białego trybu w RGB",
         "uk": "Виправлено макет RGB віджет\nДодано варіант для RGB віджет, щоб приховати яскравість управління\nДодано варіант для білого режиму в RGB віджет",
         "zh-cn": "B. 改编\n增加区域协调会的光明控制方案\n增加RGB widget中的白模式的选择"
-      },
-      "1.3.3": {
-        "en": "Corrected layout of RGB widget\nAdded color settings to actual\nVacuum settings were hidden",
-        "de": "Korrigiertes Layout des RGB-Widgets\nHinzufügen von Farbeinstellungen zu Ist\nVakuumeinstellungen wurden versteckt",
-        "ru": "Исправлена планировка виджета RGB\nДобавлены цветовые настройки к актуальным\nВакуумные настройки были скрыты",
-        "pt": "Layout corrigido do widget RGB\nConfigurações de cor adicionadas para real\nAs configurações de vácuo foram ocultas",
-        "nl": "Vertaling:\nGeadresseerde kleuren aan werkelijke\nVacuüm settings waren verborgen",
-        "fr": "Mise en page corrigée du widget RGB\nAjout de paramètres de couleur à réel\nLes paramètres d'aspirateur ont été cachés",
-        "it": "Layout corretto del widget RGB\nImpostazioni di colore aggiunto a reale\nLe impostazioni del vuoto sono state nascoste",
-        "es": "Diseño corregido del widget RGB\nAjustes de color añadido a la real\nLos ajustes de vacío estaban ocultos",
-        "pl": "Poprawny układ RGB\nDodrukowane kolory dla rzeczywistych\nUstawienia Vacuum zostały ukryte",
-        "uk": "Виправлено макет RGB віджет\nДодано параметри кольору до фактичного\nВакуумні налаштування були приховані",
-        "zh-cn": "B. 改编\n增加实际的颜色环境\n秘密环境"
       }
     },
     "title": "Vis 2 Widgets Material",
