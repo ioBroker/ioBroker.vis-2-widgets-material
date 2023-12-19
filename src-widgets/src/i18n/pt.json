@@ -391,5 +391,8 @@
   "window_ratio": "Relação altura/largura",
   "with_seconds": "Com segundos",
   "without_card": "sem moldura",
-  "wizard": "Assistente de assistente"
+  "wizard": "Assistente de assistente",
+  "visibility-oid": "Ocultar se o estado",
+  "visibility-cond": "Doença",
+  "visibility-val": "Valor de invisibilidade"
 }

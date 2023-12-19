@@ -391,5 +391,8 @@
   "window_ratio": "Rapport hauteur/largeur",
   "with_seconds": "Avec secondes",
   "without_card": "Sans cadre",
-  "wizard": "Assistant assistant"
+  "wizard": "Assistant assistant",
+  "visibility-oid": "Masquer si l'état",
+  "visibility-cond": "Condition",
+  "visibility-val": "Valeur d'invisibilité"
 }

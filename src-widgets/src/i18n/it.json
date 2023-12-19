@@ -391,5 +391,8 @@
   "window_ratio": "Rapporto altezza/larghezza",
   "with_seconds": "Con secondi",
   "without_card": "Senza cornice",
-  "wizard": "Aiutante del mago"
+  "wizard": "Aiutante del mago",
+  "visibility-oid": "Nascondi se lo stato",
+  "visibility-cond": "Condizione",
+  "visibility-val": "Valore di invisibilità"
 }

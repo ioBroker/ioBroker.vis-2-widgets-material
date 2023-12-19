@@ -391,5 +391,8 @@
   "window_ratio": "Hoogte/Breedte verhouding",
   "with_seconds": "Met seconden",
   "without_card": "Zonder lijst",
-  "wizard": "Tovenaar helper"
+  "wizard": "Tovenaar helper",
+  "visibility-oid": "Verberg als de staat",
+  "visibility-cond": "Voorwaarde",
+  "visibility-val": "Onzichtbaarheidswaarde"
 }

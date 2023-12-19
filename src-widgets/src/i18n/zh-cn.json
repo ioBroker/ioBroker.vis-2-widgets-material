@@ -391,5 +391,8 @@
   "window_ratio": "高宽比",
   "with_seconds": "用秒",
   "without_card": "无框",
-  "wizard": "向导助手"
+  "wizard": "向导助手",
+  "visibility-oid": "隐藏如果状态",
+  "visibility-cond": "健康）状况",
+  "visibility-val": "不可见值"
 }

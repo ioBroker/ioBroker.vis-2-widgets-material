@@ -391,5 +391,8 @@
   "window_ratio": "Stosunek wysokości do szerokości",
   "with_seconds": "Z sekundami",
   "without_card": "Bez ramy",
-  "wizard": "Pomocnik czarodzieja"
+  "wizard": "Pomocnik czarodzieja",
+  "visibility-oid": "Ukryj, jeśli stan",
+  "visibility-cond": "Stan",
+  "visibility-val": "Wartość niewidoczności"
 }

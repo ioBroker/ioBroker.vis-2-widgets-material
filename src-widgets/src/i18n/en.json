@@ -391,5 +391,8 @@
   "window_ratio": "Height/Width ratio",
   "with_seconds": "With seconds",
   "without_card": "Without frame",
-  "wizard": "Wizard helper"
+  "wizard": "Wizard helper",
+  "visibility-oid": "Hide if the state",
+  "visibility-cond": "Condition",
+  "visibility-val": "Unvisibility value"
 }

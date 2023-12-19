@@ -866,6 +866,7 @@ class Switches extends BlindsBase {
                             type: 'widget',
                             label: 'widget_id',
                             hidden: '!!data["oid" + index]',
+                            noBinding: true,
                             checkUsage: true,
                         },
                         {
@@ -1206,6 +1207,31 @@ class Switches extends BlindsBase {
                             name: 'vacuum-pause-oid',
                             type: 'id',
                             hidden: '!!data["widget" + index] || data["type" + index] !== "vacuum"',
+                        },
+                        {
+                            type: 'divider',
+                        },
+                        // ---------- visibility -----------------
+                        {
+                            label: 'visibility-oid',
+                            name: 'visibility-oid',
+                            type: 'id',
+                        },
+                        {
+                            label: 'visibility-cond',
+                            name: 'visibility-cond',
+                            type: 'select',
+                            options: ['==', '!=', '<=', '>=', '<', '>', 'consist', 'not consist', 'exist', 'not exist'],
+                            noTranslation: true,
+                            default: '==',
+                            hidden: '!data["visibility-oid" + index]',
+                        },
+                        {
+                            label: 'visibility-val',
+                            name: 'visibility-val',
+                            type: 'text',
+                            default: '1',
+                            hidden: '!data["visibility-oid" + index]',
                         },
                     ],
                 },
@@ -1828,7 +1854,7 @@ class Switches extends BlindsBase {
         return null;
     }
 
-    renderWidgetInWidget(index, asButton) {
+    renderWidgetInWidget(index, asButton, visibility) {
         const wid = this.state.rxData[`widget${index}`];
         const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
         if (widget && wid !== this.props.id && this.getWidgetInWidget) { // todo: remove this condition after vis release
@@ -1856,6 +1882,10 @@ class Switches extends BlindsBase {
                 style.marginRight = this.state.rxData[`position${index}`];
             }
 
+            if (!visibility) {
+                style.opacity = 0.3;
+            }
+
             return <div
                 key={index}
                 ref={this.widgetRef[index]}
@@ -1870,7 +1900,7 @@ class Switches extends BlindsBase {
 
     renderLine(index) {
         if (typeof this.state.objects[index] === 'string') {
-            return this.renderWidgetInWidget(index);
+            return this.renderWidgetInWidget(index, false, true);
         }
         let value = this.state.values[`${this.state.objects[index]._id}.val`];
 
@@ -2590,8 +2620,12 @@ class Switches extends BlindsBase {
     }
 
     renderButton(index, icon) {
+        const visibility = this.checkLineVisibility(index);
+        if (!visibility && !this.props.editMode) {
+            return null;
+        }
         if (typeof this.state.objects[index] === 'string') {
-            return this.renderWidgetInWidget(index, true);
+            return this.renderWidgetInWidget(index, true, visibility);
         }
 
         let value;
@@ -2683,6 +2717,7 @@ class Switches extends BlindsBase {
                 height: buttonHeight || undefined,
                 border: this.state.selectedOne ? '1px dashed gray' : 'none',
                 boxSizing: 'border-box',
+                opacity: visibility ? undefined : 0.3,
             }}
         >
             <Button
@@ -3898,6 +3933,82 @@ class Switches extends BlindsBase {
         </div>;
     }
 
+    checkLineVisibility(index) {
+        const oid = this.state.rxData[`visibility-oid${index}`];
+        if (!oid) {
+            return true;
+        }
+        const condition = this.state.rxData[`visibility-cond${index}`] || '==';
+
+        let val = this.state.values[`${oid}.val`];
+
+        if (val === undefined || val === null) {
+            return condition === 'not exist';
+        }
+
+        let value = this.state.rxData[`visibility-val${index}`];
+
+        if (value === undefined || value === null) {
+            return condition === 'not exist';
+        }
+
+        if (val === 'null' && condition !== 'exist' && condition !== 'not exist') {
+            return false;
+        }
+
+        const t = typeof val;
+        if (t === 'boolean' || val === 'false' || val === 'true') {
+            value = value === 'true' || value === true || value === 1 || value === '1';
+        } else if (t === 'number') {
+            value = parseFloat(value);
+        } else if (t === 'object') {
+            val = JSON.stringify(val);
+        }
+
+        // Take care: return true if the widget is hidden!
+        switch (condition) {
+            case '==':
+                value = value.toString();
+                val = val.toString();
+                if (val === '1') val = 'true';
+                if (value === '1') value = 'true';
+                if (val === '0') val = 'false';
+                if (value === '0') value = 'false';
+                return value !== val;
+            case '!=':
+                value = value.toString();
+                val = val.toString();
+                if (val === '1') val = 'true';
+                if (value === '1') value = 'true';
+                if (val === '0') val = 'false';
+                if (value === '0') value = 'false';
+                return value === val;
+            case '>=':
+                return val < value;
+            case '<=':
+                return val > value;
+            case '>':
+                return val <= value;
+            case '<':
+                return val >= value;
+            case 'consist':
+                value = value.toString();
+                val = val.toString();
+                return !val.toString().includes(value);
+            case 'not consist':
+                value = value.toString();
+                val = val.toString();
+                return val.toString().includes(value);
+            case 'exist':
+                return val === 'null';
+            case 'not exist':
+                return val !== 'null';
+            default:
+                console.log(`[${this.props.id} / Line ${index}] Unknown visibility condition: ${condition}`);
+                return false;
+        }
+    }
+
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
         this.customStyle = {};
@@ -3955,22 +4066,35 @@ class Switches extends BlindsBase {
             {this.state.rxData.type === 'lines' ?
                 // LINES
                 // index from 1, i from 0
-                items.map((index, i) => <div
-                    className={this.props.classes.cardsHolder}
-                    style={this.state.rxData[`widget${index}`] && this.state.rxData[`height${index}`] ?
-                        { height: this.state.rxData[`widget${index}`] } : undefined}
-                    key={index}
-                >
-                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                        {anyIcon ? <span className={this.props.classes.iconSwitch}>
-                            {icons[i]}
-                        </span> : null}
-                        {this.state.objects[index].widgetType !== 'input' && this.state.objects[index].widgetType !== 'select' ? <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
-                            {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index]?.common?.name) || ''}
-                        </span> : null}
-                    </span>
-                    {this.renderLine(index)}
-                </div>)
+                items.map((index, i) => {
+                    const visible = this.checkLineVisibility(index);
+                    if (!this.props.editMode && !visible) {
+                        return null;
+                    }
+                    const style = {};
+                    if (this.state.rxData[`widget${index}`] && this.state.rxData[`height${index}`]) {
+                        style.height = this.state.rxData[`widget${index}`];
+                    }
+                    if (!visible) {
+                        style.opacity = 0.3;
+                    }
+
+                    return <div
+                        className={this.props.classes.cardsHolder}
+                        style={style}
+                        key={index}
+                    >
+                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            {anyIcon ? <span className={this.props.classes.iconSwitch}>
+                                {icons[i]}
+                            </span> : null}
+                            {this.state.objects[index].widgetType !== 'input' && this.state.objects[index].widgetType !== 'select' ? <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
+                                {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index]?.common?.name) || ''}
+                            </span> : null}
+                        </span>
+                        {this.renderLine(index)}
+                    </div>;
+                })
                 :
                 // BUTTONS
                 <div className={this.props.classes.buttonsContainer} style={{ flexWrap: this.state.rxData.orientation && this.state.rxData.orientation !== 'h' ? 'wrap' : 'nowrap' }}>

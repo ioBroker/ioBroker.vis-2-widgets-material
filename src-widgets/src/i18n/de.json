@@ -391,5 +391,8 @@
   "window_ratio": "Höhe/Breite-Verhältnis",
   "with_seconds": "Mit Sekunden",
   "without_card": "Ohne Rahmen",
-  "wizard": "Zauberer-Helfer"
+  "wizard": "Zauberer-Helfer",
+  "visibility-oid": "Verstecke falls Zustand",
+  "visibility-cond": "Bedingung",
+  "visibility-val": "Unsichtbarkeitswert"
 }

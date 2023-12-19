@@ -391,5 +391,8 @@
   "window_ratio": "Співвідношення висоти/ширини",
   "with_seconds": "З секундами",
   "without_card": "Без рами",
-  "wizard": "Помічник майстра"
+  "wizard": "Помічник майстра",
+  "visibility-oid": "Сховати, якщо держ",
+  "visibility-cond": "Хвороба",
+  "visibility-val": "Значення невидимості"
 }

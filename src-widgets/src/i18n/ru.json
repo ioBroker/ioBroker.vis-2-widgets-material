@@ -391,5 +391,8 @@
   "window_ratio": "Соотношение высоты/ширины",
   "with_seconds": "С секундами",
   "without_card": "Без рамки",
-  "wizard": "Помощник мастера"
+  "wizard": "Помощник мастера",
+  "visibility-oid": "Скрыть, если состояние",
+  "visibility-cond": "Условие",
+  "visibility-val": "Значение невидимости"
 }
