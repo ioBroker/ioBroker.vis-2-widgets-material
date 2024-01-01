@@ -14,7 +14,7 @@
         "@mui/material": "5.14.14",
         "@mui/styles": "5.14.14",
         "@mui/system": "^5.14.14",
-        "@react-spectrum/color": "^3.0.0-beta.28",
+        "@react-spectrum/color": "^3.0.0-beta.29",
         "@uiw/react-color": "^2.0.4",
         "color": "^4.2.3",
         "colorthief": "^2.4.0",
