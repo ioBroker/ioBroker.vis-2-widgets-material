@@ -115,8 +115,9 @@
     "enabled": true,
     "readme": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/blob/master/README.md",
     "loglevel": "info",
-    "mode": "once",
+    "mode": "none",
     "singleton": true,
+    "noConfig": true,
     "adminUI": {
       "config": "none"
     },

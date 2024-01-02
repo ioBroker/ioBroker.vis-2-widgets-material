@@ -31,7 +31,6 @@
     "mocha": "^10.2.0",
     "@iobroker/vis-2-widgets-testing": "^1.0.0"
   },
-  "main": "main.js",
   "files": [
     "admin/",
     "img/",
