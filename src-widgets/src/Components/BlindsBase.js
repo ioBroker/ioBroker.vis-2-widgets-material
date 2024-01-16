@@ -233,7 +233,7 @@ class BlindsBase extends Generic {
 
                     value = ((data.max - data.min) / 100) * value + data.min;
 
-                    this.props.context.setValue(data.positionOid, { val: value, ack: false });
+                    this.props.context.setValue(data.positionOid, value);
                 }}
                 startValue={data.shutterPos}
                 type={DialogBlinds.types.blinds}
