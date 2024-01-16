@@ -13,7 +13,7 @@
         "@mui/icons-material": "^5.15.4",
         "@mui/material": "5.14.14",
         "@mui/styles": "5.14.14",
-        "@mui/system": "^5.14.14",
+        "@mui/system": "^5.15.4",
         "@react-spectrum/color": "^3.0.0-beta.30",
         "@uiw/react-color": "^2.0.6",
         "color": "^4.2.3",
