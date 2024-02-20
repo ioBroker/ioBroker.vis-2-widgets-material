@@ -289,7 +289,7 @@ class RGBLight extends Generic {
                             min: 500,
                             max: 10000,
                             label: 'color_temperature_min',
-                            hidden: data => data.rgbType !== 'ct' && !data.color_temperature,
+                            hidden: data => data.rgbType !== 'ct' || !data.color_temperature,
                         },
                         {
                             name: 'ct_max',
@@ -297,7 +297,7 @@ class RGBLight extends Generic {
                             min: 500,
                             max: 10000,
                             label: 'color_temperature_max',
-                            hidden: data => data.rgbType !== 'ct' && !data.color_temperature,
+                            hidden: data => data.rgbType !== 'ct' || !data.color_temperature,
                         },
                         {
                             name: 'hue',
@@ -345,7 +345,7 @@ class RGBLight extends Generic {
                         {
                             name: 'timeout',
                             label: 'controlTimeout',
-                            help: 'In milliseconds',
+                            tooltip: 'In milliseconds',
                             type: 'number',
                             min: 0,
                             max: 2000,
