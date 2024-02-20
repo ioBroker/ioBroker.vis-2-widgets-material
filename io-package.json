@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "1.3.19",
     "news": {
-      "1.3.19": {
-        "en": "Corrected small input fields",
-        "de": "Kleine Eingabefelder korrigiert",
-        "ru": "Исправленные небольшие поля ввода",
-        "pt": "Campos de entrada pequenos corrigidos",
-        "nl": "Gecorrigeerde kleine invoervelden",
-        "fr": "Petits champs d'entrée corrigés",
-        "it": "Campi di input corretti",
-        "es": "Campos de entrada pequeños corregidos",
-        "pl": "Skorygowane małe pola wejściowe",
-        "uk": "Виправлені невеликі поля введення",
-        "zh-cn": "更正小输入字段"
-      },
       "1.3.18": {
         "en": "Corrected long click for RGB widget on touch devices\nCorrected dimmer widget",
         "de": "Geregelter langer Klick für RGB Widget auf Touch-Geräten\nKorrigiertes Dimmer-Widget",
@@ -126,6 +113,10 @@
     "type": "visualization-widgets",
     "connectionType": "cloud",
     "dataSource": "poll",
+    "licenseInformation": {
+      "type": "free",
+      "link": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/blob/master/LICENSE"
+    },
     "visWidgets": {
       "vis2materialWidgets": {
         "i18n": "component",

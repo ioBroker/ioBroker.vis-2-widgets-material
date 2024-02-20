@@ -918,28 +918,28 @@ class RGBLight extends Generic {
                 <div className={this.props.classes.rgbContent} ref={this.contentRef}>
                     <IconButton
                         onClick={!this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch ? () => this.setState({ dialog: true }) : undefined}
-                        onMouseDown={!this.isTouch && this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        onMouseDown={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
                             this.pressTimeout && clearTimeout(this.pressTimeout);
                             this.pressTimeout = setTimeout(() => {
                                 this.pressTimeout = null;
                                 this.setState({ dialog: true });
                             }, parseInt(this.state.rxData.pressDuration, 10) || 300);
                         } : undefined}
-                        onMouseUp={!this.isTouch && this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        onMouseUp={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
                             if (this.pressTimeout) {
                                 clearTimeout(this.pressTimeout);
                                 this.pressTimeout = null;
                                 this.rgbSetId('switch', !switchState);
                             }
                         } : undefined}
-                        onTouchStart={this.isTouch && this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        onTouchStart={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
                             this.pressTimeout && clearTimeout(this.pressTimeout);
                             this.pressTimeout = setTimeout(() => {
                                 this.pressTimeout = null;
                                 this.setState({ dialog: true });
                             }, parseInt(this.state.rxData.pressDuration, 10) || 300);
                         } : undefined}
-                        onTouchEnd={this.isTouch && this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        onTouchEnd={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
                             if (this.pressTimeout) {
                                 clearTimeout(this.pressTimeout);
                                 this.pressTimeout = null;
