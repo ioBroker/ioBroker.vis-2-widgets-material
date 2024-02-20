@@ -127,7 +127,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.19 (2024-02-20)
 * (bluefox) Corrected small input fields
 
 ### 1.3.18 (2024-01-16)
