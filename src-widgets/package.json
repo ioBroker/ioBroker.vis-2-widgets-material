@@ -12,7 +12,7 @@
         "@iobroker/vis-2-widgets-react-dev": "^1.0.5",
         "@mui/icons-material": "^5.15.11",
         "@mui/material": "5.14.14",
-        "@mui/styles": "5.14.14",
+        "@mui/styles": "5.15.11",
         "@mui/system": "5.14.14",
         "@react-spectrum/color": "^3.0.0-beta.32",
         "@uiw/react-color": "^2.0.8",
