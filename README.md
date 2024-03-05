@@ -127,7 +127,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### 1.3.22 (2024-03-05)
+### **WORK IN PROGRESS**
 * (bluefox) Added possibility to change the icon size in simple widget
 
 ### 1.3.21 (2024-02-22)

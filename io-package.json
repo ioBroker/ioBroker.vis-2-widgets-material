@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "1.3.22",
     "news": {
-      "1.3.22": {
-        "en": "Added possibility to change the icon size in simple widget",
-        "de": "Möglichkeit, die Icon-Größe in einfachem Widget zu ändern",
-        "ru": "Добавлена возможность изменить размер значка в простом виджете",
-        "pt": "Adicionado possibilidade de alterar o tamanho do ícone em widget simples",
-        "nl": "Toegevoegd mogelijkheid om de pictogramgrootte in eenvoudige widget te wijzigen",
-        "fr": "Ajout de la possibilité de modifier la taille de l'icône dans le widget simple",
-        "it": "Aggiunta possibilità di cambiare la dimensione icona in widget semplice",
-        "es": "Añadido posibilidad de cambiar el tamaño del icono en widget simple",
-        "pl": "Dodano możliwość zmiany rozmiaru ikon w prosty widget",
-        "uk": "Додано можливість змінити розмір іконки в простому віджеті",
-        "zh-cn": "添加修改简单部件图标大小的可能性"
-      },
       "1.3.21": {
         "en": "Corrected small input fields",
         "de": "Kleine Eingabefelder korrigiert",

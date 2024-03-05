@@ -110,6 +110,9 @@ const styles = () => ({
         left: 0,
         transform: 'none',
     },
+    tooltip: {
+        pointerEvents: 'none',
+    },
 });
 
 class Thermostat extends Generic {
@@ -602,7 +605,11 @@ class Thermostat extends Generic {
                     }
 
                     return icon && !mode.label ?
-                        <Tooltip key={mode.value} title={mode.tooltip}>
+                        <Tooltip
+                            key={mode.value}
+                            title={mode.tooltip}
+                            classes={{ popper: this.props.classes.tooltip }}
+                        >
                             <IconButton
                                 color={currentValueStr === mode.value ? 'primary' : 'grey'}
                                 style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
@@ -699,7 +706,11 @@ class Thermostat extends Generic {
         }
 
         if (thermIsWithPowerButton) {
-            modesButton.push(<Tooltip key="power" title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
+            modesButton.push(<Tooltip
+                key="power"
+                title={Generic.t('power').replace('vis_2_widgets_material_', '')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton
                     color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'grey'}
                     onClick={() => {
@@ -747,7 +758,10 @@ class Thermostat extends Generic {
                     onControlFinished={() =>
                         this.props.context.setValue(this.state.rxData['oid-temp-set'], this.state.values[`${this.state.rxData['oid-temp-set']}.val`])}
                 >
-                    {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
+                    {tempValue !== null ? <Tooltip
+                        title={Generic.t('desired_temperature')}
+                        classes={{ popper: this.props.classes.tooltip }}
+                    >
                         <div
                             className={this.props.classes.thermostatDesiredTemp}
                             style={{ fontSize: Math.round(this.state.size / 6), ...this.customStyle }}
@@ -759,7 +773,10 @@ class Thermostat extends Generic {
                             </div>
                         </div>
                     </Tooltip> : null}
-                    {actualTemp !== null ? <Tooltip title={Generic.t('actual_temperature')}>
+                    {actualTemp !== null ? <Tooltip
+                        title={Generic.t('actual_temperature')}
+                        classes={{ popper: this.props.classes.tooltip }}
+                    >
                         <div
                             style={{ fontSize: Math.round((this.state.size * 0.6) / 6), opacity: 0.7, ...this.customStyle }}
                             key={`${actualTemp}valText`}

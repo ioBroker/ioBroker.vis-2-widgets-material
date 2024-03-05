@@ -434,6 +434,9 @@ const styles = () => ({
         color: 'grey',
     },
     vacuumSpeedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
+    tooltip: {
+        pointerEvents: 'none',
+    },
 
     ...STYLES,
 });
@@ -3112,7 +3115,11 @@ class Switches extends BlindsBase {
             }
         }
         if (this.thermIsWithPowerButton(index)) {
-            modesButton.push(<Tooltip key="power" title={Generic.t('power').replace('vis_2_widgets_material_', '')}>
+            modesButton.push(<Tooltip
+                key="power"
+                title={Generic.t('power').replace('vis_2_widgets_material_', '')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton
                     color={this.state.values[`${this.state.rxData[`switch${index}`]}.val`] ? 'primary' : 'grey'}
                     onClick={() => {
@@ -3159,7 +3166,10 @@ class Switches extends BlindsBase {
                     onControlFinished={() =>
                         this.props.context.setValue(setObj._id, this.state.values[`${setObj._id}.val`])}
                 >
-                    {tempValue !== null ? <Tooltip title={Generic.t('desired_temperature')}>
+                    {tempValue !== null ? <Tooltip
+                        title={Generic.t('desired_temperature')}
+                        classes={{ popper: this.props.classes.tooltip }}
+                    >
                         <div
                             className={this.props.classes.thermostatDesiredTemp}
                             style={{ fontSize: Math.round(size / 6), ...this.customStyle }}
@@ -3171,7 +3181,10 @@ class Switches extends BlindsBase {
                             </div>
                         </div>
                     </Tooltip> : null}
-                    {actualTemp !== null ? <Tooltip title={Generic.t('actual_temperature')}>
+                    {actualTemp !== null ? <Tooltip
+                        title={Generic.t('actual_temperature')}
+                        classes={{ popper: this.props.classes.tooltip }}
+                    >
                         <div
                             style={{ fontSize: Math.round((size * 0.6) / 6), opacity: 0.7, ...this.customStyle }}
                             key={`${actualTemp}valText`}
@@ -3435,7 +3448,10 @@ class Switches extends BlindsBase {
 
     rgbRenderBrightness(index) {
         return this.state.secondaryObjects[index].brightness && <div className={this.props.classes.rgbSliderContainer}>
-            <Tooltip title={Generic.t('Brightness')}>
+            <Tooltip
+                title={Generic.t('Brightness')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <Brightness6 />
             </Tooltip>
             <Slider
@@ -3467,12 +3483,18 @@ class Switches extends BlindsBase {
         }
 
         return !this.rgbIsOnlyHue(index) && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
-            {whiteMode !== null ? <Tooltip title={Generic.t('Switch white mode')}>
+            {whiteMode !== null ? <Tooltip
+                title={Generic.t('Switch white mode')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
                     <WbAuto />
                 </IconButton>
             </Tooltip> : null}
-            {!this.state.rxData[`noRgbPalette${index}`] && whiteMode !== true ? <Tooltip title={Generic.t('Switch color picker')}>
+            {!this.state.rxData[`noRgbPalette${index}`] && whiteMode !== true ? <Tooltip
+                title={Generic.t('Switch color picker')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton
                     onClick={() => {
                         const sketch = JSON.parse(JSON.stringify(this.state.sketch));
@@ -3543,7 +3565,10 @@ class Switches extends BlindsBase {
             return null;
         }
         return <div className={this.props.classes.rgbSliderContainer}>
-            <Tooltip title={Generic.t('Color temperature')}>
+            <Tooltip
+                title={Generic.t('Color temperature')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <Thermostat />
             </Tooltip>
             <div
@@ -3848,7 +3873,10 @@ class Switches extends BlindsBase {
             } : undefined}
         >
             {this.vacuumGetObj(index, 'start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
-                <Tooltip title={Generic.t('Start')}>
+                <Tooltip
+                    title={Generic.t('Start')}
+                    classes={{ popper: this.props.classes.tooltip }}
+                >
                     <IconButton
                         onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-start-oid${index}`], true)}
                     >
@@ -3856,7 +3884,10 @@ class Switches extends BlindsBase {
                     </IconButton>
                 </Tooltip>}
             {this.vacuumGetObj(index, 'pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
-                <Tooltip title={Generic.t('Pause')}>
+                <Tooltip
+                    title={Generic.t('Pause')}
+                    classes={{ popper: this.props.classes.tooltip }}
+                >
                     <IconButton
                         onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-pause-oid${index}`], true)}
                     >
@@ -3864,14 +3895,20 @@ class Switches extends BlindsBase {
                     </IconButton>
                 </Tooltip>}
             {this.vacuumGetObj(index, 'home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
-                <Tooltip title={Generic.t('Home')}>
+                <Tooltip
+                    title={Generic.t('Home')}
+                    classes={{ popper: this.props.classes.tooltip }}
+                >
                     <IconButton
                         onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-home-oid${index}`], true)}
                     >
                         <Home />
                     </IconButton>
                 </Tooltip>}
-            {statusObj && <Tooltip title={Generic.t('Status')}>
+            {statusObj && <Tooltip
+                title={Generic.t('Status')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <div style={{ color: statusColor }}>
                     {Generic.t(status).replace('vis_2_widgets_material_', '')}
                 </div>

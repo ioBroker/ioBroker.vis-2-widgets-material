@@ -76,6 +76,9 @@ const styles = () => ({
         overflow: 'hidden',
         alignItems: 'center',
     },
+    tooltip: {
+        pointerEvents: 'none',
+    },
 });
 
 export const RGB_ROLES = {
@@ -650,7 +653,10 @@ class RGBLight extends Generic {
 
     rgbRenderBrightness() {
         return this.state.rgbObjects.brightness && <div className={this.props.classes.rgbSliderContainer}>
-            <Tooltip title={Generic.t('Brightness')}>
+            <Tooltip
+                title={Generic.t('Brightness')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <Brightness6 />
             </Tooltip>
             <Slider
@@ -683,12 +689,18 @@ class RGBLight extends Generic {
         }
 
         return !this.rgbIsOnlyHue() && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
-            {whiteMode !== null ? <Tooltip title={Generic.t('Switch white mode')}>
+            {whiteMode !== null ? <Tooltip
+                title={Generic.t('Switch white mode')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
                     <WbAuto />
                 </IconButton>
             </Tooltip> : null}
-            {!this.state.rxData.noRgbPalette && whiteMode !== true ? <Tooltip title={Generic.t('Switch color picker')}>
+            {!this.state.rxData.noRgbPalette && whiteMode !== true ? <Tooltip
+                title={Generic.t('Switch color picker')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
                     <ColorLens />
                 </IconButton>
@@ -753,7 +765,10 @@ class RGBLight extends Generic {
             return null;
         }
         return <div className={this.props.classes.rgbSliderContainer}>
-            <Tooltip title={Generic.t('Color temperature')}>
+            <Tooltip
+                title={Generic.t('Color temperature')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <Thermostat />
             </Tooltip>
             <div

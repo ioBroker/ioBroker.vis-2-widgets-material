@@ -71,6 +71,9 @@ const styles = () => ({
         color: 'grey',
     },
     vacuumSpeedContainer: { gap: 4, display: 'flex', alignItems: 'center' },
+    tooltip: {
+        pointerEvents: 'none',
+    },
 });
 
 export const VACUUM_ID_ROLES = {
@@ -593,7 +596,10 @@ class Vacuum extends Generic {
 
         return <div className={this.props.classes.vacuumButtons}>
             {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
-            <Tooltip title={Generic.t('Start')}>
+            <Tooltip
+                title={Generic.t('Start')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-start-oid'], true)}
                 >
@@ -601,7 +607,10 @@ class Vacuum extends Generic {
                 </IconButton>
             </Tooltip>}
             {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
-            <Tooltip title={Generic.t('Pause')}>
+            <Tooltip
+                title={Generic.t('Pause')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-pause-oid'], true)}
                 >
@@ -609,14 +618,20 @@ class Vacuum extends Generic {
                 </IconButton>
             </Tooltip>}
             {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
-            <Tooltip title={Generic.t('Home')}>
+            <Tooltip
+                title={Generic.t('Home')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-home-oid'], true)}
                 >
                     <Home />
                 </IconButton>
             </Tooltip>}
-            {statusObj && <Tooltip title={Generic.t('Status')}>
+            {statusObj && <Tooltip
+                title={Generic.t('Status')}
+                classes={{ popper: this.props.classes.tooltip }}
+            >
                 <div style={{ color: statusColor }}>
                     {Generic.t(status).replace('vis_2_widgets_material_', '')}
                 </div>

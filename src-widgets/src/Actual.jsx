@@ -105,6 +105,9 @@ const styles = () => ({
             color: 'rgba(243,177,31)',
         },
     },
+    tooltip: {
+        pointerEvents: 'none',
+    },
 });
 
 class Actual extends Generic {
@@ -708,7 +711,10 @@ class Actual extends Generic {
             ref={this.refContainer}
         >
             {mainValue !== undefined ?
-                <Tooltip title={this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || null}>
+                <Tooltip
+                    title={this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || null}
+                    classes={{ popper: this.props.classes.tooltip }}
+                >
                     <div className={this.props.classes.mainDiv}>
                         {mainIcon}
                         <span
@@ -736,7 +742,10 @@ class Actual extends Generic {
                 </Tooltip>
                 : null}
             {secondaryValue !== undefined ?
-                <Tooltip title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name) || null}>
+                <Tooltip
+                    title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name) || null}
+                    classes={{ popper: this.props.classes.tooltip }}
+                >
                     <div className={this.props.classes.secondaryDiv}>
                         {secondaryIcon}
                         <span
