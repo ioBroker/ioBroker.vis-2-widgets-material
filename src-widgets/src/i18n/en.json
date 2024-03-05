@@ -394,5 +394,6 @@
   "wizard": "Wizard helper",
   "visibility-oid": "Hide if the state",
   "visibility-cond": "Condition",
-  "visibility-val": "Unvisibility value"
+  "visibility-val": "Unvisibility value",
+  "icon_size": "Icon size"
 }

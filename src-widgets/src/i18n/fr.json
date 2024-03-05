@@ -394,5 +394,6 @@
   "wizard": "Assistant assistant",
   "visibility-oid": "Masquer si l'état",
   "visibility-cond": "Condition",
-  "visibility-val": "Valeur d'invisibilité"
+  "visibility-val": "Valeur d'invisibilité",
+  "icon_size": "Taille de l'icône"
 }

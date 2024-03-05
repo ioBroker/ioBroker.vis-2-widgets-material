@@ -394,5 +394,6 @@
   "wizard": "Zauberer-Helfer",
   "visibility-oid": "Verstecke falls Zustand",
   "visibility-cond": "Bedingung",
-  "visibility-val": "Unsichtbarkeitswert"
+  "visibility-val": "Unsichtbarkeitswert",
+  "icon_size": "Symbolgröße"
 }

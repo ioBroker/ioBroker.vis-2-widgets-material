@@ -394,5 +394,6 @@
   "wizard": "Pomocnik czarodzieja",
   "visibility-oid": "Ukryj, jeśli stan",
   "visibility-cond": "Stan",
-  "visibility-val": "Wartość niewidoczności"
+  "visibility-val": "Wartość niewidoczności",
+  "icon_size": "Rozmiar ikony"
 }

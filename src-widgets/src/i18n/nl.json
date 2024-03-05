@@ -394,5 +394,6 @@
   "wizard": "Tovenaar helper",
   "visibility-oid": "Verberg als de staat",
   "visibility-cond": "Voorwaarde",
-  "visibility-val": "Onzichtbaarheidswaarde"
+  "visibility-val": "Onzichtbaarheidswaarde",
+  "icon_size": "Pictogramgrootte"
 }

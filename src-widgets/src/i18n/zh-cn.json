@@ -394,5 +394,6 @@
   "wizard": "向导助手",
   "visibility-oid": "隐藏如果状态",
   "visibility-cond": "健康）状况",
-  "visibility-val": "不可见值"
+  "visibility-val": "不可见值",
+  "icon_size": "图标大小"
 }

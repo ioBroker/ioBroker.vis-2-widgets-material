@@ -394,5 +394,6 @@
   "wizard": "Помічник майстра",
   "visibility-oid": "Сховати, якщо держ",
   "visibility-cond": "Хвороба",
-  "visibility-val": "Значення невидимості"
+  "visibility-val": "Значення невидимості",
+  "icon_size": "Розмір значка"
 }

@@ -394,5 +394,6 @@
   "wizard": "Assistente de assistente",
   "visibility-oid": "Ocultar se o estado",
   "visibility-cond": "Doença",
-  "visibility-val": "Valor de invisibilidade"
+  "visibility-val": "Valor de invisibilidade",
+  "icon_size": "Tamanho do ícone"
 }

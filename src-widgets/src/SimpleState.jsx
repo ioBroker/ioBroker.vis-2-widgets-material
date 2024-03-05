@@ -228,7 +228,17 @@ class SimpleState extends Generic {
                             type: 'icon64',
                             label: 'small_icon_active',
                             hidden: '!!data.noIcon || !!data.iconEnabled',
-                        },                        {
+                        },
+                        {
+                            name: 'iconSize',
+                            label: 'icon_size',
+                            type: 'slider',
+                            tooltip: 'icon_size_tooltip',
+                            min: 0,
+                            max: 300,
+                            hidden: '!data.icon && !data.iconSmall && !data.iconEnabled && !data.iconEnabledSmall',
+                        },
+                        {
                             name: 'color',
                             type: 'color',
                             label: 'color',
@@ -292,6 +302,14 @@ class SimpleState extends Generic {
                         {
                             name: 'title',
                             label: 'title',
+                        },
+                        {
+                            name: 'iconSize',
+                            label: 'icon_size',
+                            type: 'slider',
+                            min: 0,
+                            max: 300,
+                            hidden: (data, i) => !data[`icon${i}`],
                         },
                     ],
                 },
@@ -403,7 +421,7 @@ class SimpleState extends Generic {
         return !!values[`${this.state.object._id}.val`];
     }
 
-    getStateIcon() {
+    getStateIcon(isOn) {
         let icon = '';
         if (this.state.rxData.noIcon) {
             return null;
@@ -419,14 +437,20 @@ class SimpleState extends Generic {
 
         icon = icon || this.state.rxData.icon || this.state.rxData.iconSmall;
         icon = icon || this.state.object.common.icon;
-        const isOn = this.isOn();
+        isOn = isOn !== undefined ? isOn : this.isOn();
         const color = this.getColor(isOn);
 
         if (icon) {
+            let size = 40;
+            let className = this.props.classes.iconCustom;
+            if (this.state.rxData.iconSize) {
+                size = parseFloat(this.state.rxData.iconSize);
+                className = '';
+            }
             icon = <Icon
                 src={icon}
-                style={{ width: 40, height: 40, color }}
-                className={this.props.classes.iconCustom}
+                style={{ width: size, height: size, color }}
+                className={className}
             />;
         } else if (isOn) {
             icon = <LightbulbIconOn color="primary" style={{ color }} />;
@@ -441,9 +465,7 @@ class SimpleState extends Generic {
         if (this.state.object.common.states) {
             return this.getValueData()?.color;
         }
-        if (isOn === undefined) {
-            isOn = this.isOn();
-        }
+        isOn = isOn !== undefined ? isOn : this.isOn();
 
         return isOn ?
             this.state.rxData.colorEnabled || this.state.object.common.color
@@ -616,9 +638,9 @@ class SimpleState extends Generic {
                 await this.propertiesUpdate();
             }, 50);
         }
-
-        const icon = this.getStateIcon();
-        const color = this.getColor();
+        const isOn = this.isOn();
+        const icon = this.getStateIcon(isOn);
+        const color = this.getColor(isOn);
         const stateTitle = this.state.object.common.states && this.getValueData()?.title;
 
         let value;
@@ -662,11 +684,13 @@ class SimpleState extends Generic {
                         className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
                     >
                         <div className={this.props.classes.topButton}>
-                            {icon ? <div className={
-                                !this.state.object.common.states && value !== undefined && value !== null ?
-                                    this.props.classes.iconButton :
-                                    this.props.classes.iconButtonCenter
-                            }
+                            {icon ? <div
+                                style={{ height: this.state.rxData.iconSize ? 'unset' : undefined }}
+                                className={
+                                    !this.state.object.common.states && value !== undefined && value !== null ?
+                                        this.props.classes.iconButton :
+                                        this.props.classes.iconButtonCenter
+                                }
                             >
                                 {icon}
                             </div> : null}

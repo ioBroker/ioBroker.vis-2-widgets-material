@@ -394,5 +394,6 @@
   "wizard": "Помощник мастера",
   "visibility-oid": "Скрыть, если состояние",
   "visibility-cond": "Условие",
-  "visibility-val": "Значение невидимости"
+  "visibility-val": "Значение невидимости",
+  "icon_size": "Размер значка"
 }

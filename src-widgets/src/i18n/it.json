@@ -394,5 +394,6 @@
   "wizard": "Aiutante del mago",
   "visibility-oid": "Nascondi se lo stato",
   "visibility-cond": "Condizione",
-  "visibility-val": "Valore di invisibilità"
+  "visibility-val": "Valore di invisibilità",
+  "icon_size": "Dimensione dell'icona"
 }
