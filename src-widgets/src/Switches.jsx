@@ -1392,7 +1392,7 @@ class Switches extends BlindsBase {
     // eslint-disable-next-line
     onCommand(command, options) {
         const result = super.onCommand(command, options);
-        if (!result) {
+        if (result === false) {
             if (command === 'include') {
                 let found = false;
                 // find first completely free position

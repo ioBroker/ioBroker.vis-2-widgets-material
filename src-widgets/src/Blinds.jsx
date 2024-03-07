@@ -303,15 +303,18 @@ class Blinds extends BlindsBase {
     }
 
     onCommand(command) {
-        super.onCommand(command);
-        if (command === 'openDialog') {
-            this.setState({ showBlindsDialog: true });
-            return true;
+        const result = super.onCommand(command);
+        if (result === false) {
+            if (command === 'openDialog') {
+                this.setState({ showBlindsDialog: true });
+                return true;
+            }
+            if (command === 'closeDialog') {
+                this.setState({ showBlindsDialog: false });
+                return true;
+            }
         }
-        if (command === 'closeDialog') {
-            this.setState({ showBlindsDialog: false });
-            return true;
-        }
+
         return false;
     }
 

@@ -188,7 +188,7 @@ class Html extends Generic {
     // eslint-disable-next-line
     onCommand(command, options) {
         const result = super.onCommand(command, options);
-        if (!result) {
+        if (result === false) {
             if (command === 'include') {
                 const project = JSON.parse(JSON.stringify(this.props.context.views));
                 const widget = project[this.props.view].widgets[this.props.id];

@@ -842,14 +842,16 @@ class RGBLight extends Generic {
     };
 
     onCommand(command) {
-        super.onCommand(command);
-        if (command === 'openDialog') {
-            this.setState({ dialog: true });
-            return true;
-        }
-        if (command === 'closeDialog') {
-            this.setState({ dialog: false });
-            return true;
+        const result = super.onCommand(command);
+        if (result === false) {
+            if (command === 'openDialog') {
+                this.setState({ dialog: true });
+                return true;
+            }
+            if (command === 'closeDialog') {
+                this.setState({ dialog: false });
+                return true;
+            }
         }
         return false;
     }
