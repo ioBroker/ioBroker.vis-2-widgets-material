@@ -667,7 +667,7 @@ class Vacuum extends Generic {
             }
         }
 
-        return false;
+        return result;
     }
 
     renderWidgetBody(props) {

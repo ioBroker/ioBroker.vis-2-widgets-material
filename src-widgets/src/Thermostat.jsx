@@ -517,7 +517,8 @@ class Thermostat extends Generic {
                 return true;
             }
         }
-        return false;
+
+        return result;
     }
 
     renderWidgetBody(props) {

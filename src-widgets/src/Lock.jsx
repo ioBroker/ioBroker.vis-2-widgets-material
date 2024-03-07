@@ -351,7 +351,7 @@ class Lock extends Generic {
             }
         }
 
-        return false;
+        return result;
     }
 
     renderWidgetBody(props) {

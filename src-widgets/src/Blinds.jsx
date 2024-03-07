@@ -315,7 +315,7 @@ class Blinds extends BlindsBase {
             }
         }
 
-        return false;
+        return result;
     }
 
     renderWidgetBody(props) {

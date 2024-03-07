@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "1.3.24",
     "news": {
-      "1.3.24": {
-        "en": "Corrected filter property in the widget settings",
-        "de": "Berichtigte Filtereigenschaften in den Widget-Einstellungen",
-        "ru": "Исправленное свойства фильтра в настройках виджета",
-        "pt": "Propriedade de filtro corrigida nas configurações do widget",
-        "nl": "Gecorrigeerde filtereigenschap in de widget-instellingen",
-        "fr": "Propriété du filtre corrigée dans les paramètres du widget",
-        "it": "Proprietà del filtro corretto nelle impostazioni del widget",
-        "es": "Propiedad del filtro corregido en la configuración del widget",
-        "pl": "Poprawiona właściwość filtra w ustawieniach widget",
-        "uk": "Виправлена властивість фільтра в налаштуваннях віджета",
-        "zh-cn": "在部件设置中更正的过滤属性"
-      },
       "1.3.23": {
         "en": "Added possibility to change the icon size in simple widget",
         "de": "Möglichkeit, die Icon-Größe in einfachem Widget zu ändern",
