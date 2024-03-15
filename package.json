@@ -25,7 +25,7 @@
     "@iobroker/vis-2-widgets-react-dev": "^1.0.5",
     "@types/gulp": "^4.0.17",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.25",
+    "@types/node": "^20.11.27",
     "eslint": "^8.57.0",
     "gulp": "^4.0.2",
     "mocha": "^10.3.0",
