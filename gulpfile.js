@@ -19,4 +19,12 @@ gulpHelper.gulpTasks(gulp, adapterName, __dirname, `${__dirname}/src-widgets/`, 
     `${__dirname}/src-widgets/build/static/js/*node_modules_babel_runtime_helpers_createForOfItera*.*`,
 ]);
 
-gulp.task('default', gulp.series('widget-build'));
+gulp.task('version', done => {
+    const pack = require('./package.json');
+    const widgets = require(`${__dirname}/src-widgets/package.json`);
+    widgets.version = pack.version;
+    require('fs').writeFileSync(`${__dirname}/src-widgets/package.json`, JSON.stringify(widgets, null, 2));
+    done();
+});
+
+gulp.task('default', gulp.series('version', 'widget-build'));
