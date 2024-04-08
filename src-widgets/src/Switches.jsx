@@ -941,7 +941,7 @@ class Switches extends BlindsBase {
                             name: 'red',
                             type: 'id',
                             label: 'red',
-                            hidden: (data, index) => !!data[`widget${index}`] || data[`type${index}`] !== 'rgb' || (data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
+                            hidden: (data, index) => !!data[`widget${index}`] || (data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
                             onChange: loadStates,
                         },
                         {
@@ -1913,21 +1913,45 @@ class Switches extends BlindsBase {
                 switchState = this.getPropertyValue(`switch${index}`);
             }
 
+            let backgroundColor;
+            if (switchState) {
+                backgroundColor = this.state.rxData[`colorEnabled${index}`] || '#4DABF5';
+            } else {
+                backgroundColor = this.state.rxData[`color${index}`] || (this.props.context.themeType === 'dark' ? '#111' : '#eee');
+            }
+
+            let icon = this.state.rxData[`iconRgb${index}`];
+            const style = {
+                color: this.rgbGetColor(index),
+            };
+            if (switchState === false) {
+                style.opacity = 0.7;
+            }
+
+            if (icon !== undefined) {
+                if (!icon) {
+                    style.borderRadius = '50%';
+                    // just circle
+                    icon = <div style={style} />;
+                } else {
+                    icon = <Icon
+                        src={icon}
+                        style={style}
+                    />;
+                }
+            } else {
+                icon = <ColorLens style={style} />;
+            }
+
             return <IconButton
                 style={{
-                    backgroundColor: switchState === null || switchState ? this.rgbGetColor(index) :
-                        (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
-                    color: this.rgbGetTextColor(index),
+                    backgroundColor: backgroundColor,
                     width: 36,
                     height: 36,
                 }}
                 onClick={() => this.setState({ showControlDialog: index })}
             >
-                <ColorLens
-                    style={{
-                        color: switchState === null || switchState ? undefined : this.rgbGetColor(index),
-                    }}
-                />
+                {icon}
             </IconButton>;
         }
 
@@ -3246,6 +3270,7 @@ class Switches extends BlindsBase {
                 ids.push(this.state.rxData[name + index]);
             }
         });
+        ids.push(this.state.rxData[`oid${index}`]);
     }
 
     rgbReadObjects(index, _objects, objects, secondaryObjects) {
@@ -3260,6 +3285,8 @@ class Switches extends BlindsBase {
                 }
             }
         });
+
+        _rgbObjects.oid = _objects[this.state.rxData[`oid${index}`]];
 
         secondaryObjects[index] = _rgbObjects;
 

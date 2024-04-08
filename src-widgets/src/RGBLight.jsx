@@ -1,11 +1,16 @@
 import React from 'react';
 import { withStyles } from '@mui/styles';
 import {
-    Wheel, rgbaToHsva, hsvaToHsla, hsvaToRgba, hexToHsva, hsvaToHex, hslaToHsva, ShadeSlider, rgbaToHex, Sketch,
+    Wheel, rgbaToHsva, hsvaToHsla,
+    hsvaToRgba, hexToHsva,
+    hsvaToHex, hslaToHsva, ShadeSlider,
+    rgbaToHex, Sketch,
 } from '@uiw/react-color';
 
 import {
-    Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip,
+    Button,
+    Dialog, DialogContent, DialogTitle,
+    IconButton, Slider, Switch, Tooltip,
 } from '@mui/material';
 
 import {
@@ -17,8 +22,11 @@ import {
 } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 
+import { Icon } from "@iobroker/adapter-react-v5";
+
 import Generic from './Generic';
 import './sketch.css';
+import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 
 /**
  * Determine if we are on a mobile device
@@ -223,6 +231,13 @@ class RGBLight extends Generic {
                             hidden: '!!data.noCard',
                         },
                         {
+                            name: 'icon',
+                            type: 'icon64',
+                            label: 'icon',
+                            default: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iY3VycmVudENvbG9yIj4NCiAgICA8cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPg0KPC9zdmc+DQo=',
+                            hidden: '!!data.externalDialog',
+                        },
+                        {
                             name: 'switch',
                             type: 'id',
                             label: 'switch',
@@ -375,6 +390,21 @@ class RGBLight extends Generic {
                             min: 0,
                             max: 100,
                             hidden: '!data.noCard',
+                        },
+                        {
+                            name: 'color',
+                            type: 'color',
+                            label: 'color',
+                        },
+                        {
+                            name: 'colorEnabled',
+                            type: 'color',
+                            label: 'color_active',
+                        },
+                        {
+                            name: 'onlyCircle',
+                            label: 'onlyCircle',
+                            type: 'checkbox',
                         },
                     ],
                 },
@@ -873,6 +903,13 @@ class RGBLight extends Generic {
         if (this.state.rgbObjects.switch) {
             switchState = this.getPropertyValue('switch');
         }
+        let backgroundColor;
+        if (switchState) {
+            backgroundColor = this.state.rxData.colorEnabled || '#4DABF5';
+        } else {
+            backgroundColor = this.state.rxData.color || (this.props.context.themeType === 'dark' ? '#111' : '#eee');
+        }
+
         const wheelVisible = this.rgbIsRgb() || this.rgbIsHSL();
 
         const whiteMode = this.rgbGetWhiteMode();
@@ -932,55 +969,154 @@ class RGBLight extends Generic {
             } else {
                 props.className = `${props.className} vis-off`.trim();
             }
+            let icon = this.state.rxData.icon;
+            const style = {
+                color: this.rgbGetColor(),
+                width: '90%',
+                height: '90%',
+            };
+            if (switchState === false) {
+                style.opacity = 0.7;
+            }
+
+            if (icon !== undefined) {
+                if (!icon) {
+                    style.borderRadius = '50%';
+                    // just circle
+                    icon = <div style={style} />;
+                } else {
+                    icon = <Icon
+                        src={icon}
+                        alt={this.props.id}
+                        style={style}
+                    />;
+                }
+            } else {
+                icon = <ColorLens style={style} />;
+            }
+
+            let applyStyle = null;
+            if (this.state.rxData.noCard || props.widget.usedInWidget) {
+                applyStyle = {
+                    boxSizing: 'border-box',
+                };
+
+                // apply style from the element
+                // Object.keys(this.state.rxStyle).forEach(attr => {
+                //     const value = this.state.rxStyle[attr];
+                //     if (value !== null &&
+                //         value !== undefined &&
+                //         VisRxWidget.POSSIBLE_MUI_STYLES.includes(attr)
+                //     ) {
+                //         attr = attr.replace(
+                //             /(-\w)/g,
+                //             text => text[1].toUpperCase(),
+                //         );
+                //         applyStyle[attr] = value;
+                //     }
+                // });
+
+                if (!this.state.rxData.onlyCircle) {
+                    applyStyle.backgroundColor = backgroundColor;
+                }
+            } else {
+                if (!this.state.rxData.onlyCircle) {
+                    applyStyle = {
+                        backgroundColor,
+                    };
+                }
+            }
+
+            let button;
+            if (!this.state.rxData.onlyCircle) {
+                button = <Button
+                    onClick={!this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch ? () => this.setState({ dialog: true }) : undefined}
+                    onMouseDown={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        this.pressTimeout && clearTimeout(this.pressTimeout);
+                        this.pressTimeout = setTimeout(() => {
+                            this.pressTimeout = null;
+                            this.setState({ dialog: true });
+                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
+                    } : undefined}
+                    onMouseUp={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        if (this.pressTimeout) {
+                            clearTimeout(this.pressTimeout);
+                            this.pressTimeout = null;
+                            this.rgbSetId('switch', !switchState);
+                        }
+                    } : undefined}
+                    onTouchStart={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        this.pressTimeout && clearTimeout(this.pressTimeout);
+                        this.pressTimeout = setTimeout(() => {
+                            this.pressTimeout = null;
+                            this.setState({ dialog: true });
+                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
+                    } : undefined}
+                    onTouchEnd={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        if (this.pressTimeout) {
+                            clearTimeout(this.pressTimeout);
+                            this.pressTimeout = null;
+                            this.rgbSetId('switch', !switchState);
+                        }
+                    } : undefined}
+                    style={{
+                        backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
+                    }}
+                >
+                    {icon}
+                </Button>;
+            } else {
+                button = <IconButton
+                    onClick={!this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch ? () => this.setState({ dialog: true }) : undefined}
+                    onMouseDown={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        this.pressTimeout && clearTimeout(this.pressTimeout);
+                        this.pressTimeout = setTimeout(() => {
+                            this.pressTimeout = null;
+                            this.setState({ dialog: true });
+                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
+                    } : undefined}
+                    onMouseUp={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        if (this.pressTimeout) {
+                            clearTimeout(this.pressTimeout);
+                            this.pressTimeout = null;
+                            this.rgbSetId('switch', !switchState);
+                        }
+                    } : undefined}
+                    onTouchStart={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        this.pressTimeout && clearTimeout(this.pressTimeout);
+                        this.pressTimeout = setTimeout(() => {
+                            this.pressTimeout = null;
+                            this.setState({ dialog: true });
+                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
+                    } : undefined}
+                    onTouchEnd={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
+                        if (this.pressTimeout) {
+                            clearTimeout(this.pressTimeout);
+                            this.pressTimeout = null;
+                            this.rgbSetId('switch', !switchState);
+                        }
+                    } : undefined}
+                    style={{
+                        backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
+                        width: size,
+                        height: size,
+                        borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
+                    }}
+                >
+                    {icon}
+                </IconButton>;
+            }
+
             rgbContent = <>
-                <div className={this.props.classes.rgbContent} ref={this.contentRef}>
-                    <IconButton
-                        onClick={!this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch ? () => this.setState({ dialog: true }) : undefined}
-                        onMouseDown={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                            this.pressTimeout && clearTimeout(this.pressTimeout);
-                            this.pressTimeout = setTimeout(() => {
-                                this.pressTimeout = null;
-                                this.setState({ dialog: true });
-                            }, parseInt(this.state.rxData.pressDuration, 10) || 300);
-                        } : undefined}
-                        onMouseUp={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                            if (this.pressTimeout) {
-                                clearTimeout(this.pressTimeout);
-                                this.pressTimeout = null;
-                                this.rgbSetId('switch', !switchState);
-                            }
-                        } : undefined}
-                        onTouchStart={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                            this.pressTimeout && clearTimeout(this.pressTimeout);
-                            this.pressTimeout = setTimeout(() => {
-                                this.pressTimeout = null;
-                                this.setState({ dialog: true });
-                            }, parseInt(this.state.rxData.pressDuration, 10) || 300);
-                        } : undefined}
-                        onTouchEnd={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                            if (this.pressTimeout) {
-                                clearTimeout(this.pressTimeout);
-                                this.pressTimeout = null;
-                                this.rgbSetId('switch', !switchState);
-                            }
-                        } : undefined}
-                        style={{
-                            backgroundColor: switchState === null || switchState ? this.rgbGetColor() :
-                                (this.props.context.themeType === 'dark' ? '#111' : '#eee'),
-                            color: this.rgbGetTextColor(),
-                            width: size,
-                            height: size,
-                            borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
-                        }}
-                    >
-                        <ColorLens
-                            style={{
-                                color: switchState === null || switchState ? undefined : this.rgbGetColor(),
-                                width: '90%',
-                                height: '90%',
-                            }}
-                        />
-                    </IconButton>
+                <div
+                    className={this.props.classes.rgbContent}
+                    ref={this.contentRef}
+                    style={applyStyle}
+                >
+                    {button}
                 </div>
                 {this.rgbRenderDialog(wheelVisible, whiteMode)}
             </>;

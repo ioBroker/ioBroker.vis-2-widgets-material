@@ -25,11 +25,11 @@
     "@iobroker/vis-2-widgets-react-dev": "^1.0.5",
     "@types/gulp": "^4.0.17",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.2",
-    "eslint": "^8.57.0",
+    "@types/node": "^20.12.5",
+    "eslint": "^9.0.0",
     "gulp": "^4.0.2",
     "mocha": "^10.4.0",
-    "@iobroker/vis-2-widgets-testing": "^1.0.0"
+    "@iobroker/vis-2-widgets-testing": "^1.0.1"
   },
   "files": [
     "admin/",

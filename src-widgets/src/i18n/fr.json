@@ -395,5 +395,6 @@
   "visibility-oid": "Masquer si l'état",
   "visibility-cond": "Condition",
   "visibility-val": "Valeur d'invisibilité",
-  "icon_size": "Taille de l'icône"
+  "icon_size": "Taille de l'icône",
+  "onlyCircle": "Bouton intérieur rond"
 }

@@ -395,5 +395,6 @@
   "visibility-oid": "Verstecke falls Zustand",
   "visibility-cond": "Bedingung",
   "visibility-val": "Unsichtbarkeitswert",
-  "icon_size": "Symbolgröße"
+  "icon_size": "Symbolgröße",
+  "onlyCircle": "Runder Innenknopf"
 }

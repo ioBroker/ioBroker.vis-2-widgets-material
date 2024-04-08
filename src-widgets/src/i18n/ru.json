@@ -395,5 +395,6 @@
   "visibility-oid": "Скрыть, если состояние",
   "visibility-cond": "Условие",
   "visibility-val": "Значение невидимости",
-  "icon_size": "Размер значка"
+  "icon_size": "Размер значка",
+  "onlyCircle": "Круглая внутренняя кнопка"
 }

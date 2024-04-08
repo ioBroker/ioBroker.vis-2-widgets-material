@@ -395,5 +395,6 @@
   "visibility-oid": "Ocultar se o estado",
   "visibility-cond": "Doença",
   "visibility-val": "Valor de invisibilidade",
-  "icon_size": "Tamanho do ícone"
+  "icon_size": "Tamanho do ícone",
+  "onlyCircle": "Botão interno redondo"
 }

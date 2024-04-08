@@ -395,5 +395,6 @@
   "visibility-oid": "Nascondi se lo stato",
   "visibility-cond": "Condizione",
   "visibility-val": "Valore di invisibilità",
-  "icon_size": "Dimensione dell'icona"
+  "icon_size": "Dimensione dell'icona",
+  "onlyCircle": "Bottone interno tondo"
 }
