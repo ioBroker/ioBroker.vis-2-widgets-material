@@ -1945,7 +1945,7 @@ class Switches extends BlindsBase {
 
             return <IconButton
                 style={{
-                    backgroundColor: backgroundColor,
+                    backgroundColor,
                     width: 36,
                     height: 36,
                 }}

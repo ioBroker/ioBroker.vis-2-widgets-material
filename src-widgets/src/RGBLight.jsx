@@ -22,11 +22,10 @@ import {
 } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 
-import { Icon } from "@iobroker/adapter-react-v5";
+import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import './sketch.css';
-import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 
 /**
  * Determine if we are on a mobile device
@@ -1019,12 +1018,10 @@ class RGBLight extends Generic {
                 if (!this.state.rxData.onlyCircle) {
                     applyStyle.backgroundColor = backgroundColor;
                 }
-            } else {
-                if (!this.state.rxData.onlyCircle) {
-                    applyStyle = {
-                        backgroundColor,
-                    };
-                }
+            } else if (!this.state.rxData.onlyCircle) {
+                applyStyle = {
+                    backgroundColor,
+                };
             }
 
             let button;

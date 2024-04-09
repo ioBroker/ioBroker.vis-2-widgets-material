@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "1.3.26",
     "news": {
-      "1.3.26": {
-        "en": "Updated packages\nimproved RGB widget",
-        "de": "Aktualisierte Pakete\nrGB Widget",
-        "ru": "Обновленные пакеты\nулучшенный виджет RGB",
-        "pt": "Pacotes atualizados\nmelhor widget RGB",
-        "nl": "Bijgewerkte pakketten\nverbeterde RGB-widget",
-        "fr": "Paquets mis à jour\nwidget RGB amélioré",
-        "it": "Pacchetti aggiornati\nmigliorato widget RGB",
-        "es": "Paquetes actualizados\nmejorado widget RGB",
-        "pl": "Aktualizacja pakietów\nulepszony widżet RGB",
-        "uk": "Оновлені пакети\nпокращений RGB віджет",
-        "zh-cn": "更新软件包\n改进的 RGB 部件"
-      },
       "1.3.25": {
         "en": "Corrected filter property in the widget settings",
         "de": "Berichtigte Filtereigenschaften in den Widget-Einstellungen",
