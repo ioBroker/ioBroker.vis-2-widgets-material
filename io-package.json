@@ -108,7 +108,6 @@
     "keywords": [
       "vis-2-widgets-material"
     ],
-    "license": "MIT",
     "platform": "Javascript/Node.js",
     "icon": "vis-2-widgets-material.png",
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.vis-2-widgets-material/master/admin/vis-2-widgets-material.png",
@@ -128,6 +127,7 @@
     "dataSource": "poll",
     "licenseInformation": {
       "type": "free",
+      "license": "MIT",
       "link": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/blob/master/LICENSE"
     },
     "visWidgets": {
