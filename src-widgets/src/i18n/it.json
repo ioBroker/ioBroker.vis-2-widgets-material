@@ -396,5 +396,6 @@
   "visibility-cond": "Condizione",
   "visibility-val": "Valore di invisibilità",
   "icon_size": "Dimensione dell'icona",
-  "onlyCircle": "Bottone interno tondo"
+  "onlyCircle": "Bottone interno tondo",
+  "icon_size_tooltip": "nel px"
 }

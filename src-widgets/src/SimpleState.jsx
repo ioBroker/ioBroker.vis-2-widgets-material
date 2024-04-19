@@ -236,7 +236,7 @@ class SimpleState extends Generic {
                             tooltip: 'icon_size_tooltip',
                             min: 0,
                             max: 300,
-                            hidden: '!data.icon && !data.iconSmall && !data.iconEnabled && !data.iconEnabledSmall',
+                            hidden: '!!data.noIcon || (!data.icon && !data.iconSmall && !data.iconEnabled && !data.iconEnabledSmall)',
                         },
                         {
                             name: 'color',

@@ -396,5 +396,6 @@
   "visibility-cond": "Хвороба",
   "visibility-val": "Значення невидимості",
   "icon_size": "Розмір значка",
-  "onlyCircle": "Кругла внутрішня кнопка"
+  "onlyCircle": "Кругла внутрішня кнопка",
+  "icon_size_tooltip": "в px"
 }

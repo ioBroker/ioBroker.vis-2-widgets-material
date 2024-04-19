@@ -396,5 +396,6 @@
   "visibility-cond": "健康）状况",
   "visibility-val": "不可见值",
   "icon_size": "图标大小",
-  "onlyCircle": "圆形内扣"
+  "onlyCircle": "圆形内扣",
+  "icon_size_tooltip": "单位：px"
 }

@@ -396,5 +396,6 @@
   "visibility-cond": "Stan",
   "visibility-val": "Wartość niewidoczności",
   "icon_size": "Rozmiar ikony",
-  "onlyCircle": "Okrągły guzik wewnętrzny"
+  "onlyCircle": "Okrągły guzik wewnętrzny",
+  "icon_size_tooltip": "w px"
 }

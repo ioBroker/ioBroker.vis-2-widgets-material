@@ -54,6 +54,7 @@ const styles = () => ({
     },
     mainIcon: {
         verticalAlign: 'middle',
+        marginRight: 4,
         fontSize: 20,
         width: 20,
     },
@@ -76,6 +77,7 @@ const styles = () => ({
     secondaryIcon: {
         verticalAlign: 'middle',
         fontSize: 20,
+        marginRight: 4,
     },
     newValueLight: {
         animation: '$newValueAnimationLight 2s ease-in-out',
@@ -305,6 +307,34 @@ class Actual extends Generic {
         });
     }
 
+    async getIcon(id, object) {
+        if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+            const idArray = id.split('.');
+
+            // read channel
+            const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
+            if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
+                if (grandParentObject?.common?.icon) {
+                    object.common.icon = grandParentObject.common.icon;
+                    if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
+                        object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
+                    }
+                }
+            } else {
+                object.common.icon = parentObject.common.icon;
+                if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
+                    object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
+                }
+            }
+        }
+        if (object.common.icon && object.common.icon.startsWith('/')) {
+            const parts = id.split('.');
+            // add instance name
+            object.common.icon = `../adapter/${parts[0]}${object.common.icon}`;
+        }
+    }
+
     async propertiesUpdate() {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
@@ -332,26 +362,7 @@ class Actual extends Generic {
                 objects.main = { common: {} };
             } else {
                 object.common = object.common || {};
-                if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData['oid-main'].split('.');
-
-                    // read channel
-                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
-                        if (grandParentObject?.common?.icon) {
-                            object.common.icon = grandParentObject.common.icon;
-                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                            }
-                        }
-                    } else {
-                        object.common.icon = parentObject.common.icon;
-                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                        }
-                    }
-                }
+                await this.getIcon(this.state.rxData['oid-main'], object);
                 objects.main = { common: object.common, _id: object._id };
             }
         }
@@ -363,26 +374,7 @@ class Actual extends Generic {
                 objects.secondary = { common: {} };
             } else {
                 object.common = object.common || {};
-                if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-                    const idArray = this.state.rxData['oid-secondary'].split('.');
-
-                    // read channel
-                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
-                        if (grandParentObject?.common?.icon) {
-                            object.common.icon = grandParentObject.common.icon;
-                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                            }
-                        }
-                    } else {
-                        object.common.icon = parentObject.common.icon;
-                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                        }
-                    }
-                }
+                await this.getIcon(this.state.rxData['oid-secondary'], object);
                 objects.secondary = { common: object.common, _id: object._id };
             }
         }

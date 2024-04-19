@@ -1860,7 +1860,7 @@ class Switches extends BlindsBase {
     renderWidgetInWidget(index, asButton, visibility) {
         const wid = this.state.rxData[`widget${index}`];
         const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
-        if (widget && wid !== this.props.id && this.getWidgetInWidget) { // todo: remove this condition after vis release
+        if (widget && wid !== this.props.id) {
             // come again when the ref is filled
             if (!this.widgetRef[index].current) {
                 setTimeout(() => this.forceUpdate(), 50);

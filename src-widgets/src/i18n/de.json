@@ -396,5 +396,6 @@
   "visibility-cond": "Bedingung",
   "visibility-val": "Unsichtbarkeitswert",
   "icon_size": "Symbolgröße",
-  "onlyCircle": "Runder Innenknopf"
+  "onlyCircle": "Runder Innenknopf",
+  "icon_size_tooltip": "in px"
 }

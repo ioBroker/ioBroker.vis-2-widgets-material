@@ -396,5 +396,6 @@
   "visibility-cond": "Voorwaarde",
   "visibility-val": "Onzichtbaarheidswaarde",
   "icon_size": "Pictogramgrootte",
-  "onlyCircle": "Ronde binnenknop"
+  "onlyCircle": "Ronde binnenknop",
+  "icon_size_tooltip": "in px"
 }

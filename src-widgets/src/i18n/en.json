@@ -396,5 +396,6 @@
   "visibility-cond": "Condition",
   "visibility-val": "Unvisibility value",
   "icon_size": "Icon size",
-  "onlyCircle": "Round inner button"
+  "onlyCircle": "Round inner button",
+  "icon_size_tooltip": "in px"
 }

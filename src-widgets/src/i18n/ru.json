@@ -396,5 +396,6 @@
   "visibility-cond": "Условие",
   "visibility-val": "Значение невидимости",
   "icon_size": "Размер значка",
-  "onlyCircle": "Круглая внутренняя кнопка"
+  "onlyCircle": "Круглая внутренняя кнопка",
+  "icon_size_tooltip": "в пиксах"
 }

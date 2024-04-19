@@ -396,5 +396,6 @@
   "visibility-cond": "Condition",
   "visibility-val": "Valeur d'invisibilité",
   "icon_size": "Taille de l'icône",
-  "onlyCircle": "Bouton intérieur rond"
+  "onlyCircle": "Bouton intérieur rond",
+  "icon_size_tooltip": "en px"
 }
