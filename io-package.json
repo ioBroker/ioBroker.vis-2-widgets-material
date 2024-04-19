@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.27",
+    "version": "1.3.28",
     "news": {
+      "1.3.28": {
+        "en": "Improved resolving of icons",
+        "de": "Verbesserte Auflösung von Icons",
+        "ru": "Улучшенное разрешение икон",
+        "pt": "Melhor resolução de ícones",
+        "nl": "Verbeterd oplossen van pictogrammen",
+        "fr": "Résolution améliorée des icônes",
+        "it": "Risolvere meglio le icone",
+        "es": "Mejor solución de iconos",
+        "pl": "Ulepszone rozwiązywanie ikon",
+        "uk": "Покращене вирішення ікон",
+        "zh-cn": "改善图标的解析"
+      },
       "1.3.27": {
         "en": "Updated packages\nimproved RGB widget",
         "de": "Aktualisierte Pakete\nrGB Widget",
@@ -80,19 +93,6 @@
         "pl": "Wstępna możliwość ukrywania linii w przełącznikach widget",
         "uk": "Додано варіант, щоб приховати лінію в вимикачах віджет",
         "zh-cn": "增加在转换成目标的界线的选择"
-      },
-      "1.3.15": {
-        "en": "Added option to rotate video",
-        "de": "Option zum Drehen von Video hinzugefügt",
-        "ru": "Добавлена возможность повернуть видео",
-        "pt": "Opção adicionada para rodar vídeo",
-        "nl": "Vermeldde optie om video te draaien",
-        "fr": "Option supplémentaire pour tourner la vidéo",
-        "it": "Aggiunta opzione per ruotare video",
-        "es": "Opción adicional para rotar el video",
-        "pl": "Wstępna opcja do obracania wideo",
-        "uk": "Додана можливість обертати відео",
-        "zh-cn": "增加摄制录像的选择"
       }
     },
     "title": "Vis 2 Widgets Material",
