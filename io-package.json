@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.28",
+    "version": "1.3.29",
     "news": {
+      "1.3.29": {
+        "en": "Improved wizard layout",
+        "de": "Verbessertes Assistentenlayout",
+        "ru": "Улучшенная схема мастера",
+        "pt": "Melhor layout do assistente",
+        "nl": "Verbeterde wizard-indeling",
+        "fr": "Amélioration de la disposition de l'assistant",
+        "it": "Miglioramento della configurazione guidata",
+        "es": "Mejor diseño mago",
+        "pl": "Ulepszony układ kreatora",
+        "uk": "Покращений макет майстра",
+        "zh-cn": "改进向导布局"
+      },
       "1.3.28": {
         "en": "Improved resolving of icons",
         "de": "Verbesserte Auflösung von Icons",
@@ -80,19 +93,6 @@
         "pl": "Skorygowane długie kliknięcie widżetu RGB na urządzeniach dotykowych\nPoprawiony widżet ściemniania",
         "uk": "Виправлено довго натисніть на RGB віджет на сенсорних пристроях\nВиправлено dimmer віджет",
         "zh-cn": "在触摸设备上对 RGB 部件进行长点击校正\n修正的 dimmer 部件"
-      },
-      "1.3.17": {
-        "en": "Added option to hide the line in switches widget",
-        "de": "Option hinzugefügt, um die Zeile in Schalter Widget zu verstecken",
-        "ru": "Добавлена возможность скрыть строку в коммутаторах виджета",
-        "pt": "Opção adicionada para esconder a linha no widget de interruptores",
-        "nl": "De optie om de lijn te verstoppen in wisselgeld",
-        "fr": "Option supplémentaire pour cacher la ligne dans les commutateurs widget",
-        "it": "Aggiunta opzione per nascondere la linea in widget switch",
-        "es": "Opción adicional para ocultar la línea en el widget de interruptores",
-        "pl": "Wstępna możliwość ukrywania linii w przełącznikach widget",
-        "uk": "Додано варіант, щоб приховати лінію в вимикачах віджет",
-        "zh-cn": "增加在转换成目标的界线的选择"
       }
     },
     "title": "Vis 2 Widgets Material",
