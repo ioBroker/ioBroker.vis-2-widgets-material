@@ -300,7 +300,7 @@ const WizardDialog = props => {
                                             opacity: 0.7,
                                             marginLeft: 20,
                                             minWidth: 200,
-                                    }}
+                                        }}
                                     >
                                         {Generic.t('%s of %s devices selected', counters[roomId], room.devices.length)}
                                     </div>
