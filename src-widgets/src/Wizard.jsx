@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import {
     Add, Close, ExpandMore, Lightbulb,
+    QuestionMark,
 } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
@@ -146,6 +147,10 @@ const WizardDialog = props => {
                         widgets: {},
                         activeWidgets: {},
                     };
+                    if (room.common.icon?.startWith('data:image')) {
+                        project[viewId].settings.navigationIcon = room.common.icon;
+                    }
+
                     // add new view to opened views
                     if (project.___settings.openedViews && !project.___settings.openedViews.includes(viewId)) {
                         project.___settings.openedViews.push(viewId);
@@ -231,7 +236,7 @@ const WizardDialog = props => {
                     </svg>
                     {Generic.t('Standrad icons')}
                 </div>
-                <div>
+                <div style={{ marginLeft: 26 }}>
                     <FormControlLabel
                         control={<Checkbox
                             indeterminate={!allChecked && anyChecked}
@@ -261,7 +266,10 @@ const WizardDialog = props => {
                                         onClick={e => e.stopPropagation()}
                                     />
 
-                                    {room.common.icon ? <Icon src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" /> : null}
+                                    {room.common.icon ? (room.common.icon === '?' ?
+                                        <QuestionMark style={{ width: 24, height: 24 }} />
+                                        :
+                                        <Icon src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" />) : null}
 
                                     <div style={{ flexGrow: 1 }}>{Generic.getText(room.common.name)}</div>
 
@@ -269,6 +277,7 @@ const WizardDialog = props => {
                                         title={Generic.t('Select/Unselect all devices in room')}
                                         indeterminate={counters[roomId] !== room.devices.length && counters[roomId]}
                                         checked={counters[roomId] === room.devices.length}
+                                        disabled={!roomsChecked[room._id]}
                                         onClick={e => {
                                             e.stopPropagation();
                                             e.preventDefault();
@@ -285,7 +294,16 @@ const WizardDialog = props => {
                                             setDevicesChecked(_devicesChecked);
                                         }}
                                     />
-                                    <div style={{ fontSize: 12, opacity: 0.7, marginLeft: 20 }}>{Generic.t('%s of %s devices selected', counters[roomId], room.devices.length)}</div>
+                                    <div
+                                        style={{
+                                            fontSize: 12,
+                                            opacity: 0.7,
+                                            marginLeft: 20,
+                                            minWidth: 200,
+                                    }}
+                                    >
+                                        {Generic.t('%s of %s devices selected', counters[roomId], room.devices.length)}
+                                    </div>
                                 </div>
                             </AccordionSummary>
                             <AccordionDetails sx={{ backgroundColor: props.themeType === 'dark' ? '#111' : '#eee' }}>
@@ -309,8 +327,10 @@ const WizardDialog = props => {
                                             onClick={e => e.stopPropagation()}
                                         />
                                         <span style={{ marginRight: 8 }}>
-                                            {!standardIcons && device.common.icon ?
-                                                <Icon src={device.common.icon} style={{ width: 24, height: 24 }} alt="" />
+                                            {!standardIcons && device.common.icon ? (device.common.icon === '?' ?
+                                                <QuestionMark style={{ width: 24, height: 24 }} />
+                                                :
+                                                <Icon src={device.common.icon} style={{ width: 24, height: 24 }} alt="" />)
                                                 :
                                                 (props.helpers?.deviceIcons[device.deviceType] || <Lightbulb />)}
                                         </span>
@@ -324,7 +344,7 @@ const WizardDialog = props => {
                                             value={device.common.name}
                                             onChange={e => {
                                                 const _rooms = JSON.parse(JSON.stringify(rooms));
-                                                room.devices[deviceId].common.name = e.target.value;
+                                                _rooms[roomId].devices[deviceId].common.name = e.target.value;
                                                 setRooms(_rooms);
                                             }}
                                         />

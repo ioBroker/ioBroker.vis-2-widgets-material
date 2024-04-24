@@ -541,8 +541,9 @@ class Actual extends Generic {
                 type: 'line',
                 smooth: true,
                 showSymbol: false,
-                itemStyle: { normal: { areaStyle: { type: 'default' } } },
+                // itemStyle: { normal: { areaStyle: { type: 'default' } } },
                 data: this.state[`chart-data-${this.state.rxData['oid-main']}`].data,
+                areaStyle: { type: 'default' },
                 name,
             });
         }
@@ -562,8 +563,9 @@ class Actual extends Generic {
                 type: 'line',
                 smooth: true,
                 showSymbol: false,
-                itemStyle: { normal: { areaStyle: { type: 'default' } } },
+                // itemStyle: { normal: { areaStyle: { type: 'default' } } },
                 data: this.state[`chart-data-${this.state.rxData['oid-secondary']}`].data,
+                areaStyle: { type: 'default' },
                 name,
             });
         }

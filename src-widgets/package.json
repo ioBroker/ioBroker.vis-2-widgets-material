@@ -1,7 +1,7 @@
 {
     "name": "iobroker.vis-2-widgets-material",
     "private": true,
-    "version": "1.0.5",
+    "version": "1.0.6",
     "dependencies": {
         "@adobe/react-spectrum": "^3.34.1",
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
