@@ -397,5 +397,8 @@
   "visibility-val": "Valeur d'invisibilité",
   "icon_size": "Taille de l'icône",
   "onlyCircle": "Bouton intérieur rond",
-  "icon_size_tooltip": "en px"
+  "icon_size_tooltip": "en px",
+  "position_help": "Comme \"9.2344;41.374652\" - \"longitude;latitude\"",
+  "volumeGroup": "Groupe de volumes",
+  "rgbSingle": "RVB Unique"
 }

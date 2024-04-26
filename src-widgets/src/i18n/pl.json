@@ -397,5 +397,8 @@
   "visibility-val": "Wartość niewidoczności",
   "icon_size": "Rozmiar ikony",
   "onlyCircle": "Okrągły guzik wewnętrzny",
-  "icon_size_tooltip": "w px"
+  "icon_size_tooltip": "w px",
+  "position_help": "Jak „9,2344;41,374652” – „długość;szerokość geograficzna”",
+  "volumeGroup": "Grupa woluminów",
+  "rgbSingle": "Pojedynczy RGB"
 }

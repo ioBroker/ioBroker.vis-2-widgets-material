@@ -397,5 +397,8 @@
   "visibility-val": "Unvisibility value",
   "icon_size": "Icon size",
   "onlyCircle": "Round inner button",
-  "icon_size_tooltip": "in px"
+  "icon_size_tooltip": "in px",
+  "position_help": "Like \"9.2344;41.374652\" - \"longitude;latitude\"",
+  "volumeGroup": "Volume group",
+  "rgbSingle": "RGB Single"
 }

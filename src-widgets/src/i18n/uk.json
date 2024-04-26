@@ -397,5 +397,8 @@
   "visibility-val": "Значення невидимості",
   "icon_size": "Розмір значка",
   "onlyCircle": "Кругла внутрішня кнопка",
-  "icon_size_tooltip": "в px"
+  "icon_size_tooltip": "в px",
+  "position_help": "Як \"9.2344;41.374652\" - \"довгота;широта\"",
+  "volumeGroup": "Група томів",
+  "rgbSingle": "RGB Single"
 }

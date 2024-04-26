@@ -74,6 +74,7 @@ const WizardDialog = props => {
         const project = JSON.parse(JSON.stringify(props.project));
         let newKey = props.helpers?.getNewWidgetIdNumber(project) || 1000;
         let changed = false;
+        let firstCreatedRoom = '';
         rooms.forEach(room => {
             if (!roomsChecked[room._id] ||
                 !room.devices.length ||
@@ -131,6 +132,7 @@ const WizardDialog = props => {
             } else {
                 // try to find existing view
                 const projectView = Object.keys(project).find(view => project[view].settings?.wizardId === room._id);
+
                 if (projectView) {
                     viewId = projectView;
                 } else if (project[viewId]) {
@@ -147,8 +149,11 @@ const WizardDialog = props => {
                         widgets: {},
                         activeWidgets: {},
                     };
-                    if (room.common.icon?.startWith('data:image')) {
+                    if (room.common.icon?.startsWith('data:image')) {
                         project[viewId].settings.navigationIcon = room.common.icon;
+                    }
+                    if (room.common.color) {
+                        project[viewId].settings.navigationBackground = room.common.color;
                     }
 
                     // add new view to opened views
@@ -156,6 +161,7 @@ const WizardDialog = props => {
                         project.___settings.openedViews.push(viewId);
                     }
                 }
+                firstCreatedRoom = firstCreatedRoom || viewId;
 
                 // create widgets for every room
                 room.devices.forEach(device => {
@@ -184,6 +190,12 @@ const WizardDialog = props => {
         });
 
         changed && props.changeProject(project);
+        if (changed && firstCreatedRoom) {
+            setTimeout(() => {
+                // open first created room
+                props.changeView && props.changeView(firstCreatedRoom);
+            }, 100);
+        }
         props.onClose();
     };
 
@@ -267,7 +279,7 @@ const WizardDialog = props => {
                                     />
 
                                     {room.common.icon ? (room.common.icon === '?' ?
-                                        <QuestionMark style={{ width: 24, height: 24 }} />
+                                        <QuestionMark style={{ width: 24, height: 24, marginRight: 8 }} />
                                         :
                                         <Icon src={room.common.icon} style={{ width: 24, height: 24, marginRight: 8 }} alt="" />) : null}
 

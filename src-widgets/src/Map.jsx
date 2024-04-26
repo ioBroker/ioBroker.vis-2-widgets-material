@@ -236,6 +236,7 @@ class Map extends Generic {
                             type: 'id',
                             label: 'position',
                             onChange: detectNameAndColor,
+                            tooltip: 'position_help',
                         },
                         {
                             name: 'longitude',
