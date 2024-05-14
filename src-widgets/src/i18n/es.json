@@ -400,5 +400,6 @@
   "icon_size_tooltip": "en píxeles",
   "position_help": "Como \"9.2344;41.374652\" - \"longitud;latitud\"",
   "volumeGroup": "Grupo de volumen",
-  "rgbSingle": "RGB simple"
+  "rgbSingle": "RGB simple",
+  "doNotWantIncludeWidgets": "No incluya otros widgets"
 }

@@ -144,6 +144,12 @@ class Html extends Generic {
                             label: 'widget_id',
                             hidden: data => !!data.image || !!data.image_oid || !!data.iframe || !!data.iframe_oid || !!data.html,
                         },
+                        {
+                            label: 'doNotWantIncludeWidgets',
+                            name: 'doNotWantIncludeWidgets',
+                            type: 'checkbox',
+                            default: false,
+                        },
                     ],
                 },
             ],
@@ -164,12 +170,14 @@ class Html extends Generic {
     componentDidMount() {
         super.componentDidMount();
         this.reinitInterval();
+        this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
 
         // inform view about, that this widget can include other widgets
         this.props.askView && this.props.askView('update', {
             id: this.props.id,
             uuid: this.uuid,
             canHaveWidgets: true,
+            doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
         });
 
         if (this.state.rxData.refreshOnWakeUp && !this.state.rxData.widget) {
@@ -257,11 +265,21 @@ class Html extends Generic {
         super.renderWidgetBody(props);
         const noCard = this.state.rxData.noCard || props.widget.usedInWidget;
 
+        if (typeof this.doNotWantIncludeWidgets === 'boolean' && this.doNotWantIncludeWidgets !== !!this.state.rxData.doNotWantIncludeWidgets) {
+            this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
+            setTimeout(() => this.props.askView && this.props.askView('update', {
+                id: this.props.id,
+                uuid: this.uuid,
+                doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
+            }), 100);
+        }
+
         const style = {
             width: '100%',
             height: !noCard && this.state.rxData.widgetTitle ? 'calc(100% - 36px)' : '100%',
             border: '0',
         };
+
         Object.keys(this.state.rxStyle).forEach(key => {
             if (key !== 'position' && key !== 'top' && key !== 'left' && key !== 'width' && key !== 'height') {
                 if (this.state.rxStyle[key] !== undefined && this.state.rxStyle[key] !== null) {

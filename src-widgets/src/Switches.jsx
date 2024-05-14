@@ -532,13 +532,10 @@ class Switches extends BlindsBase {
                             max: 300,
                         },
                         {
-                            label: 'buttons_height',
-                            name: 'buttonsHeight',
-                            hidden: 'data.type !== "buttons"',
-                            type: 'slider',
-                            default: 80,
-                            min: 40,
-                            max: 300,
+                            label: 'doNotWantIncludeWidgets',
+                            name: 'doNotWantIncludeWidgets',
+                            type: 'checkbox',
+                            default: false,
                         },
                     ],
                 },
@@ -1371,6 +1368,15 @@ class Switches extends BlindsBase {
             }
         }
 
+        if (this.doNotWantIncludeWidgets !== !!this.state.rxData.doNotWantIncludeWidgets) {
+            this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
+            this.props.askView && this.props.askView('update', {
+                id: this.props.id,
+                uuid: this.uuid,
+                doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
+            });
+        }
+
         if (JSON.stringify(objects) !== JSON.stringify(this.state.objects) ||
             JSON.stringify(secondaryObjects) !== JSON.stringify(this.state.secondaryObjects)
         ) {
@@ -1381,11 +1387,14 @@ class Switches extends BlindsBase {
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
+        this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
+
         // inform view about, that this widget can include other widgets
         this.props.askView && this.props.askView('update', {
             id: this.props.id,
             uuid: this.uuid,
             canHaveWidgets: true,
+            doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
         });
     }
 

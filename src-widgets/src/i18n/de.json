@@ -400,5 +400,6 @@
   "icon_size_tooltip": "in px",
   "position_help": "Wie „9.2344;41.374652“ – „Längengrad;Breitengrad“",
   "volumeGroup": "Lautsprächerstärke-Gruppe",
-  "rgbSingle": "RGB Einzeln"
+  "rgbSingle": "RGB Einzeln",
+  "doNotWantIncludeWidgets": "Keine anderen Widgets einbinden"
 }

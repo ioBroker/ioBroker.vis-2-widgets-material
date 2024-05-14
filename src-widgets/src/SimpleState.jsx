@@ -178,7 +178,7 @@ class SimpleState extends Generic {
                             onChange: async (field, data, changeData, socket) => {
                                 if (data.oid) {
                                     const object = await socket.getObject(data.oid);
-                                    if (object && object.common.states) {
+                                    if (object?.common?.states) {
                                         if (Array.isArray(object.common.states)) {
                                             // convert to {'state1': 'state1', 'state2': 'state2', ...}
                                             const states = {};
@@ -191,7 +191,7 @@ class SimpleState extends Generic {
                                         Object.keys(object.common.states).forEach((state, index) =>
                                             data[`value${index + 1}`] = object.common.states[state]);
                                         changeData(data);
-                                    } else {
+                                    } else if (object?.common) {
                                         data.withNumber = object.common.type === 'number';
                                         data.withStates = false;
                                         data.values_count = 0;
@@ -381,6 +381,10 @@ class SimpleState extends Generic {
                     object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
                 }
             }
+        }
+
+        if (object.common.name && typeof object.common.name === 'object') {
+            object.common.name = object.common.name[Generic.getLanguage()] || object.common.name.en;
         }
 
         if (JSON.stringify(this.state.object) !== JSON.stringify(object)) {

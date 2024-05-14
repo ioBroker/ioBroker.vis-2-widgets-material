@@ -400,5 +400,6 @@
   "icon_size_tooltip": "in px",
   "position_help": "Zoals \"9.2344;41.374652\" - \"lengtegraad;breedtegraad\"",
   "volumeGroup": "Volumegroep",
-  "rgbSingle": "RGB-enkel"
+  "rgbSingle": "RGB-enkel",
+  "doNotWantIncludeWidgets": "Voeg geen andere widgets toe"
 }
