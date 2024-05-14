@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.31",
+    "version": "1.3.32",
     "news": {
+      "1.3.32": {
+        "en": "Corrected error with multi-language names",
+        "de": "Fehler behoben mit mehrsprachigen Namen",
+        "ru": "Исправленная ошибка с многоязычными именами",
+        "pt": "Erro corrigido com nomes multilíngua",
+        "nl": "Fout gecorrigeerd met meertalige namen",
+        "fr": "Erreur corrigée avec des noms multilingues",
+        "it": "Errore corretto con nomi multilingua",
+        "es": "Error corregido con nombres de varios idiomas",
+        "pl": "Skorygowany błąd z wielojęzycznymi nazwami",
+        "uk": "Виправлена помилка з багатомовними іменами",
+        "zh-cn": "用多种语言名称更正错误"
+      },
       "1.3.31": {
         "en": "Improved wizard layout",
         "de": "Verbessertes Assistentenlayout",
@@ -80,19 +93,6 @@
         "pl": "Skorygowane małe pola wejściowe",
         "uk": "Виправлені невеликі поля введення",
         "zh-cn": "更正小输入字段"
-      },
-      "1.3.18": {
-        "en": "Corrected long click for RGB widget on touch devices\nCorrected dimmer widget",
-        "de": "Geregelter langer Klick für RGB Widget auf Touch-Geräten\nKorrigiertes Dimmer-Widget",
-        "ru": "Исправленный длинный щелчок для RGB виджета на сенсорных устройствах\nИсправленный виджет",
-        "pt": "Clique longo corrigido para widget RGB em dispositivos de toque\nWidget de dimmer corrigido",
-        "nl": "Gecorrigeerde lange klik voor RGB widget op touch-apparaten\nGecorrigeerde dimmer-widget",
-        "fr": "Correction de long clic pour le widget RGB sur les appareils tactiles\nWidget variateur corrigé",
-        "it": "Clic lungo corretto per widget RGB su dispositivi touch\nCorretto widget dimmer",
-        "es": "Haga clic largo corregido para el widget RGB en dispositivos táctiles\nWidget de martillo corregido",
-        "pl": "Skorygowane długie kliknięcie widżetu RGB na urządzeniach dotykowych\nPoprawiony widżet ściemniania",
-        "uk": "Виправлено довго натисніть на RGB віджет на сенсорних пристроях\nВиправлено dimmer віджет",
-        "zh-cn": "在触摸设备上对 RGB 部件进行长点击校正\n修正的 dimmer 部件"
       }
     },
     "title": "Vis 2 Widgets Material",
