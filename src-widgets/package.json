@@ -3,7 +3,7 @@
     "private": true,
     "version": "0.3.19",
     "dependencies": {
-        "@adobe/react-spectrum": "^3.34.1",
+        "@adobe/react-spectrum": "^3.35.1",
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@craco/craco": "^7.1.0",
         "@emotion/react": "^11.11.4",
