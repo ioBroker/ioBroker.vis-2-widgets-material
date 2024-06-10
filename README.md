@@ -128,7 +128,7 @@ The only difference is that Xiaomi supports the room cleaning.
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.33 (2024-06-10)
 * (bluefox) Wait for data before the map is shown
 * (bluefox) Round of value is possible now in the actual value widget (with chart)
 

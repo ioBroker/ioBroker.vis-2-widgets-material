@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.3.32",
+    "version": "1.3.33",
     "news": {
+      "1.3.33": {
+        "en": "Wait for data before the map is shown\nRound of value is possible now in the actual value widget (with chart)",
+        "de": "Warten Sie auf Daten, bevor die Karte angezeigt wird\nWertrunde ist jetzt im Istwert-Widget (mit Diagramm) möglich",
+        "ru": "Ожидание данных до показа карты\nКруг значений теперь возможен в реальном виджете значения (с диаграммой)",
+        "pt": "Aguarde dados antes que o mapa seja mostrado\nRodada de valor é possível agora no widget de valor real (com gráfico)",
+        "nl": "Wacht op gegevens voordat de kaart wordt getoond\nRonde van waarde is nu mogelijk in de werkelijke waarde widget (met grafiek)",
+        "fr": "Attendez les données avant que la carte ne soit affichée\nUne ronde de valeur est maintenant possible dans le widget de valeur réelle (avec graphique)",
+        "it": "Attendere i dati prima della visualizzazione della mappa\nTondo di valore è possibile ora nel widget di valore effettivo (con grafico)",
+        "es": "Esperar datos antes de que se muestre el mapa\nRonda de valor es posible ahora en el widget de valor real (con gráfico)",
+        "pl": "Poczekaj na dane przed pokazaniem mapy\nRunda wartości jest teraz możliwa w rzeczywistej wartości widget (z wykresem)",
+        "uk": "Очікується дані до карти\nКруглий значення можна зараз в фактичному віджеті значення (з діаграмою)",
+        "zh-cn": "在显示地图前等待数据\n在实际值部件中( 有图表) 现在可以进行一轮值 "
+      },
       "1.3.32": {
         "en": "Corrected error with multi-language names",
         "de": "Fehler behoben mit mehrsprachigen Namen",
@@ -80,19 +93,6 @@
         "pl": "Dodano możliwość zmiany rozmiaru ikon w prosty widget",
         "uk": "Додано можливість змінити розмір іконки в простому віджеті",
         "zh-cn": "添加修改简单部件图标大小的可能性"
-      },
-      "1.3.21": {
-        "en": "Corrected small input fields",
-        "de": "Kleine Eingabefelder korrigiert",
-        "ru": "Исправленные небольшие поля ввода",
-        "pt": "Campos de entrada pequenos corrigidos",
-        "nl": "Gecorrigeerde kleine invoervelden",
-        "fr": "Petits champs d'entrée corrigés",
-        "it": "Campi di input corretti",
-        "es": "Campos de entrada pequeños corregidos",
-        "pl": "Skorygowane małe pola wejściowe",
-        "uk": "Виправлені невеликі поля введення",
-        "zh-cn": "更正小输入字段"
       }
     },
     "title": "Vis 2 Widgets Material",
