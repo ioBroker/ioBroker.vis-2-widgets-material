@@ -401,5 +401,6 @@
   "position_help": "Як \"9.2344;41.374652\" - \"довгота;широта\"",
   "volumeGroup": "Група томів",
   "rgbSingle": "RGB Single",
-  "doNotWantIncludeWidgets": "Не включайте інші віджети"
+  "doNotWantIncludeWidgets": "Не включайте інші віджети",
+  "digits_after_comma": "Цифри після коми"
 }

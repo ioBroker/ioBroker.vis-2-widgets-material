@@ -401,5 +401,6 @@
   "position_help": "Come \"9.2344;41.374652\" - \"longitudine;latitudine\"",
   "volumeGroup": "Gruppo di volumi",
   "rgbSingle": "Singolo RGB",
-  "doNotWantIncludeWidgets": "Non includere altri widget"
+  "doNotWantIncludeWidgets": "Non includere altri widget",
+  "digits_after_comma": "Cifre dopo la virgola"
 }

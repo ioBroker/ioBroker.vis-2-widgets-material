@@ -206,6 +206,7 @@ class Actual extends Generic {
                             label: 'color',
                             name: 'color-main',
                             type: 'color',
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
                         },
                         {
                             label: 'font_size',
@@ -213,6 +214,7 @@ class Actual extends Generic {
                             type: 'slider',
                             min: 1,
                             max: 100,
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
                         },
                         {
                             label: 'font_style',
@@ -223,6 +225,15 @@ class Actual extends Generic {
                                 { value: 'normal', label: 'normal' },
                                 { value: 'italic', label: 'italic' },
                             ],
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'digits_after_comma',
+                            name: 'digits_after_comma_main',
+                            type: 'number',
+                            min: 0,
+                            max: 10,
+                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
                         },
                     ],
                 },
@@ -259,13 +270,13 @@ class Actual extends Generic {
                             label: 'hide_chart',
                             name: 'noChart-secondary',
                             type: 'checkbox',
-                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
                         },
                         {
                             label: 'color',
                             name: 'color-secondary',
                             type: 'color',
-                            hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
                         },
                         {
                             label: 'font_size',
@@ -273,6 +284,7 @@ class Actual extends Generic {
                             type: 'slider',
                             min: 1,
                             max: 100,
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
                         },
                         {
                             label: 'font_style',
@@ -283,6 +295,15 @@ class Actual extends Generic {
                                 { value: 'normal', label: 'normal' },
                                 { value: 'italic', label: 'italic' },
                             ],
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
+                        },
+                        {
+                            label: 'digits_after_comma',
+                            name: 'digits_after_comma_secondary',
+                            type: 'number',
+                            min: 0,
+                            max: 10,
+                            hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
                         },
                     ],
                 },
@@ -672,10 +693,10 @@ class Actual extends Generic {
         const classUpdateVal = this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
 
         const mainValue = this.state.objects?.main && this.state.values[`${this.state.rxData['oid-main']}.val`] !== undefined ?
-            this.formatValue(this.state.values[`${this.state.rxData['oid-main']}.val`]) : undefined;
+            this.formatValue(this.state.values[`${this.state.rxData['oid-main']}.val`], this.state.rxData.digits_after_comma_main) : undefined;
 
         const secondaryValue = this.state.objects?.secondary && this.state.values[`${this.state.rxData['oid-secondary']}.val`] !== undefined ?
-            this.formatValue(this.state.values[`${this.state.rxData['oid-secondary']}.val`], 0) : undefined;
+            this.formatValue(this.state.values[`${this.state.rxData['oid-secondary']}.val`], this.state.rxData.digits_after_comma_secondary) : undefined;
 
         let mainIcon = this.state.rxData['icon-main'] || this.state.objects?.main?.common?.icon;
         if (mainIcon) {

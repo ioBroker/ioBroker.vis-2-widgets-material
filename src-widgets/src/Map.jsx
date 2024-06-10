@@ -375,6 +375,17 @@ class Map extends Generic {
     async componentDidMount() {
         super.componentDidMount();
         await this.propertiesUpdate();
+        this.fillDataTimer = setTimeout(() => {
+            this.fillDataTimer = null;
+            this.setState({ forceShowMap: true });
+        }, 2000);
+    }
+
+    componentWillUnmount() {
+        if (this.fillDataTimer) {
+            clearTimeout(this.fillDataTimer);
+            this.fillDataTimer = null;
+        }
     }
 
     async onRxDataChanged(/* prevRxData */) {
@@ -397,10 +408,20 @@ class Map extends Generic {
             } else {
                 radius = parseFloat(this.getPropertyValue(`radius${i}`)) || 0;
             }
+            const parts = position?.toString().split(';');
+            let longitude;
+            let latitude;
+            if (parts?.length === 2) {
+                longitude = parseFloat(parts[0]) || 0;
+                latitude = parseFloat(parts[1]) || 0;
+            } else {
+                longitude = parseFloat(this.getPropertyValue(`longitude${i}`)) || 0;
+                latitude = parseFloat(this.getPropertyValue(`latitude${i}`)) || 0;
+            }
             const mrk = {
                 i,
-                longitude: parseFloat(position?.split(';')[0]) || parseFloat(this.getPropertyValue(`longitude${i}`)) || 0,
-                latitude:  parseFloat(position?.split(';')[1]) || parseFloat(this.getPropertyValue(`latitude${i}`))  || 0,
+                longitude,
+                latitude,
                 radius,
                 name: this.state.rxData[`name${i}`],
                 color: this.state.rxData[`color${i}`],
@@ -409,12 +430,20 @@ class Map extends Generic {
             if (mrk.icon && mrk.icon.startsWith('_PRJ_NAME')) {
                 mrk.icon = mrk.icon.replace('_PRJ_NAME', `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`);
             }
-            if (!mrk.longitude && !mrk.latitude) {
-                mrk.longitude = 8.40435;
-                mrk.latitude  = 49.013506;
+            if (mrk.longitude || mrk.latitude) {
+                // mrk.longitude = 8.40435;
+                // mrk.latitude  = 49.013506;
+                markers.push(mrk);
             }
+        }
 
-            markers.push(mrk);
+        if (!markers.length) {
+            return null;
+        }
+
+        if (this.fillDataTimer) {
+            clearTimeout(this.fillDataTimer);
+            this.fillDataTimer = null;
         }
 
         let tilesUrl;
@@ -444,12 +473,12 @@ class Map extends Generic {
         return <>
             <style>
                 {
-                    `.leaflet-control-attribution svg {
+                    `.leaflet-control-attribution {
     display: none !important;
 }
-.leaflet-div-icon {
+/*.leaflet-div-icon {
     border-radius: 50%;
-}`
+}*/`
                 }
             </style>
             <MapContainer

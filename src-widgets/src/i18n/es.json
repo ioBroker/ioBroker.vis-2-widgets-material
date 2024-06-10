@@ -401,5 +401,6 @@
   "position_help": "Como \"9.2344;41.374652\" - \"longitud;latitud\"",
   "volumeGroup": "Grupo de volumen",
   "rgbSingle": "RGB simple",
-  "doNotWantIncludeWidgets": "No incluya otros widgets"
+  "doNotWantIncludeWidgets": "No incluya otros widgets",
+  "digits_after_comma": "Dígitos después de la coma"
 }

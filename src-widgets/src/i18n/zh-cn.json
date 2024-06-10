@@ -401,5 +401,6 @@
   "position_help": "例如“9.2344；41.374652”-“经度；纬度”",
   "volumeGroup": "“卷”组",
   "rgbSingle": "RGB 单色",
-  "doNotWantIncludeWidgets": "不包括其他小部件"
+  "doNotWantIncludeWidgets": "不包括其他小部件",
+  "digits_after_comma": "逗号后的数字"
 }
