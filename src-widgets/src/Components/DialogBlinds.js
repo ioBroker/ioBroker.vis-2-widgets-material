@@ -37,12 +37,9 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { I18n, Utils } from '@iobroker/adapter-react-v5';
+import { I18n } from '@iobroker/adapter-react-v5';
 
-const styles = () => ({
-    dialogPaper: {
-        maxHeight: 800,
-    },
+const styles = {
     dialogTitle: {
         textAlign: 'center',
     },
@@ -71,7 +68,7 @@ const styles = () => ({
         height: '20em',
         boxSizing: 'border-box',
     },
-});
+};
 
 const LAMP_ON_COLOR = '#c7c70e';
 
@@ -323,7 +320,8 @@ class DialogBlinds extends Component {
             key={`${this.props.dialogKey}-toggle-button`}
             active={this.props.startToggleValue}
             onClick={this.props.onToggle}
-            className={Utils.clsx('dimmer-button', this.props.classes.buttonToggleStyle)}
+            className="dimmer-button"
+            style={styles.buttonToggleStyle}
         >
             <IconLamp />
         </Fab>;
@@ -335,7 +333,7 @@ class DialogBlinds extends Component {
         }
 
         return <Fab
-            className={this.props.classes.buttonStopStyle}
+            style={styles.buttonStopStyle}
             size="small"
             onClick={this.props.onStop}
             color="secondary"
@@ -375,8 +373,8 @@ class DialogBlinds extends Component {
             handlerStyle.top = '0.4em';
         }
 
-        return <div className={this.props.classes.wrapperSlider}>
-            <div className={this.props.classes.wrapperSliderBlock}>
+        return <div style={styles.wrapperSlider}>
+            <div style={styles.wrapperSliderBlock}>
                 <Button variant="outlined" onClick={e => this.onButtonDown(e, 'top')}>
                     {this.getTopButtonName()}
                 </Button>
@@ -386,7 +384,7 @@ class DialogBlinds extends Component {
                     onMouseDown={this.onMouseDown}
                     onTouchStart={this.onMouseDown}
                     onClick={e => e.stopPropagation()}
-                    className={this.props.classes.sliderStyle}
+                    style={styles.sliderStyle}
                 >
                     <div style={sliderStyle}>
                         <div style={handlerStyle} />
@@ -405,9 +403,9 @@ class DialogBlinds extends Component {
             open={!0}
             onClose={() => this.props.onClose()}
         >
-            <DialogTitle className={this.props.classes.dialogTitle}>
+            <DialogTitle style={styles.dialogTitle}>
                 {this.getStopButton()}
-                <div className={this.props.classes.sliderText}>
+                <div style={styles.sliderText}>
                     {this.getValueText()}
                 </div>
                 <IconButton onClick={() => this.props.onClose()} style={{ float: 'right' }}>

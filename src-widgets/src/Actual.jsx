@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     Dialog, DialogContent, DialogTitle, IconButton, Tooltip,
@@ -25,13 +24,13 @@ import {
     Opacity as HumidityIcon,
 } from '@mui/icons-material';
 
-import { Utils, Icon } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/adapter-react-v5';
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
-const styles = () => ({
+const styles = {
     chart: {
         height: 'calc(100% - 40px)',
         width: '100%',
@@ -80,37 +79,15 @@ const styles = () => ({
         marginRight: 4,
     },
     newValueLight: {
-        animation: '$newValueAnimationLight 2s ease-in-out',
-    },
-    '@keyframes newValueAnimationLight': {
-        '0%': {
-            color: '#00bd00',
-        },
-        '80%': {
-            color: '#008000',
-        },
-        '100%': {
-            color: 'rgba(243,177,31)',
-        },
+        animation: 'vis-2-widgets-material-newValueAnimationLight 2s ease-in-out',
     },
     newValueDark: {
-        animation: '$newValueAnimationDark 2s ease-in-out',
-    },
-    '@keyframes newValueAnimationDark': {
-        '0%': {
-            color: '#008000',
-        },
-        '80%': {
-            color: '#00bd00',
-        },
-        '100%': {
-            color: 'rgba(243,177,31)',
-        },
+        animation: 'vis-2-widgets-material-newValueAnimationDark 2s ease-in-out',
     },
     tooltip: {
         pointerEvents: 'none',
     },
-});
+};
 
 class Actual extends Generic {
     constructor(props) {
@@ -690,7 +667,7 @@ class Actual extends Generic {
             this.setState({ showDialog: true });
         } : undefined;
 
-        const classUpdateVal = this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
+        const classUpdateVal = this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight;
 
         const mainValue = this.state.objects?.main && this.state.values[`${this.state.rxData['oid-main']}.val`] !== undefined ?
             this.formatValue(this.state.values[`${this.state.rxData['oid-main']}.val`], this.state.rxData.digits_after_comma_main) : undefined;
@@ -700,18 +677,18 @@ class Actual extends Generic {
 
         let mainIcon = this.state.rxData['icon-main'] || this.state.objects?.main?.common?.icon;
         if (mainIcon) {
-            mainIcon = <Icon src={mainIcon} style={{ width: 24 }} className={this.props.classes.mainIcon} />;
+            mainIcon = <Icon src={mainIcon} style={{ ...styles.mainIcon, width: 24 }} />;
         } else if (this.state.objects?.main?.common?.role?.includes('temperature') || this.state.objects?.main?.common?.unit?.includes('°')) {
-            mainIcon = <ThermostatIcon className={this.props.classes.mainIcon} />;
+            mainIcon = <ThermostatIcon style={styles.mainIcon} />;
         } else {
             mainIcon = null;
         }
 
         let secondaryIcon = this.state.rxData['icon-secondary'] || this.state.objects?.secondary?.common?.icon;
         if (secondaryIcon) {
-            secondaryIcon = <Icon src={secondaryIcon} style={{ width: 20 }} className={this.props.classes.secondaryIcon} />;
+            secondaryIcon = <Icon src={secondaryIcon} style={{ ...styles.secondaryIcon, width: 20 }} />;
         } else if (this.state.objects?.secondary?.common?.role?.includes('humidity')) {
-            secondaryIcon = <HumidityIcon className={this.props.classes.secondaryIcon} />;
+            secondaryIcon = <HumidityIcon style={styles.secondaryIcon} />;
         } else {
             secondaryIcon = null;
         }
@@ -725,17 +702,44 @@ class Actual extends Generic {
             }}
             ref={this.refContainer}
         >
+            <style>
+                {`
+@keyframes vis-2-widgets-material-newValueAnimationLight {
+    0% {
+        color: #00bd00;
+    }
+    80% {
+        color: #008000;
+    }
+    100% {
+        color: rgba(243,177,31);
+    }
+}
+@keyframes vis-2-widgets-material-newValueAnimationDark {
+    0% {
+        color: #008000;
+    }
+    80% {
+        color: #00bd00;
+    }
+    100% {
+        color: rgba(243,177,31);
+    }
+}                
+                `}
+            </style>
             {mainValue !== undefined ?
                 <Tooltip
                     title={this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || null}
-                    classes={{ popper: this.props.classes.tooltip }}
+                    componentsProps={{ popper: { sx: styles.tooltip } }}
                 >
-                    <div className={this.props.classes.mainDiv}>
+                    <div style={styles.mainDiv}>
                         {mainIcon}
                         <span
                             key={`${mainValue}valText`}
-                            className={Utils.clsx(this.props.classes.temperatureValue, classUpdateVal)}
                             style={{
+                                ...styles.temperatureValue,
+                                ...classUpdateVal,
                                 fontSize: mainFontSize || undefined,
                                 fontStyle: this.state.rxData['font-style-main'],
                                 color: this.state.rxData['color-main'],
@@ -744,8 +748,8 @@ class Actual extends Generic {
                             {mainValue}
                         </span>
                         <span
-                            className={this.props.classes.temperatureUnit}
                             style={{
+                                ...styles.temperatureUnit,
                                 fontSize: mainFontSize ? mainFontSize * 0.5 : undefined,
                                 fontStyle: this.state.rxData['font-style-main'],
                                 color: this.state.rxData['color-main'],
@@ -759,14 +763,15 @@ class Actual extends Generic {
             {secondaryValue !== undefined ?
                 <Tooltip
                     title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name) || null}
-                    classes={{ popper: this.props.classes.tooltip }}
+                    componentsProps={{ popper: { sx: styles.tooltip } }}
                 >
-                    <div className={this.props.classes.secondaryDiv}>
+                    <div style={styles.secondaryDiv}>
                         {secondaryIcon}
                         <span
                             key={`${secondaryValue}valText`}
-                            className={Utils.clsx(this.props.classes.humidityValue, classUpdateVal)}
                             style={{
+                                ...styles.humidityValue,
+                                ...classUpdateVal,
                                 fontSize: secondaryFontSize || undefined,
                                 fontStyle: this.state.rxData['font-style-secondary'],
                                 color: this.state.rxData['color-secondary'],
@@ -775,8 +780,8 @@ class Actual extends Generic {
                             {secondaryValue}
                         </span>
                         <span
-                            className={this.props.classes.humidityUnit}
                             style={{
+                                ...styles.humidityUnit,
                                 fontSize: secondaryFontSize ? secondaryFontSize / 2 : undefined,
                                 fontStyle: this.state.rxData['font-style-secondary'],
                                 color: this.state.rxData['color-secondary'],
@@ -789,13 +794,13 @@ class Actual extends Generic {
                 : null}
             {this.state.containerHeight && (this.state[`chart-data-${this.state.rxData['oid-main']}`] || this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) ?
                 <ReactEchartsCore
-                    className={this.props.classes.chart}
                     echarts={echarts}
                     option={this.getOptions()}
                     notMerge
                     lazyUpdate
                     theme={this.props.context.themeType === 'dark' ? 'dark' : ''}
                     style={{
+                        ...styles.chart,
                         height: this.state.containerHeight - 26,
                         width: '100%',
                     }}
@@ -832,4 +837,4 @@ Actual.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(Actual);
+export default Actual;

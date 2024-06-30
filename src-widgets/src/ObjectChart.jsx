@@ -1,6 +1,5 @@
 import React, { createRef, Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 // import { LocalizationProvider, TimePicker, DatePicker } from '@mui/x-date-pickers';
@@ -12,8 +11,7 @@ import {
     FormControl,
     Select,
     Toolbar,
-    Fab,
-//    TextField,
+    Fab, Box,
 } from '@mui/material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -49,7 +47,7 @@ import { Utils, withWidth } from '@iobroker/adapter-react-v5';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, SVGRenderer]);
 
-const SplitLineIcon = props => <svg viewBox="0 0 512 512" width={props.width || 20} height={props.height || props.width || 20} xmlns="http://www.w3.org/2000/svg" className={props.className}>
+const SplitLineIcon = props => <svg viewBox="0 0 512 512" width={props.width || 20} height={props.height || props.width || 20} xmlns="http://www.w3.org/2000/svg" style={props.style}>
     <path fill="currentColor" d="M496 384H64V80c0-8.84-7.16-16-16-16H16C7.16 64 0 71.16 0 80v336c0 17.67 14.33 32 32 32h464c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16zM464 96H345.94c-21.38 0-32.09 25.85-16.97 40.97l32.4 32.4L288 242.75l-73.37-73.37c-12.5-12.5-32.76-12.5-45.25 0l-68.69 68.69c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L192 237.25l73.37 73.37c12.5 12.5 32.76 12.5 45.25 0l96-96 32.4 32.4c15.12 15.12 40.97 4.41 40.97-16.97V112c.01-8.84-7.15-16-15.99-16z" />
 </svg>;
 
@@ -70,7 +68,8 @@ const SplitLineIcon = props => <svg viewBox="0 0 512 512" width={props.width || 
 function padding3(ms) {
     if (ms < 10) {
         return `00${ms}`;
-    } if (ms < 100) {
+    }
+    if (ms < 100) {
         return `0${ms}`;
     }
     return ms;
@@ -83,7 +82,7 @@ function padding2(num) {
     return num;
 }
 
-const styles = theme => ({
+const styles = {
     paper: {
         height: '100%',
         maxHeight: '100%',
@@ -95,9 +94,9 @@ const styles = theme => ({
         width: '100%',
         overflow: 'hidden',
     },
-    chartWithToolbar: {
-        height: `calc(100% - ${(theme?.mixins?.toolbar.minHeight || 48) + parseInt(theme && theme.spacing ? theme.spacing(1) : 8, 10)}px)`,
-    },
+    chartWithToolbar: theme => ({
+        height: `calc(100% - ${(theme?.mixins?.toolbar.minHeight || 48) + 8}px)`,
+    }),
     chartWithoutToolbar: {
         height: '100%',
     },
@@ -111,11 +110,11 @@ const styles = theme => ({
     notAliveInstance: {
         opacity: 0.5,
     },
-    customRange: {
+    customRange: theme => ({
         color: theme?.palette?.primary.main || '#00bcd4',
-    },
+    }),
     splitLineButtonIcon: {
-        marginRight: theme && theme.spacing ? theme.spacing(1) : 8,
+        marginRight: 8,
     },
     splitLineButton: {
         float: 'right',
@@ -127,20 +126,20 @@ const styles = theme => ({
     toolbarTime: {
         width: 100,
         marginTop: 9,
-        marginLeft: theme && theme.spacing ? theme.spacing(1) : 8,
+        marginLeft: 8,
     },
     toolbarDate: {
         width: 160,
         marginTop: 9,
     },
     toolbarTimeGrid: {
-        marginLeft: theme && theme.spacing ? theme.spacing(1) : 8,
-        paddingLeft: theme && theme.spacing ? theme.spacing(1) : 8,
-        paddingRight: theme && theme.spacing ? theme.spacing(1) : 8,
-        paddingTop: theme && theme.spacing ? theme.spacing(0.5) : 4,
-        paddingBottom: theme && theme.spacing ? theme.spacing(0.5) : 4,
+        marginLeft: 8,
+        paddingLeft: 8,
+        paddingRight: 8,
+        paddingTop: 4,
+        paddingBottom: 4,
         border: '1px dotted #AAAAAA',
-        borderRadius: theme && theme.spacing ? theme.spacing(1) : 8,
+        borderRadius: 8,
         display: 'flex',
     },
     buttonIcon: {
@@ -148,18 +147,18 @@ const styles = theme => ({
         height: 24,
     },
     echartsButton: {
-        marginRight: theme && theme.spacing ? theme.spacing(1) : 8,
+        marginRight: 8,
         height: 34,
         width: 34,
     },
     dateInput: {
         width: 140,
-        marginRight: theme && theme.spacing ? theme.spacing(1) : 8,
+        marginRight: 8,
     },
     timeInput: {
         width: 80,
     },
-});
+};
 
 const GRID_PADDING_LEFT = 80;
 const GRID_PADDING_RIGHT = 25;
@@ -1236,12 +1235,10 @@ class ObjectChart extends Component {
             return null;
         }
 
-        const classes = this.props.classes;
-
         const showTimeSettings = window.clientWidth > 600;
 
         return <Toolbar>
-            <FormControl variant="standard" className={classes.selectRelativeTime}>
+            <FormControl variant="standard" style={styles.selectRelativeTime}>
                 <InputLabel>{this.props.t('relative')}</InputLabel>
                 <Select
                     variant="standard"
@@ -1249,7 +1246,7 @@ class ObjectChart extends Component {
                     value={this.state.relativeRange}
                     onChange={e => this.setRelativeInterval(e.target.value)}
                 >
-                    <MenuItem key="custom" value="absolute" className={classes.customRange}>{ this.props.t('custom_range') }</MenuItem>
+                    <MenuItem key="custom" value="absolute" sx={styles.customRange}>{ this.props.t('custom_range') }</MenuItem>
                     <MenuItem key="1" value={10}>{this.props.t('last 10 minutes')}</MenuItem>
                     <MenuItem key="2" value={30}>{this.props.t('last 30 minutes')}</MenuItem>
                     <MenuItem key="3" value={60}>{this.props.t('last hour')}</MenuItem>
@@ -1267,9 +1264,9 @@ class ObjectChart extends Component {
             </FormControl>
             {/* showTimeSettings ? null
                 <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={localeMap[this.props.lang]}>
-                    <div className={classes.toolbarTimeGrid}>
+                    <div style={styles.toolbarTimeGrid}>
                         <DatePicker
-                            className={classes.toolbarDate}
+                            style={styles.toolbarDate}
                             disabled={this.state.relativeRange !== 'absolute'}
                             disableToolbar
                             variant="inline"
@@ -1279,24 +1276,24 @@ class ObjectChart extends Component {
                             label={this.props.t('Start date')}
                             value={new Date(this.state.min)}
                             onChange={date => this.setStartDate(date)}
-                            renderInput={params => <TextField className={this.props.classes.dateInput} variant="standard" {...params} />}
+                            renderInput={params => <TextField style={styles.dateInput} variant="standard" {...params} />}
                         />
                         <TimePicker
                             disabled={this.state.relativeRange !== 'absolute'}
-                            className={classes.toolbarTime}
+                            style={styles.toolbarTime}
                             margin="normal"
                             // format="fullTime24h"
                             ampm={false}
                             label={this.props.t('Start time')}
                             value={new Date(this.state.min)}
                             onChange={date => this.setStartDate(date)}
-                            renderInput={params => <TextField className={this.props.classes.timeInput} variant="standard" {...params} />}
+                            renderInput={params => <TextField style={styles.timeInput} variant="standard" {...params} />}
                         />
                     </div>
-                    <div className={classes.toolbarTimeGrid}>
+                    <div style={styles.toolbarTimeGrid}>
                         <DatePicker
                             disabled={this.state.relativeRange !== 'absolute'}
-                            className={classes.toolbarDate}
+                            style={styles.toolbarDate}
                             disableToolbar
                             inputFormat={this.state.dateFormat}
                             variant="inline"
@@ -1305,18 +1302,18 @@ class ObjectChart extends Component {
                             label={this.props.t('End date')}
                             value={new Date(this.state.max)}
                             onChange={date => this.setEndDate(date)}
-                            renderInput={params => <TextField className={this.props.classes.dateInput} variant="standard" {...params} />}
+                            renderInput={params => <TextField style={styles.dateInput} variant="standard" {...params} />}
                         />
                         <TimePicker
                             disabled={this.state.relativeRange !== 'absolute'}
-                            className={classes.toolbarTime}
+                            style={styles.toolbarTime}
                             margin="normal"
                             // format="fullTime24h"
                             ampm={false}
                             label={this.props.t('End time')}
                             value={new Date(this.state.max)}
                             onChange={date => this.setEndDate(date)}
-                            renderInput={params => <TextField className={this.props.classes.timeInput} variant="standard" {...params} />}
+                            renderInput={params => <TextField style={styles.timeInput} variant="standard" {...params} />}
                         />
                     </div>
                 </LocalizationProvider>
@@ -1330,10 +1327,10 @@ class ObjectChart extends Component {
                     window.localStorage.setItem('App.splitLine', this.state.splitLine ? 'false' : 'true');
                     this.setState({ splitLine: !this.state.splitLine });
                 }}
-                className={classes.splitLineButton}
+                style={styles.splitLineButton}
             >
-                <SplitLineIcon className={classes.splitLineButtonIcon} />
-                { this.props.t('Show lines') }
+                <SplitLineIcon style={styles.splitLineButtonIcon} />
+                {this.props.t('Show lines')}
             </Fab> : null}
         </Toolbar>;
     }
@@ -1343,11 +1340,16 @@ class ObjectChart extends Component {
             return <LinearProgress />;
         }
 
-        return <Paper className={this.props.classes.paper}>
-            { this.renderToolbar() }
-            <div ref={this.divRef} className={Utils.clsx(this.props.classes.chart, this.props.noToolbar ? this.props.classes.chartWithoutToolbar : this.props.classes.chartWithToolbar)}>
-                { this.renderChart() }
-            </div>
+        return <Paper style={styles.paper}>
+            {this.renderToolbar()}
+            <Box
+                component="div"
+                ref={this.divRef}
+                style={styles.chart}
+                sx={this.props.noToolbar ? styles.chartWithoutToolbar : styles.chartWithToolbar}
+            >
+                {this.renderChart()}
+            </Box>
         </Paper>;
     }
 }
@@ -1380,4 +1382,4 @@ ObjectChart.propTypes = {
     chartTitle: PropTypes.string,
 };
 
-export default withWidth()(withStyles(styles)(ObjectChart));
+export default withWidth()(ObjectChart);

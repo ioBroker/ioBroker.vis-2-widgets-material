@@ -1,5 +1,4 @@
 import React from 'react';
-import { Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from '../Generic';
 import DialogBlinds from './DialogBlinds';
@@ -330,26 +329,25 @@ class BlindsBase extends Generic {
             }
 
             divHandle = <div
-                className={Utils.clsx(
-                    this.props.classes.blindHandle,
-                    handlePos === 2 && this.props.classes.blindHandleTiltedBG,
-                )}
-                style={style}
+                style={{
+                    ...styles.blindHandle,
+                    ...(handlePos === 2 ? styles.blindHandleTiltedBG : undefined),
+                    ...style,
+                }}
             />;
         }
 
         return <div
             key={index}
-            className={this.props.classes.blindBlind1}
             style={{
+                ...styles.blindBlind1,
                 borderWidth: options.borderWidth,
                 borderColor: '#a9a7a8',
                 flex: options.flex || 1,
             }}
         >
             <div
-                className={this.props.classes.blindBlind2}
-                style={{ borderWidth: options.borderWidth }}
+                style={{ ...styles.blindBlind2, borderWidth: options.borderWidth }}
                 onClick={data.customOid ? e => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -357,16 +355,17 @@ class BlindsBase extends Generic {
                     this.setState({ showBlindsDialog: index, showBlindsDialogIndexOfButton: options.indexOfButton });
                 } : undefined}
             >
-                <div className={this.props.classes.blindBlind3}>
-                    <div style={{ height: `${100 - data.shutterPos}%` }} className={this.props.classes.blindBlind} />
+                <div style={styles.blindBlind3}>
+                    <div style={{ ...styles.blindBlind, height: `${100 - data.shutterPos}%` }} />
                     <div
-                        className={Utils.clsx(
-                            this.props.classes.blindBlind4,
-                            options.type && this.props.classes[`blindBlind4_${options.type}`],
-                            slidePos === 1 && options.type && this.props.classes[`blindBlind4Opened_${options.type}`],
-                            slidePos === 2 && options.type && this.props.classes.blindBlind4_tilted,
-                        )}
-                        style={{ borderWidth: options.borderWidth, borderColor: '#a5aaad' }}
+                        style={{
+                            ...styles.blindBlind4,
+                            ...(options.type ? styles[`blindBlind4_${options.type}`] : undefined),
+                            ...(slidePos === 1 && options.type ? styles[`blindBlind4Opened_${options.type}`] : undefined),
+                            ...(slidePos === 2 && options.type ? styles.blindBlind4_tilted : undefined),
+                            borderWidth: options.borderWidth,
+                            borderColor: '#a5aaad',
+                        }}
                     >
                         {divHandle}
                     </div>

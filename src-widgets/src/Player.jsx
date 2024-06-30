@@ -1,7 +1,6 @@
 import React from 'react';
 import Color from 'color';
 import ColorThief from 'colorthief';
-import { withStyles } from '@mui/styles';
 
 import {
     PauseRounded, PlayArrowRounded, SkipNextRounded, SkipPreviousRounded,
@@ -13,7 +12,7 @@ import {
 } from '@mui/material';
 import Generic from './Generic';
 
-const styles = theme => ({
+const styles = {
     content: {
         display: 'flex',
         flex: 1,
@@ -37,26 +36,7 @@ const styles = theme => ({
     },
     zIndex: { zIndex: 1 },
     player: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
-    seekSlider: {
-        color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
-        height: 4,
-        '& .MuiSlider-thumb': {
-            width: 8,
-            height: 8,
-            transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
-            '&:before': {
-                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
-            },
-            '&.Mui-active': {
-                width: 20,
-                height: 20,
-            },
-        },
-        '& .MuiSlider-rail': {
-            opacity: 0.28,
-        },
-    },
-    volumeSlider: {
+    volumeSlider: theme => ({
         color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
         '& .MuiSlider-track': {
             border: 'none',
@@ -72,8 +52,8 @@ const styles = theme => ({
                 boxShadow: 'none',
             },
         },
-    },
-});
+    }),
+};
 
 const mediaTypes = ['title', 'artist', 'cover', 'state', 'duration', 'elapsed', 'prev', 'next', 'volume', 'mute', 'repeat', 'shuffle'];
 
@@ -410,12 +390,12 @@ class Player extends Generic {
             playerArtist = '---';
         }
 
-        const content = <div className={this.props.classes.content}>
-            <div className={this.props.classes.zIndex}>
-                <div className={this.props.classes.player}>
-                    {this.state.rxData.title && this.state.rxData.title !== 'nothing_selected' ? <div className={this.props.classes.title}>{playerTitle}</div> : null}
-                    {this.state.rxData.artist && this.state.rxData.artist !== 'nothing_selected' ? <div className={this.props.classes.artist}>{playerArtist}</div> : null}
-                    {(this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected') || (this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected') ? <div className={this.props.classes.mode}>
+        const content = <div style={styles.content}>
+            <div style={styles.zIndex}>
+                <div style={styles.player}>
+                    {this.state.rxData.title && this.state.rxData.title !== 'nothing_selected' ? <div style={styles.title}>{playerTitle}</div> : null}
+                    {this.state.rxData.artist && this.state.rxData.artist !== 'nothing_selected' ? <div style={styles.artist}>{playerArtist}</div> : null}
+                    {(this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected') || (this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected') ? <div style={styles.mode}>
                         {this.state.rxData.repeat && this.state.rxData.volume !== 'nothing_selected' ? <IconButton
                             color={this.getPropertyValue('repeat') ? 'primary' : undefined}
                             onClick={() => {
@@ -440,7 +420,7 @@ class Player extends Generic {
                             <ShuffleRounded />
                         </IconButton> : null}
                     </div> : null}
-                    <div className={this.props.classes.buttons}>
+                    <div style={styles.buttons}>
                         {this.state.rxData.prev && this.state.rxData.prev !== 'nothing_selected' ?
                             <IconButton onClick={() => this.props.context.setValue(this.state.rxData.prev, true)}>
                                 <SkipPreviousRounded fontSize="large" />
@@ -466,13 +446,24 @@ class Player extends Generic {
                     </div>
                 </div>
             </div>
-            <div className={this.props.classes.seek}>
+            <div style={styles.seek}>
                 {this.state.rxData.elapsed && this.state.rxData.elapsed !== 'nothing_selected' ? Player.getTimeString(this.getPropertyValue('elapsed')) : null}
                 {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? <Slider
-                    className={this.props.classes.seekSlider}
                     style={{ color }}
                     sx={theme => ({
+                        color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
+                        height: 4,
                         '& .MuiSlider-thumb': {
+                            width: 8,
+                            height: 8,
+                            transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+                            '&:before': {
+                                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
+                            },
+                            '&.Mui-active': {
+                                width: 20,
+                                height: 20,
+                            },
                             '&:hover, &.Mui-focusVisible': {
                                 boxShadow: `0px 0px 0px 8px ${
                                     theme.palette.mode === 'dark' || color === 'white'
@@ -480,6 +471,9 @@ class Player extends Generic {
                                         : 'rgb(0 0 0 / 16%)'
                                 }`,
                             },
+                        },
+                        '& .MuiSlider-rail': {
+                            opacity: 0.28,
                         },
                     })}
                     size="small"
@@ -495,7 +489,7 @@ class Player extends Generic {
                 {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? Player.getTimeString(this.getPropertyValue('duration')) : null}
             </div>
             {(this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected') || (this.state.rxData.mute && this.state.rxData.mute !== 'nothing_selected') ?
-                <div className={this.props.classes.volume}>
+                <div style={styles.volume}>
                     {this.state.rxData.mute ?
                         <IconButton onClick={() =>
                             this.props.context.setValue(this.state.rxData.mute, !this.getPropertyValue('mute'))}
@@ -507,7 +501,7 @@ class Player extends Generic {
                         :
                         null}
                     {this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected' ? <Slider
-                        className={this.props.classes.volumeSlider}
+                        sx={styles.volumeSlider}
                         style={{ color }}
                         min={this.state.volumeObject?.common?.min || 0}
                         max={this.state.volumeObject?.common?.max || 100}
@@ -542,4 +536,4 @@ class Player extends Generic {
     }
 }
 
-export default withStyles(styles)(Player);
+export default Player;

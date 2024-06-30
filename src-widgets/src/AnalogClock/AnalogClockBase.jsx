@@ -66,8 +66,8 @@ class AnalogClockBase extends Component {
         const tickSize = Math.round(0.036 * this.props.size);
 
         return <div
-            className={this.props.classes.analogClockBase}
             style={{
+                ...styles.analogClockBase,
                 width: this.props.size,
                 height: this.props.size,
                 backgroundColor: this.props.backgroundColor,
@@ -76,8 +76,8 @@ class AnalogClockBase extends Component {
             }}
         >
             <div
-                className={this.props.classes.analogClockBaseCenter}
                 style={{
+                    ...styles.analogClockBaseCenter,
                     backgroundColor: this.props.withSeconds ? this.props.secondHandColor : this.props.handsColor,
                     width: this.props.size * 0.05,
                     height: this.props.size * 0.05,
@@ -85,8 +85,8 @@ class AnalogClockBase extends Component {
             />
             {Array.from(Array(60)).map((_, index) => (
                 <div
-                    className={this.props.classes.tickLabel}
                     style={{
+                        ...styles.tickLabel,
                         width: index % 5 ? Math.round(tickSize / 2) : tickSize,
                         height: index % 5 ? Math.round(tickSize / 9) : Math.round(tickSize / 3),
                         backgroundColor: this.props.ticksColor,
@@ -100,15 +100,15 @@ class AnalogClockBase extends Component {
                 HOUR_LABELS.map((label, index) => (
                     <div
                         key={label.toString() + index.toString()}
-                        className={this.props.classes.hourLabel}
                         style={{
+                            ...styles.hourLabel,
                             color: this.props.ticksColor,
                             transform: `rotate(${calculateHourLabelDegree(index)}deg) translateX(${this.props.size * 0.4}px)`,
                         }}
                     >
                         <span
-                            className={this.props.classes.hourLabelSpan}
                             style={{
+                                ...styles.hourLabelSpan,
                                 transform: `rotate(${-1 * calculateHourLabelDegree(index)}deg)`,
                                 fontSize: labelSize,
                             }}

@@ -34,7 +34,7 @@ const calculateHourHandDegree = (hours, minutes) => hours * 30 + minutes * 0.5 -
 const calculateMinuteHandDegree = (hours, minutes, seconds) => hours * 360 + minutes * 6 + seconds / 12 - TIME_DEGREE_OFFSET;
 const calculateSecondHandDegree = (minutes, seconds) => minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
 
-const styles = () => ({
+const styles = {
     analogClock: {
         // display: 'flex',
         // justifyContent: 'center',
@@ -57,7 +57,7 @@ const styles = () => ({
         transformOrigin: 'center',
         transition: 'transform linear 1s',
     },
-});
+};
 
 class AnalogClock extends Component {
     render() {
@@ -69,7 +69,7 @@ class AnalogClock extends Component {
         const secondsWidth = this.props.size * 0.45;
         const handsHeight = Math.round(this.props.size / 50);
 
-        return <div className={this.props.classes.analogClock} style={this.props.style}>
+        return <div style={{ ...styles.analogClock, ...this.props.style }}>
             <AnalogClockBase
                 backgroundColor={this.props.backgroundColor || (this.props.themeType === 'dark' ? '#111' : '#EEE')}
                 ticksColor={this.props.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
@@ -80,8 +80,8 @@ class AnalogClock extends Component {
                 withSeconds={this.props.withSeconds}
             >
                 <div
-                    className={this.props.classes.hourHand}
                     style={{
+                        ...styles.hourHand,
                         width: this.props.size * 0.3,
                         height: handsHeight,
                         borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
@@ -90,8 +90,8 @@ class AnalogClock extends Component {
                     }}
                 />
                 <div
-                    className={this.props.classes.minuteHand}
                     style={{
+                        ...styles.minuteHand,
                         width: this.props.size * 0.4,
                         height: handsHeight,
                         borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
@@ -101,8 +101,8 @@ class AnalogClock extends Component {
                 />
                 {this.props.withSeconds ?
                     <div
-                        className={this.props.classes.secondHand}
                         style={{
+                            ...styles.secondHand,
                             width: secondsWidth,
                             height: this.props.size / 100,
                             borderRadius: `0 ${Math.round(this.props.size / 500)}px ${Math.round(this.props.size / 500)}px 0`,

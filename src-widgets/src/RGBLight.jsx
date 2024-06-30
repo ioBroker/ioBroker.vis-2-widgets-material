@@ -1,5 +1,4 @@
 import React from 'react';
-import { withStyles } from '@mui/styles';
 import {
     Wheel, rgbaToHsva, hsvaToHsla,
     hsvaToRgba, hexToHsva,
@@ -54,7 +53,7 @@ function isTouchDevice() {
         || (navigator.msMaxTouchPoints > 0));
 }
 
-const styles = () => ({
+const styles = {
     rgbDialog: {
         maxWidth: 400,
     },
@@ -86,7 +85,7 @@ const styles = () => ({
     tooltip: {
         pointerEvents: 'none',
     },
-});
+};
 
 export const RGB_ROLES = {
     'switch.light': 'switch',
@@ -666,8 +665,8 @@ class RGBLight extends Generic {
 
     rgbRenderSwitch() {
         return this.state.rgbObjects.switch && <div
-            className={this.props.classes.rgbSliderContainer}
             style={{
+                ...styles.rgbSliderContainer,
                 justifyContent: 'center',
             }}
         >
@@ -681,10 +680,10 @@ class RGBLight extends Generic {
     }
 
     rgbRenderBrightness() {
-        return this.state.rgbObjects.brightness && <div className={this.props.classes.rgbSliderContainer}>
+        return this.state.rgbObjects.brightness && <div style={styles.rgbSliderContainer}>
             <Tooltip
                 title={Generic.t('Brightness')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <Brightness6 />
             </Tooltip>
@@ -699,7 +698,7 @@ class RGBLight extends Generic {
     }
 
     rgbRenderSketch() {
-        return <div className={`dark ${this.props.classes.rgbWheel}`}>
+        return <div className="dark" style={styles.rgbWheel}>
             <Sketch
                 color={this.rgbGetWheelColor()}
                 disableAlpha
@@ -720,7 +719,7 @@ class RGBLight extends Generic {
         return !this.rgbIsOnlyHue() && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
             {whiteMode !== null ? <Tooltip
                 title={Generic.t('Switch white mode')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
                     <WbAuto />
@@ -728,7 +727,7 @@ class RGBLight extends Generic {
             </Tooltip> : null}
             {!this.state.rxData.noRgbPalette && whiteMode !== true ? <Tooltip
                 title={Generic.t('Switch color picker')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
                     <ColorLens />
@@ -752,7 +751,7 @@ class RGBLight extends Generic {
         if (!isWheelVisible || whiteMode === true) {
             return null;
         }
-        return this.state.sketch ? this.rgbRenderSketch() :  <div className={this.props.classes.rgbWheel}>
+        return this.state.sketch ? this.rgbRenderSketch() :  <div style={styles.rgbWheel}>
             <Wheel
                 color={this.rgbGetWheelColor()}
                 onChange={color => {
@@ -777,7 +776,7 @@ class RGBLight extends Generic {
             max = this.rgbGetIdMax('white') || 100;
         }
 
-        return <div className={this.props.classes.rgbSliderContainer}>
+        return <div style={styles.rgbSliderContainer}>
             <TbSquareLetterW style={{ width: 24, height: 24 }} />
             <Slider
                 min={min}
@@ -793,16 +792,16 @@ class RGBLight extends Generic {
         if (this.state.rxData.rgbType !== 'ct' || whiteMode === true) {
             return null;
         }
-        return <div className={this.props.classes.rgbSliderContainer}>
+        return <div style={styles.rgbSliderContainer}>
             <Tooltip
                 title={Generic.t('Color temperature')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <Thermostat />
             </Tooltip>
             <div
-                className={this.props.classes.rgbSliderContainer}
                 style={{
+                    ...styles.rgbSliderContainer,
                     background:
         `linear-gradient(to right, ${this.state.colorTemperatures.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
                     flex: '1',
@@ -828,7 +827,7 @@ class RGBLight extends Generic {
             fullWidth
             maxWidth="sm"
             open={!0}
-            classes={{ paper: this.props.classes.rgbDialog }}
+            sx={{ '& .MuiDialog-paper': styles.rgbDialog }}
             onClose={() => this.setState({ dialog: false })}
         >
             <DialogTitle>
@@ -836,7 +835,7 @@ class RGBLight extends Generic {
                 <IconButton style={{ float: 'right' }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
             </DialogTitle>
             <DialogContent style={{ maxWidth: 400 }}>
-                <div className={this.props.classes.rgbDialogContainer}>
+                <div style={styles.rgbDialogContainer}>
                     {this.rgbRenderSwitch()}
                     {this.rgbRenderBrightness()}
                     {this.rgbRenderWhite()}
@@ -918,8 +917,8 @@ class RGBLight extends Generic {
             if (wheelVisible && size >= 350) {
                 rgbContent = <div
                     ref={this.contentRef}
-                    className={this.props.classes.rgbDialogContainer}
                     style={{
+                        ...styles.rgbDialogContainer,
                         flexDirection: 'row',
                         width: '100%',
                     }}
@@ -951,7 +950,7 @@ class RGBLight extends Generic {
             } else {
                 rgbContent = <div
                     ref={this.contentRef}
-                    className={this.props.classes.rgbDialogContainer}
+                    style={styles.rgbDialogContainer}
                 >
                     {this.rgbRenderSwitch()}
                     {this.rgbRenderBrightness()}
@@ -1109,9 +1108,11 @@ class RGBLight extends Generic {
 
             rgbContent = <>
                 <div
-                    className={this.props.classes.rgbContent}
                     ref={this.contentRef}
-                    style={applyStyle}
+                    style={{
+                        ...styles.rgbContent,
+                        ...applyStyle,
+                    }}
                 >
                     {button}
                 </div>
@@ -1129,4 +1130,4 @@ class RGBLight extends Generic {
     }
 }
 
-export default withStyles(styles)(RGBLight);
+export default RGBLight;

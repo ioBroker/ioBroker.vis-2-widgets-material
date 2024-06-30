@@ -318,7 +318,7 @@ const WizardDialog = props => {
                                     </div>
                                 </div>
                             </AccordionSummary>
-                            <AccordionDetails sx={{ backgroundColor: props.themeType === 'dark' ? '#111' : '#eee' }}>
+                            <AccordionDetails style={{ backgroundColor: props.themeType === 'dark' ? '#111' : '#eee' }}>
                                 {room.devices.map((device, deviceId) => <div key={device._id} style={{ backgroundColor: 'transparent' }}>
                                     <div
                                         style={{

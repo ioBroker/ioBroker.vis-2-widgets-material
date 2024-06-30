@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     Button,
@@ -20,13 +19,12 @@ export const FanIcon = props => <svg
     width={props.width || 20}
     height={props.height || props.width || 20}
     xmlns="http://www.w3.org/2000/svg"
-    className={props.className}
     style={props.style}
 >
     <path fill="currentColor" d="M352.57 128c-28.09 0-54.09 4.52-77.06 12.86l12.41-123.11C289 7.31 279.81-1.18 269.33.13 189.63 10.13 128 77.64 128 159.43c0 28.09 4.52 54.09 12.86 77.06L17.75 224.08C7.31 223-1.18 232.19.13 242.67c10 79.7 77.51 141.33 159.3 141.33 28.09 0 54.09-4.52 77.06-12.86l-12.41 123.11c-1.05 10.43 8.11 18.93 18.59 17.62 79.7-10 141.33-77.51 141.33-159.3 0-28.09-4.52-54.09-12.86-77.06l123.11 12.41c10.44 1.05 18.93-8.11 17.62-18.59-10-79.7-77.51-141.33-159.3-141.33zM256 288a32 32 0 1 1 32-32 32 32 0 0 1-32 32z" />
 </svg>;
 
-const styles = () => ({
+const styles = {
     vacuumBattery: {
         display: 'flex',
         alignItems: 'center',
@@ -74,7 +72,7 @@ const styles = () => ({
     tooltip: {
         pointerEvents: 'none',
     },
-});
+};
 
 export const VACUUM_ID_ROLES = {
     status: { role: 'value.state' },
@@ -439,7 +437,7 @@ class Vacuum extends Generic {
     }
 
     vacuumRenderBattery() {
-        return this.vacuumGetObj('battery') && <div className={this.props.classes.vacuumBattery}>
+        return this.vacuumGetObj('battery') && <div style={styles.vacuumBattery}>
             {this.vacuumGetObj('is-charging') && this.vacuumGetValue('is-charging') ? <BatteryChargingFull /> : <BatteryFull />}
             {this.vacuumGetValue('battery') || 0}
             {' '}
@@ -470,7 +468,7 @@ class Vacuum extends Generic {
             <Button
                 variant="standard"
                 key="speed"
-                className={this.props.classes.vacuumSpeedContainer}
+                style={styles.vacuumSpeedContainer}
                 endIcon={<FanIcon />}
                 onClick={e => {
                     e.stopPropagation();
@@ -540,30 +538,29 @@ class Vacuum extends Generic {
         const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(sensor =>
             this.vacuumGetObj(sensor));
 
-        return sensors.length ? <div className={this.props.classes.vacuumSensorsContainer}>
-            <div className={this.props.classes.vacuumSensors}>
+        return sensors.length ? <div style={styles.vacuumSensorsContainer}>
+            <div style={styles.vacuumSensors}>
                 {sensors.map(sensor => {
                     const object = this.vacuumGetObj(sensor);
 
                     return <Card
                         key={sensor}
-                        className={this.props.classes.vacuumSensorCard}
+                        style={styles.vacuumSensorCard}
                     >
                         <CardContent
-                            className={this.props.classes.vacuumSensorCardContent}
-                            style={{ paddingBottom: 2 }}
+                            style={{ ...styles.vacuumSensorCardContent, paddingBottom: 2 }}
                         >
                             <div>
-                                <span className={this.props.classes.vacuumSensorBigText}>
+                                <span style={styles.vacuumSensorBigText}>
                                     {this.vacuumGetValue(sensor) || 0}
                                 </span>
                                 {' '}
-                                <span className={this.props.classes.vacuumSensorSmallText}>
+                                <span style={styles.vacuumSensorSmallText}>
                                     {object.common.unit}
                                 </span>
                             </div>
                             <div>
-                                <span className={this.props.classes.vacuumSensorSmallText}>
+                                <span style={styles.vacuumSensorSmallText}>
                                     {Generic.t(sensor.replaceAll('-', '_'))}
                                 </span>
                             </div>
@@ -594,11 +591,11 @@ class Vacuum extends Generic {
             }
         }
 
-        return <div className={this.props.classes.vacuumButtons}>
+        return <div style={styles.vacuumButtons}>
             {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
             <Tooltip
                 title={Generic.t('Start')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-start-oid'], true)}
@@ -609,7 +606,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip
                 title={Generic.t('Pause')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-pause-oid'], true)}
@@ -620,7 +617,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip
                 title={Generic.t('Home')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-home-oid'], true)}
@@ -630,7 +627,7 @@ class Vacuum extends Generic {
             </Tooltip>}
             {statusObj && <Tooltip
                 title={Generic.t('Status')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <div style={{ color: statusColor }}>
                     {Generic.t(status).replace('vis_2_widgets_material_', '')}
@@ -643,15 +640,15 @@ class Vacuum extends Generic {
         const obj = this.vacuumGetObj('map64');
         if (!obj) {
             if (this.state.rxData['vacuum-use-default-picture']) {
-                return <VacuumCleanerIcon className={this.props.classes.vacuumImage} />;
+                return <VacuumCleanerIcon style={styles.vacuumImage} />;
             }
             if (this.state.rxData['vacuum-own-image']) {
-                return <Icon src={this.state.rxData['vacuum-own-image']} className={this.props.classes.vacuumImage} />;
+                return <Icon src={this.state.rxData['vacuum-own-image']} style={styles.vacuumImage} />;
             }
             return null;
         }
 
-        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" className={this.props.classes.vacuumImage} />;
+        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" style={styles.vacuumImage} />;
     }
 
     onCommand(command) {
@@ -694,16 +691,16 @@ class Vacuum extends Generic {
 
         const map = this.vacuumRenderMap();
 
-        const content = <div className={this.props.classes.vacuumContent}>
-            {battery || rooms ? <div className={this.props.classes.vacuumTopPanel}>
+        const content = <div style={styles.vacuumContent}>
+            {battery || rooms ? <div style={styles.vacuumTopPanel}>
                 {rooms}
                 {battery}
             </div> : null}
-            {map ? <div className={this.props.classes.vacuumMapContainer} style={{ height: `calc(100% - ${height}px)`, width: '100%' }}>
+            {map ? <div style={{ ...styles.vacuumMapContainer, height: `calc(100% - ${height}px)`, width: '100%' }}>
                 {map}
             </div> : null}
             {sensors}
-            {buttons || speed ? <div className={this.props.classes.vacuumBottomPanel}>
+            {buttons || speed ? <div style={styles.vacuumBottomPanel}>
                 {buttons}
                 {speed}
             </div> : null}
@@ -727,4 +724,4 @@ Vacuum.propTypes = {
     context: PropTypes.object,
 };
 
-export default withStyles(styles)(Vacuum);
+export default Vacuum;

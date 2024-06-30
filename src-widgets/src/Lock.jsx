@@ -1,5 +1,4 @@
 import React from 'react';
-import { withStyles } from '@mui/styles';
 
 import {
     Button, CircularProgress,
@@ -24,7 +23,7 @@ import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
 
-const styles = () => ({
+const styles = {
     content: {
         width: '100%',
         height: '100%',
@@ -50,7 +49,7 @@ const styles = () => ({
         // width: '100%',
         // height: '100%',
     },
-});
+};
 
 class Lock extends Generic {
     constructor(props) {
@@ -217,7 +216,7 @@ class Lock extends Generic {
         return <Dialog open={!0} onClose={() => this.setState({ dialogPin: false })}>
             <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
             <DialogContent>
-                <div className={this.props.classes.lockPinInput}>
+                <div style={styles.lockPinInput}>
                     <TextField
                         variant="outlined"
                         fullWidth
@@ -232,7 +231,7 @@ class Lock extends Generic {
                         value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.lockPinInput}
                     />
                 </div>
-                <div className={this.props.classes.lockPinGrid}>
+                <div style={styles.lockPinGrid}>
                     {
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
                             pincodeReturnButton].map(button => {
@@ -392,16 +391,22 @@ class Lock extends Generic {
                         }
                     }}
                 >
-                    {working && working !== 3 /* 3 = UNDEFINED */ ? <CircularProgress className={this.props.classes.lockWorkingIcon} size={this.state.rxData.lockSize || 40} /> : null}
+                    {working && working !== 3 /* 3 = UNDEFINED */ ? <CircularProgress style={styles.lockWorkingIcon} size={this.state.rxData.lockSize || 40} /> : null}
                     {this.state.rxData.noLockAnimation ? (lockOpened ?
                         <LockOpenedIcon
-                            style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
-                            className={this.props.classes.lockSvgIcon}
+                            style={{
+                                ...styles.lockSvgIcon,
+                                width: this.state.rxData.lockSize,
+                                height: this.state.rxData.lockSize,
+                            }}
                             sx={theme => ({ color: theme.palette.primary.main })}
                         /> :
                         <LockClosedIcon
-                            style={{ width: this.state.rxData.lockSize, height: this.state.rxData.lockSize }}
-                            className={this.props.classes.lockSvgIcon}
+                            style={{
+                                ...styles.lockSvgIcon,
+                                width: this.state.rxData.lockSize,
+                                height: this.state.rxData.lockSize,
+                            }}
                         />) :
                         <LockAnimation
                             open={lockOpened}
@@ -433,4 +438,4 @@ class Lock extends Generic {
     }
 }
 
-export default withStyles(styles)(Lock);
+export default Lock;

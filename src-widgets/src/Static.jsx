@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     Dialog, DialogContent, DialogTitle, IconButton, Switch,
@@ -242,7 +241,7 @@ class Static extends Generic {
             this.state.rxData[`color${key}`] || this.state.objects[key].common.color;
     }
 
-    getValue(key, classUpdateVal) {
+    getValue(key, styleUpdateVal) {
         const object = this.state.objects[key];
         const state = this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (state === undefined) {
@@ -279,8 +278,7 @@ class Static extends Generic {
         return <span
             key={`${val}valText`}
             onClick={onClick}
-            style={{ cursor: onClick ? 'pointer' : 'default' }}
-            className={classUpdateVal}
+            style={{ ...styleUpdateVal, cursor: onClick ? 'pointer' : 'default' }}
         >
             {val}
         </span>;
@@ -340,7 +338,7 @@ class Static extends Generic {
 
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
-        const classUpdateVal = this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight;
+        const styleUpdateVal = this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight;
 
         const content = <>
             {this.renderDialog()}
@@ -370,7 +368,7 @@ class Static extends Generic {
                         </span>
                     </span>
 
-                    {this.getValue(key, classUpdateVal)}
+                    {this.getValue(key, styleUpdateVal)}
                 </div>)}
         </>;
 
@@ -385,4 +383,4 @@ Static.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(Static);
+export default Static;

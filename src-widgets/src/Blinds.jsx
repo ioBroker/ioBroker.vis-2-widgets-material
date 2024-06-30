@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
-import BlindsBase, { STYLES } from './Components/BlindsBase';
+import BlindsBase from './Components/BlindsBase';
 
-const styles = () => ({
+const styles = {
     cardContent: {
         flex: 1,
         display: 'flex',
@@ -14,8 +13,7 @@ const styles = () => ({
         overflow: 'hidden',
         height: '100%',
     },
-    ...STYLES,
-});
+};
 
 class Blinds extends BlindsBase {
     constructor(props) {
@@ -358,8 +356,7 @@ class Blinds extends BlindsBase {
 
         const content = <div
             ref={this.refCardContent}
-            className={this.props.classes.cardContent}
-            style={{ cursor: data.hasControl ? 'pointer' : undefined }}
+            style={{ ...styles.cardContent, cursor: data.hasControl ? 'pointer' : undefined }}
             onClick={data.hasControl ? e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -398,4 +395,4 @@ Blinds.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(Blinds);
+export default Blinds;

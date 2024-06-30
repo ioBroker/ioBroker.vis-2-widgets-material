@@ -1,22 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import AnalogClock from './AnalogClock/AnalogClock';
 import Generic from './Generic';
 
-const styles = () => ({
-    '@keyframes uClockFadeIn': {
-        from: {
-            opacity: 0,
-        },
-        to: {
-            opacity: 1,
-        },
-    },
+const styles = {
     uClock: {
         verticalAlign: 'middle',
-        animationName: '$uClockFadeIn',
+        animationName: 'vis-2-widgets-material-uClockFadeIn',
         animationDuration: '500ms',
         animationEasing: 'ease-in-out',
         animationFillMode: 'both',
@@ -34,10 +25,10 @@ const styles = () => ({
     hourLabelSpan: {
         // fontWeight: 500,
     },
-});
+};
 
 function getTextWidth(text, font) {
-    // re-use canvas object for better performance
+    // re-use a canvas object for better performance
     const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
     const context = canvas.getContext('2d');
     context.font = font;
@@ -302,8 +293,7 @@ class Clock extends Generic {
             fill="currentColor"
             width={this.state.width}
             height={this.state.width}
-            style={{ backgroundColor: data.backgroundColor || (this.props.context.themeType === 'dark' ? '#111' : '#EEE') }}
-            className={this.props.classes.uClock}
+            style={{ ...styles.uClock, backgroundColor: data.backgroundColor || (this.props.context.themeType === 'dark' ? '#111' : '#EEE') }}
         >
             {[...Array(12)].map((_, idx) => (
                 <line
@@ -322,8 +312,7 @@ class Clock extends Generic {
             ))}
             <line
                 stroke={data.handsColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
-                style={{ transform: `rotate(${hoursDeg}deg)`, transformOrigin: 'center' }}
-                className={this.props.classes.uClockHand}
+                style={{ ...styles.uClockHand, transform: `rotate(${hoursDeg}deg)`, transformOrigin: 'center' }}
                 strokeLinecap="round"
                 strokeWidth="1.5"
                 x1="50"
@@ -333,8 +322,7 @@ class Clock extends Generic {
             />
             <line
                 stroke={data.handsColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
-                style={{ transform: `rotate(${minutesDeg}deg)`, transformOrigin: 'center' }}
-                className={this.props.classes.uClockHand}
+                style={{ ...styles.uClockHand, transform: `rotate(${minutesDeg}deg)`, transformOrigin: 'center' }}
                 strokeLinecap="round"
                 strokeWidth="1.5"
                 x1="50"
@@ -345,8 +333,7 @@ class Clock extends Generic {
             <circle stroke="currentColor" cx="50" cy="50" r="3" />
             {data.withSeconds ?
                 <g
-                    style={{ transform: `rotate(${secondsDeg}deg)`, transformOrigin: 'center' }}
-                    className={this.props.classes.uClockHand}
+                    style={{ ...styles.uClockHand, transform: `rotate(${secondsDeg}deg)`, transformOrigin: 'center' }}
                     stroke="currentColor"
                     color={data.secondHandColor || '#F44336'}
                     strokeWidth="1"
@@ -358,7 +345,7 @@ class Clock extends Generic {
                 [...Array(12)].map((_, idx) =>
                     <text
                         key={idx.toString()}
-                        className={this.props.classes.uClockHourLabel}
+                        style={styles.uClockHourLabel}
                         stroke="currentColor"
                         x={idx + 1 > 9 ? 46 : 48}
                         y="18"
@@ -371,7 +358,7 @@ class Clock extends Generic {
                     >
                         {idx + 1}
                         {/* <text
-                            className={this.props.classes.hourLabelSpan}
+                            style={styles.hourLabelSpan}
                             style={{
                                 transform: `rotate(${-1 * 30 * index}deg)`,
                                 fontSize: labelSize,
@@ -543,6 +530,18 @@ class Clock extends Generic {
         style.margin = 'auto';
 
         const content = <div style={style} ref={this.refContainer}>
+            <style>
+                {`
+@keyframes vis-2-widgets-material-uClockFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}               
+                `}
+            </style>
             {clock}
         </div>;
 
@@ -561,4 +560,4 @@ Clock.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(Clock);
+export default Clock;

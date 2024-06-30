@@ -1,5 +1,4 @@
 import React from 'react';
-import { withStyles } from '@mui/styles';
 import moment from 'moment';
 import 'moment/locale/de';
 import 'moment/locale/es';
@@ -60,14 +59,9 @@ const Dishes = props => <svg style={props.style} viewBox="0 0 44 35">
     <path fill="#7FABDA" d="m31.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z" />
 </svg>;
 
-const styles = () => ({
+const styles = {
     rotatedItem: {
-        animation: '$rotation 10000ms infinite',
-    },
-    '@keyframes rotation': {
-        '100%': {
-            transform: 'rotate(360deg)',
-        },
+        animation: 'vis-2-widgets-material-rotation 10000ms infinite',
     },
     body: {
         width: '100%',
@@ -127,7 +121,7 @@ const styles = () => ({
         overflow: 'hidden',
         textOverflow: 'ellipsis',
     },
-});
+};
 
 class WasherDryer extends Generic {
     constructor(props) {
@@ -316,12 +310,12 @@ class WasherDryer extends Generic {
         } else if (options.circle === 'short') {
             circle = <>
                 <div
-                    className={this.props.classes.centerCircle}
-                    style={{ border: `${options.wSize / 20}px solid ${options.backgroundColor}` }}
+                    style={{ ...styles.centerCircle, border: `${options.wSize / 20}px solid ${options.backgroundColor}` }}
                 />
                 <div
-                    className={`${this.props.classes.centerCircle} ${this.props.classes.rotatedItem}`}
                     style={{
+                        ...styles.centerCircle,
+                        ...styles.rotatedItem,
                         zIndex: 1,
                         borderTop: `${options.wSize / 25}px solid ${options.color}`,
                         borderBottom: `${options.wSize / 25}px solid ${options.color}`,
@@ -334,7 +328,7 @@ class WasherDryer extends Generic {
 
         return <div style={options.style}>
             {/* header */}
-            <div className={this.props.classes.header}>
+            <div style={styles.header}>
                 <div
                     style={{
                         width: '30%',
@@ -356,16 +350,16 @@ class WasherDryer extends Generic {
                 <div style={{ flexGrow: 1 }} />
                 {/* gray button 1 */}
                 <div
-                    className={this.props.classes.grayLed}
                     style={{
+                        ...styles.grayLed,
                         width: options.wSize / 10,
                         height: options.wSize / 10,
                     }}
                 />
                 {/* gray button 2 */}
                 <div
-                    className={this.props.classes.grayLed}
                     style={{
+                        ...styles.grayLed,
                         width: options.wSize / 10,
                         height: options.wSize / 10,
                     }}
@@ -383,9 +377,9 @@ class WasherDryer extends Generic {
                 />
             </div>
             {/* divider */}
-            <div className={this.props.classes.divider} />
+            <div style={styles.divider} />
             {/* main part */}
-            <div className={this.props.classes.mainPart}>
+            <div style={styles.mainPart}>
                 <div
                     style={{
                         width: options.wSize / 1.8,
@@ -397,18 +391,16 @@ class WasherDryer extends Generic {
                 >
                     {circle}
                     <div
-                        className={this.props.classes.centerText}
-                        style={{ fontSize: options.fontSize }}
+                        style={{ ...styles.centerText, fontSize: options.fontSize }}
                     >
                         {options.timeText || ''}
                     </div>
                 </div>
             </div>
             {/* divider */}
-            <div className={this.props.classes.divider} />
+            <div style={styles.divider} />
             <div
-                className={this.props.classes.footer}
-                style={{ color: options.statusColor }}
+                style={{ ...styles.footer, color: options.statusColor }}
             >
                 {options.status}
             </div>
@@ -418,7 +410,7 @@ class WasherDryer extends Generic {
     renderDishWasher(options) {
         return <div style={options.style}>
             {/* header */}
-            <div className={this.props.classes.header}>
+            <div style={styles.header}>
                 {/* red/green button 3 */}
                 <div
                     style={{
@@ -451,9 +443,9 @@ class WasherDryer extends Generic {
                 <div style={{ width: '33%' }} />
             </div>
             {/* divider */}
-            <div className={this.props.classes.divider} />
+            <div style={styles.divider} />
             {/* main part */}
-            <div className={this.props.classes.mainPart}>
+            <div style={styles.mainPart}>
                 <Dishes
                     style={{
                         width: '100%',
@@ -463,17 +455,15 @@ class WasherDryer extends Generic {
                     }}
                 />
                 <div
-                    className={this.props.classes.centerText}
-                    style={{ fontSize: options.fontSize }}
+                    style={{ ...styles.centerText, fontSize: options.fontSize }}
                 >
                     {options.timeText || ''}
                 </div>
             </div>
             {/* divider */}
-            <div className={this.props.classes.divider} />
+            <div style={styles.divider} />
             <div
-                className={this.props.classes.footer}
-                style={{ color: options.statusColor }}
+                style={{ ...styles.footer, color: options.statusColor }}
             >
                 {options.status}
             </div>
@@ -593,12 +583,21 @@ class WasherDryer extends Generic {
         }
 
         const content = <div
-            className={this.props.classes.body}
             style={{
+                ...styles.body,
                 height: this.state.rxData.widgetTitle && !this.state.rxData.noCard && !props.widget.usedInWidget ? 'calc(100% - 36px)' : '100%',
             }}
             ref={this.refDiv}
         >
+            <style>
+                {`
+@keyframes vis-2-widgets-material-rotation {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+`}
+            </style>
             {options.wSize && this.state.rxData.type !== 'dish' ? this.renderWasher(options) : null}
             {options.wSize && this.state.rxData.type === 'dish' ? this.renderDishWasher(options) : null}
         </div>;
@@ -611,4 +610,4 @@ class WasherDryer extends Generic {
     }
 }
 
-export default withStyles(styles)(WasherDryer);
+export default WasherDryer;

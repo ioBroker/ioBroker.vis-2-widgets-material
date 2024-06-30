@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -24,7 +23,7 @@ import {
     CircularProgress,
     InputAdornment,
     InputLabel,
-    FormControl, Tooltip, DialogActions, Menu, Card, CardContent,
+    FormControl, Tooltip, DialogActions, Menu, Card, CardContent, Box,
 } from '@mui/material';
 
 import {
@@ -192,7 +191,7 @@ const vacuumLoadStates = async (field, data, changeData, socket, index) => {
     }
 };
 
-const styles = () => ({
+const styles = {
     intermediate: {
         opacity: 0.2,
     },
@@ -231,7 +230,7 @@ const styles = () => ({
         gap: 16,
         position: 'relative',
     },
-    allButtonsTitle:{
+    allButtonsTitle: {
         display: 'flex',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
@@ -332,32 +331,10 @@ const styles = () => ({
         left: 0,
     },
     thermostatNewValueLight: {
-        animation: '$newValueAnimationLight 2s ease-in-out',
-    },
-    '@keyframes newValueAnimationLight': {
-        '0%': {
-            color: '#00bd00',
-        },
-        '80%': {
-            color: '#008000',
-        },
-        '100%': {
-            color: '#000',
-        },
+        animation: 'vis-2-widgets-material-newValueAnimationLight 2s ease-in-out',
     },
     thermostatNewValueDark: {
-        animation: '$newValueAnimationDark 2s ease-in-out',
-    },
-    '@keyframes newValueAnimationDark': {
-        '0%': {
-            color: '#008000',
-        },
-        '80%': {
-            color: '#00bd00',
-        },
-        '100%': {
-            color: '#ffffff',
-        },
+        animation: 'vis-2-widgets-material-newValueAnimationDark 2s ease-in-out',
     },
     thermostatDesiredTemp: {
         fontWeight: 'bold',
@@ -439,7 +416,7 @@ const styles = () => ({
     },
 
     ...STYLES,
-});
+};
 
 class Switches extends BlindsBase {
     constructor(props) {
@@ -1481,8 +1458,12 @@ class Switches extends BlindsBase {
         if (icon) {
             icon = <Icon
                 src={icon}
-                style={{ width: 40, height: 40, color }}
-                className={this.props.classes.iconCustom}
+                style={{
+                    ...styles.iconCustom,
+                    width: 40,
+                    height: 40,
+                    color,
+                }}
             />;
         } else if (obj?.widgetType === 'blinds') {
             icon = <WindowClosed style={{ color }} />;
@@ -1613,10 +1594,12 @@ class Switches extends BlindsBase {
                     buttons = Object.keys(this.state.objects[index].common.states)
                         .map((state, i) =>
                             <Button
-                                style={this.customStyle}
+                                style={{
+                                    ...(curValue !== state ? styles.buttonInactive : undefined),
+                                    ...this.customStyle,
+                                }}
                                 variant="contained"
                                 key={`${state}_${i}`}
-                                className={curValue !== state ? this.props.classes.buttonInactive : ''}
                                 color={curValue === state ? 'primary' : 'grey'}
                                 onClick={() => this.controlSpecificState(index, state)}
                             >
@@ -1631,10 +1614,12 @@ class Switches extends BlindsBase {
                     buttons = [];
                     for (let i = min; i <= max; i += step) {
                         buttons.push(<Button
-                            style={this.customStyle}
+                            style={{
+                                ...(curValue !== i ? styles.buttonInactive : undefined),
+                                ...this.customStyle,
+                            }}
                             variant="contained"
                             key={i}
-                            className={curValue !== i ? this.props.classes.buttonInactive : ''}
                             color={curValue === i ? 'primary' : 'grey'}
                             onClick={() => this.controlSpecificState(index, i)}
                         >
@@ -1657,11 +1642,19 @@ class Switches extends BlindsBase {
                 </div>;
             } else if (this.state.objects[index].widgetType === 'slider') {
                 control = <>
-                    <div style={{ width: '100%', marginBottom: 20 }}>
+                    <div
+                        style={{
+                            width: '100%',
+                            marginBottom: 20,
+                        }}
+                    >
                         <Button
-                            style={{ width: '50%', ...this.customStyle }}
+                            style={{
+                                ...(curValue === this.state.objects[index].common.min ? undefined : styles.buttonInactive),
+                                width: '50%',
+                                ...this.customStyle,
+                            }}
                             color="grey"
-                            className={curValue === this.state.objects[index].common.min ? '' : this.props.classes.buttonInactive}
                             onClick={() => {
                                 this.setOnOff(index, false);
                                 this.setState({ showControlDialog: null });
@@ -1671,8 +1664,11 @@ class Switches extends BlindsBase {
                             {Generic.t('OFF').replace('vis_2_widgets_material_', '')}
                         </Button>
                         <Button
-                            style={{ width: '50%', ...this.customStyle }}
-                            className={curValue === this.state.objects[index].common.max ? '' : this.props.classes.buttonInactive}
+                            style={{
+                                ...(curValue === this.state.objects[index].common.max ? undefined : styles.buttonInactive),
+                                width: '50%',
+                                ...this.customStyle,
+                            }}
                             color="primary"
                             onClick={() => {
                                 this.setOnOff(index, true);
@@ -1844,7 +1840,7 @@ class Switches extends BlindsBase {
             return <Dialog
                 fullWidth
                 maxWidth="sm"
-                classes={{ paper: this.props.classes.rgbDialog }}
+                sx={{ '& .MuiDialog-paper': styles.rgbDialog }}
                 open={!0}
                 onClose={() => {
                     this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
@@ -1901,8 +1897,7 @@ class Switches extends BlindsBase {
             return <div
                 key={index}
                 ref={this.widgetRef[index]}
-                className={this.props.classes.widgetContainer}
-                style={style}
+                style={{ ...styles.widgetContainer, ...style }}
             >
                 {this.widgetRef[index].current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef[index] }) : null}
             </div>;
@@ -2001,7 +1996,7 @@ class Switches extends BlindsBase {
             return [
                 <Slider
                     key="slider"
-                    className={this.props.classes.controlElement}
+                    style={styles.controlElement}
                     size="small"
                     valueLabelDisplay="auto"
                     step={parseFloat(this.state.rxData[`step${index}`]) || undefined}
@@ -2058,7 +2053,7 @@ class Switches extends BlindsBase {
             return [
                 <Slider
                     key="slider"
-                    className={this.props.classes.controlElement}
+                    style={styles.controlElement}
                     size="small"
                     step={parseFloat(this.state.rxData[`step${index}`]) || undefined}
                     valueLabelDisplay="auto"
@@ -2236,7 +2231,7 @@ class Switches extends BlindsBase {
 
             return <FormControl fullWidth>
                 <InputLabel
-                    classes={{ root: states.find(item => item.value === value) ? this.props.classes.selectLabel : undefined }}
+                    style={states.find(item => item.value === value) ? styles.selectLabel : undefined}
                 >
                     {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index]?.common?.name) || ''}
                 </InputLabel>
@@ -2359,7 +2354,7 @@ class Switches extends BlindsBase {
             </div>;
         }
 
-        return <div className={this.props.classes.infoData}>
+        return <div style={styles.infoData}>
             {staticElem}
         </div>;
     }
@@ -2395,13 +2390,12 @@ class Switches extends BlindsBase {
             };
 
             return <ReactEchartsCore
-                className={this.props.classes.chart}
+                style={{ ...styles.chart, ..._style }}
                 echarts={echarts}
                 option={this.state.historyData[index]}
                 notMerge
                 lazyUpdate
                 theme={this.props.context.themeType === 'dark' ? 'dark' : ''}
-                style={_style}
                 opts={{ renderer: 'svg' }}
             />;
         }
@@ -2487,7 +2481,7 @@ class Switches extends BlindsBase {
     }
 
     async updateCharts(index) {
-        let indexesToUpdate = Object.keys(this.history);
+        let indexesToUpdate;
         if (index !== undefined) {
             indexesToUpdate = [index];
         } else {
@@ -2713,9 +2707,9 @@ class Switches extends BlindsBase {
             if (actualObj) {
                 const actualTemp = this.state.values[`${actualObj._id}.val`];
                 if (actualTemp || actualTemp === 0) {
-                    secondary = <div className={this.props.classes.secondaryValueDiv}>
+                    secondary = <div style={styles.secondaryValueDiv}>
                         /
-                        <span className={this.props.classes.secondaryValue}>
+                        <span style={styles.secondaryValue}>
                             {this.formatValue(actualTemp, 1)}
                             {this.state.rxData[`unit${index}`] || actualObj.common?.unit || ''}
                         </span>
@@ -2747,8 +2741,8 @@ class Switches extends BlindsBase {
 
         return <div
             key={index}
-            className={this.props.classes.buttonDiv}
             style={{
+                ...styles.buttonDiv,
                 width: buttonWidth || undefined,
                 height: buttonHeight || undefined,
                 border: this.state.selectedOne ? '1px dashed gray' : 'none',
@@ -2759,16 +2753,19 @@ class Switches extends BlindsBase {
             <Button
                 onClick={() => this.changeSwitch(index)}
                 color={!this.state.objects[index].common?.states && this.isOn(index) ? 'primary' : 'grey'}
-                style={style}
-                className={Utils.clsx(this.props.classes.button, !this.isOn(index) && this.props.classes.buttonInactive)}
+                style={{
+                    ...styles.button,
+                    ...(!this.isOn(index) ? styles.buttonInactive : undefined),
+                    ...style,
+                }}
                 disabled={this.state.objects[index].widgetType === 'info' && (!this.history[index] || this.state.rxData[`hideChart${index}`])}
             >
-                {icon ? <div className={this.props.classes.iconButton}>{icon}</div> : null}
-                <div className={this.props.classes.text} style={this.customStyle}>
+                {icon ? <div style={styles.iconButton}>{icon}</div> : null}
+                <div style={{ ...styles.text, ...this.customStyle }}>
                     {this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name) || ''}
                 </div>
                 {(value !== undefined && value !== null) || secondary ?
-                    <div className={this.props.classes.value}>
+                    <div style={styles.value}>
                         <div>{value}</div>
                         {this.state.rxData[`unit${index}`] || this.state.objects[index].common?.unit || ''}
                         {secondary}
@@ -2788,7 +2785,7 @@ class Switches extends BlindsBase {
         return <Dialog open={!0} onClose={() => this.setState({ dialogPin: null })}>
             <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
             <DialogContent>
-                <div className={this.props.classes.lockPinInput}>
+                <div style={styles.lockPinInput}>
                     <TextField
                         variant="outlined"
                         fullWidth
@@ -2803,7 +2800,7 @@ class Switches extends BlindsBase {
                         value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.lockPinInput}
                     />
                 </div>
-                <div className={this.props.classes.lockPinGrid}>
+                <div style={styles.lockPinGrid}>
                     {
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
                             pincodeReturnButton].map(button => {
@@ -2952,16 +2949,14 @@ class Switches extends BlindsBase {
                         }
                     }}
                 >
-                    {working ? <CircularProgress className={this.props.classes.workingIcon} size={size} /> : null}
+                    {working ? <CircularProgress style={styles.workingIcon} size={size} /> : null}
                     {this.state.rxData[`noLockAnimation${index}`] ? (lockOpened ?
                         <LockOpenedIcon
-                            style={{ width: size, height: size }}
-                            className={this.props.classes.lockSvgIcon}
+                            style={{ ...styles.lockSvgIcon, width: size, height: size }}
                             sx={theme => ({ color: theme.palette.primary.main })}
                         /> :
                         <LockClosedIcon
-                            style={{ width: size, height: size }}
-                            className={this.props.classes.lockSvgIcon}
+                            style={{ ...styles.lockSvgIcon, width: size, height: size }}
                         />) :
                         <LockAnimation
                             style={{
@@ -2984,8 +2979,8 @@ class Switches extends BlindsBase {
         }
         return <div
             key={index}
-            className={this.props.classes.buttonDiv}
             style={{
+                ...styles.buttonDiv,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -3151,7 +3146,7 @@ class Switches extends BlindsBase {
             modesButton.push(<Tooltip
                 key="power"
                 title={Generic.t('power').replace('vis_2_widgets_material_', '')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     color={this.state.values[`${this.state.rxData[`switch${index}`]}.val`] ? 'primary' : 'grey'}
@@ -3168,8 +3163,9 @@ class Switches extends BlindsBase {
             </Tooltip>);
         }
 
-        return <div
-            className={this.props.classes.thermostatCircleDiv}
+        return <Box
+            component="div"
+            sx={styles.thermostatCircleDiv}
             style={{ height: '100%' }}
         >
             {/* if no header, draw button here */}
@@ -3201,11 +3197,10 @@ class Switches extends BlindsBase {
                 >
                     {tempValue !== null ? <Tooltip
                         title={Generic.t('desired_temperature')}
-                        classes={{ popper: this.props.classes.tooltip }}
+                        componentsProps={{ popper: { sx: styles.tooltip } }}
                     >
                         <div
-                            className={this.props.classes.thermostatDesiredTemp}
-                            style={{ fontSize: Math.round(size / 6), ...this.customStyle }}
+                            style={{ ...styles.thermostatDesiredTemp, fontSize: Math.round(size / 6), ...this.customStyle }}
                         >
                             <ThermostatIcon style={{ width: size / 8, height: size / 8 }} />
                             <div style={{ display: 'flex', alignItems: 'top', ...this.customStyle }}>
@@ -3216,12 +3211,43 @@ class Switches extends BlindsBase {
                     </Tooltip> : null}
                     {actualTemp !== null ? <Tooltip
                         title={Generic.t('actual_temperature')}
-                        classes={{ popper: this.props.classes.tooltip }}
+                        componentsProps={{ popper: { sx: styles.tooltip } }}
                     >
+                        <style>
+                            {`
+@keyframes vis-2-widgets-material-newValueAnimationLight {
+    0% {
+        color: #00bd00;
+    },
+    80% {
+        color: #008000;
+    },
+    100% {
+        color: #000;
+    }
+}
+
+@keyframes vis-2-widgets-material-newValueAnimationDark {
+    0% {
+        color: #008000;
+    }
+    80% {
+        color: #00bd00;
+    }
+    100% {
+        color: #ffffff;
+    }
+}                          
+                            `}
+                        </style>
                         <div
-                            style={{ fontSize: Math.round((size * 0.6) / 6), opacity: 0.7, ...this.customStyle }}
+                            style={{
+                                ...(this.props.context.themeType === 'dark' ? styles.thermostatNewValueDark : styles.thermostatNewValueLight),
+                                fontSize: Math.round((size * 0.6) / 6),
+                                opacity: 0.7,
+                                ...this.customStyle,
+                            }}
                             key={`${actualTemp}valText`}
-                            className={this.props.context.themeType === 'dark' ? this.props.classes.thermostatNewValueDark : this.props.classes.thermostatNewValueLight}
                         >
                             {actualTemp}
                             {this.state.rxData[`unit${index}`] || actualObj?.common?.unit}
@@ -3230,12 +3256,11 @@ class Switches extends BlindsBase {
                 </CircularSliderWithChildren>
                 : null}
             <div
-                className={this.props.classes.thermostatButtonsDiv}
-                style={{ bottom: 8 }}
+                style={{ ...styles.thermostatButtonsDiv, bottom: 8 }}
             >
                 {modesButton}
             </div>
-        </div>;
+        </Box>;
     }
 
     rgbGetIdMin = (index, id) => {
@@ -3468,8 +3493,8 @@ class Switches extends BlindsBase {
 
     rgbRenderSwitch(index) {
         return this.state.secondaryObjects[index].switch && <div
-            className={this.props.classes.rgbSliderContainer}
             style={{
+                ...styles.rgbSliderContainer,
                 justifyContent: 'center',
             }}
         >
@@ -3483,10 +3508,10 @@ class Switches extends BlindsBase {
     }
 
     rgbRenderBrightness(index) {
-        return this.state.secondaryObjects[index].brightness && <div className={this.props.classes.rgbSliderContainer}>
+        return this.state.secondaryObjects[index].brightness && <div style={styles.rgbSliderContainer}>
             <Tooltip
                 title={Generic.t('Brightness')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <Brightness6 />
             </Tooltip>
@@ -3501,7 +3526,7 @@ class Switches extends BlindsBase {
     }
 
     rgbRenderSketch(index) {
-        return <div className={`dark ${this.props.classes.rgbWheel}`}>
+        return <div className="dark" style={styles.rgbWheel}>
             <Sketch
                 color={this.rgbGetWheelColor(index)}
                 disableAlpha
@@ -3521,7 +3546,7 @@ class Switches extends BlindsBase {
         return !this.rgbIsOnlyHue(index) && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
             {whiteMode !== null ? <Tooltip
                 title={Generic.t('Switch white mode')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
                     <WbAuto />
@@ -3529,7 +3554,7 @@ class Switches extends BlindsBase {
             </Tooltip> : null}
             {!this.state.rxData[`noRgbPalette${index}`] && whiteMode !== true ? <Tooltip
                 title={Generic.t('Switch color picker')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     onClick={() => {
@@ -3559,7 +3584,7 @@ class Switches extends BlindsBase {
         if (!isWheelVisible || whiteMode === true) {
             return null;
         }
-        return this.state.sketch[index] ? this.rgbRenderSketch(index) :  <div className={this.props.classes.rgbWheel}>
+        return this.state.sketch[index] ? this.rgbRenderSketch(index) :  <div style={styles.rgbWheel}>
             <Wheel
                 color={this.rgbGetWheelColor(index)}
                 onChange={color => {
@@ -3584,7 +3609,7 @@ class Switches extends BlindsBase {
             max = this.rgbGetIdMax(index, 'white') || 100;
         }
 
-        return <div className={this.props.classes.rgbSliderContainer}>
+        return <div style={styles.rgbSliderContainer}>
             <TbSquareLetterW style={{ width: 24, height: 24 }} />
             <Slider
                 min={min}
@@ -3600,16 +3625,16 @@ class Switches extends BlindsBase {
         if (this.state.rxData[`rgbType${index}`] !== 'ct' || whiteMode === true) {
             return null;
         }
-        return <div className={this.props.classes.rgbSliderContainer}>
+        return <div style={styles.rgbSliderContainer}>
             <Tooltip
                 title={Generic.t('Color temperature')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <Thermostat />
             </Tooltip>
             <div
-                className={this.props.classes.rgbSliderContainer}
                 style={{
+                    ...styles.rgbSliderContainer,
                     background:
                         `linear-gradient(to right, ${this.state.secondaryObjects[index].color_temperature.colors.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
                     flex: '1',
@@ -3631,7 +3656,7 @@ class Switches extends BlindsBase {
         const wheelVisible = this.rgbIsRgb(index) || this.rgbIsHSL(index);
         const whiteMode = this.rgbGetWhiteMode(index);
 
-        return <div className={this.props.classes.rgbDialogContainer}>
+        return <div style={styles.rgbDialogContainer}>
             {this.rgbRenderSwitch(index)}
             {this.rgbRenderBrightness(index)}
             {this.rgbRenderWhite(index)}
@@ -3743,7 +3768,7 @@ class Switches extends BlindsBase {
     }
 
     vacuumRenderBattery(index) {
-        return this.vacuumGetObj(index, 'battery') && <div className={this.props.classes.vacuumBattery}>
+        return this.vacuumGetObj(index, 'battery') && <div style={styles.vacuumBattery}>
             {this.vacuumGetObj(index, 'is-charging') && this.vacuumGetValue(index, 'is-charging') ? <BatteryChargingFull /> : <BatteryFull />}
             {this.vacuumGetValue(index, 'battery') || 0}
             {' '}
@@ -3774,7 +3799,7 @@ class Switches extends BlindsBase {
             <Button
                 variant="standard"
                 key="speed"
-                className={this.props.classes.vacuumSpeedContainer}
+                style={styles.vacuumSpeedContainer}
                 endIcon={<FanIcon />}
                 onClick={e => {
                     e.stopPropagation();
@@ -3844,30 +3869,29 @@ class Switches extends BlindsBase {
         const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(sensor =>
             this.vacuumGetObj(index, sensor));
 
-        return sensors.length ? <div className={this.props.classes.vacuumSensorsContainer}>
-            <div className={this.props.classes.vacuumSensors}>
+        return sensors.length ? <div style={styles.vacuumSensorsContainer}>
+            <div style={styles.vacuumSensors}>
                 {sensors.map(sensor => {
                     const object = this.vacuumGetObj(index, sensor);
 
                     return <Card
                         key={sensor}
-                        className={this.props.classes.vacuumSensorCard}
+                        style={styles.vacuumSensorCard}
                     >
                         <CardContent
-                            className={this.props.classes.vacuumSensorCardContent}
-                            style={{ paddingBottom: 2 }}
+                            style={{ ...styles.vacuumSensorCardContent, paddingBottom: 2 }}
                         >
                             <div>
-                                <span className={this.props.classes.vacuumSensorBigText}>
+                                <span style={styles.vacuumSensorBigText}>
                                     {this.vacuumGetValue(index, sensor) || 0}
                                 </span>
                                 {' '}
-                                <span className={this.props.classes.vacuumSensorSmallText}>
+                                <span style={styles.vacuumSensorSmallText}>
                                     {object.common.unit}
                                 </span>
                             </div>
                             <div>
-                                <span className={this.props.classes.vacuumSensorSmallText}>
+                                <span style={styles.vacuumSensorSmallText}>
                                     {Generic.t(sensor.replaceAll('-', '_'))}
                                 </span>
                             </div>
@@ -3900,8 +3924,7 @@ class Switches extends BlindsBase {
         }
 
         return <div
-            className={this.props.classes.vacuumButtons}
-            style={withDialog ? { cursor: 'pointer' } : null}
+            style={{ ...styles.vacuumButtons, cursor: withDialog ? 'pointer' : undefined }}
             onClick={withDialog ? e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -3911,7 +3934,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
                 <Tooltip
                     title={Generic.t('Start')}
-                    classes={{ popper: this.props.classes.tooltip }}
+                    componentsProps={{ popper: { sx: styles.tooltip } }}
                 >
                     <IconButton
                         onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-start-oid${index}`], true)}
@@ -3922,7 +3945,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip
                     title={Generic.t('Pause')}
-                    classes={{ popper: this.props.classes.tooltip }}
+                    componentsProps={{ popper: { sx: styles.tooltip } }}
                 >
                     <IconButton
                         onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-pause-oid${index}`], true)}
@@ -3933,7 +3956,7 @@ class Switches extends BlindsBase {
             {this.vacuumGetObj(index, 'home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
                 <Tooltip
                     title={Generic.t('Home')}
-                    classes={{ popper: this.props.classes.tooltip }}
+                    componentsProps={{ popper: { sx: styles.tooltip } }}
                 >
                     <IconButton
                         onClick={withDialog ? null : () => this.props.context.setValue(this.state.rxData[`vacuum-home-oid${index}`], true)}
@@ -3943,7 +3966,7 @@ class Switches extends BlindsBase {
                 </Tooltip>}
             {statusObj && <Tooltip
                 title={Generic.t('Status')}
-                classes={{ popper: this.props.classes.tooltip }}
+                componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <div style={{ color: statusColor }}>
                     {Generic.t(status).replace('vis_2_widgets_material_', '')}
@@ -3956,15 +3979,15 @@ class Switches extends BlindsBase {
         const obj = this.vacuumGetObj(index, 'map64');
         if (!obj) {
             if (this.state.rxData[`vacuum-use-default-picture${index}`]) {
-                return <VacuumCleanerIcon className={this.props.classes.vacuumImage} />;
+                return <VacuumCleanerIcon style={styles.vacuumImage} />;
             }
             if (this.state.rxData[`vacuum-own-image${index}`]) {
-                return <Icon src={this.state.rxData[`vacuum-own-image${index}`]} className={this.props.classes.vacuumImage} />;
+                return <Icon src={this.state.rxData[`vacuum-own-image${index}`]} style={styles.vacuumImage} />;
             }
             return null;
         }
 
-        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" className={this.props.classes.vacuumImage} />;
+        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" style={styles.vacuumImage} />;
     }
 
     vacuumRenderDialog(index) {
@@ -3990,16 +4013,16 @@ class Switches extends BlindsBase {
 
         const map = this.vacuumRenderMap(index);
 
-        return <div className={this.props.classes.vacuumContent}>
-            {battery || rooms ? <div className={this.props.classes.vacuumTopPanel}>
+        return <div style={styles.vacuumContent}>
+            {battery || rooms ? <div style={styles.vacuumTopPanel}>
                 {rooms}
                 {battery}
             </div> : null}
-            {map ? <div className={this.props.classes.vacuumMapContainer} style={{ height: `calc(100% - ${height}px)`, width: '100%' }}>
+            {map ? <div style={{ ...styles.vacuumMapContainer, height: `calc(100% - ${height}px)`, width: '100%' }}>
                 {map}
             </div> : null}
             {sensors}
-            {buttons || speed ? <div className={this.props.classes.vacuumBottomPanel}>
+            {buttons || speed ? <div style={styles.vacuumBottomPanel}>
                 {buttons}
                 {speed}
             </div> : null}
@@ -4153,12 +4176,11 @@ class Switches extends BlindsBase {
                     }
 
                     return <div
-                        className={this.props.classes.cardsHolder}
-                        style={style}
+                        style={{ ...styles.cardsHolder, ...style }}
                         key={index}
                     >
                         <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            {anyIcon ? <span className={this.props.classes.iconSwitch}>
+                            {anyIcon ? <span style={styles.iconSwitch}>
                                 {icons[i]}
                             </span> : null}
                             {this.state.objects[index].widgetType !== 'input' && this.state.objects[index].widgetType !== 'select' ? <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
@@ -4170,7 +4192,7 @@ class Switches extends BlindsBase {
                 })
                 :
                 // BUTTONS
-                <div className={this.props.classes.buttonsContainer} style={{ flexWrap: this.state.rxData.orientation && this.state.rxData.orientation !== 'h' ? 'wrap' : 'nowrap' }}>
+                <div style={{ ...styles.buttonsContainer, flexWrap: this.state.rxData.orientation && this.state.rxData.orientation !== 'h' ? 'wrap' : 'nowrap' }}>
                     {items.map((index, i) =>
                         // index from 1, i from 0
                         this.renderButton(index, anyIcon ? icons[i] : null))}
@@ -4179,7 +4201,7 @@ class Switches extends BlindsBase {
 
         let addToHeader = this.state.rxData.allSwitch && items.length > 1 && allSwitchValue !== null ? <Switch
             checked={allSwitchValue}
-            className={intermediate ? this.props.classes.intermediate : ''}
+            style={intermediate ? styles.intermediate : undefined}
             onChange={async () => {
                 const values = JSON.parse(JSON.stringify(this.state.values));
 
@@ -4224,4 +4246,4 @@ Switches.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(Switches);
+export default Switches;

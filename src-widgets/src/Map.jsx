@@ -1,5 +1,4 @@
 import React from 'react';
-import { withStyles } from '@mui/styles';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './leaflet-providers';
@@ -23,7 +22,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const styles = () => ({
+const styles = {
     mapContainer: {
         width: '100%',
         height: '100%',
@@ -33,7 +32,7 @@ const styles = () => ({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-});
+};
 
 const MapContent = props => {
     const map = useMap();
@@ -482,7 +481,7 @@ class Map extends Generic {
                 }
             </style>
             <MapContainer
-                className={this.props.classes.mapContainer}
+                style={styles.mapContainer}
                 scrollWheelZoom
                 key={`${tilesUrl}_${!!this.state.rxData.noUserInteractions}`}
                 zoom={this.state.rxData.defaultZoom || 18}
@@ -569,7 +568,7 @@ class Map extends Generic {
             fullScreen
             onClose={() => this.setState({ dialog: false })}
         >
-            <DialogTitle className={this.props.classes.dialogTitle}>
+            <DialogTitle style={styles.dialogTitle}>
                 {this.state.rxData.widgetTitle}
                 <IconButton onClick={() => this.setState({ dialog: false })}>
                     <CloseIcon />
@@ -632,4 +631,4 @@ class Map extends Generic {
     }
 }
 
-export default withStyles(styles)(Map);
+export default Map;

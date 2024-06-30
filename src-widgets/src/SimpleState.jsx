@@ -1,6 +1,5 @@
 // ------------------- deprecated, use Switches.jsx instead -------------------
 import React from 'react';
-import { withStyles } from '@mui/styles';
 
 import {
     Button,
@@ -8,7 +7,7 @@ import {
     DialogContent,
     DialogTitle,
     Slider,
-    IconButton,
+    IconButton, Box,
 } from '@mui/material';
 
 import {
@@ -17,12 +16,12 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { Icon, Utils } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/adapter-react-v5';
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
 
-const styles = theme => ({
+const styles = {
     intermediate: {
         opacity: 0.2,
     },
@@ -58,12 +57,12 @@ const styles = theme => ({
         textAlign: 'center',
         justifyContent: 'center',
     },
-    rightButton: {
+    rightButton: theme => ({
         width: '50%',
         textAlign: 'right',
         position: 'relative',
-        marginTop: '-20px',
-        marginBottom: '-20px',
+        mt: '-20px',
+        mb: '-20px',
         left: '20px',
         display: 'flex',
         justifyContent: 'right',
@@ -75,7 +74,7 @@ const styles = theme => ({
                 top: '50% !important',
             },
         },
-    },
+    }),
     iconSwitch: {
         width: 40,
         height: 40,
@@ -107,34 +106,12 @@ const styles = theme => ({
         maxHeight: 40,
     },
     newValueLight: {
-        animation: '$newValueAnimationLight 2s ease-in-out',
-    },
-    '@keyframes newValueAnimationLight': {
-        '0%': {
-            color: '#00bd00',
-        },
-        '80%': {
-            color: '#008000',
-        },
-        '100%': {
-            color: '#000',
-        },
+        animation: 'vis-2-widgets-material-newValueAnimationLight 2s ease-in-out',
     },
     newValueDark: {
-        animation: '$newValueAnimationDark 2s ease-in-out',
+        animation: 'vis-2-widgets-material-newValueAnimationDark 2s ease-in-out',
     },
-    '@keyframes newValueAnimationDark': {
-        '0%': {
-            color: '#008000',
-        },
-        '80%': {
-            color: '#00bd00',
-        },
-        '100%': {
-            color: '#ffffff',
-        },
-    },
-});
+};
 
 class SimpleState extends Generic {
     constructor(props) {
@@ -446,15 +423,19 @@ class SimpleState extends Generic {
 
         if (icon) {
             let size = 40;
-            let className = this.props.classes.iconCustom;
+            let style = styles.iconCustom;
             if (this.state.rxData.iconSize) {
                 size = parseFloat(this.state.rxData.iconSize);
-                className = '';
+                style = undefined;
             }
             icon = <Icon
                 src={icon}
-                style={{ width: size, height: size, color }}
-                className={className}
+                style={{
+                    ...style,
+                    width: size,
+                    height: size,
+                    color,
+                }}
             />;
         } else if (isOn) {
             icon = <LightbulbIconOn color="primary" style={{ color }} />;
@@ -530,7 +511,7 @@ class SimpleState extends Generic {
                             {Object.keys(this.state.object.common.states).map((state, i) =>
                                 <Button
                                     key={`${state}_${i}`}
-                                    className={this.state.values[`${this.state.object._id}.val`] !== state ? this.props.classes.buttonInactive : ''}
+                                    style={this.state.values[`${this.state.object._id}.val`] !== state ? styles.buttonInactive : undefined}
                                     color={this.state.values[`${this.state.object._id}.val`] === state ? 'primary' : 'grey'}
                                     onClick={() => this.controlSpecificState(state)}
                                 >
@@ -541,17 +522,21 @@ class SimpleState extends Generic {
                         <>
                             <div style={{ width: '100%', marginBottom: 20 }}>
                                 <Button
-                                    style={{ width: '50%' }}
+                                    style={{
+                                        ...(this.state.values[`${this.state.object._id}.val`] === this.state.object.common.min ? undefined : styles.buttonInactive),
+                                        width: '50%',
+                                    }}
                                     color="grey"
-                                    className={this.state.values[`${this.state.object._id}.val`] === this.state.object.common.min ? '' : this.props.classes.buttonInactive}
                                     onClick={() => this.setOnOff(false)}
                                     startIcon={isLamp ? <LightbulbIconOff /> : null}
                                 >
                                     {isLamp ? Generic.t('OFF').replace('vis_2_widgets_material_', '') : this.state.object.common.min + (this.state.rxData.unit || this.state.object.common.unit || '') }
                                 </Button>
                                 <Button
-                                    style={{ width: '50%' }}
-                                    className={this.state.values[`${this.state.object._id}.val`] === this.state.object.common.max ? '' : this.props.classes.buttonInactive}
+                                    style={{
+                                        width: '50%',
+                                        ...(this.state.values[`${this.state.object._id}.val`] === this.state.object.common.max ? undefined : styles.buttonInactive),
+                                    }}
                                     color="primary"
                                     onClick={() => this.setOnOff(true)}
                                     startIcon={isLamp ? <LightbulbIconOn color="primary" /> : null}
@@ -624,8 +609,11 @@ class SimpleState extends Generic {
         >
             <div
                 key={`_${value}`}
-                style={{ fontSize: Math.round(size / 8), fontWeight: 'bold' }}
-                className={this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight}
+                style={{
+                    ...(this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight),
+                    fontSize: Math.round(size / 8),
+                    fontWeight: 'bold',
+                }}
             >
                 {value + (this.state.rxData.unit || this.state.object.common?.unit || '')}
             </div>
@@ -666,6 +654,32 @@ class SimpleState extends Generic {
         }
 
         const content = <>
+            <style>
+                {`
+@keyframes vis-2-widgets-material-newValueAnimationLight {
+    0% {
+        color: #00bd00;
+    }
+    80% {
+        color: #008000;
+    }
+    100% {
+        color: #000;
+    }
+}
+@keyframes vis-2-widgets-material-newValueAnimationDark {
+    0% {
+        color: #008000;
+    }
+    80% {
+        color: #00bd00;
+    }
+    100% {
+        color: #ffffff;
+    }
+}            
+`}
+            </style>
             {this.renderDimmerDialog()}
             <div
                 style={{
@@ -675,8 +689,8 @@ class SimpleState extends Generic {
                 ref={this.refDiv}
             >
                 <div
-                    className={this.props.classes.buttonDiv}
                     style={{
+                        ...styles.buttonDiv,
                         width: '100%',
                         height: '100%',
                     }}
@@ -685,36 +699,43 @@ class SimpleState extends Generic {
                         onClick={() => this.changeSwitch()}
                         disabled={this.state.rxData.readOnly}
                         color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
-                        className={Utils.clsx(this.props.classes.button, !this.isOn() && this.props.classes.buttonInactive)}
+                        style={{
+                            ...styles.button,
+                            ...(!this.isOn() ? styles.buttonInactive : undefined),
+                        }}
                     >
-                        <div className={this.props.classes.topButton}>
+                        <div style={styles.topButton}>
                             {icon ? <div
-                                style={{ height: this.state.rxData.iconSize ? 'unset' : undefined }}
-                                className={
-                                    !this.state.object.common.states && value !== undefined && value !== null ?
-                                        this.props.classes.iconButton :
-                                        this.props.classes.iconButtonCenter
-                                }
+                                style={{
+                                    ...(!this.state.object.common.states && value !== undefined && value !== null ?
+                                        styles.iconButton :
+                                        styles.iconButtonCenter),
+                                    height: this.state.rxData.iconSize ? 'unset' : undefined,
+                                }}
                             >
                                 {icon}
                             </div> : null}
                             {!this.state.object.common.states && value !== undefined && value !== null ?
-                                <div className={this.props.classes.rightButton} style={icon ? {} : { width: '100%', left: 0, justifyContent: 'center' }}>
+                                <Box
+                                    component="div"
+                                    sx={styles.rightButton}
+                                    style={icon ? {} : { width: '100%', left: 0, justifyContent: 'center' }}
+                                >
                                     {this.renderCircular()}
-                                </div>
+                                </Box>
                                 : null}
                         </div>
-                        <div className={this.props.classes.text} style={{ color }}>
+                        <div style={{ ...styles.text, color }}>
                             {this.state.rxData.title || this.state.object.common.name}
                         </div>
                         {this.state.object.common.states && value !== undefined && value !== null ?
                             <div
-                                key={` ${stateTitle || value}`}
-                                className={Utils.clsx(
-                                    this.props.classes.value,
-                                    !color ? (this.props.context.themeType === 'dark' ? this.props.classes.newValueDark : this.props.classes.newValueLight) : null,
-                                )}
-                                style={{ color }}
+                                key={`${stateTitle || value}`}
+                                style={{
+                                    ...styles.value,
+                                    ...(!color ? (this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight) : undefined),
+                                    color,
+                                }}
                             >
                                 {stateTitle || value}
                             </div> : null}
@@ -731,4 +752,4 @@ class SimpleState extends Generic {
     }
 }
 
-export default withStyles(styles)(SimpleState);
+export default SimpleState;

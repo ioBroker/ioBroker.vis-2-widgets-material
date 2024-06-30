@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import Generic from './Generic';
 
-const styles = () => ({
+const styles = {
     overlay: {
         zIndex: 999,
         top: 0,
@@ -13,7 +12,7 @@ const styles = () => ({
         left: 0,
         right: 0,
     },
-});
+};
 
 class ViewInWidget extends Generic {
     constructor(props) {
@@ -150,8 +149,7 @@ class ViewInWidget extends Generic {
             ref={this.refContainer}
         >
             { this.state.editMode || this.state.rxData.button ? <div
-                className={this.props.classes.overlay}
-                style={!this.state.editMode ? { cursor: 'pointer' } : undefined}
+                style={{ ...styles.overlay, cursor: !this.state.editMode ? 'pointer' : undefined }}
                 onClick={!this.state.editMode && this.state.rxData.button ? () => this.onNavigate() : undefined}
             /> : null}
             {view ? this.getWidgetView(view, { style }) : null}
@@ -172,4 +170,4 @@ ViewInWidget.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(ViewInWidget);
+export default ViewInWidget;

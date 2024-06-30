@@ -1,5 +1,4 @@
 import React from 'react';
-import { withStyles } from '@mui/styles';
 
 import {
     Button, Chip, Dialog, DialogContent, DialogTitle, TextField,
@@ -10,7 +9,7 @@ import {
 } from '@mui/icons-material';
 import Generic from './Generic';
 
-const styles = () => ({
+const styles = {
     pinGrid:  {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr 1fr',
@@ -64,7 +63,7 @@ const styles = () => ({
         width: '100%',
         textAlign: 'right',
     },
-});
+};
 
 class Security extends Generic {
     constructor(props) {
@@ -300,7 +299,7 @@ class Security extends Generic {
         return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
             <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
             <DialogContent>
-                <div className={this.props.classes.pinInput}>
+                <div style={styles.pinInput}>
                     <TextField
                         variant="outlined"
                         fullWidth
@@ -315,7 +314,7 @@ class Security extends Generic {
                         value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.pinInput}
                     />
                 </div>
-                <div className={this.props.classes.pinGrid}>
+                <div style={styles.pinGrid}>
                     {
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
                             pincodeReturnButton].map(button => {
@@ -378,11 +377,11 @@ class Security extends Generic {
         return <Dialog
             open={this.state.timerDialog}
             onClose={onClose}
-            className={this.props.classes.timerDialog}
+            style={styles.timerDialog}
         >
             <DialogTitle>{Generic.t('lock_after', this.state.timerSeconds)}</DialogTitle>
             <DialogContent>
-                <div className={this.props.classes.timerSeconds}>
+                <div style={styles.timerSeconds}>
                     {this.state.timerSeconds}
                 </div>
                 <div>
@@ -456,7 +455,7 @@ class Security extends Generic {
             {this.renderTimerDialog()}
             {this.renderMessageDialog()}
             {locked ?
-                <div className={this.props.classes.lockedButton}>
+                <div style={styles.lockedButton}>
                     <Button
                         variant="contained"
                         onClick={() => {
@@ -471,7 +470,7 @@ class Security extends Generic {
                     </Button>
                 </div>
                 :
-                <div className={this.props.classes.unlockedButtons}>
+                <div style={styles.unlockedButtons}>
                     {buttons.map((button, index) =>
                         <Button
                             variant="contained"
@@ -487,8 +486,8 @@ class Security extends Generic {
                                 }
                             }}
                         >
-                            <span className={this.props.classes.lockButton}>
-                                {button.icon ? <Icon className={this.props.classes.icon} src={button.icon} alt="" /> : null}
+                            <span style={styles.lockButton}>
+                                {button.icon ? <Icon style={styles.icon} src={button.icon} alt="" /> : null}
                                 {button.name}
                             </span>
                         </Button>)}
@@ -496,7 +495,7 @@ class Security extends Generic {
         </>;
 
         const lockedChip = <Chip
-            label={<span className={this.props.classes.status}>
+            label={<span style={styles.status}>
                 {locked ?
                     <>
                         <SecurityIcon />
@@ -515,8 +514,8 @@ class Security extends Generic {
         />;
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            return <div className={this.props.classes.noCardContainer}>
-                <div className={this.props.classes.noCardLocked}>{lockedChip}</div>
+            return <div style={styles.noCardContainer}>
+                <div style={styles.noCardLocked}>{lockedChip}</div>
                 {content}
             </div>;
         }
@@ -529,4 +528,4 @@ class Security extends Generic {
     }
 }
 
-export default withStyles(styles)(Security);
+export default Security;
