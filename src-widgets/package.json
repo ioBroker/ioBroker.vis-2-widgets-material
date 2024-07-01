@@ -21,7 +21,7 @@
         "craco-esbuild": "^0.6.1",
         "craco-module-federation": "^1.1.0",
         "date-fns": "^3.6.0",
-        "echarts": "^5.5.0",
+        "echarts": "^5.5.1",
         "echarts-for-react": "^3.0.2",
         "eslint": "^8.57.0",
         "eslint-config-react-app": "^7.0.1",
