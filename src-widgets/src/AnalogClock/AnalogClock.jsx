@@ -25,7 +25,6 @@ SOFTWARE.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import AnalogClockBase from './AnalogClockBase';
 
@@ -128,4 +127,4 @@ AnalogClock.propTypes = {
     style: PropTypes.object,
 };
 
-export default withStyles(styles)(AnalogClock);
+export default AnalogClock;

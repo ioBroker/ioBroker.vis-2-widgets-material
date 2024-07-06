@@ -16,8 +16,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { withStyles } from '@mui/styles';
-
 import {
     Dialog,
     DialogContent,
@@ -433,4 +431,4 @@ DialogBlinds.propTypes = {
     type: PropTypes.number,
 };
 
-export default withStyles(styles)(DialogBlinds);
+export default DialogBlinds;

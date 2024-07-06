@@ -25,7 +25,6 @@ SOFTWARE.
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 const TIME_DEGREE_OFFSET = 90;
 const calculateHourLabelDegree = labelIndex => labelIndex * 30 - TIME_DEGREE_OFFSET;
@@ -130,4 +129,4 @@ AnalogClockBase.propTypes = {
     withSeconds: PropTypes.bool,
 };
 
-export default withStyles(styles)(AnalogClockBase);
+export default AnalogClockBase;
