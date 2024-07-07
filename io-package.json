@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "news": {
+      "1.4.1": {
+        "en": "removed withStyles package\nBetter thermostat visualisation by narrow height",
+        "de": "entfernt mitStyles-Paket\nBessere Thermostat-Visualisierung durch schmale Höhe",
+        "ru": "удалить пакет со Стайлами\nЛучшая визуализация термостата с узкой высотой",
+        "pt": "removido com pacote de Estilos\nMelhor visualização do termostato por altura estreita",
+        "nl": "verwijderd metStyles pakket\nBetere thermostaatvisualisatie door smalle hoogte",
+        "fr": "enlevé avec l'emballageStyles\nMeilleure visualisation thermostat par une hauteur étroite",
+        "it": "rimosso con pacchettoStyles\nMigliore visualizzazione del termostato di altezza stretta",
+        "es": "removido conStyles paquete\nMejor visualización de termostatos por altura estrecha",
+        "pl": "usunięty z pakietem Styles\nLepsza wizualizacja termostatu przez wąską wysokość",
+        "uk": "пакет \"Стиль\"\nОптимальна термостатна візуалізація вузькій висоті",
+        "zh-cn": "用 Styles 软件包删除\n通过窄高度更好的恒温器可视化"
+      },
       "1.3.33": {
         "en": "Wait for data before the map is shown\nRound of value is possible now in the actual value widget (with chart)",
         "de": "Warten Sie auf Daten, bevor die Karte angezeigt wird\nWertrunde ist jetzt im Istwert-Widget (mit Diagramm) möglich",
