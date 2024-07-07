@@ -454,7 +454,7 @@ class Thermostat extends Generic {
             <DialogContent>
                 {this.state.dialogTab === 1 && <div style={{ height: '100%' }}>
                     <ObjectChart
-                        t={Generic.t}
+                        t={key => Generic.t(key)}
                         lang={Generic.getLanguage()}
                         socket={this.props.context.socket}
                         obj={this.state.tempStateObject || this.state.tempObject}
@@ -637,7 +637,7 @@ class Thermostat extends Generic {
                             componentsProps={{ popper: { sx: styles.tooltip } }}
                         >
                             <IconButton
-                                color={currentValueStr === mode.value ? 'primary' : undefined}
+                                color={currentValueStr === mode.value ? 'primary' : 'inherit'}
                                 style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
                                 onClick={() => {
                                     let value = mode.value;
@@ -657,9 +657,10 @@ class Thermostat extends Generic {
                         </Tooltip>
                         :
                         <Button
+                            id="AAA"
                             key={mode.value}
-                            color={currentValueStr === mode.value ? 'primary' : undefined}
-                            style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
+                            color={currentValueStr === mode.value ? 'primary' : 'inherit'}
+                            // style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
                             onClick={() => {
                                 let value = mode.value;
                                 if (this.state.modeObject?.common?.type === 'number') {
@@ -688,7 +689,7 @@ class Thermostat extends Generic {
                 }
                 modesButton.push(<Button
                     key="party"
-                    color={currentValueStr ? 'primary' : undefined}
+                    color={currentValueStr ? 'primary' : 'inherit'}
                     onClick={() => {
                         let _currentValueStr = this.state.values[`${this.state.rxData['oid-party']}.val`];
                         if (_currentValueStr === null || _currentValueStr === undefined) {
@@ -715,7 +716,7 @@ class Thermostat extends Generic {
                 }
                 modesButton.push(<Button
                     key="boost"
-                    color={currentValueStr ? 'primary' : undefined}
+                    color={currentValueStr ? 'primary' : 'inherit'}
                     onClick={() => {
                         let _currentValueStr = this.state.values[`${this.state.rxData['oid-boost']}.val`];
                         if (_currentValueStr === null || _currentValueStr === undefined) {
@@ -742,7 +743,7 @@ class Thermostat extends Generic {
                 componentsProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
-                    color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : undefined}
+                    color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'inherit'}
                     onClick={() => {
                         const values = JSON.parse(JSON.stringify(this.state.values));
                         const id = `${this.state.rxData['oid-power']}.val`;
@@ -948,7 +949,10 @@ class Thermostat extends Generic {
         </Box>;
 
         if (this.state.rxData.externalDialog && !this.props.editMode) {
-            return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: null })}>
+            return <Dialog
+                open={this.state.dialog}
+                onClose={() => this.setState({ dialog: null })}
+            >
                 <DialogTitle>
                     {this.state.rxData.widgetTitle}
                     <IconButton
@@ -958,7 +962,9 @@ class Thermostat extends Generic {
                         <Close />
                     </IconButton>
                 </DialogTitle>
-                <DialogContent>{content}</DialogContent>
+                <DialogContent style={{ minWidth: 150, minHeight: 150 }}>
+                    {content}
+                </DialogContent>
             </Dialog>;
         }
 

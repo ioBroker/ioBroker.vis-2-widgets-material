@@ -1246,7 +1246,7 @@ class ObjectChart extends Component {
                     value={this.state.relativeRange}
                     onChange={e => this.setRelativeInterval(e.target.value)}
                 >
-                    <MenuItem key="custom" value="absolute" sx={styles.customRange}>{ this.props.t('custom_range') }</MenuItem>
+                    <MenuItem key="custom" value="absolute" sx={styles.customRange}>{this.props.t('custom_range')}</MenuItem>
                     <MenuItem key="1" value={10}>{this.props.t('last 10 minutes')}</MenuItem>
                     <MenuItem key="2" value={30}>{this.props.t('last 30 minutes')}</MenuItem>
                     <MenuItem key="3" value={60}>{this.props.t('last hour')}</MenuItem>
@@ -1259,7 +1259,7 @@ class ObjectChart extends Component {
                     <MenuItem key="10" value="month">{this.props.t('this month')}</MenuItem>
                     <MenuItem key="11" value={30 * 24 * 60}>{this.props.t('last 30 days')}</MenuItem>
                     <MenuItem key="12" value="year">{this.props.t('this year')}</MenuItem>
-                    <MenuItem key="13" value="12months">{ this.props.t('last 12 months')}</MenuItem>
+                    <MenuItem key="13" value="12months">{this.props.t('last 12 months')}</MenuItem>
                 </Select>
             </FormControl>
             {/* showTimeSettings ? null
