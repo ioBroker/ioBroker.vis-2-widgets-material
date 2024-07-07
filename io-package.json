@@ -127,8 +127,7 @@
     "dataSource": "poll",
     "licenseInformation": {
       "license": "MIT",
-      "type": "free",
-      "link": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/blob/master/LICENSE"
+      "type": "free"
     },
     "visWidgets": {
       "vis2materialWidgets": {
