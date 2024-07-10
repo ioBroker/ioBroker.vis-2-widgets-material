@@ -769,6 +769,10 @@ class ObjectChart extends Component {
                     params = params[0];
                     const date = new Date(params.value[0]);
                     let value = params.value[1];
+                    if (value !== null && value !== undefined) {
+                        value = Math.round(value * 1000) / 1000;
+                    }
+
                     if (value !== null && this.props.isFloatComma) {
                         value = value.toString().replace('.', ',');
                     }
@@ -800,15 +804,6 @@ class ObjectChart extends Component {
                 },
             },
             yAxis,
-            toolbox: {
-                left: 'right',
-                feature: this.props.noToolbar ? undefined : {
-                    saveAsImage: {
-                        title: this.props.t('Save as image'),
-                        show: true,
-                    },
-                },
-            },
             series: [serie, serie2],
         };
     }
