@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.4.2",
+    "version": "1.4.3",
     "news": {
+      "1.4.3": {
+        "en": "Better detection of modes for thermostat\nRound temperature in charts",
+        "de": "Bessere Erkennung von Modi für Thermostat\nRundtemperatur in Diagrammen",
+        "ru": "Лучшее обнаружение режимов для термостата\nКруглая температура в диаграммах",
+        "pt": "Melhor detecção de modos para termostato\nTemperatura redonda em gráficos",
+        "nl": "Betere detectie van modi voor thermostaat\nRonde temperatuur in grafieken",
+        "fr": "Meilleure détection des modes de thermostat\nTempérature ronde dans les cartes",
+        "it": "Migliore rilevazione delle modalità per termostato\nTemperatura rotonda nei grafici",
+        "es": "Mejor detección de modos para termostato\nTemperatura redonda en gráficos",
+        "pl": "Lepsze wykrywanie trybów termostatu\nTemperatura okrągła na wykresach",
+        "uk": "Краще виявлення режимів термостату\nКруглі температури в діаграмах",
+        "zh-cn": "更好地检测自动调温器的模式\n图中的圆形温度"
+      },
       "1.4.2": {
         "en": "Better detection of modes for thermostat",
         "de": "Bessere Erkennung von Modi für Thermostat",
@@ -80,19 +93,6 @@
         "pl": "Ulepszone rozwiązywanie ikon",
         "uk": "Покращене вирішення ікон",
         "zh-cn": "改善图标的解析"
-      },
-      "1.3.27": {
-        "en": "Updated packages\nimproved RGB widget",
-        "de": "Aktualisierte Pakete\nrGB Widget",
-        "ru": "Обновленные пакеты\nулучшенный виджет RGB",
-        "pt": "Pacotes atualizados\nmelhor widget RGB",
-        "nl": "Bijgewerkte pakketten\nverbeterde RGB-widget",
-        "fr": "Paquets mis à jour\nwidget RGB amélioré",
-        "it": "Pacchetti aggiornati\nmigliorato widget RGB",
-        "es": "Paquetes actualizados\nmejorado widget RGB",
-        "pl": "Aktualizacja pakietów\nulepszony widżet RGB",
-        "uk": "Оновлені пакети\nпокращений RGB віджет",
-        "zh-cn": "更新软件包\n改进的 RGB 部件"
       }
     },
     "title": "Vis 2 Widgets Material",
