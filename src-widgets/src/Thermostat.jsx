@@ -667,7 +667,7 @@ class Thermostat extends Generic {
         let modesButton = [];
         if (thermIsWithModeButtons) {
             if (this.state.modes?.length) {
-                modesButton = this.state.modes.map(mode => {
+                modesButton = this.state.modes.map((mode, i) => {
                     const icon = mode.icon === true && BUTTONS[(mode.original || '').toUpperCase()] ? true : (mode.icon ? <Icon src={mode.icon} style={{ width: 24, height: 24 }} /> : null);
                     const MyIcon = icon === true ? BUTTONS[(mode.original || '').toUpperCase()] : null;
                     let currentValueStr = this.state.values[`${this.state.rxData['oid-mode']}.val`];
@@ -680,7 +680,7 @@ class Thermostat extends Generic {
 
                     return icon && !mode.label ?
                         <Tooltip
-                            key={mode.value}
+                            key={`${i}_${mode.value}`}
                             title={mode.tooltip}
                             componentsProps={{ popper: { sx: styles.tooltip } }}
                         >
@@ -705,7 +705,7 @@ class Thermostat extends Generic {
                         </Tooltip>
                         :
                         <Button
-                            key={mode.value}
+                            key={`${i}_${mode.value}`}
                             color={currentValueStr === mode.value ? 'primary' : 'inherit'}
                             // style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
                             onClick={() => {
