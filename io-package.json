@@ -3,32 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "1.4.3",
     "news": {
-      "1.4.3": {
-        "en": "Better detection of modes for thermostat\nRound temperature in charts",
-        "de": "Bessere Erkennung von Modi für Thermostat\nRundtemperatur in Diagrammen",
-        "ru": "Лучшее обнаружение режимов для термостата\nКруглая температура в диаграммах",
-        "pt": "Melhor detecção de modos para termostato\nTemperatura redonda em gráficos",
-        "nl": "Betere detectie van modi voor thermostaat\nRonde temperatuur in grafieken",
-        "fr": "Meilleure détection des modes de thermostat\nTempérature ronde dans les cartes",
-        "it": "Migliore rilevazione delle modalità per termostato\nTemperatura rotonda nei grafici",
-        "es": "Mejor detección de modos para termostato\nTemperatura redonda en gráficos",
-        "pl": "Lepsze wykrywanie trybów termostatu\nTemperatura okrągła na wykresach",
-        "uk": "Краще виявлення режимів термостату\nКруглі температури в діаграмах",
-        "zh-cn": "更好地检测自动调温器的模式\n图中的圆形温度"
-      },
-      "1.4.2": {
-        "en": "Better detection of modes for thermostat",
-        "de": "Bessere Erkennung von Modi für Thermostat",
-        "ru": "Лучшее обнаружение режимов для термостата",
-        "pt": "Melhor detecção de modos para termostato",
-        "nl": "Betere detectie van modi voor thermostaat",
-        "fr": "Meilleure détection des modes de thermostat",
-        "it": "Migliore rilevazione delle modalità per termostato",
-        "es": "Mejor detección de modos para termostato",
-        "pl": "Lepsze wykrywanie trybów termostatu",
-        "uk": "Краще виявлення режимів термостату",
-        "zh-cn": "更好地检测自动调温器的模式"
-      },
       "1.4.1": {
         "en": "removed withStyles package\nBetter thermostat visualisation by narrow height",
         "de": "entfernt mitStyles-Paket\nBessere Thermostat-Visualisierung durch schmale Höhe",

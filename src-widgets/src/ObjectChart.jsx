@@ -655,6 +655,7 @@ class ObjectChart extends Component {
                 axisLabel: {
                     formatter: value => {
                         let text;
+                        value = Math.round(value * 10) / 10;
                         if (this.props.isFloatComma) {
                             text = value.toString().replace(',', '.') + this.unit2;
                         } else {
