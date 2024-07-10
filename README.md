@@ -128,6 +128,9 @@ The only difference is that Xiaomi supports the room cleaning.
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Better detection of modes for thermostat
+
 ### 1.4.1 (2024-07-07)
 * (bluefox) removed withStyles package
 * (bluefox) Better thermostat visualisation by narrow height

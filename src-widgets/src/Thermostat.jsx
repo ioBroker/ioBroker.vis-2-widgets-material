@@ -4,7 +4,8 @@ import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import {
     Box,
-    Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Tooltip,
+    Button, Dialog, DialogContent,
+    DialogTitle, IconButton, Slider, Tooltip,
 } from '@mui/material';
 
 // import { FormControl, InputLabel, MenuItem, Select, Tab, Tabs, TextField } from '@mui/material';
@@ -37,10 +38,12 @@ const BUTTONS = {
     MANUAL: PanToolIcon,
     VACATION: HouseboatIcon,
     COOL: AcUnitIcon,
+    COOLING: AcUnitIcon,
     DRY: DryIcon,
     ECO: ParkIcon,
     FAN_ONLY: AirIcon,
     HEAT: WbSunnyIcon,
+    HEATING: WbSunnyIcon,
     OFF: PowerSettingsNewIcon,
 };
 
@@ -104,7 +107,7 @@ function getModes(modeObj) {
     if (modes) {
         Object.keys(modes).forEach(m => {
             const mode = { value: m, label: modes[m] };
-            mode.icon = BUTTONS[modes[m]];
+            mode.icon = BUTTONS[(modes[m] || '').toUpperCase()];
             result.push(mode);
         });
     }
@@ -160,22 +163,45 @@ class Thermostat extends Generic {
                                         const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
                                         if (states) {
                                             let changed = false;
-                                            Object.values(states).forEach(state => {
+                                            const values = Object.values(states);
+                                            for (let s = 0; s < values.length; s++) {
+                                                const state = values[s];
                                                 const role = state.common.role;
                                                 if (role && role.includes('value.temperature')) {
                                                     data['oid-temp-actual'] = state._id;
                                                     changed = true;
-                                                } else if (role && role.includes('power')) {
+                                                } else if (role?.includes('power')) {
                                                     data['oid-power'] = state._id;
                                                     changed = true;
-                                                } else if (role && role.includes('boost')) {
+                                                } else if (role?.includes('boost')) {
                                                     data['oid-boost'] = state._id;
                                                     changed = true;
-                                                } else if (role && role.includes('party')) {
+                                                } else if (role?.includes('party')) {
                                                     data['oid-party'] = state._id;
                                                     changed = true;
+                                                } else if (role?.includes('mode')) {
+                                                    const modes = getModes(state);
+                                                    if (modes) {
+                                                        modes.forEach((mode, i) => {
+                                                            if (!data[`title${i + 1}`] || i + 1 > data.count) {
+                                                                changed = true;
+                                                                data[`title${i + 1}`] = mode.label;
+                                                            }
+                                                            if (!data[`value${i + 1}`] || i + 1 > data.count) {
+                                                                data[`value${i + 1}`] = mode.value;
+                                                                changed = true;
+                                                            }
+                                                        });
+                                                        if (data.count !== modes.length) {
+                                                            changed = true;
+                                                            data.count = modes.length;
+                                                        }
+                                                    }
+                                                    data['oid-mode'] = state._id;
+                                                    changed = true;
                                                 }
-                                            });
+                                            }
+
                                             changed && changeData(data);
                                         }
                                     }
@@ -309,7 +335,13 @@ class Thermostat extends Generic {
                             name: 'noText',
                             type: 'checkbox',
                             label: 'no_text',
-                            hidden: '!!data["hide" + index]',
+                            hidden: '!!data["hide" + index] || !!data["noIcon" + index]',
+                        },
+                        {
+                            name: 'noIcon',
+                            type: 'checkbox',
+                            label: 'no_icon',
+                            hidden: '!!data["hide" + index] || !!data["noText" + index] || !data["title" + index]',
                         },
                         {
                             name: 'value',
@@ -356,13 +388,14 @@ class Thermostat extends Generic {
             const modes = getModes(modeObj);
             newState.modes = [];
             const max = parseInt(this.state.rxData.count, 10) || 10;
+
             modes?.forEach((m, i) => {
                 if (this.state.rxData[`hide${i + 1}`] || i >= max) {
                     return;
                 }
                 const mode = m;
                 mode.tooltip = this.state.rxData[`tooltip${i + 1}`] || m.label;
-                mode.icon = this.state.rxData[`icon${i + 1}`] || this.state.rxData[`iconSmall${i + 1}`] || !!BUTTONS[m.label];
+                mode.icon = !this.state.rxData[`noIcon${i + 1}`] && (this.state.rxData[`icon${i + 1}`] || this.state.rxData[`iconSmall${i + 1}`] || !!BUTTONS[(m.label || '').toUpperCase()]);
                 mode.original = m.label;
                 mode.label = mode.icon && this.state.rxData[`noText${i + 1}`] ? null : (this.state.rxData[`title${i + 1}`] || mode.label);
                 // if icon present, and it is a standard icon and no title provided
@@ -373,6 +406,20 @@ class Thermostat extends Generic {
                 mode.value = this.state.rxData[`value${i + 1}`] || m.value;
                 newState.modes.push(mode);
             });
+            for (let i = newState.modes.length; i < max; i++) {
+                if (this.state.rxData[`hide${i + 1}`]) {
+                    continue;
+                }
+                const icon = !this.state.rxData[`noIcon${i + 1}`] && (this.state.rxData[`icon${i + 1}`] || this.state.rxData[`iconSmall${i + 1}`] || !!BUTTONS[(this.state.rxData[`title${i + 1}`] || '').toUpperCase()]);
+                newState.modes.push({
+                    tooltip: this.state.rxData[`tooltip${i + 1}`],
+                    icon,
+                    original: this.state.rxData[`title${i + 1}`],
+                    label: icon && this.state.rxData[`noText${i + 1}`] ? null : this.state.rxData[`title${i + 1}`],
+                    value: this.state.rxData[`value${i + 1}`],
+                    color: this.state.rxData[`color${i + 1}`],
+                });
+            }
         } else {
             newState.modes = null;
             newState.mode = null;
@@ -621,9 +668,10 @@ class Thermostat extends Generic {
         if (thermIsWithModeButtons) {
             if (this.state.modes?.length) {
                 modesButton = this.state.modes.map(mode => {
-                    const icon = mode.icon === true && BUTTONS[mode.original] ? true : (mode.icon ? <Icon src={mode.icon} style={{ width: 24, height: 24 }} /> : null);
-                    const MyIcon = icon === true ? BUTTONS[mode.original] : null;
+                    const icon = mode.icon === true && BUTTONS[(mode.original || '').toUpperCase()] ? true : (mode.icon ? <Icon src={mode.icon} style={{ width: 24, height: 24 }} /> : null);
+                    const MyIcon = icon === true ? BUTTONS[(mode.original || '').toUpperCase()] : null;
                     let currentValueStr = this.state.values[`${this.state.rxData['oid-mode']}.val`];
+
                     if (currentValueStr === null || currentValueStr === undefined) {
                         currentValueStr = 'null';
                     } else {
@@ -657,7 +705,6 @@ class Thermostat extends Generic {
                         </Tooltip>
                         :
                         <Button
-                            id="AAA"
                             key={mode.value}
                             color={currentValueStr === mode.value ? 'primary' : 'inherit'}
                             // style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
