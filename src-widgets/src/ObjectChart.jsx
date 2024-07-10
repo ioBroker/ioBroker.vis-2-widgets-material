@@ -606,6 +606,7 @@ class ObjectChart extends Component {
                 axisLabel: {
                     formatter: value => {
                         let text;
+                        value = Math.round(value * 10) / 10;
                         if (this.props.isFloatComma) {
                             text = value.toString().replace(',', '.') + this.unit;
                         } else {
@@ -1246,20 +1247,20 @@ class ObjectChart extends Component {
                     value={this.state.relativeRange}
                     onChange={e => this.setRelativeInterval(e.target.value)}
                 >
-                    <MenuItem key="custom" value="absolute" sx={styles.customRange}>{this.props.t('custom_range')}</MenuItem>
-                    <MenuItem key="1" value={10}>{this.props.t('last 10 minutes')}</MenuItem>
-                    <MenuItem key="2" value={30}>{this.props.t('last 30 minutes')}</MenuItem>
-                    <MenuItem key="3" value={60}>{this.props.t('last hour')}</MenuItem>
-                    <MenuItem key="4" value="day">{this.props.t('this day')}</MenuItem>
-                    <MenuItem key="5" value={24 * 60}>{this.props.t('last 24 hours')}</MenuItem>
-                    <MenuItem key="6" value="week">{this.props.t('this week')}</MenuItem>
-                    <MenuItem key="7" value={24 * 60 * 7}>{this.props.t('last week')}</MenuItem>
-                    <MenuItem key="8" value="2weeks">{this.props.t('this 2 weeks')}</MenuItem>
-                    <MenuItem key="9" value={24 * 60 * 14}>{this.props.t('last 2 weeks')}</MenuItem>
-                    <MenuItem key="10" value="month">{this.props.t('this month')}</MenuItem>
-                    <MenuItem key="11" value={30 * 24 * 60}>{this.props.t('last 30 days')}</MenuItem>
-                    <MenuItem key="12" value="year">{this.props.t('this year')}</MenuItem>
-                    <MenuItem key="13" value="12months">{this.props.t('last 12 months')}</MenuItem>
+                    <MenuItem value="absolute" sx={styles.customRange}>{this.props.t('custom_range')}</MenuItem>
+                    <MenuItem value={10}>{this.props.t('last 10 minutes')}</MenuItem>
+                    <MenuItem value={30}>{this.props.t('last 30 minutes')}</MenuItem>
+                    <MenuItem value={60}>{this.props.t('last hour')}</MenuItem>
+                    <MenuItem value="day">{this.props.t('this day')}</MenuItem>
+                    <MenuItem value={24 * 60}>{this.props.t('last 24 hours')}</MenuItem>
+                    <MenuItem value="week">{this.props.t('this week')}</MenuItem>
+                    <MenuItem value={24 * 60 * 7}>{this.props.t('last week')}</MenuItem>
+                    <MenuItem value="2weeks">{this.props.t('this 2 weeks')}</MenuItem>
+                    <MenuItem value={24 * 60 * 14}>{this.props.t('last 2 weeks')}</MenuItem>
+                    <MenuItem value="month">{this.props.t('this month')}</MenuItem>
+                    <MenuItem value={30 * 24 * 60}>{this.props.t('last 30 days')}</MenuItem>
+                    <MenuItem value="year">{this.props.t('this year')}</MenuItem>
+                    <MenuItem value="12months">{this.props.t('last 12 months')}</MenuItem>
                 </Select>
             </FormControl>
             {/* showTimeSettings ? null
