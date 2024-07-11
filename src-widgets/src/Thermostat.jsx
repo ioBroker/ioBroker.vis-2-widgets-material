@@ -652,7 +652,10 @@ class Thermostat extends Generic {
         // console.log(this.state.min, this.state.max, tempValue);
 
         const chartButton = this.state.isChart ? <IconButton
-            style={withTitle ? undefined : styles.moreButton}
+            style={{
+                ...(withTitle ? undefined : styles.moreButton),
+                zIndex: 2,
+            }}
             onClick={() => this.setState({ showDialog: true })}
         >
             <MoreVertIcon />
