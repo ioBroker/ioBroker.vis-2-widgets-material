@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.4.6",
+    "version": "1.4.7",
     "news": {
+      "1.4.7": {
+        "en": "Corrected thermostat chart button",
+        "de": "Thermostat-Taste korrigiert",
+        "ru": "Исправленная кнопка термостата",
+        "pt": "Botão do gráfico do termostato correto",
+        "nl": "Gecorrigeerde thermostaatkaartknop",
+        "fr": "Bouton de carte thermostat corrigée",
+        "it": "Pulsante grafico termostato corretto",
+        "es": "Botón de la tabla de termostatos corregido",
+        "pl": "Poprawiony przycisk wykresu termostatu",
+        "uk": "Виправлена кнопка термостату",
+        "zh-cn": "校正的恒温图按钮"
+      },
       "1.4.6": {
         "en": "Better detection of modes for thermostat\nRound temperature in charts",
         "de": "Bessere Erkennung von Modi für Thermostat\nRundtemperatur in Diagrammen",
