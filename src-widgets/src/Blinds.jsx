@@ -33,12 +33,6 @@ class Blinds extends BlindsBase {
                     name: 'common',
                     fields: [
                         {
-                            name: 'externalDialog',
-                            label: 'use_as_dialog',
-                            type: 'checkbox',
-                            tootltip: 'use_as_dialog_tooltip',
-                        },
-                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
@@ -135,6 +129,12 @@ class Blinds extends BlindsBase {
                             type: 'checkbox',
                             hidden: data => !data.oid,
                             name: 'invert',
+                        },
+                        {
+                            name: 'externalDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                            tooltip: 'use_as_dialog_tooltip',
                         },
                     ],
                 },

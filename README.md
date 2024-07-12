@@ -128,6 +128,9 @@ The only difference is that Xiaomi supports the room cleaning.
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Small changes for SweetHome3D
+
 ### 1.4.7 (2024-07-11)
 * (bluefox) Corrected thermostat chart button
 

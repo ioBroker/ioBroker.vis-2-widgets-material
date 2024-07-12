@@ -296,7 +296,7 @@ class Security extends Generic {
             }
         }
 
-        return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: false })}>
+        return <Dialog open={!!this.state.dialog} onClose={() => this.setState({ dialog: false })}>
             <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
             <DialogContent>
                 <div style={styles.pinInput}>

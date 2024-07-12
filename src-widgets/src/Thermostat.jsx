@@ -135,11 +135,6 @@ class Thermostat extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'externalDialog',
-                            label: 'use_as_dialog',
-                            type: 'checkbox',
-                        },
-                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
@@ -279,6 +274,12 @@ class Thermostat extends Generic {
                             min: 0,
                             max: 2000,
                             default: 500,
+                        },
+                        {
+                            name: 'externalDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                            tooltip: 'use_as_dialog_tooltip',
                         },
                         {
                             name: 'count',
@@ -654,6 +655,9 @@ class Thermostat extends Generic {
         const chartButton = this.state.isChart ? <IconButton
             style={{
                 ...(withTitle ? undefined : styles.moreButton),
+                right: this.state.rxData.externalDialog ? undefined : (withTitle ? undefined : 4),
+                left: this.state.rxData.externalDialog ? 16 : undefined,
+                top: this.state.rxData.externalDialog ? 16 : (withTitle ? undefined : 4),
                 zIndex: 2,
             }}
             onClick={() => this.setState({ showDialog: true })}
@@ -999,14 +1003,14 @@ class Thermostat extends Generic {
         </Box>;
 
         if (this.state.rxData.externalDialog && !this.props.editMode) {
-            return <Dialog
-                open={this.state.dialog}
+            return this.state.dialog ? <Dialog
+                open={!0}
                 onClose={() => this.setState({ dialog: null })}
             >
                 <DialogTitle>
                     {this.state.rxData.widgetTitle}
                     <IconButton
-                        style={{ float: 'right' }}
+                        style={{ float: 'right', zIndex: 2 }}
                         onClick={() => this.setState({ dialog: null })}
                     >
                         <Close />
@@ -1015,7 +1019,7 @@ class Thermostat extends Generic {
                 <DialogContent style={{ minWidth: 150, minHeight: 150 }}>
                     {content}
                 </DialogContent>
-            </Dialog>;
+            </Dialog> : null;
         }
 
         if (!withCard) {

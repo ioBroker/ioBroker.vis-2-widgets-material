@@ -215,11 +215,6 @@ class Vacuum extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'externalDialog',
-                            label: 'use_as_dialog',
-                            type: 'checkbox',
-                        },
-                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
@@ -229,6 +224,12 @@ class Vacuum extends Generic {
                             name: 'widgetTitle',
                             label: 'name',
                             hidden: '!!data.noCard || !!data.externalDialog',
+                        },
+                        {
+                            name: 'externalDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                            tooltip: 'use_as_dialog_tooltip',
                         },
                     ],
                 },
@@ -707,13 +708,13 @@ class Vacuum extends Generic {
         </div>;
 
         if (this.state.rxData.externalDialog && !this.props.editMode) {
-            return <Dialog open={this.state.dialog} onClose={() => this.setState({ dialog: null })}>
+            return this.state.dialog ? <Dialog open={!0} onClose={() => this.setState({ dialog: null })}>
                 <DialogTitle>
                     {this.state.rxData.widgetTitle}
-                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
+                    <IconButton style={{ float: 'right', zIndex: 2 }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
                 </DialogTitle>
                 <DialogContent>{content}</DialogContent>
-            </Dialog>;
+            </Dialog> : null;
         }
 
         return this.wrapContent(content);

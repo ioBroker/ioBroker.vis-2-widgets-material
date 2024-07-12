@@ -207,11 +207,6 @@ class RGBLight extends Generic {
                     name: 'common',
                     fields: [
                         {
-                            name: 'externalDialog',
-                            label: 'use_as_dialog',
-                            type: 'checkbox',
-                        },
-                        {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
@@ -403,6 +398,12 @@ class RGBLight extends Generic {
                             name: 'onlyCircle',
                             label: 'onlyCircle',
                             type: 'checkbox',
+                        },
+                        {
+                            name: 'externalDialog',
+                            label: 'use_as_dialog',
+                            type: 'checkbox',
+                            tooltip: 'use_as_dialog_tooltip',
                         },
                     ],
                 },
@@ -832,7 +833,7 @@ class RGBLight extends Generic {
         >
             <DialogTitle>
                 {this.state.rxData.widgetTitle}
-                <IconButton style={{ float: 'right' }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
+                <IconButton style={{ float: 'right', zIndex: 2 }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
             </DialogTitle>
             <DialogContent style={{ maxWidth: 400 }}>
                 <div style={styles.rgbDialogContainer}>

@@ -564,7 +564,7 @@ class Map extends Generic {
 
     renderDialog() {
         return <Dialog
-            open={this.state.dialog}
+            open={!!this.state.dialog}
             fullScreen
             onClose={() => this.setState({ dialog: false })}
         >
