@@ -128,7 +128,7 @@ The only difference is that Xiaomi supports the room cleaning.
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.4.9 (2024-08-03)
 * (bluefox) Corrected blinds dialog
 * (bluefox) Added the invert option for blinds
 
