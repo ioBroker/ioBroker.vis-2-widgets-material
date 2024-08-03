@@ -70,7 +70,6 @@ const styles = {
 
 const LAMP_ON_COLOR = '#c7c70e';
 
-let mouseDown = false;
 class DialogBlinds extends Component {
     // expected:
     static types = {
@@ -78,6 +77,8 @@ class DialogBlinds extends Component {
         dimmer: 1,
         blinds: 2,
     };
+
+    static mouseDown = false;
 
     constructor(props) {
         super(props);
@@ -101,7 +102,7 @@ class DialogBlinds extends Component {
 
     static getDerivedStateFromProps(nextProps, state) {
         let newState;
-        if (nextProps.startValue !== state.value && !mouseDown && Date.now() - state.lastControl > 1000) {
+        if (nextProps.startValue !== state.value && !DialogBlinds.mouseDown && Date.now() - state.lastControl > 1000) {
             newState = newState || {};
             newState.value = nextProps.startValue;
         }
@@ -123,6 +124,7 @@ class DialogBlinds extends Component {
             value = 0;
         }
         this.setState({ value });
+
         if (Date.now() - this.state.lastControl > 200 && this.type !== DialogBlinds.types.blinds) {
             this.setState({ lastControl: Date.now() }, () =>
                 this.props.onValueChange && this.props.onValueChange(value));
@@ -130,7 +132,7 @@ class DialogBlinds extends Component {
     }
 
     onMouseMove = e => {
-        if (mouseDown) {
+        if (DialogBlinds.mouseDown) {
             e.preventDefault();
             e.stopPropagation();
             this.eventToValue(e);
@@ -141,8 +143,6 @@ class DialogBlinds extends Component {
         e.preventDefault();
         e.stopPropagation();
 
-        mouseDown = true;
-
         if (!this.height) {
             if (this.refSlider.current) {
                 this.height = this.refSlider.current.offsetHeight;
@@ -152,25 +152,25 @@ class DialogBlinds extends Component {
             }
         }
 
+        DialogBlinds.mouseDown = true;
         this.eventToValue(e);
-
-        document.getElementById('dimmerId').addEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
-        document.getElementById('dimmerId').addEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-        document.addEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-        document.getElementById('dimmerId').addEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
-        document.getElementById('dimmerId').addEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+        window.document.addEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
+        window.document.addEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
+        window.document.addEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
+        window.document.addEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
     };
 
     onMouseUp = e => {
         e.preventDefault();
         e.stopPropagation();
-        mouseDown = false;
         console.log('Stopped');
-        document.getElementById('dimmerId')?.removeEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
-        document.getElementById('dimmerId')?.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-        document.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-        document.getElementById('dimmerId')?.removeEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
-        document.getElementById('dimmerId')?.removeEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+        if (DialogBlinds.mouseDown) {
+            DialogBlinds.mouseDown = false;
+            window.document.removeEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
+            window.document.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
+            window.document.removeEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
+            window.document.removeEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+        }
 
         this.setState({ lastControl: Date.now() }, () => {
             console.log(this.state.value);
@@ -180,11 +180,13 @@ class DialogBlinds extends Component {
 
     componentWillUnmount() {
         // document.getElementById('root').className = ``;
-        document.getElementById('dimmerId')?.removeEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
-        document.getElementById('dimmerId')?.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-        document.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-        document.getElementById('dimmerId')?.removeEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
-        document.getElementById('dimmerId')?.removeEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+        if (DialogBlinds.mouseDown) {
+            DialogBlinds.mouseDown = false;
+            window.document.removeEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
+            window.document.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
+            window.document.removeEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
+            window.document.removeEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+        }
     }
 
     getTopButtonName() {
@@ -371,21 +373,21 @@ class DialogBlinds extends Component {
             handlerStyle.top = '0.4em';
         }
 
-        return <div style={styles.wrapperSlider}>
-            <div style={styles.wrapperSliderBlock}>
+        return <div style={styles.wrapperSlider} className="vis-2-slider-wrapper">
+            <div style={styles.wrapperSliderBlock} className="vis-2-slider-wrapper-block">
                 <Button variant="outlined" onClick={e => this.onButtonDown(e, 'top')}>
                     {this.getTopButtonName()}
                 </Button>
                 <div
-                    id="dimmerId"
+                    className="vis-2-slider-blind"
                     ref={this.refSlider}
                     onMouseDown={this.onMouseDown}
                     onTouchStart={this.onMouseDown}
                     onClick={e => e.stopPropagation()}
                     style={styles.sliderStyle}
                 >
-                    <div style={sliderStyle}>
-                        <div style={handlerStyle} />
+                    <div style={sliderStyle} className="vis-2-slider-inside">
+                        <div style={handlerStyle} className="vis-2-slider-handler" />
                     </div>
                 </div>
                 <Button variant="outlined" onClick={e => this.onButtonDown(e, 'bottom')}>

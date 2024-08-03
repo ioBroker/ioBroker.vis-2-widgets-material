@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 import {
     Accordion,
     AccordionDetails,
@@ -426,7 +425,7 @@ const WizardButton = props => {
     ];
 };
 
-class Wizard extends (window.visRxWidget || VisRxWidget) {
+class Wizard extends window.visRxWidget {
     static getWidgetInfo() {
         return {
             id: 'tplMaterial2Wizard',

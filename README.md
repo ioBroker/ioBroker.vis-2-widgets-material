@@ -128,6 +128,10 @@ The only difference is that Xiaomi supports the room cleaning.
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Corrected blinds dialog
+* (bluefox) Added the invert option for blinds
+
 ### 1.4.8 (2024-07-12)
 * (bluefox) Small changes for SweetHome3D
 

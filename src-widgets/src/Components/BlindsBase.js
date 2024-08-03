@@ -35,8 +35,8 @@ const styles = {
     },
     blindBlind3: {
         position: 'relative',
-        width: '100%;',
-        height: '100%;',
+        width: '100%',
+        height: '100%',
         boxSizing: 'border-box',
         background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 51, 135, 0.83) 100%)',
     },
@@ -329,6 +329,7 @@ class BlindsBase extends Generic {
             }
 
             divHandle = <div
+                className="vis-2-blinds-handle"
                 style={{
                     ...styles.blindHandle,
                     ...(handlePos === 2 ? styles.blindHandleTiltedBG : undefined),
@@ -339,6 +340,7 @@ class BlindsBase extends Generic {
 
         return <div
             key={index}
+            className="vis-2-blinds-outside"
             style={{
                 ...styles.blindBlind1,
                 borderWidth: options.borderWidth,
@@ -347,6 +349,7 @@ class BlindsBase extends Generic {
             }}
         >
             <div
+                className="vis-2-blinds-inside"
                 style={{ ...styles.blindBlind2, borderWidth: options.borderWidth }}
                 onClick={data.customOid ? e => {
                     e.preventDefault();
@@ -355,9 +358,10 @@ class BlindsBase extends Generic {
                     this.setState({ showBlindsDialog: index, showBlindsDialogIndexOfButton: options.indexOfButton });
                 } : undefined}
             >
-                <div style={styles.blindBlind3}>
-                    <div style={{ ...styles.blindBlind, height: `${100 - data.shutterPos}%` }} />
+                <div style={styles.blindBlind3} className="vis-2-blinds-inside-2">
+                    <div style={{ ...styles.blindBlind, height: `${100 - data.shutterPos}%` }} className="vis-2-blinds-closed" />
                     <div
+                        className="vis-2-blinds-opened"
                         style={{
                             ...styles.blindBlind4,
                             ...(options.type ? styles[`blindBlind4_${options.type}`] : undefined),

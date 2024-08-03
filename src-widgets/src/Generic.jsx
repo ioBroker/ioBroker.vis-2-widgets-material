@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
-
-class Generic extends (window.visRxWidget || VisRxWidget) {
+class Generic extends window.visRxWidget {
     getPropertyValue = stateName => this.state.values[`${this.state.rxData[stateName]}.val`];
 
     static getI18nPrefix() {

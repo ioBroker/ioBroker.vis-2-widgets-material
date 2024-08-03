@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import {
-    TimelineComponent,
-} from 'echarts/components';
+import { TimelineComponent } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
 
 import {
@@ -715,6 +713,12 @@ class Switches extends BlindsBase {
                             hidden: 'data["type" + index] === "blinds" || data["widget" + index]',
                         },
                         {
+                            label: 'invert_position',
+                            type: 'checkbox',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "blinds"',
+                            name: 'slideInvert',
+                        },
+                        {
                             name: 'title',
                             type: 'text',
                             label: 'title',
@@ -1186,7 +1190,7 @@ class Switches extends BlindsBase {
                             hidden: '!!data["widget" + index] || data["type" + index] !== "vacuum"',
                         },
                         {
-                            type: 'divider',
+                            type: 'delimiter',
                         },
                         // ---------- visibility -----------------
                         {
@@ -2256,6 +2260,9 @@ class Switches extends BlindsBase {
                 const options = this.getMinMaxPosition(1, index);
                 value = parseFloat(value);
                 value = ((value - options.min) / (options.max - options.min)) * 100;
+                if (options.invert) {
+                    value = 100 - value;
+                }
             }
 
             value = this.formatValue(value);
@@ -2672,6 +2679,9 @@ class Switches extends BlindsBase {
                         const options = this.getMinMaxPosition(1, index);
                         value = parseFloat(value);
                         value = ((value - options.min) / (options.max - options.min)) * 100;
+                        if (options.invert) {
+                            value = 100 - value;
+                        }
                     }
 
                     value = this.formatValue(value);
