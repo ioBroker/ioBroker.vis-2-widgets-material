@@ -321,7 +321,7 @@ class SimpleState extends Generic {
         if (!object) {
             object = { common: {} };
         } else {
-            object = { common: object.common, _id: object._id };
+            object = { common: object.common, _id: object._id, type: object.type };
         }
         object.common = object.common || {};
         if (object.common.type === 'number') {
