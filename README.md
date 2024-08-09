@@ -128,7 +128,7 @@ The only difference is that Xiaomi supports the room cleaning.
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.4.10 (2024-08-09)
 * (Steiger04) Corrected recursive icon search on channel, device, instance and adapter.
 
 ### 1.4.9 (2024-08-03)
