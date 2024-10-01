@@ -10,7 +10,7 @@
         "@iobroker/vis-2-widgets-react-dev": "^3.0.7",
         "@mui/icons-material": "^5.16.7",
         "@mui/material": "^5.16.7",
-        "@react-spectrum/color": "^3.0.0-rc.1",
+        "@react-spectrum/color": "^3.0.0",
         "@uiw/react-color": "^2.3.2",
         "color": "^4.2.3",
         "colorthief": "^2.4.0",
