@@ -17,8 +17,8 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180.0);
 
     return {
-        x: centerX + (radius * Math.cos(angleInRadians)),
-        y: centerY + (radius * Math.sin(angleInRadians)),
+        x: centerX + radius * Math.cos(angleInRadians),
+        y: centerY + radius * Math.sin(angleInRadians),
     };
 }
 
@@ -28,36 +28,178 @@ function describeArc(x, y, radius, startAngle, endAngle) {
 
     const arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
 
-    return [
-        'M', start.x, start.y,
-        'A', radius, radius, 0, arcSweep, 1, end.x, end.y,
-    ].join(' ');
+    return ['M', start.x, start.y, 'A', radius, radius, 0, arcSweep, 1, end.x, end.y].join(' ');
 }
 
-const Dishes = props => <svg style={props.style} viewBox="0 0 44 35">
-    <rect fill="#A1C8EC" height="35" width="44" y="0.00283" x="-0.01558" />
-    <line stroke="#7FABDA" strokeMiterlimit="10" strokeLinejoin="round" strokeWidth="2" fill="none" y2="14.71955" x2="43.84278" y1="14.71955" x1="-0.01558" />
-    <path fill="#7FABDA" d="m9.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="3.00283" x2="8.98442" y1="3.00283" x1="4.98442" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="7.00283" x2="6.98442" y1="3.00283" x1="6.98442" />
-    <path fill="#7FABDA" d="m19.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="3.00283" x2="18.98442" y1="3.00283" x1="14.98442" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="7.00283" x2="16.98442" y1="3.00283" x1="16.98442" />
-    <path fill="#7FABDA" d="m29.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="3.00283" x2="28.98442" y1="3.00283" x1="24.98442" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="7.00283" x2="26.98442" y1="3.00283" x1="26.98442" />
-    <path fill="#7FABDA" d="m39.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="3.00283" x2="38.98442" y1="3.00283" x1="34.98442" />
-    <line strokeMiterlimit="10" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="#7FABDA" fill="none" y2="7.00283" x2="36.98442" y1="3.00283" x1="36.98442" />
-    <path fill="#6F98BC" d="m16.98442,31.00283c0,-6.627 -5.373,-12 -12,-12c-1.787,0 -3.476,0.401 -5,1.102l0,14.898l16.283,0c0.448,-1.253 0.717,-2.592 0.717,-4z" />
-    <path fill="#7FABDA" d="m12.98442,31.00283c0,-4.418 -3.582,-8 -8,-8c-1.893,0 -3.63,0.661 -5,1.76l0,10.24l11.918,0c0.685,-1.177 1.082,-2.54 1.082,-4z" />
-    <path fill="#568BB2" d="m13.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z" />
-    <path fill="#7FABDA" d="m13.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z" />
-    <path fill="#6F98BC" d="m22.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z" />
-    <path fill="#7FABDA" d="m22.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z" />
-    <path fill="#568BB2" d="m31.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z" />
-    <path fill="#7FABDA" d="m31.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z" />
-</svg>;
+const Dishes = props => (
+    <svg
+        style={props.style}
+        viewBox="0 0 44 35"
+    >
+        <rect
+            fill="#A1C8EC"
+            height="35"
+            width="44"
+            y="0.00283"
+            x="-0.01558"
+        />
+        <line
+            stroke="#7FABDA"
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            fill="none"
+            y2="14.71955"
+            x2="43.84278"
+            y1="14.71955"
+            x1="-0.01558"
+        />
+        <path
+            fill="#7FABDA"
+            d="m9.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="3.00283"
+            x2="8.98442"
+            y1="3.00283"
+            x1="4.98442"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="7.00283"
+            x2="6.98442"
+            y1="3.00283"
+            x1="6.98442"
+        />
+        <path
+            fill="#7FABDA"
+            d="m19.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="3.00283"
+            x2="18.98442"
+            y1="3.00283"
+            x1="14.98442"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="7.00283"
+            x2="16.98442"
+            y1="3.00283"
+            x1="16.98442"
+        />
+        <path
+            fill="#7FABDA"
+            d="m29.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="3.00283"
+            x2="28.98442"
+            y1="3.00283"
+            x1="24.98442"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="7.00283"
+            x2="26.98442"
+            y1="3.00283"
+            x1="26.98442"
+        />
+        <path
+            fill="#7FABDA"
+            d="m39.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="3.00283"
+            x2="38.98442"
+            y1="3.00283"
+            x1="34.98442"
+        />
+        <line
+            strokeMiterlimit="10"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            strokeWidth="2"
+            stroke="#7FABDA"
+            fill="none"
+            y2="7.00283"
+            x2="36.98442"
+            y1="3.00283"
+            x1="36.98442"
+        />
+        <path
+            fill="#6F98BC"
+            d="m16.98442,31.00283c0,-6.627 -5.373,-12 -12,-12c-1.787,0 -3.476,0.401 -5,1.102l0,14.898l16.283,0c0.448,-1.253 0.717,-2.592 0.717,-4z"
+        />
+        <path
+            fill="#7FABDA"
+            d="m12.98442,31.00283c0,-4.418 -3.582,-8 -8,-8c-1.893,0 -3.63,0.661 -5,1.76l0,10.24l11.918,0c0.685,-1.177 1.082,-2.54 1.082,-4z"
+        />
+        <path
+            fill="#568BB2"
+            d="m13.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
+        />
+        <path
+            fill="#7FABDA"
+            d="m13.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
+        />
+        <path
+            fill="#6F98BC"
+            d="m22.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
+        />
+        <path
+            fill="#7FABDA"
+            d="m22.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
+        />
+        <path
+            fill="#568BB2"
+            d="m31.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
+        />
+        <path
+            fill="#7FABDA"
+            d="m31.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
+        />
+    </svg>
+);
 
 const styles = {
     rotatedItem: {
@@ -230,7 +372,7 @@ class WasherDryer extends Generic {
         if (object.common.states && Array.isArray(object.common.states)) {
             // convert to {'state1': 'state1', 'state2': 'state2', ...}
             const states = {};
-            object.common.states.forEach(state => states[state] = state);
+            object.common.states.forEach(state => (states[state] = state));
             object.common.states = states;
         }
         if (JSON.stringify(this.state.object) !== JSON.stringify(object)) {
@@ -256,7 +398,7 @@ class WasherDryer extends Generic {
     renderWasher(options) {
         let circle;
         if (options.circle === 'full') {
-            circle =
+            circle = (
                 <div
                     style={{
                         position: 'absolute',
@@ -306,168 +448,168 @@ class WasherDryer extends Generic {
                             }}
                         />
                     </svg>
-                </div>;
+                </div>
+            );
         } else if (options.circle === 'short') {
-            circle = <>
-                <div
-                    style={{ ...styles.centerCircle, border: `${options.wSize / 20}px solid ${options.backgroundColor}` }}
-                />
-                <div
-                    style={{
-                        ...styles.centerCircle,
-                        ...styles.rotatedItem,
-                        zIndex: 1,
-                        borderTop: `${options.wSize / 25}px solid ${options.color}`,
-                        borderBottom: `${options.wSize / 25}px solid ${options.color}`,
-                        borderLeft: `${options.wSize / 25}px solid ${options.color}`,
-                        borderRight: `${options.wSize / 25}px solid transparent`, // transparent
-                    }}
-                />
-            </>;
+            circle = (
+                <>
+                    <div
+                        style={{
+                            ...styles.centerCircle,
+                            border: `${options.wSize / 20}px solid ${options.backgroundColor}`,
+                        }}
+                    />
+                    <div
+                        style={{
+                            ...styles.centerCircle,
+                            ...styles.rotatedItem,
+                            zIndex: 1,
+                            borderTop: `${options.wSize / 25}px solid ${options.color}`,
+                            borderBottom: `${options.wSize / 25}px solid ${options.color}`,
+                            borderLeft: `${options.wSize / 25}px solid ${options.color}`,
+                            borderRight: `${options.wSize / 25}px solid transparent`, // transparent
+                        }}
+                    />
+                </>
+            );
         }
 
-        return <div style={options.style}>
-            {/* header */}
-            <div style={styles.header}>
-                <div
-                    style={{
-                        width: '30%',
-                        height: '70%',
-                        marginTop: '3%',
-                        borderRadius: '8%',
-                        border: '1px solid grey',
-                        marginLeft: '3%',
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: this.state.rxData.brandColor || undefined,
-                        fontSize: options.brandLen <= 3 ? Math.round(options.wSize / 10) : Math.round(options.wSize / (options.brandLen * 2.5)),
-                    }}
-                >
-                    {this.state.rxData.brand}
-                </div>
-                <div style={{ flexGrow: 1 }} />
-                {/* gray button 1 */}
-                <div
-                    style={{
-                        ...styles.grayLed,
-                        width: options.wSize / 10,
-                        height: options.wSize / 10,
-                    }}
-                />
-                {/* gray button 2 */}
-                <div
-                    style={{
-                        ...styles.grayLed,
-                        width: options.wSize / 10,
-                        height: options.wSize / 10,
-                    }}
-                />
-                {/* red/green button 3 */}
-                <div
-                    style={{
-                        width: options.wSize / 10,
-                        height: options.wSize / 10,
-                        borderRadius: '50%',
-                        backgroundColor: options.statusColor,
-                        marginRight: '10%',
-                        marginTop: '4%',
-                    }}
-                />
-            </div>
-            {/* divider */}
-            <div style={styles.divider} />
-            {/* main part */}
-            <div style={styles.mainPart}>
-                <div
-                    style={{
-                        width: options.wSize / 1.8,
-                        height: options.wSize / 1.8,
-                        border: `${options.wSize / 15}px solid grey`,
-                        borderRadius: '50%',
-                        position: 'relative',
-                    }}
-                >
-                    {circle}
+        return (
+            <div style={options.style}>
+                {/* header */}
+                <div style={styles.header}>
                     <div
-                        style={{ ...styles.centerText, fontSize: options.fontSize }}
+                        style={{
+                            width: '30%',
+                            height: '70%',
+                            marginTop: '3%',
+                            borderRadius: '8%',
+                            border: '1px solid grey',
+                            marginLeft: '3%',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: this.state.rxData.brandColor || undefined,
+                            fontSize:
+                                options.brandLen <= 3
+                                    ? Math.round(options.wSize / 10)
+                                    : Math.round(options.wSize / (options.brandLen * 2.5)),
+                        }}
                     >
-                        {options.timeText || ''}
+                        {this.state.rxData.brand}
+                    </div>
+                    <div style={{ flexGrow: 1 }} />
+                    {/* gray button 1 */}
+                    <div
+                        style={{
+                            ...styles.grayLed,
+                            width: options.wSize / 10,
+                            height: options.wSize / 10,
+                        }}
+                    />
+                    {/* gray button 2 */}
+                    <div
+                        style={{
+                            ...styles.grayLed,
+                            width: options.wSize / 10,
+                            height: options.wSize / 10,
+                        }}
+                    />
+                    {/* red/green button 3 */}
+                    <div
+                        style={{
+                            width: options.wSize / 10,
+                            height: options.wSize / 10,
+                            borderRadius: '50%',
+                            backgroundColor: options.statusColor,
+                            marginRight: '10%',
+                            marginTop: '4%',
+                        }}
+                    />
+                </div>
+                {/* divider */}
+                <div style={styles.divider} />
+                {/* main part */}
+                <div style={styles.mainPart}>
+                    <div
+                        style={{
+                            width: options.wSize / 1.8,
+                            height: options.wSize / 1.8,
+                            border: `${options.wSize / 15}px solid grey`,
+                            borderRadius: '50%',
+                            position: 'relative',
+                        }}
+                    >
+                        {circle}
+                        <div style={{ ...styles.centerText, fontSize: options.fontSize }}>{options.timeText || ''}</div>
                     </div>
                 </div>
+                {/* divider */}
+                <div style={styles.divider} />
+                <div style={{ ...styles.footer, color: options.statusColor }}>{options.status}</div>
             </div>
-            {/* divider */}
-            <div style={styles.divider} />
-            <div
-                style={{ ...styles.footer, color: options.statusColor }}
-            >
-                {options.status}
-            </div>
-        </div>;
+        );
     }
 
     renderDishWasher(options) {
-        return <div style={options.style}>
-            {/* header */}
-            <div style={styles.header}>
-                {/* red/green button 3 */}
-                <div
-                    style={{
-                        width: options.wSize / 10,
-                        height: options.wSize / 10,
-                        borderRadius: '50%',
-                        backgroundColor: options.statusColor,
-                        marginLeft: '3%',
-                        marginTop: '4%',
-                    }}
-                />
-                <div style={{ flexGrow: 1 }} />
-                <div
-                    style={{
-                        width: '33%',
-                        height: '70%',
-                        marginTop: '3%',
-                        borderRadius: '8%',
-                        border: '1px solid grey',
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: this.state.rxData.brandColor || undefined,
-                        fontSize: options.brandLen <= 3 ? Math.round(options.wSize / 10) : Math.round(options.wSize / (options.brandLen * 2.5)),
-                    }}
-                >
-                    {this.state.rxData.brand}
+        return (
+            <div style={options.style}>
+                {/* header */}
+                <div style={styles.header}>
+                    {/* red/green button 3 */}
+                    <div
+                        style={{
+                            width: options.wSize / 10,
+                            height: options.wSize / 10,
+                            borderRadius: '50%',
+                            backgroundColor: options.statusColor,
+                            marginLeft: '3%',
+                            marginTop: '4%',
+                        }}
+                    />
+                    <div style={{ flexGrow: 1 }} />
+                    <div
+                        style={{
+                            width: '33%',
+                            height: '70%',
+                            marginTop: '3%',
+                            borderRadius: '8%',
+                            border: '1px solid grey',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: this.state.rxData.brandColor || undefined,
+                            fontSize:
+                                options.brandLen <= 3
+                                    ? Math.round(options.wSize / 10)
+                                    : Math.round(options.wSize / (options.brandLen * 2.5)),
+                        }}
+                    >
+                        {this.state.rxData.brand}
+                    </div>
+                    <div style={{ width: '33%' }} />
                 </div>
-                <div style={{ width: '33%' }} />
-            </div>
-            {/* divider */}
-            <div style={styles.divider} />
-            {/* main part */}
-            <div style={styles.mainPart}>
-                <Dishes
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        opacity: 0.5,
-                        filter: options.running ? '' : 'grayscale(1)',
-                    }}
-                />
-                <div
-                    style={{ ...styles.centerText, fontSize: options.fontSize }}
-                >
-                    {options.timeText || ''}
+                {/* divider */}
+                <div style={styles.divider} />
+                {/* main part */}
+                <div style={styles.mainPart}>
+                    <Dishes
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            opacity: 0.5,
+                            filter: options.running ? '' : 'grayscale(1)',
+                        }}
+                    />
+                    <div style={{ ...styles.centerText, fontSize: options.fontSize }}>{options.timeText || ''}</div>
                 </div>
+                {/* divider */}
+                <div style={styles.divider} />
+                <div style={{ ...styles.footer, color: options.statusColor }}>{options.status}</div>
             </div>
-            {/* divider */}
-            <div style={styles.divider} />
-            <div
-                style={{ ...styles.footer, color: options.statusColor }}
-            >
-                {options.status}
-            </div>
-        </div>;
+        );
     }
 
     renderWidgetBody(props) {
@@ -509,10 +651,14 @@ class WasherDryer extends Generic {
             options.status = 'inactive';
         } else if (this.state.object?.common?.states) {
             options.status = (this.state.object.common.states[mode] || mode || '').toString().toLowerCase();
-            options.running = options.status.includes('run') || (options.status.includes('active') && !options.status.includes('inactive'));
+            options.running =
+                options.status.includes('run') ||
+                (options.status.includes('active') && !options.status.includes('inactive'));
         } else {
             options.status = mode || 'stop';
-            options.running = options.status.includes('run') || (options.status.includes('active') && !options.status.includes('inactive'));
+            options.running =
+                options.status.includes('run') ||
+                (options.status.includes('active') && !options.status.includes('inactive'));
         }
 
         options.status = Generic.t(options.status.toLowerCase()).replace('vis_2_widgets_material_', '');
@@ -521,7 +667,8 @@ class WasherDryer extends Generic {
         options.color = '#3679be';
         if (options.running) {
             options.statusColor = '#289f3c';
-            if (this.state.rxData.type === 'dryer' ||
+            if (
+                this.state.rxData.type === 'dryer' ||
                 (this.state.rxData.type === 'both' && this.state.values[`${this.state.rxData['dry-oid']}.val`])
             ) {
                 options.backgroundColor = '#9f883f';
@@ -535,7 +682,8 @@ class WasherDryer extends Generic {
         }
 
         if (options.running) {
-            if (this.state.rxData['start-time-oid'] &&
+            if (
+                this.state.rxData['start-time-oid'] &&
                 this.state.rxData['end-time-oid'] &&
                 this.state.values[`${this.state.rxData['end-time-oid']}.val`] &&
                 this.state.values[`${this.state.rxData['start-time-oid']}.val`]
@@ -582,25 +730,30 @@ class WasherDryer extends Generic {
             this.updateInterval = null;
         }
 
-        const content = <div
-            style={{
-                ...styles.body,
-                height: this.state.rxData.widgetTitle && !this.state.rxData.noCard && !props.widget.usedInWidget ? 'calc(100% - 36px)' : '100%',
-            }}
-            ref={this.refDiv}
-        >
-            <style>
-                {`
+        const content = (
+            <div
+                style={{
+                    ...styles.body,
+                    height:
+                        this.state.rxData.widgetTitle && !this.state.rxData.noCard && !props.widget.usedInWidget
+                            ? 'calc(100% - 36px)'
+                            : '100%',
+                }}
+                ref={this.refDiv}
+            >
+                <style>
+                    {`
 @keyframes vis-2-widgets-material-rotation {
     100% {
         transform: rotate(360deg);
     }
 }
 `}
-            </style>
-            {options.wSize && this.state.rxData.type !== 'dish' ? this.renderWasher(options) : null}
-            {options.wSize && this.state.rxData.type === 'dish' ? this.renderDishWasher(options) : null}
-        </div>;
+                </style>
+                {options.wSize && this.state.rxData.type !== 'dish' ? this.renderWasher(options) : null}
+                {options.wSize && this.state.rxData.type === 'dish' ? this.renderDishWasher(options) : null}
+            </div>
+        );
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
             return content;

@@ -2,13 +2,9 @@ import React from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './leaflet-providers';
-import {
-    Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, ZoomControl,
-} from 'react-leaflet';
+import { Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, ZoomControl } from 'react-leaflet';
 
-import {
-    Dialog, DialogContent, DialogTitle, IconButton,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 
 import { Close as CloseIcon, Fullscreen as OpenInFullIcon } from '@mui/icons-material';
 
@@ -40,9 +36,11 @@ const MapContent = props => {
     const [oldRxStyle, setOldRxStyle] = React.useState('');
     const [markers, setOldMarkers] = React.useState('');
     if (
-        (JSON.stringify(props.rxData) !== oldRxData && props.markers.filter(marker => marker.latitude && marker.longitude).length)
-            || JSON.stringify(props.rxStyle) !== oldRxStyle
-            || JSON.stringify(props.markers) !== markers) {
+        (JSON.stringify(props.rxData) !== oldRxData &&
+            props.markers.filter(marker => marker.latitude && marker.longitude).length) ||
+        JSON.stringify(props.rxStyle) !== oldRxStyle ||
+        JSON.stringify(props.markers) !== markers
+    ) {
         let centerLat = 0;
         let centerLng = 0;
         props.markers.forEach(marker => {
@@ -74,7 +72,8 @@ const mapThemes = {
     },
     stadiaosmbright: {
         url: 'https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png',
-        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+        attribution:
+            '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
         title: 'Stadia OSM Bright',
     },
     // jawgstreets: {
@@ -87,7 +86,8 @@ const mapThemes = {
     // },
     esriworldimagery: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles &copy; Esri &mdash; ' +
+        attribution:
+            'Tiles &copy; Esri &mdash; ' +
             'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, ' +
             'Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
         title: 'Esri World Imagery',
@@ -121,20 +121,25 @@ async function detectNameAndColor(field, data, changeData, socket) {
         }
         if (object && object.common && object.common.name) {
             changed = true;
-            data[`name${field.index}`] = typeof object.common.name === 'object' ? object.common.name[Generic.getLanguage()] : object.common.name;
+            data[`name${field.index}`] =
+                typeof object.common.name === 'object' ? object.common.name[Generic.getLanguage()] : object.common.name;
         } else if (object) {
             // try to detect parent
             parentChannel = parentChannel || (await this.getParentObject(data[field.name]));
             if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
                 if (parentChannel.common?.name) {
-                    data[`name${field.index}`] = typeof parentChannel.common.name === 'object' ?
-                        parentChannel.common.name[Generic.getLanguage()] : parentChannel.common.name;
+                    data[`name${field.index}`] =
+                        typeof parentChannel.common.name === 'object'
+                            ? parentChannel.common.name[Generic.getLanguage()]
+                            : parentChannel.common.name;
                     changed = true;
                 } else {
                     parentDevice = parentDevice || (await this.getParentObject(data[field.name], true));
                     if (parentDevice.common?.name) {
-                        data[`name${field.index}`] = typeof parentDevice.common.name === 'object' ?
-                            parentDevice.common.name[Generic.getLanguage()] : parentDevice.common.name;
+                        data[`name${field.index}`] =
+                            typeof parentDevice.common.name === 'object'
+                                ? parentDevice.common.name[Generic.getLanguage()]
+                                : parentDevice.common.name;
                         changed = true;
                     }
                 }
@@ -181,7 +186,10 @@ class Map extends Generic {
                             name: 'theme',
                             label: 'theme',
                             type: 'select',
-                            options: Object.keys(mapThemes).map(theme => ({ value: theme, label: mapThemes[theme].title })),
+                            options: Object.keys(mapThemes).map(theme => ({
+                                value: theme,
+                                label: mapThemes[theme].title,
+                            })),
                             default: 'default',
                             noTranslation: true,
                         },
@@ -307,15 +315,14 @@ class Map extends Generic {
         const newHistory = {};
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
-            if (this.state.rxData[`position${i}`] &&
+            if (
+                this.state.rxData[`position${i}`] &&
                 this.state.rxData[`useHistory${i}`] &&
                 this.state.objects[i]?.common?.custom &&
                 this.state.objects[i].common.custom[options.instance]
             ) {
-                const history = (await this.props.context.socket.getHistory(this.state.rxData[`position${i}`], options));
-                newHistory[i] = history
-                    .filter(position => position.val)
-                    .sort((a, b) => (a.ts > b.ts ? 1 : -1));
+                const history = await this.props.context.socket.getHistory(this.state.rxData[`position${i}`], options);
+                newHistory[i] = history.filter(position => position.val).sort((a, b) => (a.ts > b.ts ? 1 : -1));
             }
         }
 
@@ -329,7 +336,7 @@ class Map extends Generic {
                 ids.push(this.state.rxData[`oid${index}`]);
             }
         }
-        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
+        const _objects = ids.length ? await this.props.context.socket.getObjectsById(ids) : {};
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.markersCount; index++) {
@@ -341,14 +348,23 @@ class Map extends Generic {
                     continue;
                 }
                 object.common = object.common || {};
-                object.isChart = !!(object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]);
-                if (!this.state.rxData[`icon${index}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                object.isChart = !!(
+                    object.common.custom &&
+                    object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]
+                );
+                if (
+                    !this.state.rxData[`icon${index}`] &&
+                    !object.common.icon &&
+                    (object.type === 'state' || object.type === 'channel')
+                ) {
                     const idArray = this.state.rxData[`position${index}`].split('.');
 
                     // read channel
                     const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(
+                            idArray.slice(0, -2).join('.'),
+                        );
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -427,7 +443,10 @@ class Map extends Generic {
                 icon: this.state.rxData[`icon${i}`] || this.state.objects[i]?.common?.icon,
             };
             if (mrk.icon && mrk.icon.startsWith('_PRJ_NAME')) {
-                mrk.icon = mrk.icon.replace('_PRJ_NAME', `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`);
+                mrk.icon = mrk.icon.replace(
+                    '_PRJ_NAME',
+                    `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`,
+                );
             }
             if (mrk.longitude || mrk.latitude) {
                 // mrk.longitude = 8.40435;
@@ -458,170 +477,191 @@ class Map extends Generic {
         tilesUrl = tilesUrl || mapThemes.default.url;
         tilesAttribution = tilesAttribution || mapThemes.default.attribution;
 
-        const noInteractions = this.state.rxData.noUserInteractions ? {
-            doubleClickZoom: false,
-            closePopupOnClick: false,
-            dragging: false,
-            zoomSnap: false,
-            zoomDelta: false,
-            trackResize: false,
-            touchZoom: false,
-            scrollWheelZoom: false,
-        } : {};
+        const noInteractions = this.state.rxData.noUserInteractions
+            ? {
+                  doubleClickZoom: false,
+                  closePopupOnClick: false,
+                  dragging: false,
+                  zoomSnap: false,
+                  zoomDelta: false,
+                  trackResize: false,
+                  touchZoom: false,
+                  scrollWheelZoom: false,
+              }
+            : {};
 
-        return <>
-            <style>
-                {
-                    `.leaflet-control-attribution {
+        return (
+            <>
+                <style>
+                    {`.leaflet-control-attribution {
     display: none !important;
 }
 /*.leaflet-div-icon {
     border-radius: 50%;
-}*/`
-                }
-            </style>
-            <MapContainer
-                style={styles.mapContainer}
-                scrollWheelZoom
-                key={`${tilesUrl}_${!!this.state.rxData.noUserInteractions}`}
-                zoom={this.state.rxData.defaultZoom || 18}
-                center={[0, 0]}
-                zoomControl={false}
-                {...noInteractions}
-            >
-                <TileLayer
-                    attribution={tilesAttribution}
-                    url={tilesUrl}
-                />
-                {!this.state.rxData.hideZoomButtons && !this.state.rxData.noUserInteractions ? <ZoomControl position="bottomright" /> : null}
-                {
-                    markers.map((marker, index) => {
-                        const history = this.state.history[marker.i]?.map(position => {
-                            const parts = position.val.split(';');
-                            return [
-                                parseFloat(parts[1] || 0),
-                                parseFloat(parts[0] || 0),
-                            ];
-                        }) || [];
+}*/`}
+                </style>
+                <MapContainer
+                    style={styles.mapContainer}
+                    scrollWheelZoom
+                    key={`${tilesUrl}_${!!this.state.rxData.noUserInteractions}`}
+                    zoom={this.state.rxData.defaultZoom || 18}
+                    center={[0, 0]}
+                    zoomControl={false}
+                    {...noInteractions}
+                >
+                    <TileLayer
+                        attribution={tilesAttribution}
+                        url={tilesUrl}
+                    />
+                    {!this.state.rxData.hideZoomButtons && !this.state.rxData.noUserInteractions ? (
+                        <ZoomControl position="bottomright" />
+                    ) : null}
+                    {markers.map((marker, index) => {
+                        const history =
+                            this.state.history[marker.i]?.map(position => {
+                                const parts = position.val.split(';');
+                                return [parseFloat(parts[1] || 0), parseFloat(parts[0] || 0)];
+                            }) || [];
                         history.push([marker.latitude, marker.longitude]);
 
-                        const markerIcon = marker.icon ? new L.Icon({
-                            iconUrl: marker.icon,
-                            iconRetinaUrl: marker.icon,
-                            iconAnchor: new L.Point(16, 16),
-                            popupAnchor: new L.Point(0, -16),
-                            shadowUrl: null,
-                            shadowSize: null,
-                            shadowAnchor: null,
-                            iconSize: new L.Point(32, 32),
-                            className: 'leaflet-div-icon',
-                        }) : new L.Icon.Default();
+                        const markerIcon = marker.icon
+                            ? new L.Icon({
+                                  iconUrl: marker.icon,
+                                  iconRetinaUrl: marker.icon,
+                                  iconAnchor: new L.Point(16, 16),
+                                  popupAnchor: new L.Point(0, -16),
+                                  shadowUrl: null,
+                                  shadowSize: null,
+                                  shadowAnchor: null,
+                                  iconSize: new L.Point(32, 32),
+                                  className: 'leaflet-div-icon',
+                              })
+                            : new L.Icon.Default();
 
-                        return <React.Fragment key={index}>
-                            <Marker
-                                position={[marker.latitude, marker.longitude]}
-                                icon={markerIcon}
-                                title={marker.name}
-                                eventHandlers={{
-                                    click: () => {
-                                        window.document.querySelectorAll('.leaflet-popup-close-button')
-                                            .forEach(el => el.addEventListener('click', e =>
-                                                e.preventDefault()));
-                                    },
-                                }}
-                            >
-                                <Popup>
-                                    {marker.name}
-                                </Popup>
-                            </Marker>
-                            {
-                                this.state.history[marker.i] ?
-                                    history.map((position, historyIndex) =>
-                                        historyIndex < history.length - 1 && <Polyline
-                                            key={historyIndex}
-                                            pathOptions={{
-                                                color: marker.color || 'blue',
-                                                opacity: historyIndex + (1 / history.length),
-                                            }}
-                                            positions={[position, history[historyIndex + 1]]}
-                                        />)
-                                    : null
-                            }
-                            {
-                                marker.radius ? <Circle
-                                    center={[marker.latitude, marker.longitude]}
-                                    pathOptions={{ color: marker.color || 'blue' }}
-                                    radius={marker.radius}
-                                /> : null
-                            }
-                        </React.Fragment>;
-                    })
-                }
-                <MapContent widget={this} markers={markers} rxData={this.state.rxData} rxStyle={this.state.rxStyle} />
-            </MapContainer>
-        </>;
+                        return (
+                            <React.Fragment key={index}>
+                                <Marker
+                                    position={[marker.latitude, marker.longitude]}
+                                    icon={markerIcon}
+                                    title={marker.name}
+                                    eventHandlers={{
+                                        click: () => {
+                                            window.document
+                                                .querySelectorAll('.leaflet-popup-close-button')
+                                                .forEach(el => el.addEventListener('click', e => e.preventDefault()));
+                                        },
+                                    }}
+                                >
+                                    <Popup>{marker.name}</Popup>
+                                </Marker>
+                                {this.state.history[marker.i]
+                                    ? history.map(
+                                          (position, historyIndex) =>
+                                              historyIndex < history.length - 1 && (
+                                                  <Polyline
+                                                      key={historyIndex}
+                                                      pathOptions={{
+                                                          color: marker.color || 'blue',
+                                                          opacity: historyIndex + 1 / history.length,
+                                                      }}
+                                                      positions={[position, history[historyIndex + 1]]}
+                                                  />
+                                              ),
+                                      )
+                                    : null}
+                                {marker.radius ? (
+                                    <Circle
+                                        center={[marker.latitude, marker.longitude]}
+                                        pathOptions={{ color: marker.color || 'blue' }}
+                                        radius={marker.radius}
+                                    />
+                                ) : null}
+                            </React.Fragment>
+                        );
+                    })}
+                    <MapContent
+                        widget={this}
+                        markers={markers}
+                        rxData={this.state.rxData}
+                        rxStyle={this.state.rxStyle}
+                    />
+                </MapContainer>
+            </>
+        );
     }
 
     renderDialog() {
-        return <Dialog
-            open={!!this.state.dialog}
-            fullScreen
-            onClose={() => this.setState({ dialog: false })}
-        >
-            <DialogTitle style={styles.dialogTitle}>
-                {this.state.rxData.widgetTitle}
-                <IconButton onClick={() => this.setState({ dialog: false })}>
-                    <CloseIcon />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent>
-                {this.renderMap()}
-            </DialogContent>
-        </Dialog>;
+        return (
+            <Dialog
+                open={!!this.state.dialog}
+                fullScreen
+                onClose={() => this.setState({ dialog: false })}
+            >
+                <DialogTitle style={styles.dialogTitle}>
+                    {this.state.rxData.widgetTitle}
+                    <IconButton onClick={() => this.setState({ dialog: false })}>
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>{this.renderMap()}</DialogContent>
+            </Dialog>
+        );
     }
 
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
 
-        const content = <>
-            {this.renderDialog()}
-            {this.renderMap()}
-        </>;
+        const content = (
+            <>
+                {this.renderDialog()}
+                {this.renderMap()}
+            </>
+        );
 
-        const iconFull = this.state.rxData.hideFullScreenButton ? null :
+        const iconFull = this.state.rxData.hideFullScreenButton ? null : (
             <IconButton onClick={() => this.setState({ dialog: true })}>
                 <OpenInFullIcon
                     style={{
-                        color: (this.state.rxData.noCard || props.widget.usedInWidget) &&
+                        color:
+                            (this.state.rxData.noCard || props.widget.usedInWidget) &&
                             (!this.state.rxData.theme ||
                                 this.state.rxData.theme === 'default' ||
-                                this.state.rxData.theme === 'stadiaosmbright') ? '#111' : undefined,
+                                this.state.rxData.theme === 'stadiaosmbright')
+                                ? '#111'
+                                : undefined,
                     }}
                 />
-            </IconButton>;
+            </IconButton>
+        );
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            return <div style={{ width: '100%', height: '100%' }}>
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        zIndex: 500,
-                    }}
-                >
-                    {iconFull}
+            return (
+                <div style={{ width: '100%', height: '100%' }}>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            zIndex: 500,
+                        }}
+                    >
+                        {iconFull}
+                    </div>
+                    {content}
                 </div>
-                {content}
-            </div>;
+            );
         }
 
         return this.wrapContent(
             content,
-            this.state.rxData.widgetTitle ? iconFull : <div style={{ display: 'flex', width: '100%' }}>
-                <div style={{ flex: 1 }} />
-                {iconFull}
-            </div>,
+            this.state.rxData.widgetTitle ? (
+                iconFull
+            ) : (
+                <div style={{ display: 'flex', width: '100%' }}>
+                    <div style={{ flex: 1 }} />
+                    {iconFull}
+                </div>
+            ),
             {
                 boxSizing: 'border-box',
                 paddingBottom: 10,

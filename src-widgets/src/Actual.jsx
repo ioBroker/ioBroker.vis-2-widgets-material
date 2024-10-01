@@ -731,7 +731,7 @@ class Actual extends Generic {
             {mainValue !== undefined ?
                 <Tooltip
                     title={this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || null}
-                    componentsProps={{ popper: { sx: styles.tooltip } }}
+                    slotProps={{ popper: { sx: styles.tooltip } }}
                 >
                     <div style={styles.mainDiv}>
                         {mainIcon}
@@ -763,7 +763,7 @@ class Actual extends Generic {
             {secondaryValue !== undefined ?
                 <Tooltip
                     title={this.state.rxData['title-secondary'] || Generic.getText(this.state.objects?.secondary?.common?.name) || null}
-                    componentsProps={{ popper: { sx: styles.tooltip } }}
+                    slotProps={{ popper: { sx: styles.tooltip } }}
                 >
                     <div style={styles.secondaryDiv}>
                         {secondaryIcon}

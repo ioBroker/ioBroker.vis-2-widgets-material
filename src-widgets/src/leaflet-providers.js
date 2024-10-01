@@ -13,7 +13,7 @@
         // eslint-disable-next-line no-undef
         factory(L);
     }
-}(this, L => {
+})(this, L => {
     L.TileLayer.Provider = L.TileLayer.extend({
         initialize(arg, options) {
             const providers = L.TileLayer.Provider.providers;
@@ -61,9 +61,8 @@
                 if (attr.indexOf('{attribution.') === -1) {
                     return attr;
                 }
-                return attr.replace(
-                    /\{attribution.(\w*)}/g,
-                    (match, attributionName) => attributionReplacer(providers[attributionName].options.attribution),
+                return attr.replace(/\{attribution.(\w*)}/g, (match, attributionName) =>
+                    attributionReplacer(providers[attributionName].options.attribution),
                 );
             };
             provider.options.attribution = attributionReplacer(provider.options.attribution);
@@ -84,8 +83,7 @@
             url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 19,
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             },
             variants: {
                 Mapnik: {},
@@ -99,7 +97,10 @@
                     url: 'https://tile.osm.ch/switzerland/{z}/{x}/{y}.png',
                     options: {
                         maxZoom: 18,
-                        bounds: [[45, 5], [48, 11]],
+                        bounds: [
+                            [45, 5],
+                            [48, 11],
+                        ],
                     },
                 },
                 France: {
@@ -121,8 +122,12 @@
                 BZH: {
                     url: 'https://tile.openstreetmap.bzh/br/{z}/{x}/{y}.png',
                     options: {
-                        attribution: '{attribution.OpenStreetMap}, Tiles courtesy of <a href="http://www.openstreetmap.bzh/" target="_blank">Breton OpenStreetMap Team</a>',
-                        bounds: [[46.2, -5.5], [50, 0.7]],
+                        attribution:
+                            '{attribution.OpenStreetMap}, Tiles courtesy of <a href="http://www.openstreetmap.bzh/" target="_blank">Breton OpenStreetMap Team</a>',
+                        bounds: [
+                            [46.2, -5.5],
+                            [50, 0.7],
+                        ],
                     },
                 },
             },
@@ -166,42 +171,48 @@
             url: 'https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 18,
-                attribution: 'Map <a href="https://memomaps.de/">memomaps.de</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, map data {attribution.OpenStreetMap}',
+                attribution:
+                    'Map <a href="https://memomaps.de/">memomaps.de</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, map data {attribution.OpenStreetMap}',
             },
         },
         OpenTopoMap: {
             url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 17,
-                attribution: 'Map data: {attribution.OpenStreetMap}, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+                attribution:
+                    'Map data: {attribution.OpenStreetMap}, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
             },
         },
         OpenRailwayMap: {
             url: 'https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 19,
-                attribution: 'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+                attribution:
+                    'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
             },
         },
         OpenFireMap: {
             url: 'http://openfiremap.org/hytiles/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 19,
-                attribution: 'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="http://www.openfiremap.org">OpenFireMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+                attribution:
+                    'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="http://www.openfiremap.org">OpenFireMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
             },
         },
         SafeCast: {
             url: 'https://s3.amazonaws.com/te512.safecast.org/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 16,
-                attribution: 'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="https://blog.safecast.org/about/">SafeCast</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+                attribution:
+                    'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="https://blog.safecast.org/about/">SafeCast</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
             },
         },
         Stadia: {
             url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
             options: {
                 maxZoom: 20,
-                attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+                attribution:
+                    '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
             },
             variants: {
                 AlidadeSmooth: {
@@ -255,7 +266,8 @@
             url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 20,
-                attribution: '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: {attribution.OpenStreetMap}',
+                attribution:
+                    '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: {attribution.OpenStreetMap}',
             },
         },
         Jawg: {
@@ -380,13 +392,19 @@
                     options: {
                         variant: 'toposm-color-relief',
                         ext: 'jpg',
-                        bounds: [[22, -132], [51, -56]],
+                        bounds: [
+                            [22, -132],
+                            [51, -56],
+                        ],
                     },
                 },
                 TopOSMFeatures: {
                     options: {
                         variant: 'toposm-features',
-                        bounds: [[22, -132], [51, -56]],
+                        bounds: [
+                            [22, -132],
+                            [51, -56],
+                        ],
                         opacity: 0.9,
                     },
                 },
@@ -397,8 +415,7 @@
             options: {
                 variant: 'basic',
                 maxZoom: 22,
-                attribution:
-                    `<a href="https://tomtom.com" target="_blank">&copy;  1992 - ${new Date().getFullYear()} TomTom.</a> `,
+                attribution: `<a href="https://tomtom.com" target="_blank">&copy;  1992 - ${new Date().getFullYear()} TomTom.</a> `,
                 subdomains: 'abcd',
                 style: 'main',
                 ext: 'png',
@@ -452,9 +469,7 @@
                     options: {
                         variant: 'World_Terrain_Base',
                         maxZoom: 13,
-                        attribution:
-                            '{attribution.Esri} &mdash; ' +
-                            'Source: USGS, Esri, TANA, DeLorme, and NPS',
+                        attribution: '{attribution.Esri} &mdash; ' + 'Source: USGS, Esri, TANA, DeLorme, and NPS',
                     },
                 },
                 WorldShadedRelief: {
@@ -475,14 +490,16 @@
                     options: {
                         variant: 'Ocean_Basemap',
                         maxZoom: 13,
-                        attribution: '{attribution.Esri} &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
+                        attribution:
+                            '{attribution.Esri} &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
                     },
                 },
                 NatGeoWorldMap: {
                     options: {
                         variant: 'NatGeo_World_Map',
                         maxZoom: 16,
-                        attribution: '{attribution.Esri} &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+                        attribution:
+                            '{attribution.Esri} &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
                     },
                 },
                 WorldGrayCanvas: {
@@ -527,8 +544,7 @@
                 '{type}/{mapID}/{variant}/{z}/{x}/{y}/{size}/{format}?' +
                 'app_id={app_id}&app_code={app_code}&lg={language}',
             options: {
-                attribution:
-                    `Map &copy; 1987-${new Date().getFullYear()} <a href="http://developer.here.com">HERE</a>`,
+                attribution: `Map &copy; 1987-${new Date().getFullYear()} <a href="http://developer.here.com">HERE</a>`,
                 subdomains: '1234',
                 mapID: 'newest',
                 app_id: '<insert your app_id here>',
@@ -650,8 +666,7 @@
                 '{type}/{mapID}/{variant}/{z}/{x}/{y}/{size}/{format}?' +
                 'apiKey={apiKey}&lg={language}',
             options: {
-                attribution:
-                    `Map &copy; 1987-${new Date().getFullYear()} <a href="http://developer.here.com">HERE</a>`,
+                attribution: `Map &copy; 1987-${new Date().getFullYear()} <a href="http://developer.here.com">HERE</a>`,
                 subdomains: '1234',
                 mapID: 'newest',
                 apiKey: '<insert your apiKey here>',
@@ -749,7 +764,10 @@
                 minZoom: 8,
                 maxZoom: 16,
                 subdomains: 'abcd',
-                bounds: [[47.204642, 15.996093], [49.830896, 22.576904]],
+                bounds: [
+                    [47.204642, 15.996093],
+                    [49.830896, 22.576904],
+                ],
                 attribution:
                     '{attribution.OpenStreetMap}, visualization CC-By-SA 2.0 <a href="http://freemap.sk">Freemap.sk</a>',
             },
@@ -757,8 +775,7 @@
         MtbMap: {
             url: 'http://tile.mtbmap.cz/mtbmap_tiles/{z}/{x}/{y}.png',
             options: {
-                attribution:
-                    '{attribution.OpenStreetMap} &amp; USGS',
+                attribution: '{attribution.OpenStreetMap} &amp; USGS',
             },
         },
         CartoDB: {
@@ -807,7 +824,10 @@
                 subdomains: ['', '1', '2', '3', '4'],
                 type: 'normal',
                 format: 'png',
-                bounds: [[46.358770, 8.782379], [49.037872, 17.189532]],
+                bounds: [
+                    [46.35877, 8.782379],
+                    [49.037872, 17.189532],
+                ],
                 variant: 'geolandbasemap',
             },
             variants: {
@@ -853,7 +873,10 @@
             options: {
                 minZoom: 6,
                 maxZoom: 19,
-                bounds: [[50.5, 3.25], [54, 7.6]],
+                bounds: [
+                    [50.5, 3.25],
+                    [54, 7.6],
+                ],
                 attribution: 'Kaartgegevens &copy; <a href="https://www.kadaster.nl">Kadaster</a>',
             },
             variants: {
@@ -872,7 +895,10 @@
                 attribution:
                     'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System ' +
                     '(<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
-                bounds: [[-85.0511287776, -179.999999975], [85.0511287776, 179.999999975]],
+                bounds: [
+                    [-85.0511287776, -179.999999975],
+                    [85.0511287776, 179.999999975],
+                ],
                 minZoom: 1,
                 maxZoom: 9,
                 format: 'jpg',
@@ -934,7 +960,10 @@
             url: 'https://nls-{s}.tileserver.com/nls/{z}/{x}/{y}.jpg',
             options: {
                 attribution: '<a href="http://geo.nls.uk/maps/">National Library of Scotland Historic Maps</a>',
-                bounds: [[49.6, -12], [61.7, 3]],
+                bounds: [
+                    [49.6, -12],
+                    [61.7, 3],
+                ],
                 minZoom: 1,
                 maxZoom: 18,
                 subdomains: '0123',
@@ -950,7 +979,10 @@
                 // one of 'county', 'tract', 'block'
                 size: 'county',
                 // Bounds for USA, including Alaska and Hawaii
-                bounds: [[14, -180], [72, -56]],
+                bounds: [
+                    [14, -180],
+                    [72, -56],
+                ],
             },
             variants: {
                 income: 'income',
@@ -968,7 +1000,10 @@
             url: 'https://wxs.ign.fr/{apikey}/geoportail/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE={style}&TILEMATRIXSET=PM&FORMAT={format}&LAYER={variant}&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
             options: {
                 attribution: '<a target="_blank" href="https://www.geoportail.gouv.fr/">Geoportail France</a>',
-                bounds: [[-75, -180], [81, 180]],
+                bounds: [
+                    [-75, -180],
+                    [81, 180],
+                ],
                 minZoom: 2,
                 maxZoom: 18,
                 // Get your own geoportail apikey here : http://professionnels.ign.fr/ign/contrats/
@@ -1002,8 +1037,12 @@
                 variant: 'Default',
                 minZoom: 11,
                 maxZoom: 18,
-                bounds: [[1.56073, 104.11475], [1.16, 103.502]],
-                attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" alt="attribution" style="height:20px;width:20px;"/> New OneMap | Map data &copy; contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>',
+                bounds: [
+                    [1.56073, 104.11475],
+                    [1.16, 103.502],
+                ],
+                attribution:
+                    '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" alt="attribution" style="height:20px;width:20px;"/> New OneMap | Map data &copy; contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>',
             },
             variants: {
                 Default: 'Default',
@@ -1033,7 +1072,8 @@
             url: 'https://tile.waymarkedtrails.org/{variant}/{z}/{x}/{y}.png',
             options: {
                 maxZoom: 18,
-                attribution: 'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="https://waymarkedtrails.org">waymarkedtrails.org</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+                attribution:
+                    'Map data: {attribution.OpenStreetMap} | Map style: &copy; <a href="https://waymarkedtrails.org">waymarkedtrails.org</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
             },
             variants: {
                 hiking: 'hiking',
@@ -1047,7 +1087,8 @@
         OpenAIP: {
             url: 'https://{s}.tile.maps.openaip.net/geowebcache/service/tms/1.0.0/openaip_basemap@EPSG%3A900913@png/{z}/{x}/{y}.{ext}',
             options: {
-                attribution: '<a href="https://www.openaip.net/">openAIP Data</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-NC-SA</a>)',
+                attribution:
+                    '<a href="https://www.openaip.net/">openAIP Data</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-NC-SA</a>)',
                 ext: 'png',
                 minZoom: 4,
                 maxZoom: 14,
@@ -1061,7 +1102,8 @@
             options: {
                 minZoom: 9,
                 maxZoom: 18,
-                attribution: 'Map data: {attribution.OpenStreetMap} & ODbL, &copy; <a href="https://www.opensnowmap.org/iframes/data.html">www.opensnowmap.org</a> <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+                attribution:
+                    'Map data: {attribution.OpenStreetMap} & ODbL, &copy; <a href="https://www.opensnowmap.org/iframes/data.html">www.opensnowmap.org</a> <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
             },
             variants: {
                 pistes: 'pistes',
@@ -1093,7 +1135,8 @@
                         '&subscription-key={subscriptionKey}',
                     options: {
                         timeStamp: '2021-05-08T09:03:00Z',
-                        attribution: 'See https://docs.microsoft.com/en-us/rest/api/maps/render-v2/get-map-tile#uri-parameters for details.',
+                        attribution:
+                            'See https://docs.microsoft.com/en-us/rest/api/maps/render-v2/get-map-tile#uri-parameters for details.',
                         variant: 'microsoft.weather.infrared.main',
                     },
                 },
@@ -1105,7 +1148,8 @@
                         '&subscription-key={subscriptionKey}',
                     options: {
                         timeStamp: '2021-05-08T09:03:00Z',
-                        attribution: 'See https://docs.microsoft.com/en-us/rest/api/maps/render-v2/get-map-tile#uri-parameters for details.',
+                        attribution:
+                            'See https://docs.microsoft.com/en-us/rest/api/maps/render-v2/get-map-tile#uri-parameters for details.',
                         variant: 'microsoft.weather.radar.main',
                     },
                 },
@@ -1117,7 +1161,10 @@
                 attribution: '&copy; <a href="https://www.swisstopo.admin.ch/">swisstopo</a>',
                 minZoom: 2,
                 maxZoom: 18,
-                bounds: [[45.398181, 5.140242], [48.230651, 11.47757]],
+                bounds: [
+                    [45.398181, 5.140242],
+                    [48.230651, 11.47757],
+                ],
             },
             variants: {
                 NationalMapColor: 'ch.swisstopo.pixelkarte-farbe',
@@ -1138,4 +1185,4 @@
     };
 
     return L;
-}));
+});

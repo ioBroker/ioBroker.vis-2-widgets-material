@@ -25,34 +25,36 @@ class ViewInWidget extends Generic {
         return {
             id: 'tplMaterial2ViewInWidget',
             visSet: 'vis-2-widgets-material',
-            visWidgetLabel: 'view_in_widget',  // Label of widget
+            visWidgetLabel: 'view_in_widget', // Label of widget
             visName: 'View in Widget',
-            visAttrs: [{
-                name: 'common',
-                fields: [
-                    {
-                        name: 'noCard',
-                        label: 'without_card',
-                        type: 'checkbox',
-                    },
-                    {
-                        name: 'widgetTitle',
-                        label: 'name',
-                        hidden: '!!data.noCard',
-                    },
-                    {
-                        name: 'view',
-                        label: 'view',
-                        type: 'select-views',
-                        multiple: false,
-                    },
-                    {
-                        name: 'button',
-                        label: 'view_button',
-                        type: 'checkbox',
-                    },
-                ],
-            }],
+            visAttrs: [
+                {
+                    name: 'common',
+                    fields: [
+                        {
+                            name: 'noCard',
+                            label: 'without_card',
+                            type: 'checkbox',
+                        },
+                        {
+                            name: 'widgetTitle',
+                            label: 'name',
+                            hidden: '!!data.noCard',
+                        },
+                        {
+                            name: 'view',
+                            label: 'view',
+                            type: 'select-views',
+                            multiple: false,
+                        },
+                        {
+                            name: 'button',
+                            label: 'view_button',
+                            type: 'checkbox',
+                        },
+                    ],
+                },
+            ],
             visDefaultStyle: {
                 width: '100%',
                 height: 120,
@@ -98,9 +100,14 @@ class ViewInWidget extends Generic {
         const view = this.state.rxData.view;
 
         if (view === this.props.view) {
-            return <div className="vis-widget-body" style={{ overflow: 'hidden', position: 'absolute' }}>
-                Cannot use recursive views
-            </div>;
+            return (
+                <div
+                    className="vis-widget-body"
+                    style={{ overflow: 'hidden', position: 'absolute' }}
+                >
+                    Cannot use recursive views
+                </div>
+            );
         }
 
         let style;
@@ -130,30 +137,39 @@ class ViewInWidget extends Generic {
 
         const noCard = this.state.rxData.noCard || props.widget.usedInWidget;
 
-        const content = <div
-            style={{
-                overflow: 'hidden',
-                position: 'absolute',
-                top: !noCard && this.state.rxData.widgetTitle ? 53 : (noCard ? 0 : 16),
-                left: noCard ? 0 : 8,
-                width: noCard ? '100%' : 'calc(100% - 16px)',
-                height: !noCard && this.state.rxData.widgetTitle ? 'calc(100% - 68px)' : (noCard ? '100%' : 'calc(100% - 32px)'),
-                textAlign: 'center',
-                lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-                fontFamily: this.state.rxStyle['font-family'],
-                fontShadow: this.state.rxStyle['font-shadow'],
-                fontStyle: this.state.rxStyle['font-style'],
-                fontWeight: this.state.rxStyle['font-weight'],
-                fontVariant: this.state.rxStyle['font-variant'],
-            }}
-            ref={this.refContainer}
-        >
-            { this.state.editMode || this.state.rxData.button ? <div
-                style={{ ...styles.overlay, cursor: !this.state.editMode ? 'pointer' : undefined }}
-                onClick={!this.state.editMode && this.state.rxData.button ? () => this.onNavigate() : undefined}
-            /> : null}
-            {view ? this.getWidgetView(view, { style }) : null}
-        </div>;
+        const content = (
+            <div
+                style={{
+                    overflow: 'hidden',
+                    position: 'absolute',
+                    top: !noCard && this.state.rxData.widgetTitle ? 53 : noCard ? 0 : 16,
+                    left: noCard ? 0 : 8,
+                    width: noCard ? '100%' : 'calc(100% - 16px)',
+                    height:
+                        !noCard && this.state.rxData.widgetTitle
+                            ? 'calc(100% - 68px)'
+                            : noCard
+                              ? '100%'
+                              : 'calc(100% - 32px)',
+                    textAlign: 'center',
+                    lineHeight: this.state.height ? `${this.state.height}px` : undefined,
+                    fontFamily: this.state.rxStyle['font-family'],
+                    fontShadow: this.state.rxStyle['font-shadow'],
+                    fontStyle: this.state.rxStyle['font-style'],
+                    fontWeight: this.state.rxStyle['font-weight'],
+                    fontVariant: this.state.rxStyle['font-variant'],
+                }}
+                ref={this.refContainer}
+            >
+                {this.state.editMode || this.state.rxData.button ? (
+                    <div
+                        style={{ ...styles.overlay, cursor: !this.state.editMode ? 'pointer' : undefined }}
+                        onClick={!this.state.editMode && this.state.rxData.button ? () => this.onNavigate() : undefined}
+                    />
+                ) : null}
+                {view ? this.getWidgetView(view, { style }) : null}
+            </div>
+        );
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
             return content;

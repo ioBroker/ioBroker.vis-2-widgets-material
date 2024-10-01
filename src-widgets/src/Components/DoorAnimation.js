@@ -24,15 +24,17 @@ const DoorAnimation = props => {
         // ref.current?.stop();
     }, [props.open]);
 
-    return <Lottie
-        animationData={animationDoor}
-        onClick={() => setOpen(!open)}
-        lottieRef={ref}
-        autoPlay={false}
-        loop={false}
-        // start={200}
-        style={{ height: props.size || 120 }}
-    />;
+    return (
+        <Lottie
+            animationData={animationDoor}
+            onClick={() => setOpen(!open)}
+            lottieRef={ref}
+            autoPlay={false}
+            loop={false}
+            // start={200}
+            style={{ height: props.size || 120 }}
+        />
+    );
 };
 
 export default DoorAnimation;

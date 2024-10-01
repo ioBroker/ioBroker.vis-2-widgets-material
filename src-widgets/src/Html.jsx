@@ -16,7 +16,7 @@ class Html extends Generic {
             id: 'tplMaterial2Static',
             visSet: 'vis-2-widgets-material',
             visName: 'Html template',
-            visWidgetLabel: 'html',  // Label of widget
+            visWidgetLabel: 'html', // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -34,33 +34,39 @@ class Html extends Generic {
                         {
                             name: 'html',
                             type: 'html',
-                            default: 'Admin Memory: <span style="color: #73b9ff">{system.adapter.admin.0.memHeapTotal.val}MB</span>',
+                            default:
+                                'Admin Memory: <span style="color: #73b9ff">{system.adapter.admin.0.memHeapTotal.val}MB</span>',
                             label: 'html_template',
-                            hidden: data => !!data.iframe || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
+                            hidden: data =>
+                                !!data.iframe || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'iframe',
                             type: 'url',
                             label: 'iframe_url',
-                            hidden: data => !!data.html || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
+                            hidden: data =>
+                                !!data.html || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'iframe_oid',
                             type: 'id',
                             label: 'iframe_oid',
-                            hidden: data => !!data.html || !!data.image || !!data.image_oid || !!data.iframe || !!data.widget,
+                            hidden: data =>
+                                !!data.html || !!data.image || !!data.image_oid || !!data.iframe || !!data.widget,
                         },
                         {
                             name: 'image',
                             type: 'url',
                             label: 'image_url',
-                            hidden: data => !!data.iframe || !!data.html || !!data.image_oid || !!data.iframe_oid || !!data.widget,
+                            hidden: data =>
+                                !!data.iframe || !!data.html || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'image_oid',
                             type: 'id',
                             label: 'image_oid',
-                            hidden: data => !!data.iframe || !!data.html || !!data.image || !!data.iframe_oid || !!data.widget,
+                            hidden: data =>
+                                !!data.iframe || !!data.html || !!data.image || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'objectFit',
@@ -142,7 +148,8 @@ class Html extends Generic {
                             name: 'widget',
                             type: 'widget',
                             label: 'widget_id',
-                            hidden: data => !!data.image || !!data.image_oid || !!data.iframe || !!data.iframe_oid || !!data.html,
+                            hidden: data =>
+                                !!data.image || !!data.image_oid || !!data.iframe || !!data.iframe_oid || !!data.html,
                         },
                         {
                             label: 'doNotWantIncludeWidgets',
@@ -173,12 +180,13 @@ class Html extends Generic {
         this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
 
         // inform view about, that this widget can include other widgets
-        this.props.askView && this.props.askView('update', {
-            id: this.props.id,
-            uuid: this.uuid,
-            canHaveWidgets: true,
-            doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
-        });
+        this.props.askView &&
+            this.props.askView('update', {
+                id: this.props.id,
+                uuid: this.uuid,
+                canHaveWidgets: true,
+                doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
+            });
 
         if (this.state.rxData.refreshOnWakeUp && !this.state.rxData.widget) {
             this.wakeUpInstalled = true;
@@ -265,13 +273,21 @@ class Html extends Generic {
         super.renderWidgetBody(props);
         const noCard = this.state.rxData.noCard || props.widget.usedInWidget;
 
-        if (typeof this.doNotWantIncludeWidgets === 'boolean' && this.doNotWantIncludeWidgets !== !!this.state.rxData.doNotWantIncludeWidgets) {
+        if (
+            typeof this.doNotWantIncludeWidgets === 'boolean' &&
+            this.doNotWantIncludeWidgets !== !!this.state.rxData.doNotWantIncludeWidgets
+        ) {
             this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
-            setTimeout(() => this.props.askView && this.props.askView('update', {
-                id: this.props.id,
-                uuid: this.uuid,
-                doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
-            }), 100);
+            setTimeout(
+                () =>
+                    this.props.askView &&
+                    this.props.askView('update', {
+                        id: this.props.id,
+                        uuid: this.uuid,
+                        doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
+                    }),
+                100,
+            );
         }
 
         const style = {
@@ -297,11 +313,13 @@ class Html extends Generic {
         let content;
 
         if (this.state.rxData.html) {
-            content = <div
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: this.state.rxData.html }}
-                style={style}
-            />;
+            content = (
+                <div
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: this.state.rxData.html }}
+                    style={style}
+                />
+            );
         }
 
         if (this.state.rxData.iframe_oid || this.state.rxData.iframe) {
@@ -310,14 +328,20 @@ class Html extends Generic {
 
             style.overflowX = this.state.rxData.scrollX ? 'scroll' : 'hidden';
             style.overflowY = this.state.rxData.scrollY ? 'scroll' : 'hidden';
-            content = <iframe
-                key={key}
-                title={this.props.id}
-                seamless={this.state.rxData.seamless}
-                src={this.getUrl()}
-                style={style}
-                sandbox={this.state.rxData.noSandbox ? undefined : 'allow-scripts allow-same-origin allow-modals allow-forms allow-pointer-lock allow-popups'}
-            ></iframe>;
+            content = (
+                <iframe
+                    key={key}
+                    title={this.props.id}
+                    seamless={this.state.rxData.seamless}
+                    src={this.getUrl()}
+                    style={style}
+                    sandbox={
+                        this.state.rxData.noSandbox
+                            ? undefined
+                            : 'allow-scripts allow-same-origin allow-modals allow-forms allow-pointer-lock allow-popups'
+                    }
+                ></iframe>
+            );
         }
 
         if (this.state.rxData.image || this.state.rxData.image_oid) {
@@ -334,12 +358,14 @@ class Html extends Generic {
 
             style.objectFit = this.state.rxData.objectFit;
 
-            content = <img
-                key={key}
-                src={this.getUrl()}
-                style={style}
-                alt={this.props.id}
-            />;
+            content = (
+                <img
+                    key={key}
+                    src={this.getUrl()}
+                    style={style}
+                    alt={this.props.id}
+                />
+            );
         }
 
         if (this.state.rxData.widget) {
@@ -347,7 +373,8 @@ class Html extends Generic {
 
             const wid = this.state.rxData.widget;
             const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
-            if (widget && this.getWidgetInWidget && wid !== this.props.id) { // todo: remove this condition after vis release
+            if (widget && this.getWidgetInWidget && wid !== this.props.id) {
+                // todo: remove this condition after vis release
                 // come again when the ref is filled
                 if (!this.widgetRef.current) {
                     setTimeout(() => this.forceUpdate(), 50);
@@ -355,12 +382,16 @@ class Html extends Generic {
                 style.justifyContent = 'center';
                 style.display = 'flex';
                 style.alignItems = 'center';
-                content = <div
-                    ref={this.widgetRef}
-                    style={style}
-                >
-                    {this.widgetRef.current ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef }) : null}
-                </div>;
+                content = (
+                    <div
+                        ref={this.widgetRef}
+                        style={style}
+                    >
+                        {this.widgetRef.current
+                            ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef })
+                            : null}
+                    </div>
+                );
             }
         }
 

@@ -8,10 +8,12 @@ const styles = {
         position: 'absolute',
         borderColor: '#a5aaad',
         borderStyle: 'solid',
-        background: 'linear-gradient(to bottom, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%)',
+        background:
+            'linear-gradient(to bottom, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%)',
     },
     blindBlind: {
-        backgroundImage: 'linear-gradient(0deg, #949494 4.55%, #c9c9c9 4.55%, #c9c9c9 50%, #949494 50%, #949494 54.55%, #c9c9c9 54.55%, #c9c9c9 100%)',
+        backgroundImage:
+            'linear-gradient(0deg, #949494 4.55%, #c9c9c9 4.55%, #c9c9c9 50%, #949494 50%, #949494 54.55%, #c9c9c9 54.55%, #c9c9c9 100%)',
         backgroundSize: '100% 20px',
         backgroundPosition: 'center bottom',
         width: '100%',
@@ -46,7 +48,8 @@ const styles = {
         height: '100%',
         boxSizing: 'border-box',
         borderStyle: 'solid',
-        background: 'linear-gradient(45deg, rgba(221, 231, 243, 0.7) 0%, rgba(120, 132, 146, 0.7) 52%, rgba(166, 178, 190, 0.7) 68%, rgba(201, 206, 210, 0.7) 100%)',
+        background:
+            'linear-gradient(45deg, rgba(221, 231, 243, 0.7) 0%, rgba(120, 132, 146, 0.7) 52%, rgba(166, 178, 190, 0.7) 68%, rgba(201, 206, 210, 0.7) 100%)',
         transitionProperty: 'transform',
         transitionDuration: '0.3s',
         transformOrigin: '0 100%',
@@ -79,8 +82,7 @@ const styles = {
         transform: 'skew(-10deg, 0deg) scale(1, 0.9)',
         transformOrigin: '0 100%',
     },
-    blindHandleBG: {
-    },
+    blindHandleBG: {},
     blindHandleTiltedBG: {
         background: 'linear-gradient(to bottom, rgba(241, 231, 103, 1) 0%, rgba(254, 182, 69, 1) 100%)',
     },
@@ -107,18 +109,20 @@ class BlindsBase extends Generic {
     }
 
     getMinMaxPosition(index, indexOfButton) {
-        const stopOid     = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
-        let   positionOid = index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
-        let   invert      = index && !this.state.rxData.oid ? this.state.rxData[`slideInvert${index}`] : this.state.rxData.invert;
+        const stopOid = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
+        let positionOid =
+            index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
+        let invert =
+            index && !this.state.rxData.oid ? this.state.rxData[`slideInvert${index}`] : this.state.rxData.invert;
 
         if (indexOfButton !== undefined) {
             positionOid = this.state.objects[indexOfButton]._id;
-            invert      = this.state.rxData[`slideInvert${indexOfButton}`];
+            invert = this.state.rxData[`slideInvert${indexOfButton}`];
         }
 
         if (index && (positionOid === 'nothing_selected' || !positionOid)) {
             positionOid = this.state.rxData.oid;
-            invert      = this.state.rxData.invert;
+            invert = this.state.rxData.invert;
         }
 
         let min;
@@ -216,27 +220,36 @@ class BlindsBase extends Generic {
 
     renderBlindsDialog() {
         if (this.state.showBlindsDialog !== null) {
-            const data = this.getMinMaxPosition(this.state.showBlindsDialog === true ? 0 : this.state.showBlindsDialog, this.state.showBlindsDialogIndexOfButton);
+            const data = this.getMinMaxPosition(
+                this.state.showBlindsDialog === true ? 0 : this.state.showBlindsDialog,
+                this.state.showBlindsDialogIndexOfButton,
+            );
 
-            return <DialogBlinds
-                onClose={() => {
-                    this.lastClick = Date.now();
-                    this.setState({ showBlindsDialog: null });
-                }}
-                onStop={data.stopOid && data.stopOid !== 'nothing_selected' ? () => this.props.context.setValue(data.stopOid, { val: true, ack: false }) : null}
-                onValueChange={value => {
-                    // calculate real value
-                    if (data.invert) {
-                        value = 100 - value;
+            return (
+                <DialogBlinds
+                    onClose={() => {
+                        this.lastClick = Date.now();
+                        this.setState({ showBlindsDialog: null });
+                    }}
+                    onStop={
+                        data.stopOid && data.stopOid !== 'nothing_selected'
+                            ? () => this.props.context.setValue(data.stopOid, { val: true, ack: false })
+                            : null
                     }
+                    onValueChange={value => {
+                        // calculate real value
+                        if (data.invert) {
+                            value = 100 - value;
+                        }
 
-                    value = ((data.max - data.min) / 100) * value + data.min;
+                        value = ((data.max - data.min) / 100) * value + data.min;
 
-                    this.props.context.setValue(data.positionOid, value);
-                }}
-                startValue={data.shutterPos}
-                type={DialogBlinds.types.blinds}
-            />;
+                        this.props.context.setValue(data.positionOid, value);
+                    }}
+                    startValue={data.shutterPos}
+                    type={DialogBlinds.types.blinds}
+                />
+            );
         }
 
         return null;
@@ -255,7 +268,13 @@ class BlindsBase extends Generic {
             } else if (handlePos === 1 || handlePos === '1') {
                 handlePos = 2;
             }
-            if (handlePos === '1' || handlePos === true || handlePos === 'true' || handlePos === 'open' || handlePos === 'opened') {
+            if (
+                handlePos === '1' ||
+                handlePos === true ||
+                handlePos === 'true' ||
+                handlePos === 'open' ||
+                handlePos === 'opened'
+            ) {
                 handlePos = 1;
             } else if (handlePos === '2' || handlePos === 'tilt' || handlePos === 'tilted') {
                 handlePos = 2;
@@ -268,7 +287,13 @@ class BlindsBase extends Generic {
             if (slidePos === 2 || slidePos === '2') {
                 slidePos = 2;
             }
-            if (slidePos === '1' || slidePos === true || slidePos === 'true' || slidePos === 'open' || slidePos === 'opened') {
+            if (
+                slidePos === '1' ||
+                slidePos === true ||
+                slidePos === 'true' ||
+                slidePos === 'open' ||
+                slidePos === 'opened'
+            ) {
                 slidePos = 1;
             } else if (slidePos === '2' || slidePos === 'tilt' || slidePos === 'tilted') {
                 slidePos = 2;
@@ -328,54 +353,73 @@ class BlindsBase extends Generic {
                 }
             }
 
-            divHandle = <div
-                className="vis-2-blinds-handle"
-                style={{
-                    ...styles.blindHandle,
-                    ...(handlePos === 2 ? styles.blindHandleTiltedBG : undefined),
-                    ...style,
-                }}
-            />;
+            divHandle = (
+                <div
+                    className="vis-2-blinds-handle"
+                    style={{
+                        ...styles.blindHandle,
+                        ...(handlePos === 2 ? styles.blindHandleTiltedBG : undefined),
+                        ...style,
+                    }}
+                />
+            );
         }
 
-        return <div
-            key={index}
-            className="vis-2-blinds-outside"
-            style={{
-                ...styles.blindBlind1,
-                borderWidth: options.borderWidth,
-                borderColor: '#a9a7a8',
-                flex: options.flex || 1,
-            }}
-        >
+        return (
             <div
-                className="vis-2-blinds-inside"
-                style={{ ...styles.blindBlind2, borderWidth: options.borderWidth }}
-                onClick={data.customOid ? e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.lastClick = Date.now();
-                    this.setState({ showBlindsDialog: index, showBlindsDialogIndexOfButton: options.indexOfButton });
-                } : undefined}
+                key={index}
+                className="vis-2-blinds-outside"
+                style={{
+                    ...styles.blindBlind1,
+                    borderWidth: options.borderWidth,
+                    borderColor: '#a9a7a8',
+                    flex: options.flex || 1,
+                }}
             >
-                <div style={styles.blindBlind3} className="vis-2-blinds-inside-2">
-                    <div style={{ ...styles.blindBlind, height: `${100 - data.shutterPos}%` }} className="vis-2-blinds-closed" />
+                <div
+                    className="vis-2-blinds-inside"
+                    style={{ ...styles.blindBlind2, borderWidth: options.borderWidth }}
+                    onClick={
+                        data.customOid
+                            ? e => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  this.lastClick = Date.now();
+                                  this.setState({
+                                      showBlindsDialog: index,
+                                      showBlindsDialogIndexOfButton: options.indexOfButton,
+                                  });
+                              }
+                            : undefined
+                    }
+                >
                     <div
-                        className="vis-2-blinds-opened"
-                        style={{
-                            ...styles.blindBlind4,
-                            ...(options.type ? styles[`blindBlind4_${options.type}`] : undefined),
-                            ...(slidePos === 1 && options.type ? styles[`blindBlind4Opened_${options.type}`] : undefined),
-                            ...(slidePos === 2 && options.type ? styles.blindBlind4_tilted : undefined),
-                            borderWidth: options.borderWidth,
-                            borderColor: '#a5aaad',
-                        }}
+                        style={styles.blindBlind3}
+                        className="vis-2-blinds-inside-2"
                     >
-                        {divHandle}
+                        <div
+                            style={{ ...styles.blindBlind, height: `${100 - data.shutterPos}%` }}
+                            className="vis-2-blinds-closed"
+                        />
+                        <div
+                            className="vis-2-blinds-opened"
+                            style={{
+                                ...styles.blindBlind4,
+                                ...(options.type ? styles[`blindBlind4_${options.type}`] : undefined),
+                                ...(slidePos === 1 && options.type
+                                    ? styles[`blindBlind4Opened_${options.type}`]
+                                    : undefined),
+                                ...(slidePos === 2 && options.type ? styles.blindBlind4_tilted : undefined),
+                                borderWidth: options.borderWidth,
+                                borderColor: '#a5aaad',
+                            }}
+                        >
+                            {divHandle}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>;
+        );
     }
 
     renderWindows(size, indexOfButton) {
@@ -432,10 +476,10 @@ class BlindsBase extends Generic {
         const sashCount = this.state.rxData.sashCount !== undefined ? this.state.rxData.sashCount : 1;
         for (let i = 1; i <= sashCount; i++) {
             const options = {
-                slideOid:  this.state.rxData[`slideSensor_oid${i}`],
+                slideOid: this.state.rxData[`slideSensor_oid${i}`],
                 handleOid: this.state.rxData[`slideHandle_oid${i}`],
-                type:      this.state.rxData[`slideType${i}`],
-                flex:      this.state.rxData[`slideRatio${i}`],
+                type: this.state.rxData[`slideType${i}`],
+                flex: this.state.rxData[`slideRatio${i}`],
                 borderWidth,
                 size,
                 indexOfButton,
@@ -455,9 +499,7 @@ class BlindsBase extends Generic {
             alignItems: 'stretch',
             margin: 'auto',
         };
-        return <div style={style}>
-            {windows}
-        </div>;
+        return <div style={style}>{windows}</div>;
     }
 }
 

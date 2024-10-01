@@ -61,15 +61,17 @@ const LockAnimation = props => {
         // ref.current?.stop();
     }, [props.open]);
 
-    return <Lottie
-        animationData={json}
-        onClick={() => setOpen(!open)}
-        lottieRef={ref}
-        autoPlay={false}
-        loop={false}
-        // start={200}
-        style={{ height: props.size || 40, ...props.style }}
-    />;
+    return (
+        <Lottie
+            animationData={json}
+            onClick={() => setOpen(!open)}
+            lottieRef={ref}
+            autoPlay={false}
+            loop={false}
+            // start={200}
+            style={{ height: props.size || 40, ...props.style }}
+        />
+    );
 };
 
 export default LockAnimation;

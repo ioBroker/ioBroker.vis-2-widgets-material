@@ -16,14 +16,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    Button,
-    Fab,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, IconButton, Button, Fab } from '@mui/material';
 
 import { darken } from '@mui/system';
 
@@ -62,7 +55,8 @@ const styles = {
         overflow: 'hidden',
         background: 'white',
         cursor: 'pointer',
-        boxShadow: '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)',
+        boxShadow:
+            '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)',
         height: '20em',
         boxSizing: 'border-box',
     },
@@ -126,8 +120,10 @@ class DialogBlinds extends Component {
         this.setState({ value });
 
         if (Date.now() - this.state.lastControl > 200 && this.type !== DialogBlinds.types.blinds) {
-            this.setState({ lastControl: Date.now() }, () =>
-                this.props.onValueChange && this.props.onValueChange(value));
+            this.setState(
+                { lastControl: Date.now() },
+                () => this.props.onValueChange && this.props.onValueChange(value),
+            );
         }
     }
 
@@ -239,8 +235,7 @@ class DialogBlinds extends Component {
                 default:
                     break;
             }
-            this.setState({ value }, () =>
-                this.props.onValueChange && this.props.onValueChange(value));
+            this.setState({ value }, () => this.props.onValueChange && this.props.onValueChange(value));
         }, 400);
     }
 
@@ -306,7 +301,7 @@ class DialogBlinds extends Component {
     getValueText() {
         let unit = '%';
         if (this.props.type !== DialogBlinds.types.blinds && this.props.type !== DialogBlinds.types.dimmer) {
-            unit = (this.props.unit || '');
+            unit = this.props.unit || '';
         }
 
         return this.state.value + unit;
@@ -316,15 +311,17 @@ class DialogBlinds extends Component {
         if (!this.props.onToggle) {
             return null;
         }
-        return <Fab
-            key={`${this.props.dialogKey}-toggle-button`}
-            active={this.props.startToggleValue}
-            onClick={this.props.onToggle}
-            className="dimmer-button"
-            style={styles.buttonToggleStyle}
-        >
-            <IconLamp />
-        </Fab>;
+        return (
+            <Fab
+                key={`${this.props.dialogKey}-toggle-button`}
+                active={this.props.startToggleValue}
+                onClick={this.props.onToggle}
+                className="dimmer-button"
+                style={styles.buttonToggleStyle}
+            >
+                <IconLamp />
+            </Fab>
+        );
     }
 
     getStopButton() {
@@ -332,14 +329,16 @@ class DialogBlinds extends Component {
             return null;
         }
 
-        return <Fab
-            style={styles.buttonStopStyle}
-            size="small"
-            onClick={this.props.onStop}
-            color="secondary"
-        >
-            <IconStop />
-        </Fab>;
+        return (
+            <Fab
+                style={styles.buttonStopStyle}
+                size="small"
+                onClick={this.props.onStop}
+                color="secondary"
+            >
+                <IconStop />
+            </Fab>
+        );
     }
 
     generateContent() {
@@ -365,7 +364,8 @@ class DialogBlinds extends Component {
         if (this.props.type === DialogBlinds.types.blinds) {
             sliderStyle.top = 0;
             handlerStyle.bottom = '0.4em';
-            sliderStyle.backgroundImage = 'linear-gradient(0deg, #949494 4.55%, #c9c9c9 4.55%, #c9c9c9 50%, #949494 50%, #949494 54.55%, #c9c9c9 54.55%, #c9c9c9 100%)';
+            sliderStyle.backgroundImage =
+                'linear-gradient(0deg, #949494 4.55%, #c9c9c9 4.55%, #c9c9c9 50%, #949494 50%, #949494 54.55%, #c9c9c9 54.55%, #c9c9c9 100%)';
             sliderStyle.backgroundSize = '100% 2.5em';
             sliderStyle.backgroundPosition = 'center bottom';
         } else {
@@ -373,49 +373,70 @@ class DialogBlinds extends Component {
             handlerStyle.top = '0.4em';
         }
 
-        return <div style={styles.wrapperSlider} className="vis-2-slider-wrapper">
-            <div style={styles.wrapperSliderBlock} className="vis-2-slider-wrapper-block">
-                <Button variant="outlined" onClick={e => this.onButtonDown(e, 'top')}>
-                    {this.getTopButtonName()}
-                </Button>
+        return (
+            <div
+                style={styles.wrapperSlider}
+                className="vis-2-slider-wrapper"
+            >
                 <div
-                    className="vis-2-slider-blind"
-                    ref={this.refSlider}
-                    onMouseDown={this.onMouseDown}
-                    onTouchStart={this.onMouseDown}
-                    onClick={e => e.stopPropagation()}
-                    style={styles.sliderStyle}
+                    style={styles.wrapperSliderBlock}
+                    className="vis-2-slider-wrapper-block"
                 >
-                    <div style={sliderStyle} className="vis-2-slider-inside">
-                        <div style={handlerStyle} className="vis-2-slider-handler" />
+                    <Button
+                        variant="outlined"
+                        onClick={e => this.onButtonDown(e, 'top')}
+                    >
+                        {this.getTopButtonName()}
+                    </Button>
+                    <div
+                        className="vis-2-slider-blind"
+                        ref={this.refSlider}
+                        onMouseDown={this.onMouseDown}
+                        onTouchStart={this.onMouseDown}
+                        onClick={e => e.stopPropagation()}
+                        style={styles.sliderStyle}
+                    >
+                        <div
+                            style={sliderStyle}
+                            className="vis-2-slider-inside"
+                        >
+                            <div
+                                style={handlerStyle}
+                                className="vis-2-slider-handler"
+                            />
+                        </div>
                     </div>
+                    <Button
+                        variant="outlined"
+                        onClick={e => this.onButtonDown(e, 'bottom')}
+                    >
+                        {this.getBottomButtonName()}
+                    </Button>
                 </div>
-                <Button variant="outlined" onClick={e => this.onButtonDown(e, 'bottom')}>
-                    {this.getBottomButtonName()}
-                </Button>
+                {this.getToggleButton()}
             </div>
-            {this.getToggleButton()}
-        </div>;
+        );
     }
 
     render() {
-        return <Dialog
-            open={!0}
-            onClose={() => this.props.onClose()}
-        >
-            <DialogTitle style={styles.dialogTitle}>
-                {this.getStopButton()}
-                <div style={styles.sliderText}>
-                    {this.getValueText()}
-                </div>
-                <IconButton onClick={() => this.props.onClose()} style={{ float: 'right' }}>
-                    <CloseIcon />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent>
-                {this.generateContent()}
-            </DialogContent>
-        </Dialog>;
+        return (
+            <Dialog
+                open={!0}
+                onClose={() => this.props.onClose()}
+            >
+                <DialogTitle style={styles.dialogTitle}>
+                    {this.getStopButton()}
+                    <div style={styles.sliderText}>{this.getValueText()}</div>
+                    <IconButton
+                        onClick={() => this.props.onClose()}
+                        style={{ float: 'right' }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>{this.generateContent()}</DialogContent>
+            </Dialog>
+        );
     }
 }
 

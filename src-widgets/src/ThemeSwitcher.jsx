@@ -13,7 +13,7 @@ class ThemeSwitcher extends Generic {
             id: 'tplMaterial2ThemeSwitcher',
             visSet: 'vis-2-widgets-material',
             visName: 'Theme switcher',
-            visWidgetLabel: 'theme_switcher',  // Label of widget
+            visWidgetLabel: 'theme_switcher', // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -92,7 +92,9 @@ class ThemeSwitcher extends Generic {
             themeName = this.state.rxData.themeName;
         } else if (this.state.rxData.themeType === 'variable') {
             // get the last theme from local storage
-            themeName = window.localStorage.getItem('App.themeName') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            themeName =
+                window.localStorage.getItem('App.themeName') ||
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         }
         this.setState({ themeName }, () => this.setViewTheme(themeName));
     }
@@ -118,58 +120,67 @@ class ThemeSwitcher extends Generic {
         super.renderWidgetBody(props);
         if (this.state.rxData.themeType === 'system' || this.state.rxData.themeType === 'static') {
             if (this.props.editMode) {
-                return <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: '100%',
-                        height: '100%',
-                    }}
-                >
-                    <ToggleThemeMenu
+                return (
+                    <div
                         style={{
+                            display: 'flex',
+                            alignItems: 'center',
                             width: '100%',
-                            textAlign: 'center',
+                            height: '100%',
                         }}
-                        themeName={this.state.themeName}
-                        toggleTheme={() => { }}
-                        t={I18n.t}
-                    />
-                </div>;
+                    >
+                        <ToggleThemeMenu
+                            style={{
+                                width: '100%',
+                                textAlign: 'center',
+                            }}
+                            themeName={this.state.themeName}
+                            toggleTheme={() => {}}
+                            t={I18n.t}
+                        />
+                    </div>
+                );
             }
             return null;
         }
         if (this.state.rxData.themeType === 'variable') {
-            return <Button
-                variant={this.state.rxData.variant}
-                style={{
-                    width: '100%',
-                    height: '100%',
-                }}
-                onClick={e => {
-                    e.stopPropagation();
-                    const themeName = this.state.themeName;
+            return (
+                <Button
+                    variant={this.state.rxData.variant}
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                    }}
+                    onClick={e => {
+                        e.stopPropagation();
+                        const themeName = this.state.themeName;
 
-                    let newThemeName;
-                    if (this.state.rxData.simple) {
-                        newThemeName = themeName === 'dark' ? 'light' : 'dark';
-                    } else {
-                        // dark => blue => colored => light => dark
-                        newThemeName = themeName === 'dark' ? 'blue' :
-                            (themeName === 'blue' ? 'colored' :
-                                (themeName === 'colored' ? 'light' : 'dark'));
-                    }
+                        let newThemeName;
+                        if (this.state.rxData.simple) {
+                            newThemeName = themeName === 'dark' ? 'light' : 'dark';
+                        } else {
+                            // dark => blue => colored => light => dark
+                            newThemeName =
+                                themeName === 'dark'
+                                    ? 'blue'
+                                    : themeName === 'blue'
+                                      ? 'colored'
+                                      : themeName === 'colored'
+                                        ? 'light'
+                                        : 'dark';
+                        }
 
-                    window.localStorage.setItem('App.themeName', newThemeName);
-                    this.setState({ themeName: newThemeName }, () => this.setViewTheme(newThemeName));
-                }}
-            >
-                <ToggleThemeMenu
-                    themeName={this.state.themeName}
-                    toggleTheme={() => { }}
-                    t={I18n.t}
-                />
-            </Button>;
+                        window.localStorage.setItem('App.themeName', newThemeName);
+                        this.setState({ themeName: newThemeName }, () => this.setViewTheme(newThemeName));
+                    }}
+                >
+                    <ToggleThemeMenu
+                        themeName={this.state.themeName}
+                        toggleTheme={() => {}}
+                        t={I18n.t}
+                    />
+                </Button>
+            );
         }
 
         return null;

@@ -684,7 +684,7 @@ class RGBLight extends Generic {
         return this.state.rgbObjects.brightness && <div style={styles.rgbSliderContainer}>
             <Tooltip
                 title={Generic.t('Brightness')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <Brightness6 />
             </Tooltip>
@@ -720,7 +720,7 @@ class RGBLight extends Generic {
         return !this.rgbIsOnlyHue() && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
             {whiteMode !== null ? <Tooltip
                 title={Generic.t('Switch white mode')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
                     <WbAuto />
@@ -728,7 +728,7 @@ class RGBLight extends Generic {
             </Tooltip> : null}
             {!this.state.rxData.noRgbPalette && whiteMode !== true ? <Tooltip
                 title={Generic.t('Switch color picker')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
                     <ColorLens />
@@ -796,7 +796,7 @@ class RGBLight extends Generic {
         return <div style={styles.rgbSliderContainer}>
             <Tooltip
                 title={Generic.t('Color temperature')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <Thermostat />
             </Tooltip>

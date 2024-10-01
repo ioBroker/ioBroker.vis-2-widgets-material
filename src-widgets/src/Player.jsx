@@ -3,13 +3,18 @@ import Color from 'color';
 import ColorThief from 'colorthief';
 
 import {
-    PauseRounded, PlayArrowRounded, SkipNextRounded, SkipPreviousRounded,
-    RepeatRounded, RepeatOneRounded, ShuffleRounded, VolumeUp, VolumeMute,
+    PauseRounded,
+    PlayArrowRounded,
+    SkipNextRounded,
+    SkipPreviousRounded,
+    RepeatRounded,
+    RepeatOneRounded,
+    ShuffleRounded,
+    VolumeUp,
+    VolumeMute,
 } from '@mui/icons-material';
 
-import {
-    Card, CardContent, IconButton, Slider,
-} from '@mui/material';
+import { Card, CardContent, IconButton, Slider } from '@mui/material';
 import Generic from './Generic';
 
 const styles = {
@@ -27,11 +32,11 @@ const styles = {
     seek: { display: 'flex', alignItems: 'center', gap: 10 },
     buttons: { display: 'flex' },
     mode: { display: 'flex' },
-    title:  {
+    title: {
         fontSize: '140%',
         minHeight: 29.6,
     },
-    artist:  {
+    artist: {
         minHeight: 21.6,
     },
     zIndex: { zIndex: 1 },
@@ -55,7 +60,20 @@ const styles = {
     }),
 };
 
-const mediaTypes = ['title', 'artist', 'cover', 'state', 'duration', 'elapsed', 'prev', 'next', 'volume', 'mute', 'repeat', 'shuffle'];
+const mediaTypes = [
+    'title',
+    'artist',
+    'cover',
+    'state',
+    'duration',
+    'elapsed',
+    'prev',
+    'next',
+    'volume',
+    'mute',
+    'repeat',
+    'shuffle',
+];
 
 const loadStates = async (field, data, changeData, socket) => {
     if (data[field.name]) {
@@ -68,7 +86,12 @@ const loadStates = async (field, data, changeData, socket) => {
                 const currentMediaTypes = [...mediaTypes];
                 Object.values(states).forEach(state => {
                     const role = state?.common?.role?.match(/^(media\.mode|media|button|level)\.(.*)$/)?.[2];
-                    if (role && currentMediaTypes.includes(role) && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                    if (
+                        role &&
+                        currentMediaTypes.includes(role) &&
+                        (!data[role] || data[role] === 'nothing_selected') &&
+                        field !== role
+                    ) {
                         currentMediaTypes.splice(currentMediaTypes.indexOf(role), 1);
                         data[role] = state._id;
                     }
@@ -239,7 +262,9 @@ class Player extends Generic {
         if (seconds === undefined || seconds === null) {
             return '-:-';
         }
-        return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
+        return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60)
+            .toString()
+            .padStart(2, '0')}`;
     };
 
     getColor() {
@@ -259,105 +284,117 @@ class Player extends Generic {
             coverUrl = `..${coverUrl}`;
         }
 
-        return <Card
-            style={{
-                width: 'calc(100% - 8px)',
-                height: 'calc(100% - 8px)',
-                margin: 4,
-                position: 'relative',
-                backgroundImage: 'none',
-                backgroundColor: coverColor ? `rgb(${coverColor.join(', ')}` : null,
-                color,
-            }}
-            onClick={onCardClick}
-            className="playerContent"
-        >
-            <style>
-                {color ? `
+        return (
+            <Card
+                style={{
+                    width: 'calc(100% - 8px)',
+                    height: 'calc(100% - 8px)',
+                    margin: 4,
+                    position: 'relative',
+                    backgroundImage: 'none',
+                    backgroundColor: coverColor ? `rgb(${coverColor.join(', ')}` : null,
+                    color,
+                }}
+                onClick={onCardClick}
+                className="playerContent"
+            >
+                <style>
+                    {color
+                        ? `
                 .playerContent button:not(.MuiIconButton-colorPrimary) .MuiSvgIcon-root {
                     color: ${color};
                 }
-            ` : null}
-            </style>
-            {coverUrl ?
-                <div style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    top: 0,
-                    left: 0,
-                }}
-                >
-                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                        <img
-                            src={coverUrl}
-                            alt="cover"
-                            crossOrigin="anonymous"
-                            ref={this.coverRef}
-                            style={{ maxWidth: 0, maxHeight: 0, position: 'absolute' }}
-                            onLoad={() => {
-                                const img = this.coverRef.current;
-                                const colorThief = new ColorThief();
-                                const _coverColor = colorThief.getColor(img);
-                                this.setState({ coverColor: _coverColor });
-                            }}
-                        />
-                        <div style={{
-                            width: '70%',
-                            height: '100%',
-                            backgroundImage: `url(${coverUrl})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                            position: 'absolute',
-                            right: 0,
-                        }}
-                        />
-                        <div style={{
-                            position: 'absolute',
-                            width: '70%',
-                            height: '100%',
-                            right: 0,
-                            backgroundImage: coverColor ?
-                                `linear-gradient(to right, rgb(${coverColor.join(', ')}), rgba(${coverColor.join(', ')}, 0))`
-                                : null,
-                        }}
-                        ></div>
-                    </div>
-                </div>
-                : null}
-            <CardContent
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    height: '100%',
-                    position: 'relative',
-                    ...cardContentStyle,
-                }}
-            >
-                {this.state.rxData.widgetTitle ? <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    alignItems: 'center',
-                }}
-                >
+            `
+                        : null}
+                </style>
+                {coverUrl ? (
                     <div
                         style={{
-                            fontSize: 24,
-                            paddingTop: 0,
-                            paddingBottom: 4,
-                            ...headerStyle,
+                            position: 'absolute',
+                            width: '100%',
+                            height: '100%',
+                            top: 0,
+                            left: 0,
                         }}
                     >
-                        {this.state.rxData.widgetTitle}
+                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                            <img
+                                src={coverUrl}
+                                alt="cover"
+                                crossOrigin="anonymous"
+                                ref={this.coverRef}
+                                style={{ maxWidth: 0, maxHeight: 0, position: 'absolute' }}
+                                onLoad={() => {
+                                    const img = this.coverRef.current;
+                                    const colorThief = new ColorThief();
+                                    const _coverColor = colorThief.getColor(img);
+                                    this.setState({ coverColor: _coverColor });
+                                }}
+                            />
+                            <div
+                                style={{
+                                    width: '70%',
+                                    height: '100%',
+                                    backgroundImage: `url(${coverUrl})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                    position: 'absolute',
+                                    right: 0,
+                                }}
+                            />
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    width: '70%',
+                                    height: '100%',
+                                    right: 0,
+                                    backgroundImage: coverColor
+                                        ? `linear-gradient(to right, rgb(${coverColor.join(', ')}), rgba(${coverColor.join(', ')}, 0))`
+                                        : null,
+                                }}
+                            ></div>
+                        </div>
                     </div>
-                    {addToHeader || null}
-                </div> : (addToHeader || null)}
-                {content}
-            </CardContent>
-        </Card>;
+                ) : null}
+                <CardContent
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        height: '100%',
+                        position: 'relative',
+                        ...cardContentStyle,
+                    }}
+                >
+                    {this.state.rxData.widgetTitle ? (
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                width: '100%',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    fontSize: 24,
+                                    paddingTop: 0,
+                                    paddingBottom: 4,
+                                    ...headerStyle,
+                                }}
+                            >
+                                {this.state.rxData.widgetTitle}
+                            </div>
+                            {addToHeader || null}
+                        </div>
+                    ) : (
+                        addToHeader || null
+                    )}
+                    {content}
+                </CardContent>
+            </Card>
+        );
     }
 
     renderWidgetBody(props) {
@@ -390,143 +427,171 @@ class Player extends Generic {
             playerArtist = '---';
         }
 
-        const content = <div style={styles.content}>
-            <div style={styles.zIndex}>
-                <div style={styles.player}>
-                    {this.state.rxData.title && this.state.rxData.title !== 'nothing_selected' ? <div style={styles.title}>{playerTitle}</div> : null}
-                    {this.state.rxData.artist && this.state.rxData.artist !== 'nothing_selected' ? <div style={styles.artist}>{playerArtist}</div> : null}
-                    {(this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected') || (this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected') ? <div style={styles.mode}>
-                        {this.state.rxData.repeat && this.state.rxData.volume !== 'nothing_selected' ? <IconButton
-                            color={this.getPropertyValue('repeat') ? 'primary' : undefined}
-                            onClick={() => {
-                                let newValue = null;
-                                if (parseInt(this.getPropertyValue('repeat')) === 1) {
-                                    newValue = 2;
-                                } else if (parseInt(this.getPropertyValue('repeat')) === 2) {
-                                    newValue = 0;
-                                } else {
-                                    newValue = 1;
-                                }
-                                this.props.context.setValue(this.state.rxData.repeat, newValue);
-                            }}
-                        >
-                            {repeatIcon}
-                        </IconButton> : null}
-                        {this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected' ? <IconButton
-                            color={this.getPropertyValue('shuffle') ? 'primary' : undefined}
-                            onClick={() =>
-                                this.props.context.setValue(this.state.rxData.shuffle, !this.getPropertyValue('shuffle'))}
-                        >
-                            <ShuffleRounded />
-                        </IconButton> : null}
-                    </div> : null}
-                    <div style={styles.buttons}>
-                        {this.state.rxData.prev && this.state.rxData.prev !== 'nothing_selected' ?
-                            <IconButton onClick={() => this.props.context.setValue(this.state.rxData.prev, true)}>
-                                <SkipPreviousRounded fontSize="large" />
+        const content = (
+            <div style={styles.content}>
+                <div style={styles.zIndex}>
+                    <div style={styles.player}>
+                        {this.state.rxData.title && this.state.rxData.title !== 'nothing_selected' ? (
+                            <div style={styles.title}>{playerTitle}</div>
+                        ) : null}
+                        {this.state.rxData.artist && this.state.rxData.artist !== 'nothing_selected' ? (
+                            <div style={styles.artist}>{playerArtist}</div>
+                        ) : null}
+                        {(this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected') ||
+                        (this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected') ? (
+                            <div style={styles.mode}>
+                                {this.state.rxData.repeat && this.state.rxData.volume !== 'nothing_selected' ? (
+                                    <IconButton
+                                        color={this.getPropertyValue('repeat') ? 'primary' : undefined}
+                                        onClick={() => {
+                                            let newValue = null;
+                                            if (parseInt(this.getPropertyValue('repeat')) === 1) {
+                                                newValue = 2;
+                                            } else if (parseInt(this.getPropertyValue('repeat')) === 2) {
+                                                newValue = 0;
+                                            } else {
+                                                newValue = 1;
+                                            }
+                                            this.props.context.setValue(this.state.rxData.repeat, newValue);
+                                        }}
+                                    >
+                                        {repeatIcon}
+                                    </IconButton>
+                                ) : null}
+                                {this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected' ? (
+                                    <IconButton
+                                        color={this.getPropertyValue('shuffle') ? 'primary' : undefined}
+                                        onClick={() =>
+                                            this.props.context.setValue(
+                                                this.state.rxData.shuffle,
+                                                !this.getPropertyValue('shuffle'),
+                                            )
+                                        }
+                                    >
+                                        <ShuffleRounded />
+                                    </IconButton>
+                                ) : null}
+                            </div>
+                        ) : null}
+                        <div style={styles.buttons}>
+                            {this.state.rxData.prev && this.state.rxData.prev !== 'nothing_selected' ? (
+                                <IconButton onClick={() => this.props.context.setValue(this.state.rxData.prev, true)}>
+                                    <SkipPreviousRounded fontSize="large" />
+                                </IconButton>
+                            ) : null}
+                            <IconButton
+                                onClick={() => {
+                                    const st = this.getPropertyValue('state');
+                                    if (typeof st === 'string') {
+                                        this.props.context.setValue(
+                                            this.state.rxData.state,
+                                            st === 'play' ? 'pause' : 'play',
+                                        );
+                                    } else {
+                                        this.props.context.setValue(this.state.rxData.state, !st);
+                                    }
+                                }}
+                            >
+                                {playerState === 'play' || playerState === true ? (
+                                    <PauseRounded fontSize="large" />
+                                ) : (
+                                    <PlayArrowRounded fontSize="large" />
+                                )}
                             </IconButton>
-                            : null}
-                        <IconButton
-                            onClick={() => {
-                                const st = this.getPropertyValue('state');
-                                if (typeof st === 'string') {
-                                    this.props.context.setValue(this.state.rxData.state, st === 'play' ? 'pause' : 'play');
-                                } else {
-                                    this.props.context.setValue(this.state.rxData.state, !st);
-                                }
-                            }}
-                        >
-                            {playerState === 'play' || playerState === true ?
-                                <PauseRounded fontSize="large" /> :
-                                <PlayArrowRounded fontSize="large" />}
-                        </IconButton>
-                        {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? <IconButton onClick={() => this.props.context.setValue(this.state.rxData.next, true)}>
-                            <SkipNextRounded fontSize="large" />
-                        </IconButton> : null}
+                            {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? (
+                                <IconButton onClick={() => this.props.context.setValue(this.state.rxData.next, true)}>
+                                    <SkipNextRounded fontSize="large" />
+                                </IconButton>
+                            ) : null}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div style={styles.seek}>
-                {this.state.rxData.elapsed && this.state.rxData.elapsed !== 'nothing_selected' ? Player.getTimeString(this.getPropertyValue('elapsed')) : null}
-                {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? <Slider
-                    style={{ color }}
-                    sx={theme => ({
-                        color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
-                        height: 4,
-                        '& .MuiSlider-thumb': {
-                            width: 8,
-                            height: 8,
-                            transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
-                            '&:before': {
-                                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
-                            },
-                            '&.Mui-active': {
-                                width: 20,
-                                height: 20,
-                            },
-                            '&:hover, &.Mui-focusVisible': {
-                                boxShadow: `0px 0px 0px 8px ${
-                                    theme.palette.mode === 'dark' || color === 'white'
-                                        ? 'rgb(255 255 255 / 16%)'
-                                        : 'rgb(0 0 0 / 16%)'
-                                }`,
-                            },
-                        },
-                        '& .MuiSlider-rail': {
-                            opacity: 0.28,
-                        },
-                    })}
-                    size="small"
-                    min={0}
-                    max={this.getPropertyValue('duration') || 0}
-                    value={this.getPropertyValue('elapsed') || 0}
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={Player.getTimeString}
-                    readOnly
-                    // onChange={e =>
-                    //    this.props.context.setValue(this.state.rxData.elapsed, e.target.value)}
-                /> : null}
-                {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? Player.getTimeString(this.getPropertyValue('duration')) : null}
-            </div>
-            {(this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected') || (this.state.rxData.mute && this.state.rxData.mute !== 'nothing_selected') ?
-                <div style={styles.volume}>
-                    {this.state.rxData.mute ?
-                        <IconButton onClick={() =>
-                            this.props.context.setValue(this.state.rxData.mute, !this.getPropertyValue('mute'))}
-                        >
-                            {this.getPropertyValue('mute') ?
-                                <VolumeMute /> :
-                                <VolumeUp />}
-                        </IconButton>
-                        :
-                        null}
-                    {this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected' ? <Slider
-                        sx={styles.volumeSlider}
-                        style={{ color }}
-                        min={this.state.volumeObject?.common?.min || 0}
-                        max={this.state.volumeObject?.common?.max || 100}
-                        value={this.state.volume}
-                        valueLabelDisplay="auto"
-                        onChange={(e, value) => {
-                            this.setState({ volume: value }, () => {
-                                this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
-                                this.setVolumeTimer = setTimeout(
-                                    () => {
-                                        this.setVolumeTimer = null;
-                                        this.props.context.setValue(this.state.rxData.volume, this.state.volume);
+                <div style={styles.seek}>
+                    {this.state.rxData.elapsed && this.state.rxData.elapsed !== 'nothing_selected'
+                        ? Player.getTimeString(this.getPropertyValue('elapsed'))
+                        : null}
+                    {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected' ? (
+                        <Slider
+                            style={{ color }}
+                            sx={theme => ({
+                                color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
+                                height: 4,
+                                '& .MuiSlider-thumb': {
+                                    width: 8,
+                                    height: 8,
+                                    transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+                                    '&:before': {
+                                        boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
                                     },
-                                    200,
-                                );
-                            });
-                        }}
-                    /> : null}
-                </div> : null}
-        </div>;
+                                    '&.Mui-active': {
+                                        width: 20,
+                                        height: 20,
+                                    },
+                                    '&:hover, &.Mui-focusVisible': {
+                                        boxShadow: `0px 0px 0px 8px ${
+                                            theme.palette.mode === 'dark' || color === 'white'
+                                                ? 'rgb(255 255 255 / 16%)'
+                                                : 'rgb(0 0 0 / 16%)'
+                                        }`,
+                                    },
+                                },
+                                '& .MuiSlider-rail': {
+                                    opacity: 0.28,
+                                },
+                            })}
+                            size="small"
+                            min={0}
+                            max={this.getPropertyValue('duration') || 0}
+                            value={this.getPropertyValue('elapsed') || 0}
+                            valueLabelDisplay="auto"
+                            valueLabelFormat={Player.getTimeString}
+                            readOnly
+                            // onChange={e =>
+                            //    this.props.context.setValue(this.state.rxData.elapsed, e.target.value)}
+                        />
+                    ) : null}
+                    {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected'
+                        ? Player.getTimeString(this.getPropertyValue('duration'))
+                        : null}
+                </div>
+                {(this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected') ||
+                (this.state.rxData.mute && this.state.rxData.mute !== 'nothing_selected') ? (
+                    <div style={styles.volume}>
+                        {this.state.rxData.mute ? (
+                            <IconButton
+                                onClick={() =>
+                                    this.props.context.setValue(this.state.rxData.mute, !this.getPropertyValue('mute'))
+                                }
+                            >
+                                {this.getPropertyValue('mute') ? <VolumeMute /> : <VolumeUp />}
+                            </IconButton>
+                        ) : null}
+                        {this.state.rxData.volume && this.state.rxData.volume !== 'nothing_selected' ? (
+                            <Slider
+                                sx={styles.volumeSlider}
+                                style={{ color }}
+                                min={this.state.volumeObject?.common?.min || 0}
+                                max={this.state.volumeObject?.common?.max || 100}
+                                value={this.state.volume}
+                                valueLabelDisplay="auto"
+                                onChange={(e, value) => {
+                                    this.setState({ volume: value }, () => {
+                                        this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
+                                        this.setVolumeTimer = setTimeout(() => {
+                                            this.setVolumeTimer = null;
+                                            this.props.context.setValue(this.state.rxData.volume, this.state.volume);
+                                        }, 200);
+                                    });
+                                }}
+                            />
+                        ) : null}
+                    </div>
+                ) : null}
+            </div>
+        );
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            return <div style={{ width: '100%', height: '100%' }}>
-                {content}
-            </div>;
+            return <div style={{ width: '100%', height: '100%' }}>{content}</div>;
         }
 
         return this.wrapContent(content, null, {

@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-    Dialog, DialogContent, DialogTitle, IconButton, Switch,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, IconButton, Switch } from '@mui/material';
 
 import { Close as IconClose } from '@mui/icons-material';
 
@@ -55,7 +53,7 @@ class Static extends Generic {
             id: 'tplMaterial2Static',
             visSet: 'vis-2-widgets-material',
             visName: 'Static information',
-            visWidgetLabel: 'static_info',  // Label of widget
+            visWidgetLabel: 'static_info', // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -164,13 +162,20 @@ class Static extends Generic {
                 }
                 object.common = object.common || {};
                 object.isChart = !!(defaultHistory && object.common.custom && object.common.custom[defaultHistory]);
-                if (!this.state.rxData[`icon${i}`] && !this.state.rxData[`iconSmall${i}`] && !object.common.icon && (object.type === 'state' || object.type === 'channel')) {
+                if (
+                    !this.state.rxData[`icon${i}`] &&
+                    !this.state.rxData[`iconSmall${i}`] &&
+                    !object.common.icon &&
+                    (object.type === 'state' || object.type === 'channel')
+                ) {
                     const idArray = this.state.rxData[`oid${i}`].split('.');
 
                     // read channel
                     const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
                     if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
-                        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
+                        const grandParentObject = await this.props.context.socket.getObject(
+                            idArray.slice(0, -2).join('.'),
+                        );
                         if (grandParentObject?.common?.icon) {
                             object.common.icon = grandParentObject.common.icon;
                             if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
@@ -200,8 +205,7 @@ class Static extends Generic {
 
     componentDidMount() {
         super.componentDidMount();
-        this.propertiesUpdate()
-            .then(() => {});
+        this.propertiesUpdate().then(() => {});
     }
 
     async onRxDataChanged() {
@@ -210,7 +214,9 @@ class Static extends Generic {
 
     getStateIcon(key) {
         let icon = '';
-        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
+        const isEnabled =
+            this.state.objects[key].common.type === 'boolean' &&
+            this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (isEnabled) {
             icon = this.state.rxData[`iconEnabled${key}`] || this.state.rxData[`iconEnabledSmall${key}`];
         }
@@ -221,24 +227,29 @@ class Static extends Generic {
         }
 
         if (icon) {
-            icon = <Icon
-                src={icon}
-                style={{
-                    width: 24,
-                    height: 24,
-                }}
-            />;
+            icon = (
+                <Icon
+                    src={icon}
+                    style={{
+                        width: 24,
+                        height: 24,
+                    }}
+                />
+            );
         }
 
         return icon;
     }
 
     getColor(key) {
-        const isEnabled = this.state.objects[key].common.type === 'boolean' && this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
-        return isEnabled ?
-            this.state.rxData[`colorEnabled${key}`] || this.state.rxData[`color${key}`] || this.state.objects[key].common.color
-            :
-            this.state.rxData[`color${key}`] || this.state.objects[key].common.color;
+        const isEnabled =
+            this.state.objects[key].common.type === 'boolean' &&
+            this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
+        return isEnabled
+            ? this.state.rxData[`colorEnabled${key}`] ||
+                  this.state.rxData[`color${key}`] ||
+                  this.state.objects[key].common.color
+            : this.state.rxData[`color${key}`] || this.state.objects[key].common.color;
     }
 
     getValue(key, styleUpdateVal) {
@@ -255,18 +266,22 @@ class Static extends Generic {
             return state.toString();
         }
 
-        const onClick = object.isChart ? e => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.setState({ showDialog: key });
-        } : undefined;
+        const onClick = object.isChart
+            ? e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  this.setState({ showDialog: key });
+              }
+            : undefined;
 
         if (object?.common?.type === 'boolean') {
-            return <Switch
-                checked={state}
-                onClick={onClick}
-                style={{ cursor: onClick ? 'pointer' : 'default' }}
-            />;
+            return (
+                <Switch
+                    checked={state}
+                    onClick={onClick}
+                    style={{ cursor: onClick ? 'pointer' : 'default' }}
+                />
+            );
         }
         let val;
 
@@ -275,13 +290,15 @@ class Static extends Generic {
         } else {
             val = this.formatValue(state);
         }
-        return <span
-            key={`${val}valText`}
-            onClick={onClick}
-            style={{ ...styleUpdateVal, cursor: onClick ? 'pointer' : 'default' }}
-        >
-            {val}
-        </span>;
+        return (
+            <span
+                key={`${val}valText`}
+                onClick={onClick}
+                style={{ ...styleUpdateVal, cursor: onClick ? 'pointer' : 'default' }}
+            >
+                {val}
+            </span>
+        );
     }
 
     renderDialog() {
@@ -291,38 +308,43 @@ class Static extends Generic {
 
         const index = this.state.showDialog;
 
-        return <Dialog
-            sx={{ '& .MuiDialog-paper': { height: '100%' } }}
-            maxWidth="lg"
-            fullWidth
-            open={!0}
-            onClose={() => this.setState({ showDialog: null })}
-        >
-            <DialogTitle>
-                {this.state.rxData.widgetTitle}
-                <IconButton
-                    style={{ float: 'right' }}
-                    onClick={() => this.setState({ showDialog: null })}
-                >
-                    <IconClose />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent>
-                <ObjectChart
-                    t={word => Generic.t(word)}
-                    lang={Generic.getLanguage()}
-                    socket={this.props.context.socket}
-                    obj={this.state.objects[index]}
-                    chartTitle={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common?.name)}
-                    title=""
-                    themeType={this.props.context.themeType}
-                    defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
-                    noToolbar={false}
-                    systemConfig={this.props.context.systemConfig}
-                    dateFormat={this.props.context.systemConfig.common.dateFormat}
-                />
-            </DialogContent>
-        </Dialog>;
+        return (
+            <Dialog
+                sx={{ '& .MuiDialog-paper': { height: '100%' } }}
+                maxWidth="lg"
+                fullWidth
+                open={!0}
+                onClose={() => this.setState({ showDialog: null })}
+            >
+                <DialogTitle>
+                    {this.state.rxData.widgetTitle}
+                    <IconButton
+                        style={{ float: 'right' }}
+                        onClick={() => this.setState({ showDialog: null })}
+                    >
+                        <IconClose />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <ObjectChart
+                        t={word => Generic.t(word)}
+                        lang={Generic.getLanguage()}
+                        socket={this.props.context.socket}
+                        obj={this.state.objects[index]}
+                        chartTitle={
+                            this.state.rxData[`title${index}`] ||
+                            Generic.getText(this.state.objects[index].common?.name)
+                        }
+                        title=""
+                        themeType={this.props.context.themeType}
+                        defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
+                        noToolbar={false}
+                        systemConfig={this.props.context.systemConfig}
+                        dateFormat={this.props.context.systemConfig.common.dateFormat}
+                    />
+                </DialogContent>
+            </Dialog>
+        );
     }
 
     renderWidgetBody(props) {
@@ -330,47 +352,56 @@ class Static extends Generic {
 
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout = this.updateTimeout || setTimeout(async () => {
-                this.updateTimeout = null;
-                await this.propertiesUpdate();
-            }, 50);
+            this.updateTimeout =
+                this.updateTimeout ||
+                setTimeout(async () => {
+                    this.updateTimeout = null;
+                    await this.propertiesUpdate();
+                }, 50);
         }
 
         const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
         const anyIcon = icons.find(icon => icon);
         const styleUpdateVal = this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight;
 
-        const content = <>
-            {this.renderDialog()}
-            {Object.keys(this.state.objects).map((key, i) =>
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        width: '100%',
-                        alignItems: 'center',
-                    }}
-                    key={key}
-                >
-                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                        {anyIcon ? <span style={{
-                            width: 24,
-                            height: 24,
-                            display: 'inline-flex',
+        const content = (
+            <>
+                {this.renderDialog()}
+                {Object.keys(this.state.objects).map((key, i) => (
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
                             alignItems: 'center',
-                            justifyContent: 'center',
                         }}
-                        >
-                            {icons[i]}
-                        </span> : null}
-                        <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                            {this.state.rxData[`title${key}`] || Generic.getText(this.state.objects[key].common.name)}
+                        key={key}
+                    >
+                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            {anyIcon ? (
+                                <span
+                                    style={{
+                                        width: 24,
+                                        height: 24,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    {icons[i]}
+                                </span>
+                            ) : null}
+                            <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
+                                {this.state.rxData[`title${key}`] ||
+                                    Generic.getText(this.state.objects[key].common.name)}
+                            </span>
                         </span>
-                    </span>
 
-                    {this.getValue(key, styleUpdateVal)}
-                </div>)}
-        </>;
+                        {this.getValue(key, styleUpdateVal)}
+                    </div>
+                ))}
+            </>
+        );
 
         return this.wrapContent(content);
     }

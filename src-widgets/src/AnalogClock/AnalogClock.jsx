@@ -30,7 +30,8 @@ import AnalogClockBase from './AnalogClockBase';
 
 const TIME_DEGREE_OFFSET = 90;
 const calculateHourHandDegree = (hours, minutes) => hours * 30 + minutes * 0.5 - TIME_DEGREE_OFFSET;
-const calculateMinuteHandDegree = (hours, minutes, seconds) => hours * 360 + minutes * 6 + seconds / 12 - TIME_DEGREE_OFFSET;
+const calculateMinuteHandDegree = (hours, minutes, seconds) =>
+    hours * 360 + minutes * 6 + seconds / 12 - TIME_DEGREE_OFFSET;
 const calculateSecondHandDegree = (minutes, seconds) => minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
 
 const styles = {
@@ -68,50 +69,54 @@ class AnalogClock extends Component {
         const secondsWidth = this.props.size * 0.45;
         const handsHeight = Math.round(this.props.size / 50);
 
-        return <div style={{ ...styles.analogClock, ...this.props.style }}>
-            <AnalogClockBase
-                backgroundColor={this.props.backgroundColor || (this.props.themeType === 'dark' ? '#111' : '#EEE')}
-                ticksColor={this.props.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
-                handsColor={this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
-                secondHandColor={this.props.secondHandColor || '#F44336'}
-                showNumbers={this.props.showNumbers}
-                size={this.props.size}
-                withSeconds={this.props.withSeconds}
-            >
-                <div
-                    style={{
-                        ...styles.hourHand,
-                        width: this.props.size * 0.3,
-                        height: handsHeight,
-                        borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
-                        backgroundColor: this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
-                        transform: `rotate(${calculateHourHandDegree(hours, minutes)}deg) translateX(${(this.props.size * 0.3) / 2}px)`,
-                    }}
-                />
-                <div
-                    style={{
-                        ...styles.minuteHand,
-                        width: this.props.size * 0.4,
-                        height: handsHeight,
-                        borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
-                        backgroundColor: this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
-                        transform: `rotate(${calculateMinuteHandDegree(hours, minutes, seconds)}deg) translateX(${(this.props.size * 0.4) / 2}px)`,
-                    }}
-                />
-                {this.props.withSeconds ?
+        return (
+            <div style={{ ...styles.analogClock, ...this.props.style }}>
+                <AnalogClockBase
+                    backgroundColor={this.props.backgroundColor || (this.props.themeType === 'dark' ? '#111' : '#EEE')}
+                    ticksColor={this.props.ticksColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
+                    handsColor={this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121')}
+                    secondHandColor={this.props.secondHandColor || '#F44336'}
+                    showNumbers={this.props.showNumbers}
+                    size={this.props.size}
+                    withSeconds={this.props.withSeconds}
+                >
                     <div
                         style={{
-                            ...styles.secondHand,
-                            width: secondsWidth,
-                            height: this.props.size / 100,
-                            borderRadius: `0 ${Math.round(this.props.size / 500)}px ${Math.round(this.props.size / 500)}px 0`,
-                            backgroundColor: this.props.secondHandColor || '#F44336',
-                            transform: `rotate(${calculateSecondHandDegree(minutes, seconds)}deg) translateX(${secondsWidth / 2}px)`,
+                            ...styles.hourHand,
+                            width: this.props.size * 0.3,
+                            height: handsHeight,
+                            borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
+                            backgroundColor:
+                                this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
+                            transform: `rotate(${calculateHourHandDegree(hours, minutes)}deg) translateX(${(this.props.size * 0.3) / 2}px)`,
                         }}
                     />
-                    : null}
-            </AnalogClockBase>
-        </div>;
+                    <div
+                        style={{
+                            ...styles.minuteHand,
+                            width: this.props.size * 0.4,
+                            height: handsHeight,
+                            borderRadius: `0 ${Math.round(handsHeight / 2)}px ${Math.round(handsHeight / 2)}px 0`,
+                            backgroundColor:
+                                this.props.handsColor || (this.props.themeType === 'dark' ? '#dedede' : '#212121'),
+                            transform: `rotate(${calculateMinuteHandDegree(hours, minutes, seconds)}deg) translateX(${(this.props.size * 0.4) / 2}px)`,
+                        }}
+                    />
+                    {this.props.withSeconds ? (
+                        <div
+                            style={{
+                                ...styles.secondHand,
+                                width: secondsWidth,
+                                height: this.props.size / 100,
+                                borderRadius: `0 ${Math.round(this.props.size / 500)}px ${Math.round(this.props.size / 500)}px 0`,
+                                backgroundColor: this.props.secondHandColor || '#F44336',
+                                transform: `rotate(${calculateSecondHandDegree(minutes, seconds)}deg) translateX(${secondsWidth / 2}px)`,
+                            }}
+                        />
+                    ) : null}
+                </AnalogClockBase>
+            </div>
+        );
     }
 }
 

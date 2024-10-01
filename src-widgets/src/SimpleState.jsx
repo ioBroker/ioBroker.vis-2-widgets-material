@@ -1,14 +1,7 @@
 // ------------------- deprecated, use Switches.jsx instead -------------------
 import React from 'react';
 
-import {
-    Button,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    Slider,
-    IconButton, Box,
-} from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, Slider, IconButton, Box } from '@mui/material';
 
 import {
     Lightbulb as LightbulbIconOn,
@@ -88,7 +81,7 @@ const styles = {
         width: '100%',
         alignItems: 'center',
     },
-    allButtonsTitle:{
+    allButtonsTitle: {
         display: 'flex',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
@@ -159,14 +152,15 @@ class SimpleState extends Generic {
                                         if (Array.isArray(object.common.states)) {
                                             // convert to {'state1': 'state1', 'state2': 'state2', ...}
                                             const states = {};
-                                            object.common.states.forEach(state => states[state] = state);
+                                            object.common.states.forEach(state => (states[state] = state));
                                             object.common.states = states;
                                         }
                                         data.values_count = Object.keys(object.common.states).length;
                                         data.withStates = true;
                                         data.withNumber = false;
-                                        Object.keys(object.common.states).forEach((state, index) =>
-                                            data[`value${index + 1}`] = object.common.states[state]);
+                                        Object.keys(object.common.states).forEach(
+                                            (state, index) => (data[`value${index + 1}`] = object.common.states[state]),
+                                        );
                                         changeData(data);
                                     } else if (object?.common) {
                                         data.withNumber = object.common.type === 'number';
@@ -335,7 +329,7 @@ class SimpleState extends Generic {
         if (object.common.states && Array.isArray(object.common.states)) {
             // convert to {'state1': 'state1', 'state2': 'state2', ...}
             const states = {};
-            object.common.states.forEach(state => states[state] = state);
+            object.common.states.forEach(state => (states[state] = state));
             object.common.states = states;
         }
 
@@ -428,17 +422,24 @@ class SimpleState extends Generic {
                 size = parseFloat(this.state.rxData.iconSize);
                 style = undefined;
             }
-            icon = <Icon
-                src={icon}
-                style={{
-                    ...style,
-                    width: size,
-                    height: size,
-                    color,
-                }}
-            />;
+            icon = (
+                <Icon
+                    src={icon}
+                    style={{
+                        ...style,
+                        width: size,
+                        height: size,
+                        color,
+                    }}
+                />
+            );
         } else if (isOn) {
-            icon = <LightbulbIconOn color="primary" style={{ color }} />;
+            icon = (
+                <LightbulbIconOn
+                    color="primary"
+                    style={{ color }}
+                />
+            );
         } else {
             icon = <LightbulbIconOff style={{ color }} />;
         }
@@ -452,8 +453,8 @@ class SimpleState extends Generic {
         }
         isOn = isOn !== undefined ? isOn : this.isOn();
 
-        return isOn ?
-            this.state.rxData.colorEnabled || this.state.object.common.color
+        return isOn
+            ? this.state.rxData.colorEnabled || this.state.object.common.color
             : this.state.rxData.color || this.state.object.common.color;
     }
 
@@ -464,7 +465,10 @@ class SimpleState extends Generic {
             const values = JSON.parse(JSON.stringify(this.state.values));
             const oid = `${this.state.object._id}.val`;
             if (this.state.object.common.type === 'number') {
-                values[oid] = values[oid] === this.state.object.common.max ? this.state.object.common.min : this.state.object.common.max;
+                values[oid] =
+                    values[oid] === this.state.object.common.max
+                        ? this.state.object.common.min
+                        : this.state.object.common.max;
             } else {
                 values[oid] = !values[oid];
             }
@@ -491,78 +495,107 @@ class SimpleState extends Generic {
 
     renderDimmerDialog() {
         if (this.state.showDimmerDialog) {
-            const isLamp = this.state.object.common.min === 0 && (this.state.object.common.max === 100 || this.state.object.common.max === 1);
+            const isLamp =
+                this.state.object.common.min === 0 &&
+                (this.state.object.common.max === 100 || this.state.object.common.max === 1);
 
-            return <Dialog
-                fullWidth
-                maxWidth="sm"
-                open={!0}
-                onClose={() => this.setState({ showDimmerDialog: null })}
-            >
-                <DialogTitle>
-                    {this.state.rxData.title || this.state.object.common.name}
-                    <IconButton style={{ float: 'right' }} onClick={() => this.setState({ showDimmerDialog: null })}>
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    {this.state.object.common.states ?
-                        <div style={{ width: '100%', textAlign: 'center' }}>
-                            {Object.keys(this.state.object.common.states).map((state, i) =>
-                                <Button
-                                    key={`${state}_${i}`}
-                                    style={this.state.values[`${this.state.object._id}.val`] !== state ? styles.buttonInactive : undefined}
-                                    color={this.state.values[`${this.state.object._id}.val`] === state ? 'primary' : 'grey'}
-                                    onClick={() => this.controlSpecificState(state)}
-                                >
-                                    {this.state.object.common.states[state]}
-                                </Button>)}
-                        </div>
-                        :
-                        <>
-                            <div style={{ width: '100%', marginBottom: 20 }}>
-                                <Button
-                                    style={{
-                                        ...(this.state.values[`${this.state.object._id}.val`] === this.state.object.common.min ? undefined : styles.buttonInactive),
-                                        width: '50%',
-                                    }}
-                                    color="grey"
-                                    onClick={() => this.setOnOff(false)}
-                                    startIcon={isLamp ? <LightbulbIconOff /> : null}
-                                >
-                                    {isLamp ? Generic.t('OFF').replace('vis_2_widgets_material_', '') : this.state.object.common.min + (this.state.rxData.unit || this.state.object.common.unit || '') }
-                                </Button>
-                                <Button
-                                    style={{
-                                        width: '50%',
-                                        ...(this.state.values[`${this.state.object._id}.val`] === this.state.object.common.max ? undefined : styles.buttonInactive),
-                                    }}
-                                    color="primary"
-                                    onClick={() => this.setOnOff(true)}
-                                    startIcon={isLamp ? <LightbulbIconOn color="primary" /> : null}
-                                >
-                                    {isLamp ? Generic.t('ON').replace('vis_2_widgets_material_', '') : this.state.object.common.max + (this.state.rxData.unit || this.state.object.common.unit || '')}
-                                </Button>
+            return (
+                <Dialog
+                    fullWidth
+                    maxWidth="sm"
+                    open={!0}
+                    onClose={() => this.setState({ showDimmerDialog: null })}
+                >
+                    <DialogTitle>
+                        {this.state.rxData.title || this.state.object.common.name}
+                        <IconButton
+                            style={{ float: 'right' }}
+                            onClick={() => this.setState({ showDimmerDialog: null })}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent>
+                        {this.state.object.common.states ? (
+                            <div style={{ width: '100%', textAlign: 'center' }}>
+                                {Object.keys(this.state.object.common.states).map((state, i) => (
+                                    <Button
+                                        key={`${state}_${i}`}
+                                        style={
+                                            this.state.values[`${this.state.object._id}.val`] !== state
+                                                ? styles.buttonInactive
+                                                : undefined
+                                        }
+                                        color={
+                                            this.state.values[`${this.state.object._id}.val`] === state
+                                                ? 'primary'
+                                                : 'grey'
+                                        }
+                                        onClick={() => this.controlSpecificState(state)}
+                                    >
+                                        {this.state.object.common.states[state]}
+                                    </Button>
+                                ))}
                             </div>
-                            <div style={{ width: '100%' }}>
-                                <Slider
-                                    size="small"
-                                    value={this.state.values[`${this.state.object._id}.val`]}
-                                    valueLabelDisplay="auto"
-                                    min={this.state.object.common.min}
-                                    max={this.state.object.common.max}
-                                    onChange={(event, value) => {
-                                        const values = JSON.parse(JSON.stringify(this.state.values));
-                                        const oid = `${this.state.object._id}.val`;
-                                        values[oid] = value;
-                                        this.setState({ values });
-                                        this.props.context.setValue(this.state.rxData.oid, values[oid]);
-                                    }}
-                                />
-                            </div>
-                        </>}
-                </DialogContent>
-            </Dialog>;
+                        ) : (
+                            <>
+                                <div style={{ width: '100%', marginBottom: 20 }}>
+                                    <Button
+                                        style={{
+                                            ...(this.state.values[`${this.state.object._id}.val`] ===
+                                            this.state.object.common.min
+                                                ? undefined
+                                                : styles.buttonInactive),
+                                            width: '50%',
+                                        }}
+                                        color="grey"
+                                        onClick={() => this.setOnOff(false)}
+                                        startIcon={isLamp ? <LightbulbIconOff /> : null}
+                                    >
+                                        {isLamp
+                                            ? Generic.t('OFF').replace('vis_2_widgets_material_', '')
+                                            : this.state.object.common.min +
+                                              (this.state.rxData.unit || this.state.object.common.unit || '')}
+                                    </Button>
+                                    <Button
+                                        style={{
+                                            width: '50%',
+                                            ...(this.state.values[`${this.state.object._id}.val`] ===
+                                            this.state.object.common.max
+                                                ? undefined
+                                                : styles.buttonInactive),
+                                        }}
+                                        color="primary"
+                                        onClick={() => this.setOnOff(true)}
+                                        startIcon={isLamp ? <LightbulbIconOn color="primary" /> : null}
+                                    >
+                                        {isLamp
+                                            ? Generic.t('ON').replace('vis_2_widgets_material_', '')
+                                            : this.state.object.common.max +
+                                              (this.state.rxData.unit || this.state.object.common.unit || '')}
+                                    </Button>
+                                </div>
+                                <div style={{ width: '100%' }}>
+                                    <Slider
+                                        size="small"
+                                        value={this.state.values[`${this.state.object._id}.val`]}
+                                        valueLabelDisplay="auto"
+                                        min={this.state.object.common.min}
+                                        max={this.state.object.common.max}
+                                        onChange={(event, value) => {
+                                            const values = JSON.parse(JSON.stringify(this.state.values));
+                                            const oid = `${this.state.object._id}.val`;
+                                            values[oid] = value;
+                                            this.setState({ values });
+                                            this.props.context.setValue(this.state.rxData.oid, values[oid]);
+                                        }}
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </DialogContent>
+                </Dialog>
+            );
         }
         return null;
     }
@@ -590,34 +623,38 @@ class SimpleState extends Generic {
         }
 
         if (!this.refDiv.current) {
-            this.updateTimer1 = this.updateTimer1 || setTimeout(() => {
-                this.updateTimer1 = null;
-                this.forceUpdate();
-            }, 50);
+            this.updateTimer1 =
+                this.updateTimer1 ||
+                setTimeout(() => {
+                    this.updateTimer1 = null;
+                    this.forceUpdate();
+                }, 50);
         }
 
-        return <CircularSliderWithChildren
-            minValue={object.common.min}
-            maxValue={object.common.max}
-            size={size * 1.1}
-            arcColor={this.props.context.theme.palette.primary.main}
-            arcBackgroundColor={this.props.context.themeType === 'dark' ? '#DDD' : '#222'}
-            startAngle={0}
-            step={1}
-            endAngle={360}
-            handle1={{ value }}
-        >
-            <div
-                key={`_${value}`}
-                style={{
-                    ...(this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight),
-                    fontSize: Math.round(size / 8),
-                    fontWeight: 'bold',
-                }}
+        return (
+            <CircularSliderWithChildren
+                minValue={object.common.min}
+                maxValue={object.common.max}
+                size={size * 1.1}
+                arcColor={this.props.context.theme.palette.primary.main}
+                arcBackgroundColor={this.props.context.themeType === 'dark' ? '#DDD' : '#222'}
+                startAngle={0}
+                step={1}
+                endAngle={360}
+                handle1={{ value }}
             >
-                {value + (this.state.rxData.unit || this.state.object.common?.unit || '')}
-            </div>
-        </CircularSliderWithChildren>;
+                <div
+                    key={`_${value}`}
+                    style={{
+                        ...(this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight),
+                        fontSize: Math.round(size / 8),
+                        fontWeight: 'bold',
+                    }}
+                >
+                    {value + (this.state.rxData.unit || this.state.object.common?.unit || '')}
+                </div>
+            </CircularSliderWithChildren>
+        );
     }
 
     renderWidgetBody(props) {
@@ -625,10 +662,12 @@ class SimpleState extends Generic {
 
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout = this.updateTimeout || setTimeout(async () => {
-                this.updateTimeout = null;
-                await this.propertiesUpdate();
-            }, 50);
+            this.updateTimeout =
+                this.updateTimeout ||
+                setTimeout(async () => {
+                    this.updateTimeout = null;
+                    await this.propertiesUpdate();
+                }, 50);
         }
         const isOn = this.isOn();
         const icon = this.getStateIcon(isOn);
@@ -645,7 +684,10 @@ class SimpleState extends Generic {
             }
         }
 
-        const height = !this.state.rxData.noCard && !props.widget.usedInWidget && this.state.rxData.widgetTitle ? 'calc(100% - 36px)' : '100%';
+        const height =
+            !this.state.rxData.noCard && !props.widget.usedInWidget && this.state.rxData.widgetTitle
+                ? 'calc(100% - 36px)'
+                : '100%';
 
         if (!this.state.object.common.states && this.isOn()) {
             props.className = `${props.className} vis-on`.trim();
@@ -653,9 +695,10 @@ class SimpleState extends Generic {
             props.className = `${props.className} vis-off`.trim();
         }
 
-        const content = <>
-            <style>
-                {`
+        const content = (
+            <>
+                <style>
+                    {`
 @keyframes vis-2-widgets-material-newValueAnimationLight {
     0% {
         color: #00bd00;
@@ -679,70 +722,80 @@ class SimpleState extends Generic {
     }
 }            
 `}
-            </style>
-            {this.renderDimmerDialog()}
-            <div
-                style={{
-                    width: '100%',
-                    height,
-                }}
-                ref={this.refDiv}
-            >
+                </style>
+                {this.renderDimmerDialog()}
                 <div
                     style={{
-                        ...styles.buttonDiv,
                         width: '100%',
-                        height: '100%',
+                        height,
                     }}
+                    ref={this.refDiv}
                 >
-                    <Button
-                        onClick={() => this.changeSwitch()}
-                        disabled={this.state.rxData.readOnly}
-                        color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
+                    <div
                         style={{
-                            ...styles.button,
-                            ...(!this.isOn() ? styles.buttonInactive : undefined),
+                            ...styles.buttonDiv,
+                            width: '100%',
+                            height: '100%',
                         }}
                     >
-                        <div style={styles.topButton}>
-                            {icon ? <div
-                                style={{
-                                    ...(!this.state.object.common.states && value !== undefined && value !== null ?
-                                        styles.iconButton :
-                                        styles.iconButtonCenter),
-                                    height: this.state.rxData.iconSize ? 'unset' : undefined,
-                                }}
-                            >
-                                {icon}
-                            </div> : null}
-                            {!this.state.object.common.states && value !== undefined && value !== null ?
-                                <Box
-                                    component="div"
-                                    sx={styles.rightButton}
-                                    style={icon ? {} : { width: '100%', left: 0, justifyContent: 'center' }}
+                        <Button
+                            onClick={() => this.changeSwitch()}
+                            disabled={this.state.rxData.readOnly}
+                            color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
+                            style={{
+                                ...styles.button,
+                                ...(!this.isOn() ? styles.buttonInactive : undefined),
+                            }}
+                        >
+                            <div style={styles.topButton}>
+                                {icon ? (
+                                    <div
+                                        style={{
+                                            ...(!this.state.object.common.states &&
+                                            value !== undefined &&
+                                            value !== null
+                                                ? styles.iconButton
+                                                : styles.iconButtonCenter),
+                                            height: this.state.rxData.iconSize ? 'unset' : undefined,
+                                        }}
+                                    >
+                                        {icon}
+                                    </div>
+                                ) : null}
+                                {!this.state.object.common.states && value !== undefined && value !== null ? (
+                                    <Box
+                                        component="div"
+                                        sx={styles.rightButton}
+                                        style={icon ? {} : { width: '100%', left: 0, justifyContent: 'center' }}
+                                    >
+                                        {this.renderCircular()}
+                                    </Box>
+                                ) : null}
+                            </div>
+                            <div style={{ ...styles.text, color }}>
+                                {this.state.rxData.title || this.state.object.common.name}
+                            </div>
+                            {this.state.object.common.states && value !== undefined && value !== null ? (
+                                <div
+                                    key={`${stateTitle || value}`}
+                                    style={{
+                                        ...styles.value,
+                                        ...(!color
+                                            ? this.props.context.themeType === 'dark'
+                                                ? styles.newValueDark
+                                                : styles.newValueLight
+                                            : undefined),
+                                        color,
+                                    }}
                                 >
-                                    {this.renderCircular()}
-                                </Box>
-                                : null}
-                        </div>
-                        <div style={{ ...styles.text, color }}>
-                            {this.state.rxData.title || this.state.object.common.name}
-                        </div>
-                        {this.state.object.common.states && value !== undefined && value !== null ?
-                            <div
-                                key={`${stateTitle || value}`}
-                                style={{
-                                    ...styles.value,
-                                    ...(!color ? (this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight) : undefined),
-                                    color,
-                                }}
-                            >
-                                {stateTitle || value}
-                            </div> : null}
-                    </Button>
+                                    {stateTitle || value}
+                                </div>
+                            ) : null}
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </>;
+            </>
+        );
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
             return content;

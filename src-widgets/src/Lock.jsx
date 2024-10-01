@@ -1,8 +1,10 @@
 import React from 'react';
 
 import {
-    Button, CircularProgress,
-    Dialog, DialogActions,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
@@ -32,12 +34,12 @@ const styles = {
         justifyContent: 'center',
         flexWrap: 'wrap',
     },
-    lockPinGrid:  {
+    lockPinGrid: {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr 1fr',
         gridGap: '10px',
     },
-    lockPinInput:  {
+    lockPinInput: {
         padding: '10px 0px',
     },
     lockWorkingIcon: {
@@ -91,7 +93,11 @@ class Lock extends Generic {
                                     if (object && object.common && object.common.role === 'switch.lock') {
                                         const id = data[field.name].split('.');
                                         id.pop();
-                                        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                        const states = await socket.getObjectView(
+                                            `${id.join('.')}.`,
+                                            `${id.join('.')}.\u9999`,
+                                            'state',
+                                        );
                                         if (states) {
                                             Object.values(states).forEach(state => {
                                                 const role = state.common.role;
@@ -214,128 +220,146 @@ class Lock extends Generic {
         const pincode = this.lockGetPinCode();
         const pincodeReturnButton = this.state.rxData.pincodeReturnButton === 'backspace' ? 'backspace' : 'submit';
 
-        return <Dialog open={!0} onClose={() => this.setState({ dialogPin: false })}>
-            <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
-            <DialogContent>
-                <div style={styles.lockPinInput}>
-                    <TextField
-                        variant="outlined"
-                        fullWidth
-                        type={this.state.invalidPin ? 'text' : 'password'}
-                        inputProps={{
-                            readOnly: true,
-                            style: {
-                                textAlign: 'center',
-                                color: this.state.invalidPin ? '#ff3e3e' : 'inherit',
-                            },
-                        }}
-                        value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.lockPinInput}
-                    />
-                </div>
-                <div style={styles.lockPinGrid}>
-                    {
-                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0,
-                            pincodeReturnButton].map(button => {
+        return (
+            <Dialog
+                open={!0}
+                onClose={() => this.setState({ dialogPin: false })}
+            >
+                <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
+                <DialogContent>
+                    <div style={styles.lockPinInput}>
+                        <TextField
+                            variant="outlined"
+                            fullWidth
+                            type={this.state.invalidPin ? 'text' : 'password'}
+                            slotProps={{
+                                input: {
+                                    readOnly: true,
+                                    style: {
+                                        textAlign: 'center',
+                                        color: this.state.invalidPin ? '#ff3e3e' : 'inherit',
+                                    },
+                                },
+                            }}
+                            value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.lockPinInput}
+                        />
+                    </div>
+                    <div style={styles.lockPinGrid}>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0, pincodeReturnButton].map(button => {
                             let buttonTitle = button;
                             if (button === 'backspace') {
                                 buttonTitle = <Backspace />;
                             } else if (button === 'submit') {
                                 buttonTitle = <Check />;
                             }
-                            return <Button
-                                variant="outlined"
-                                key={button}
-                                title={button === 'R' ?
-                                    (this.state.lockPinInput ? Generic.t('reset') : Generic.t('close')) :
-                                    (button === pincodeReturnButton ? 'enter' : '')}
-                                onClick={() => {
-                                    if (button === 'submit') {
-                                        if (this.state.lockPinInput === pincode) {
-                                            if (this.state.dialogPin === 'doorOpen-oid') {
-                                                this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
-                                            } else {
-                                                this.props.context.setValue(this.state.rxData['lock-oid'], true);
-                                            }
-                                            this.setState({ dialogPin: false });
-                                        } else {
-                                            this.setState({ lockPinInput: '', invalidPin: true });
-                                            setTimeout(() => this.setState({ invalidPin: false }), 500);
-                                        }
-                                    } else if (button === 'backspace') {
-                                        this.setState({ lockPinInput: this.state.lockPinInput.slice(0, -1) });
-                                    } else if (button === 'R') {
-                                        if (!this.state.lockPinInput) {
-                                            this.setState({ dialogPin: false });
-                                        } else {
-                                            this.setState({ lockPinInput: '' });
-                                        }
-                                    } else {
-                                        const lockPinInput = this.state.lockPinInput + button;
-                                        this.setState({ lockPinInput });
-                                        if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
-                                            if (this.state.dialogPin === 'doorOpen-oid') {
-                                                this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
-                                            } else {
-                                                this.props.context.setValue(this.state.rxData['lock-oid'], true);
-                                            }
-                                            this.setState({ dialogPin: false });
-                                        }
+                            return (
+                                <Button
+                                    variant="outlined"
+                                    key={button}
+                                    title={
+                                        button === 'R'
+                                            ? this.state.lockPinInput
+                                                ? Generic.t('reset')
+                                                : Generic.t('close')
+                                            : button === pincodeReturnButton
+                                              ? 'enter'
+                                              : ''
                                     }
-                                }}
-                            >
-                                {buttonTitle === 'R' ? (this.state.lockPinInput ? 'R' : 'x') : buttonTitle}
-                            </Button>;
-                        })
-                    }
-                </div>
-            </DialogContent>
-        </Dialog>;
+                                    onClick={() => {
+                                        if (button === 'submit') {
+                                            if (this.state.lockPinInput === pincode) {
+                                                if (this.state.dialogPin === 'doorOpen-oid') {
+                                                    this.props.context.setValue(
+                                                        this.state.rxData['doorOpen-oid'],
+                                                        true,
+                                                    );
+                                                } else {
+                                                    this.props.context.setValue(this.state.rxData['lock-oid'], true);
+                                                }
+                                                this.setState({ dialogPin: false });
+                                            } else {
+                                                this.setState({ lockPinInput: '', invalidPin: true });
+                                                setTimeout(() => this.setState({ invalidPin: false }), 500);
+                                            }
+                                        } else if (button === 'backspace') {
+                                            this.setState({ lockPinInput: this.state.lockPinInput.slice(0, -1) });
+                                        } else if (button === 'R') {
+                                            if (!this.state.lockPinInput) {
+                                                this.setState({ dialogPin: false });
+                                            } else {
+                                                this.setState({ lockPinInput: '' });
+                                            }
+                                        } else {
+                                            const lockPinInput = this.state.lockPinInput + button;
+                                            this.setState({ lockPinInput });
+                                            if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
+                                                if (this.state.dialogPin === 'doorOpen-oid') {
+                                                    this.props.context.setValue(
+                                                        this.state.rxData['doorOpen-oid'],
+                                                        true,
+                                                    );
+                                                } else {
+                                                    this.props.context.setValue(this.state.rxData['lock-oid'], true);
+                                                }
+                                                this.setState({ dialogPin: false });
+                                            }
+                                        }
+                                    }}
+                                >
+                                    {buttonTitle === 'R' ? (this.state.lockPinInput ? 'R' : 'x') : buttonTitle}
+                                </Button>
+                            );
+                        })}
+                    </div>
+                </DialogContent>
+            </Dialog>
+        );
     }
 
     lockGetPinCode() {
-        return this.state.rxData['pincode-oid'] ?
-            this.getPropertyValue('pincode-oid') :
-            this.state.rxData.pincode;
+        return this.state.rxData['pincode-oid'] ? this.getPropertyValue('pincode-oid') : this.state.rxData.pincode;
     }
 
     lockRenderConfirmDialog() {
         if (!this.state.confirmDialog) {
             return null;
         }
-        return <Dialog
-            open={!0}
-            onClose={() => this.setState({ confirmDialog: false })}
-        >
-            <DialogContent>
-                {Generic.t('please_confirm')}
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                        this.setState({ confirmDialog: false });
-                        if (this.state.confirmDialog === 'doorOpen-oid') {
-                            this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
-                        } else {
-                            this.props.context.setValue(this.state.rxData['lock-oid'], true);
+        return (
+            <Dialog
+                open={!0}
+                onClose={() => this.setState({ confirmDialog: false })}
+            >
+                <DialogContent>{Generic.t('please_confirm')}</DialogContent>
+                <DialogActions>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            this.setState({ confirmDialog: false });
+                            if (this.state.confirmDialog === 'doorOpen-oid') {
+                                this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
+                            } else {
+                                this.props.context.setValue(this.state.rxData['lock-oid'], true);
+                            }
+                        }}
+                        startIcon={
+                            this.state.confirmDialog === 'doorOpen-oid' ? <DoorOpenedIcon /> : <LockOpenedIcon />
                         }
-                    }}
-                    startIcon={this.state.confirmDialog === 'doorOpen-oid' ? <DoorOpenedIcon /> : <LockOpenedIcon />}
-                >
-                    {Generic.t('Open')}
-                </Button>
-                <Button
-                    variant="contained"
-                    color="grey"
-                    autoFocus
-                    onClick={() => this.setState({ confirmDialog: false })}
-                    startIcon={<Cancel />}
-                >
-                    {Generic.t('Cancel')}
-                </Button>
-            </DialogActions>
-        </Dialog>;
+                    >
+                        {Generic.t('Open')}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="grey"
+                        autoFocus
+                        onClick={() => this.setState({ confirmDialog: false })}
+                        startIcon={<Cancel />}
+                    >
+                        {Generic.t('Cancel')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        );
     }
 
     onCommand(command) {
@@ -360,71 +384,101 @@ class Lock extends Generic {
         const lockOpened = this.getPropertyValue('lock-oid');
         const working = this.state.rxData['lockWorking-oid'] && this.getPropertyValue('lockWorking-oid');
 
-        const content = <div>
-            {this.lockRenderUnlockDialog()}
-            {this.lockRenderConfirmDialog()}
-            {this.state.rxData['doorSensor-oid'] || this.state.rxData['doorOpen-oid'] ?
-                <IconButton
-                    disabled={!this.state.rxData['doorOpen-oid']}
-                    title={this.state.rxData['doorOpen-oid'] ? Generic.t('open_door') : null}
-                    onClick={() => {
-                        if (this.lockGetPinCode()) {
-                            this.setState({ dialogPin: 'doorOpen-oid', lockPinInput: '' });
-                        } else if (this.state.rxData.doNotConfirm) {
-                            this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
-                        } else {
-                            this.setState({ confirmDialog: 'doorOpen-oid' });
-                        }
-                    }}
-                >
-                    <DoorAnimation open={doorOpened} size={this.state.rxData.doorSize} />
-                </IconButton> : null}
-            {this.state.rxData['lock-oid'] ?
-                <IconButton
-                    title={lockOpened ? Generic.t('close_lock') : Generic.t('open_lock')}
-                    onClick={() => {
-                        if (!lockOpened && this.lockGetPinCode()) {
-                            this.setState({ dialogPin: 'lock-oid', lockPinInput: '' });
-                        } else if (lockOpened || this.state.rxData.doNotConfirm) {
-                            this.props.context.setValue(this.state.rxData['lock-oid'], !this.getPropertyValue('lock-oid'));
-                        } else {
-                            this.setState({ confirmDialog: 'lock-oid' });
-                        }
-                    }}
-                >
-                    {working && working !== 3 /* 3 = UNDEFINED */ ? <CircularProgress style={styles.lockWorkingIcon} size={this.state.rxData.lockSize || 40} /> : null}
-                    {this.state.rxData.noLockAnimation ? (lockOpened ?
-                        <LockOpenedIcon
-                            style={{
-                                ...styles.lockSvgIcon,
-                                width: this.state.rxData.lockSize,
-                                height: this.state.rxData.lockSize,
-                            }}
-                            sx={theme => ({ color: theme.palette.primary.main })}
-                        /> :
-                        <LockClosedIcon
-                            style={{
-                                ...styles.lockSvgIcon,
-                                width: this.state.rxData.lockSize,
-                                height: this.state.rxData.lockSize,
-                            }}
-                        />) :
-                        <LockAnimation
-                            open={lockOpened}
-                            size={this.state.rxData.lockSize}
-                            color={this.state.rxData.lockColor}
-                        />}
-                </IconButton> : null}
-        </div>;
+        const content = (
+            <div>
+                {this.lockRenderUnlockDialog()}
+                {this.lockRenderConfirmDialog()}
+                {this.state.rxData['doorSensor-oid'] || this.state.rxData['doorOpen-oid'] ? (
+                    <IconButton
+                        disabled={!this.state.rxData['doorOpen-oid']}
+                        title={this.state.rxData['doorOpen-oid'] ? Generic.t('open_door') : null}
+                        onClick={() => {
+                            if (this.lockGetPinCode()) {
+                                this.setState({ dialogPin: 'doorOpen-oid', lockPinInput: '' });
+                            } else if (this.state.rxData.doNotConfirm) {
+                                this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
+                            } else {
+                                this.setState({ confirmDialog: 'doorOpen-oid' });
+                            }
+                        }}
+                    >
+                        <DoorAnimation
+                            open={doorOpened}
+                            size={this.state.rxData.doorSize}
+                        />
+                    </IconButton>
+                ) : null}
+                {this.state.rxData['lock-oid'] ? (
+                    <IconButton
+                        title={lockOpened ? Generic.t('close_lock') : Generic.t('open_lock')}
+                        onClick={() => {
+                            if (!lockOpened && this.lockGetPinCode()) {
+                                this.setState({ dialogPin: 'lock-oid', lockPinInput: '' });
+                            } else if (lockOpened || this.state.rxData.doNotConfirm) {
+                                this.props.context.setValue(
+                                    this.state.rxData['lock-oid'],
+                                    !this.getPropertyValue('lock-oid'),
+                                );
+                            } else {
+                                this.setState({ confirmDialog: 'lock-oid' });
+                            }
+                        }}
+                    >
+                        {working && working !== 3 /* 3 = UNDEFINED */ ? (
+                            <CircularProgress
+                                style={styles.lockWorkingIcon}
+                                size={this.state.rxData.lockSize || 40}
+                            />
+                        ) : null}
+                        {this.state.rxData.noLockAnimation ? (
+                            lockOpened ? (
+                                <LockOpenedIcon
+                                    style={{
+                                        ...styles.lockSvgIcon,
+                                        width: this.state.rxData.lockSize,
+                                        height: this.state.rxData.lockSize,
+                                    }}
+                                    sx={theme => ({ color: theme.palette.primary.main })}
+                                />
+                            ) : (
+                                <LockClosedIcon
+                                    style={{
+                                        ...styles.lockSvgIcon,
+                                        width: this.state.rxData.lockSize,
+                                        height: this.state.rxData.lockSize,
+                                    }}
+                                />
+                            )
+                        ) : (
+                            <LockAnimation
+                                open={lockOpened}
+                                size={this.state.rxData.lockSize}
+                                color={this.state.rxData.lockColor}
+                            />
+                        )}
+                    </IconButton>
+                ) : null}
+            </div>
+        );
 
         if (this.state.rxData.externalDialog && !this.props.editMode) {
-            return this.state.dialog ? <Dialog open={!0} onClose={() => this.setState({ dialog: null })}>
-                <DialogTitle>
-                    {this.state.rxData.widgetTitle}
-                    <IconButton style={{ float: 'right', zIndex: 2 }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
-                </DialogTitle>
-                <DialogContent>{content}</DialogContent>
-            </Dialog> : null;
+            return this.state.dialog ? (
+                <Dialog
+                    open={!0}
+                    onClose={() => this.setState({ dialog: null })}
+                >
+                    <DialogTitle>
+                        {this.state.rxData.widgetTitle}
+                        <IconButton
+                            style={{ float: 'right', zIndex: 2 }}
+                            onClick={() => this.setState({ dialog: null })}
+                        >
+                            <Close />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent>{content}</DialogContent>
+                </Dialog>
+            ) : null;
         }
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {

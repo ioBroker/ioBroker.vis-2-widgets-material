@@ -27,7 +27,7 @@ class Blinds extends BlindsBase {
             id: 'tplMaterial2Blinds',
             visSet: 'vis-2-widgets-material',
             visName: 'Blinds',
-            visWidgetLabel: 'blinds',  // Label of widget
+            visWidgetLabel: 'blinds', // Label of widget
             visAttrs: [
                 {
                     name: 'common',
@@ -82,7 +82,11 @@ class Blinds extends BlindsBase {
                                         // try to find stop button
                                         const id = object._id.split('.');
                                         id.pop();
-                                        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                        const states = await socket.getObjectView(
+                                            `${id.join('.')}.`,
+                                            `${id.join('.')}.\u9999`,
+                                            'state',
+                                        );
                                         if (states) {
                                             Object.values(states).forEach(state => {
                                                 if (state?.common?.role?.includes('stop')) {
@@ -194,7 +198,11 @@ class Blinds extends BlindsBase {
                                         // try to find stop button
                                         const id = object._id.split('.');
                                         id.pop();
-                                        const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+                                        const states = await socket.getObjectView(
+                                            `${id.join('.')}.`,
+                                            `${id.join('.')}.\u9999`,
+                                            'state',
+                                        );
                                         if (states) {
                                             Object.values(states).forEach(state => {
                                                 if (state?.common?.role?.includes('stop')) {
@@ -261,24 +269,30 @@ class Blinds extends BlindsBase {
         const objects = {};
         const ids = [];
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
-            if (this.state.rxData[`slidePos_oid${index}`] && this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected') {
+            if (
+                this.state.rxData[`slidePos_oid${index}`] &&
+                this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected'
+            ) {
                 ids.push(this.state.rxData[`slidePos_oid${index}`]);
             }
         }
         if (this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected') {
             ids.push(this.state.rxData.oid);
         }
-        const _objects = ids.length ? (await this.props.context.socket.getObjectsById(ids)) : {};
+        const _objects = ids.length ? await this.props.context.socket.getObjectsById(ids) : {};
         const _object = _objects[this.state.rxData.oid] || null;
         objects.main = _object?.common || {};
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
-            if (this.state.rxData[`slidePos_oid${index}`] && this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected') {
+            if (
+                this.state.rxData[`slidePos_oid${index}`] &&
+                this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected'
+            ) {
                 // read object itself
                 const object = _objects[this.state.rxData[`slidePos_oid${index}`]];
                 if (!object) {
-                    objects[index] = { };
+                    objects[index] = {};
                     continue;
                 }
 
@@ -321,10 +335,12 @@ class Blinds extends BlindsBase {
 
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout = this.updateTimeout || setTimeout(async () => {
-                this.updateTimeout = null;
-                await this.propertiesUpdate();
-            }, 50);
+            this.updateTimeout =
+                this.updateTimeout ||
+                setTimeout(async () => {
+                    this.updateTimeout = null;
+                    await this.propertiesUpdate();
+                }, 50);
         }
 
         let height;
@@ -354,20 +370,26 @@ class Blinds extends BlindsBase {
         const data = this.getMinMaxPosition(0);
         height -= 8;
 
-        const content = <div
-            ref={this.refCardContent}
-            style={{ ...styles.cardContent, cursor: data.hasControl ? 'pointer' : undefined }}
-            onClick={data.hasControl ? e => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (!this.lastClick || Date.now() - this.lastClick > 300) {
-                    this.setState({ showBlindsDialog: true });
+        const content = (
+            <div
+                ref={this.refCardContent}
+                style={{ ...styles.cardContent, cursor: data.hasControl ? 'pointer' : undefined }}
+                onClick={
+                    data.hasControl
+                        ? e => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              if (!this.lastClick || Date.now() - this.lastClick > 300) {
+                                  this.setState({ showBlindsDialog: true });
+                              }
+                          }
+                        : undefined
                 }
-            } : undefined}
-        >
-            {height ? this.renderBlindsDialog() : null}
-            {height ? this.renderWindows({ height, width }) : null}
-        </div>;
+            >
+                {height ? this.renderBlindsDialog() : null}
+                {height ? this.renderWindows({ height, width }) : null}
+            </div>
+        );
 
         if (this.state.rxData.externalDialog && !this.props.editMode) {
             return this.renderBlindsDialog();
@@ -379,11 +401,7 @@ class Blinds extends BlindsBase {
 
         return this.wrapContent(
             content,
-            this.state.rxData.showValue && data.hasControl ?
-                <span>
-                    {data.shutterPos}
-                    %
-                </span> : null,
+            this.state.rxData.showValue && data.hasControl ? <span>{data.shutterPos}%</span> : null,
         );
     }
 }

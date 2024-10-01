@@ -596,7 +596,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
             <Tooltip
                 title={Generic.t('Start')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-start-oid'], true)}
@@ -607,7 +607,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip
                 title={Generic.t('Pause')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-pause-oid'], true)}
@@ -618,7 +618,7 @@ class Vacuum extends Generic {
             {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
             <Tooltip
                 title={Generic.t('Home')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <IconButton
                     onClick={() => this.props.context.setValue(this.state.rxData['vacuum-home-oid'], true)}
@@ -628,7 +628,7 @@ class Vacuum extends Generic {
             </Tooltip>}
             {statusObj && <Tooltip
                 title={Generic.t('Status')}
-                componentsProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <div style={{ color: statusColor }}>
                     {Generic.t(status).replace('vis_2_widgets_material_', '')}
