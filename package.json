@@ -28,7 +28,7 @@
     "@types/node": "^22.7.4",
     "eslint": "^8.57.0",
     "gulp": "^4.0.2",
-    "mocha": "^10.7.3",
+    "mocha": "^10.8.2",
     "@iobroker/vis-2-widgets-testing": "^1.0.4"
   },
   "files": [
