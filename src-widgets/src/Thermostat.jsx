@@ -177,7 +177,8 @@ class Thermostat extends Generic {
                                                 } else if (role?.includes('mode')) {
                                                     const modes = getModes(state);
                                                     if (modes) {
-                                                        modes.forEach((mode, i) => {
+                                                        for (let i = 0; i < modes.length; i++) {
+                                                            const mode = modes[i];
                                                             if (!data[`title${i + 1}`] || i + 1 > data.count) {
                                                                 changed = true;
                                                                 data[`title${i + 1}`] = mode.label;
@@ -186,7 +187,7 @@ class Thermostat extends Generic {
                                                                 data[`value${i + 1}`] = mode.value;
                                                                 changed = true;
                                                             }
-                                                        });
+                                                        }
                                                         if (data.count !== modes.length) {
                                                             changed = true;
                                                             data.count = modes.length;
@@ -462,10 +463,8 @@ class Thermostat extends Generic {
         }
 
         newState.isChart =
-            (newState.tempObject?.common?.custom &&
-                newState.tempObject.common.custom[this.props.context.systemConfig.common.defaultHistory]) ||
-            (newState.tempStateObject?.common?.custom &&
-                newState.tempStateObject.common.custom[this.props.context.systemConfig.common.defaultHistory]);
+                newState.tempObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory] ||
+                newState.tempStateObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory];
 
         Object.keys(newState).find(key => JSON.stringify(this.state[key]) !== JSON.stringify(newState[key])) &&
             this.setState(newState);

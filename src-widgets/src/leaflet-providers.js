@@ -469,7 +469,7 @@
                     options: {
                         variant: 'World_Terrain_Base',
                         maxZoom: 13,
-                        attribution: '{attribution.Esri} &mdash; ' + 'Source: USGS, Esri, TANA, DeLorme, and NPS',
+                        attribution: `{attribution.Esri} &mdash; Source: USGS, Esri, TANA, DeLorme, and NPS`,
                     },
                 },
                 WorldShadedRelief: {
