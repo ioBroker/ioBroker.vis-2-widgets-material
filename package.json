@@ -27,7 +27,7 @@
         "@iobroker/vis-2-widgets-react-dev": "^4.0.3",
         "@iobroker/vis-2-widgets-testing": "^1.0.4",
         "@types/mocha": "^10.0.10",
-        "@types/node": "^22.9.3",
+        "@types/node": "^22.10.1",
         "mocha": "^10.8.2"
     },
     "files": [
