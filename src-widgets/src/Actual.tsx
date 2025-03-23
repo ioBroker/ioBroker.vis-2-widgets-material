@@ -27,6 +27,7 @@ import {
 import { Icon } from '@iobroker/adapter-react-v5';
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
+import VisRxWidget, { VisRxWidgetState } from './visRxWidget';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
@@ -89,11 +90,23 @@ const styles = {
     },
 };
 
-class Actual extends Generic {
-    constructor(props) {
+interface ActualProps {
+
+}
+
+interface ActualState extends VisRxWidgetState {
+    showDialog: boolean;
+    dialogTab: number;
+    objects: Record<string, ioBroker.Object>;
+    isChart: boolean;
+    containerHeight: number;
+}
+
+class Actual extends Generic<ActualProps, ActualState> {
+    constructor(props: Actual['props']) {
         super(props);
-        this.state.showDialog = false;
-        this.state.dialogTab = 0;
+        (this.state as ActualState).showDialog = false;
+        (this.state as ActualState).dialogTab = 0;
         this.onStateChanged = this.onStateChanged.bind(this);
         this.refContainer = React.createRef();
     }

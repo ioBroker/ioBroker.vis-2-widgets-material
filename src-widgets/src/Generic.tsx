@@ -1,20 +1,21 @@
 import PropTypes from 'prop-types';
+import VisRxWidget, { VisRxWidgetState } from './visRxWidget';
 
-class Generic extends window.visRxWidget {
-    getPropertyValue = stateName => this.state.values[`${this.state.rxData[stateName]}.val`];
+class Generic<RxData extends Record<string, any>, State extends Partial<VisRxWidgetState> = VisRxWidgetState> extends ((window as any).visRxWidget as typeof VisRxWidget)<RxData, State> {
+    getPropertyValue = (stateName: string): any => this.state.values[`${(this.state.rxData as any)[stateName]}.val`];
 
     static getI18nPrefix() {
         return 'vis_2_widgets_material_';
     }
 
-    async getParentObject(id) {
+    async getParentObject(id: string) {
         const parts = id.split('.');
         parts.pop();
         const parentOID = parts.join('.');
         return this.props.context.socket.getObject(parentOID);
     }
 
-    static getObjectIcon(obj, id, imagePrefix) {
+    static getObjectIcon(obj: ioBroker.Object, id: string, imagePrefix: string) {
         imagePrefix = imagePrefix || '../..'; // http://localhost:8081';
         let src = '';
         const common = obj && obj.common;
