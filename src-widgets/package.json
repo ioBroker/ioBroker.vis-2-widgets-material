@@ -2,7 +2,16 @@
     "name": "iobroker.vis-2-widgets-material",
     "private": true,
     "version": "1.4.10",
+    "type": "module",
     "dependencies": {
+        "@module-federation/runtime": "^0.11.1",
+        "@module-federation/vite": "^1.2.6",
+        "@originjs/vite-plugin-federation": "^1.4.0",
+        "@vitejs/plugin-react": "^4.3.4",
+        "vite": "6.2.2",
+        "vite-plugin-commonjs": "^0.10.4",
+        "vite-plugin-svgr": "^4.3.0",
+        "vite-tsconfig-paths": "^5.1.4",
         "@adobe/react-spectrum": "^3.37.0",
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@craco/craco": "^7.1.0",
@@ -34,12 +43,10 @@
         "uuid": "^10.0.0"
     },
     "scripts": {
-        "start": "set PORT=4173 && craco start",
-        "old-start": "set PORT=4173 && react-scripts start",
-        "lint": "eslint -c eslint.config.mjs src",
-        "build": "craco build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
+        "start": "vite --port 4173",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "lint": "eslint -c eslint.config.mjs",
         "i18n": "node node_modules/@iobroker/vis-2-widgets-react-dev/searchI18n vis_2_widgets_material"
     },
     "eslintConfig": {
