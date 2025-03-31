@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import {
     Wheel, rgbaToHsva, hsvaToHsla,
     hsvaToRgba, hexToHsva,
@@ -53,7 +53,7 @@ function isTouchDevice() {
         || (navigator.msMaxTouchPoints > 0));
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     rgbDialog: {
         maxWidth: 400,
     },
@@ -107,7 +107,7 @@ export const RGB_ROLES = {
 
 // Start with a temperature, in Kelvin, somewhere between 1000 and 40000.  (Other values may work,
 //  but I can't make any promises about the quality of the algorithm's estimates above 40000 K.)
-function limit(x, min, max) {
+function limit(x: number, min: number, max: number) {
     if (x < min) {
         return min;
     }
@@ -118,7 +118,7 @@ function limit(x, min, max) {
     return x;
 }
 
-export const colorTemperatureToRGB = kelvin => {
+export const colorTemperatureToRGB = (kelvin: number) => {
     const temp = kelvin / 100;
 
     let red;

@@ -23,8 +23,8 @@ import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
 
 const WizardDialog = props => {
     const [rooms, setRooms] = useState(null);
-    const [devicesChecked, setDevicesChecked] = useState({});
-    const [roomsChecked, setRoomsChecked] = useState({});
+    const [devicesChecked, setDevicesChecked] = useState<Record<string, boolean>>({});
+    const [roomsChecked, setRoomsChecked] = useState<Record<string, boolean>>({});
     const [onePage, setOnePage] = useState(window.localStorage.getItem('AppWizard.onePage') !== 'false');
     const [standardIcons, setStandardIcons] = useState(
         window.localStorage.getItem('AppWizard.standardIcons') === 'true',

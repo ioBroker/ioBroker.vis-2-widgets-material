@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import {
     Button,
@@ -25,7 +25,7 @@ import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     content: {
         width: '100%',
         height: '100%',

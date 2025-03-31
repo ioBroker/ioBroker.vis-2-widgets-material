@@ -1,7 +1,7 @@
 // ------------------- deprecated, use Switches.jsx instead -------------------
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
-import { Button, Dialog, DialogContent, DialogTitle, Slider, IconButton, Box } from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, Slider, IconButton, Box, SxProps } from '@mui/material';
 
 import {
     Lightbulb as LightbulbIconOn,
@@ -9,12 +9,12 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon, IobTheme } from '@iobroker/adapter-react-v5';
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
 
-const styles = {
+const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     intermediate: {
         opacity: 0.2,
     },

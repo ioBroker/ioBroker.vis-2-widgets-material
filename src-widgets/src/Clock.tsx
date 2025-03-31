@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 import AnalogClock from './AnalogClock/AnalogClock';
 import Generic from './Generic';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     uClock: {
         verticalAlign: 'middle',
         animationName: 'vis-2-widgets-material-uClockFadeIn',
@@ -27,7 +27,7 @@ const styles = {
     },
 };
 
-function getTextWidth(text, font) {
+function getTextWidth(text: string, font: string) {
     // re-use a canvas object for better performance
     const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
     const context = canvas.getContext('2d');
@@ -36,7 +36,7 @@ function getTextWidth(text, font) {
     return metrics.width;
 }
 
-function getCssStyle(element, prop) {
+function getCssStyle(element: Element, prop: string) {
     return window.getComputedStyle(element, null).getPropertyValue(prop);
 }
 
@@ -389,7 +389,7 @@ class Clock extends Generic {
         />;
     }
 
-    getDigitalClockText(replaceWithZero) {
+    getDigitalClockText(replaceWithZero: boolean) {
         const data = this.state.rxData || {};
         const digits = [];
         if (replaceWithZero) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -33,7 +33,7 @@ import VisRxWidget, { VisRxWidgetState } from './visRxWidget';
 
 echarts.use([TimelineComponent, ToolboxComponent, TitleComponent, TooltipComponent, GridComponent, LineChart, LegendComponent, SVGRenderer]);
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     chart: {
         height: 'calc(100% - 40px)',
         width: '100%',
@@ -97,14 +97,14 @@ type RxData = {
     noCard: boolean;
     widgetTitle: string;
     timeInterval: number;
-    updateInterval: number;
+    updateInterval: string;
     'oid-main': string;
     'title-main': string;
     'icon-main': string;
     'unit-main': string;
     'noChart': boolean;
     'color-main': string;
-    'font-size-main': number;
+    'font-size-main': string;
     'font-style-main': string;
     'digits_after_comma_main': number;
     'oid-secondary': string;
@@ -113,7 +113,7 @@ type RxData = {
     'unit-secondary': string;
     'noChart-secondary': boolean;
     'color-secondary': string;
-    'font-size-secondary': number;
+    'font-size-secondary': string;
     'font-style-secondary': string;
     'digits_after_comma_secondary': number;
 }
@@ -124,9 +124,18 @@ interface ActualState extends VisRxWidgetState {
     objects: Record<string, ioBroker.Object>;
     isChart: boolean;
     containerHeight: number;
+    [key: `chart-data-${string}`]: string | null;
 }
 
 class Actual extends Generic<RxData, ActualState> {
+    refContainer: React.RefObject<HTMLDivElement | null>;
+
+    mainTimer: ReturnType<typeof setInterval> | undefined | null;
+
+    updateTimeout: ReturnType<typeof setTimeout> | undefined | null;
+
+    lastRxData: string | undefined;
+    
     constructor(props: Actual['props']) {
         super(props);
         (this.state as ActualState).showDialog = false;
@@ -336,13 +345,13 @@ class Actual extends Generic<RxData, ActualState> {
         return Actual.getWidgetInfo();
     }
 
-    async setStateAsync(newState) {
-        return new Promise(resolve => {
+    async setStateAsync(newState: Actual['state']) {
+        return new Promise<void>(resolve => {
             this.setState(newState, resolve);
         });
     }
 
-    async getIcon(id, object) {
+    async getIcon(id: string, object: ioBroker.Object) {
         if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
             const idArray = id.split('.');
 
@@ -378,8 +387,8 @@ class Actual extends Generic<RxData, ActualState> {
 
         this.lastRxData = actualRxData;
 
-        const objects = {};
-        const ids = [];
+        const objects: Record<string, ioBroker.Object> = {};
+        const ids: string[] = [];
         if (this.state.rxData['oid-main'] && this.state.rxData['oid-main'] !== 'nothing_selected') {
             ids.push(this.state.rxData['oid-main']);
         }
@@ -419,7 +428,7 @@ class Actual extends Generic<RxData, ActualState> {
         const isChart = (!this.state.rxData.noChart && objects.main?.common?.custom && objects.main.common.custom[defaultHistory]) ||
             (!this.state.rxData['noChart-secondary'] && objects.secondary?.common?.custom && objects.secondary.common.custom[defaultHistory]);
 
-        const newState = { objects, isChart };
+        const newState: Partial<Actual['state']> = { objects, isChart };
 
         this.mainTimer && clearInterval(this.mainTimer);
         this.mainTimer = null;
@@ -453,7 +462,7 @@ class Actual extends Generic<RxData, ActualState> {
         }
     }
 
-    static convertData = (values, chart) => {
+    static convertData = (values: ioBroker.State[], chart) => {
         const data = [];
         if (!values || !values.length) {
             return data;
@@ -498,7 +507,7 @@ class Actual extends Generic<RxData, ActualState> {
             aggregate: 'minmax',
         };
 
-        let chart;
+        let chart: ioBroker.State[];
         return this.props.context.socket.getHistory(id, options)
             .then(_chart => {
                 chart = _chart;
@@ -536,10 +545,10 @@ class Actual extends Generic<RxData, ActualState> {
         await this.propertiesUpdate();
     }
 
-    static getColor(color, opacity) {
-        let r;
-        let g;
-        let b;
+    static getColor(color: string, opacity: number) {
+        let r: number;
+        let g: number;
+        let b: number;
         if (color.startsWith('#')) {
             r = parseInt(color.substring(1, 3), 16);
             g = parseInt(color.substring(3, 5), 16);
@@ -555,7 +564,7 @@ class Actual extends Generic<RxData, ActualState> {
             g = parseInt(parts[1], 10);
             b = parseInt(parts[2], 10);
         }
-        return `rgba(${r},${g},${b},${opacity})`;
+        return `rgba(${r!},${g!},${b!},${opacity})`;
     }
 
     getOptions() {
@@ -712,18 +721,18 @@ class Actual extends Generic<RxData, ActualState> {
         const secondaryValue = this.state.objects?.secondary && this.state.values[`${this.state.rxData['oid-secondary']}.val`] !== undefined ?
             this.formatValue(this.state.values[`${this.state.rxData['oid-secondary']}.val`], this.state.rxData.digits_after_comma_secondary) : undefined;
 
-        let mainIcon = this.state.rxData['icon-main'] || this.state.objects?.main?.common?.icon;
+        let mainIcon: React.ReactNode = this.state.rxData['icon-main'] || this.state.objects?.main?.common?.icon;
         if (mainIcon) {
-            mainIcon = <Icon src={mainIcon} style={{ ...styles.mainIcon, width: 24 }} />;
+            mainIcon = <Icon src={mainIcon as string} style={{ ...styles.mainIcon, width: 24 }} />;
         } else if (this.state.objects?.main?.common?.role?.includes('temperature') || this.state.objects?.main?.common?.unit?.includes('°')) {
             mainIcon = <ThermostatIcon style={styles.mainIcon} />;
         } else {
             mainIcon = null;
         }
 
-        let secondaryIcon = this.state.rxData['icon-secondary'] || this.state.objects?.secondary?.common?.icon;
+        let secondaryIcon: React.ReactNode = this.state.rxData['icon-secondary'] || this.state.objects?.secondary?.common?.icon;
         if (secondaryIcon) {
-            secondaryIcon = <Icon src={secondaryIcon} style={{ ...styles.secondaryIcon, width: 20 }} />;
+            secondaryIcon = <Icon src={secondaryIcon as string} style={{ ...styles.secondaryIcon, width: 20 }} />;
         } else if (this.state.objects?.secondary?.common?.role?.includes('humidity')) {
             secondaryIcon = <HumidityIcon style={styles.secondaryIcon} />;
         } else {

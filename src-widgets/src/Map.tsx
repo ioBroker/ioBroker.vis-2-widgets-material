@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './leaflet-providers';
@@ -18,7 +18,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     mapContainer: {
         width: '100%',
         height: '100%',

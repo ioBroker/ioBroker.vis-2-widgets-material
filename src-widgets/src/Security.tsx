@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import { Button, Chip, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
@@ -10,7 +10,7 @@ import {
 } from '@mui/icons-material';
 import Generic from './Generic';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     pinGrid: {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr 1fr',

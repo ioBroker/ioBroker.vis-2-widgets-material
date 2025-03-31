@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -233,7 +233,7 @@ const vacuumLoadStates = async (field, data, changeData, socket, index) => {
     }
 };
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     intermediate: {
         opacity: 0.2,
     },

@@ -1,4 +1,4 @@
-import React, { createRef, Component } from 'react';
+import React, { createRef, Component, SVGProps, CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -46,7 +46,7 @@ echarts.use([
     SVGRenderer,
 ]);
 
-const SplitLineIcon = props => (
+const SplitLineIcon = (props: SVGProps<SVGSVGElement>) => (
     <svg
         viewBox="0 0 512 512"
         width={props.width || 20}
@@ -75,7 +75,7 @@ const SplitLineIcon = props => (
     'zh-cn': cnLocale,
 }; */
 
-function padding3(ms) {
+function padding3(ms: number) {
     if (ms < 10) {
         return `00${ms}`;
     }
@@ -85,14 +85,14 @@ function padding3(ms) {
     return ms;
 }
 
-function padding2(num) {
+function padding2(num: number) {
     if (num < 10) {
         return `0${num}`;
     }
     return num;
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     paper: {
         height: '100%',
         maxHeight: '100%',

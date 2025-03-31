@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import moment from 'moment';
 import 'moment/locale/de';
 import 'moment/locale/es';
@@ -201,7 +201,7 @@ const Dishes = props => (
     </svg>
 );
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     rotatedItem: {
         animation: 'vis-2-widgets-material-rotation 10000ms infinite',
     },

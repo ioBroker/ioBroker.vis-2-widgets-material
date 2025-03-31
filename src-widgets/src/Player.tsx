@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import Color from 'color';
 import ColorThief from 'colorthief';
 
@@ -14,10 +14,11 @@ import {
     VolumeMute,
 } from '@mui/icons-material';
 
-import { Card, CardContent, IconButton, Slider } from '@mui/material';
+import { Card, CardContent, IconButton, Slider, SxProps } from '@mui/material';
 import Generic from './Generic';
+import { IobTheme } from '@iobroker/adapter-react-v5';
 
-const styles = {
+const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     content: {
         display: 'flex',
         flex: 1,

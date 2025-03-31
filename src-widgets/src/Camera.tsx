@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import moment from 'moment';
 
 import {
@@ -7,7 +7,7 @@ import {
 import { Close as CloseIcon } from '@mui/icons-material';
 import Generic from './Generic';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     dialogTitle: {
         display: 'flex',
         justifyContent: 'space-between',

@@ -474,8 +474,8 @@ class BlindsBase extends Generic<BlindsBaseRxData, BlindsBaseState> {
         $div.find('.vis-hq-leftinfo').css({right: offset + 'px'});
         $div.find('.vis-hq-rightinfo').css({'padding-left': (5 + (width / 2) + (parseInt(data.infoRightPaddingLeft, 10) || 0)) + 'px'});
         */
-        let width;
-        let height;
+        let width: number;
+        let height: number;
         const ratio = parseFloat(this.state.rxData.ratio) || 1;
         height = size.height;
         width = Math.round(height * ratio);

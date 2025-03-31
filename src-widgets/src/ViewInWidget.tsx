@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 import Generic from './Generic';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     overlay: {
         zIndex: 999,
         top: 0,
