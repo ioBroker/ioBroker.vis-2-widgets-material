@@ -27,14 +27,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import AnalogClockBase from './AnalogClockBase';
+import { ThemeType } from '@iobroker/adapter-react-v5';
 
 const TIME_DEGREE_OFFSET = 90;
-const calculateHourHandDegree = (hours, minutes) => hours * 30 + minutes * 0.5 - TIME_DEGREE_OFFSET;
-const calculateMinuteHandDegree = (hours, minutes, seconds) =>
+const calculateHourHandDegree = (hours: number, minutes: number) => hours * 30 + minutes * 0.5 - TIME_DEGREE_OFFSET;
+const calculateMinuteHandDegree = (hours: number, minutes: number, seconds: number) =>
     hours * 360 + minutes * 6 + seconds / 12 - TIME_DEGREE_OFFSET;
-const calculateSecondHandDegree = (minutes, seconds) => minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
+const calculateSecondHandDegree = (minutes: number, seconds: number) => minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
     analogClock: {
         // display: 'flex',
         // justifyContent: 'center',
@@ -59,7 +60,19 @@ const styles = {
     },
 };
 
-class AnalogClock extends Component {
+interface AnalogClockProps {
+    backgroundColor: string;
+    ticksColor: string;
+    showNumbers: boolean;
+    size: number
+    withSeconds: boolean;
+    handsColor: string;
+    secondHandColor: string;
+    themeType: ThemeType;
+    style: React.CSSProperties;
+}
+
+class AnalogClock extends Component<AnalogClockProps> {
     render() {
         const time = new Date();
         const hours = time.getHours() % 12;
@@ -119,17 +132,5 @@ class AnalogClock extends Component {
         );
     }
 }
-
-AnalogClock.propTypes = {
-    backgroundColor: PropTypes.string,
-    ticksColor: PropTypes.string,
-    showNumbers: PropTypes.bool,
-    size: PropTypes.number,
-    withSeconds: PropTypes.bool,
-    handsColor: PropTypes.string,
-    secondHandColor: PropTypes.string,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-};
 
 export default AnalogClock;

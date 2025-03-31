@@ -1,10 +1,15 @@
-import Lottie from 'lottie-react';
+import Lottie, { LottieRef, LottieRefCurrentProps } from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import animationDoor from './animationDoor.json';
 
-const DoorAnimation = props => {
+interface DoorAnimationProps {
+    open: boolean;
+    size?: number;
+}
+
+const DoorAnimation = (props: DoorAnimationProps) => {
     const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+    const ref = useRef<LottieRefCurrentProps>(null);
 
     useEffect(() => {
         setOpen(props.open);

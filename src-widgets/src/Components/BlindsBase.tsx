@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import Generic from '../Generic';
 import DialogBlinds from './DialogBlinds';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     blindHandle: {
         position: 'absolute',
         borderColor: '#a5aaad',
@@ -90,7 +90,23 @@ const styles = {
 
 export const STYLES = styles;
 
-class BlindsBase extends Generic {
+interface BlindsBaseRxData {
+    slideStop_oidX: string;
+    slidePos_oidX: string;
+    slideInvertX: boolean;
+    oid: string;
+    invert: boolean;
+    min: string;
+    max: string;
+    sashCount: number;
+}
+
+interface BlindsBaseState {
+    showBlindsDialog: number | boolean | null;
+    showBlindsDialogIndexOfButton: number;
+}
+
+class BlindsBase extends Generic<BlindsBaseRxData, BlindsBaseState> {
     // what we need
     // state.rxData.slideStop_oidX - optional
     // state.rxData.slidePos_oidX - required
@@ -103,12 +119,15 @@ class BlindsBase extends Generic {
     // state.rxData.sashCount - required
 
     // state.showBlindsDialog
-    constructor(props) {
+
+    lastClick: number | null = null;
+
+    constructor(props: BlindsBase['props']) {
         super(props);
-        this.state.showBlindsDialog = null;
+        (this.state as BlindsBaseState).showBlindsDialog = null;
     }
 
-    getMinMaxPosition(index, indexOfButton) {
+    getMinMaxPosition(index: number, indexOfButton: number) {
         const stopOid = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
         let positionOid =
             index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
@@ -221,7 +240,7 @@ class BlindsBase extends Generic {
     renderBlindsDialog() {
         if (this.state.showBlindsDialog !== null) {
             const data = this.getMinMaxPosition(
-                this.state.showBlindsDialog === true ? 0 : this.state.showBlindsDialog,
+                this.state.showBlindsDialog === true ? 0 : (this.state.showBlindsDialog as number),
                 this.state.showBlindsDialogIndexOfButton,
             );
 
@@ -255,7 +274,7 @@ class BlindsBase extends Generic {
         return null;
     }
 
-    renderOneWindow(index, options) {
+    renderOneWindow(index: number, options) {
         const data = this.getMinMaxPosition(index, options.indexOfButton);
 
         let handlePos = null;
@@ -308,7 +327,7 @@ class BlindsBase extends Generic {
             if (bbWidth < 1) {
                 bbWidth = 1;
             }
-            const style = {
+            const style: CSSProperties = {
                 borderWidth: bbWidth,
                 transitionProperty: 'transform',
                 transitionDuration: '0.3s',
@@ -422,7 +441,7 @@ class BlindsBase extends Generic {
         );
     }
 
-    renderWindows(size, indexOfButton) {
+    renderWindows(size: number, indexOfButton: number) {
         /*
         $div.find('.hq-blind-blind2').each(function (id) {
             id++;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const WindowClosed = props => (
+const WindowClosed = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
         width={361}
         height={361}

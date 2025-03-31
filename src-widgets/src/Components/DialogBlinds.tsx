@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { Component } from 'react';
+import React, { Component, CSSProperties, MouseEventHandler, TouchEventHandler } from 'react';
 import PropTypes from 'prop-types';
 
 import { Dialog, DialogContent, DialogTitle, IconButton, Button, Fab } from '@mui/material';
@@ -30,7 +30,7 @@ import {
 
 import { I18n } from '@iobroker/adapter-react-v5';
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
     dialogTitle: {
         textAlign: 'center',
     },
@@ -64,7 +64,26 @@ const styles = {
 
 const LAMP_ON_COLOR = '#c7c70e';
 
-class DialogBlinds extends Component {
+interface DialogBlindsProps {
+    dialogKey: string;
+    onClose: () => void;
+    onStop: () => void;
+    onToggle: () => void;
+    onValueChange: (value: number) => void;
+    startValue: number;
+    startToggleValue: boolean;
+    type: number;
+    unit: string;
+    background: string;
+}
+
+interface DialogBlindsState {
+    value: number;
+    toggleValue: boolean;
+    lastControl: number;
+}
+
+class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
     // expected:
     static types = {
         value: 0,
@@ -74,7 +93,22 @@ class DialogBlinds extends Component {
 
     static mouseDown = false;
 
-    constructor(props) {
+    button: {
+        name: string;
+        time: number;
+        timer: ReturnType<typeof setTimeout> | null;
+        timeUp: number;
+    };
+
+    refSlider: React.RefObject<HTMLDivElement | null>;
+
+    type: number;
+
+    top: number | undefined = undefined;
+
+    height: number | undefined = undefined;
+
+    constructor(props: DialogBlindsProps) {
         super(props);
         this.state = {
             value: this.props.startValue || 0,
@@ -94,8 +128,8 @@ class DialogBlinds extends Component {
         };
     }
 
-    static getDerivedStateFromProps(nextProps, state) {
-        let newState;
+    static getDerivedStateFromProps(nextProps: DialogBlindsProps, state: DialogBlindsState) {
+        let newState: Partial<DialogBlindsState> | null = null;
         if (nextProps.startValue !== state.value && !DialogBlinds.mouseDown && Date.now() - state.lastControl > 1000) {
             newState = newState || {};
             newState.value = nextProps.startValue;
@@ -107,10 +141,10 @@ class DialogBlinds extends Component {
         return newState || null;
     }
 
-    eventToValue(e) {
+    eventToValue(e: MouseEvent & TouchEvent) {
         const pageY = e.touches ? e.touches[e.touches.length - 1].clientY : e.clientY;
 
-        let value = 100 - Math.round(((pageY - this.top) / this.height) * 100) + 9;
+        let value = 100 - Math.round(((pageY - this.top!) / this.height!) * 100) + 9;
 
         if (value > 100) {
             value = 100;
@@ -127,7 +161,7 @@ class DialogBlinds extends Component {
         }
     }
 
-    onMouseMove = e => {
+    onMouseMove = (e: MouseEvent & TouchEvent) => {
         if (DialogBlinds.mouseDown) {
             e.preventDefault();
             e.stopPropagation();
@@ -135,7 +169,7 @@ class DialogBlinds extends Component {
         }
     };
 
-    onMouseDown = e => {
+    onMouseDown = (e: MouseEvent & TouchEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -150,22 +184,22 @@ class DialogBlinds extends Component {
 
         DialogBlinds.mouseDown = true;
         this.eventToValue(e);
-        window.document.addEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
-        window.document.addEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-        window.document.addEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
-        window.document.addEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+        window.document.addEventListener('mousemove', this.onMouseMove as EventListener, { passive: false, capture: true });
+        window.document.addEventListener('mouseup', this.onMouseUp as EventListener, { passive: false, capture: true });
+        window.document.addEventListener('touchmove', this.onMouseMove as EventListener, { passive: false, capture: true });
+        window.document.addEventListener('touchend', this.onMouseUp as EventListener, { passive: false, capture: true });
     };
 
-    onMouseUp = e => {
+    onMouseUp = (e: MouseEvent & TouchEvent) => {
         e.preventDefault();
         e.stopPropagation();
         console.log('Stopped');
         if (DialogBlinds.mouseDown) {
             DialogBlinds.mouseDown = false;
-            window.document.removeEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
-            window.document.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-            window.document.removeEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
-            window.document.removeEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+            window.document.removeEventListener('mousemove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener('mouseup', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener('touchmove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener('touchend', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
         }
 
         this.setState({ lastControl: Date.now() }, () => {
@@ -178,10 +212,10 @@ class DialogBlinds extends Component {
         // document.getElementById('root').className = ``;
         if (DialogBlinds.mouseDown) {
             DialogBlinds.mouseDown = false;
-            window.document.removeEventListener('mousemove', this.onMouseMove, { passive: false, capture: true });
-            window.document.removeEventListener('mouseup', this.onMouseUp, { passive: false, capture: true });
-            window.document.removeEventListener('touchmove', this.onMouseMove, { passive: false, capture: true });
-            window.document.removeEventListener('touchend', this.onMouseUp, { passive: false, capture: true });
+            window.document.removeEventListener('mousemove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener('mouseup', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener('touchmove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener('touchend', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
         }
     }
 
@@ -211,7 +245,7 @@ class DialogBlinds extends Component {
         }
     }
 
-    onButtonDown(e, buttonName) {
+    onButtonDown(e: React.MouseEvent, buttonName: string) {
         e && e.stopPropagation();
         if (Date.now() - this.button.time < 50) {
             return;
@@ -223,7 +257,7 @@ class DialogBlinds extends Component {
         this.button.time = Date.now();
         this.button.timer = setTimeout(() => {
             this.button.timer = null;
-            let value;
+            let value: number | undefined = undefined;
             switch (this.button.name) {
                 case 'top':
                     value = 100;
@@ -235,7 +269,9 @@ class DialogBlinds extends Component {
                 default:
                     break;
             }
-            this.setState({ value }, () => this.props.onValueChange && this.props.onValueChange(value));
+            if (value !== undefined) {
+                this.setState({ value }, () => this.props.onValueChange && this.props.onValueChange(value));
+            }
         }, 400);
     }
 
@@ -314,7 +350,7 @@ class DialogBlinds extends Component {
         return (
             <Fab
                 key={`${this.props.dialogKey}-toggle-button`}
-                active={this.props.startToggleValue}
+                // active={this.props.startToggleValue}
                 onClick={this.props.onToggle}
                 className="dimmer-button"
                 style={styles.buttonToggleStyle}
@@ -342,7 +378,7 @@ class DialogBlinds extends Component {
     }
 
     generateContent() {
-        const sliderStyle = {
+        const sliderStyle:CSSProperties = {
             position: 'absolute',
             width: '100%',
             left: 0,
@@ -352,7 +388,7 @@ class DialogBlinds extends Component {
             transitionDuration: '0.3s',
         };
 
-        const handlerStyle = {
+        const handlerStyle:CSSProperties = {
             position: 'absolute',
             width: '2em',
             height: '0.3em',
@@ -391,8 +427,8 @@ class DialogBlinds extends Component {
                     <div
                         className="vis-2-slider-blind"
                         ref={this.refSlider}
-                        onMouseDown={this.onMouseDown}
-                        onTouchStart={this.onMouseDown}
+                        onMouseDown={this.onMouseDown as unknown as MouseEventHandler}
+                        onTouchStart={this.onMouseDown as unknown as TouchEventHandler}
                         onClick={e => e.stopPropagation()}
                         style={styles.sliderStyle}
                     >

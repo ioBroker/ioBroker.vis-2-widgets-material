@@ -18,6 +18,8 @@ import {
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
 
+import type { GetRxDataFromWidget, RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+
 import {
     Close as IconClose,
     DeviceThermostat as ThermostatIcon,
@@ -90,8 +92,30 @@ const styles = {
     },
 };
 
-interface ActualProps {
-
+// eslint-disable-next-line no-use-before-define
+type RxData = {
+    noCard: boolean;
+    widgetTitle: string;
+    timeInterval: number;
+    updateInterval: number;
+    'oid-main': string;
+    'title-main': string;
+    'icon-main': string;
+    'unit-main': string;
+    'noChart': boolean;
+    'color-main': string;
+    'font-size-main': number;
+    'font-style-main': string;
+    'digits_after_comma_main': number;
+    'oid-secondary': string;
+    'title-secondary': string;
+    'icon-secondary': string;
+    'unit-secondary': string;
+    'noChart-secondary': boolean;
+    'color-secondary': string;
+    'font-size-secondary': number;
+    'font-style-secondary': string;
+    'digits_after_comma_secondary': number;
 }
 
 interface ActualState extends VisRxWidgetState {
@@ -102,7 +126,7 @@ interface ActualState extends VisRxWidgetState {
     containerHeight: number;
 }
 
-class Actual extends Generic<ActualProps, ActualState> {
+class Actual extends Generic<RxData, ActualState> {
     constructor(props: Actual['props']) {
         super(props);
         (this.state as ActualState).showDialog = false;
@@ -111,7 +135,7 @@ class Actual extends Generic<ActualProps, ActualState> {
         this.refContainer = React.createRef();
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Actual',
             visSet: 'vis-2-widgets-material',
@@ -304,11 +328,11 @@ class Actual extends Generic<ActualProps, ActualState> {
                 position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_actual.png',
-        };
+        } as const;
     }
 
     // eslint-disable-next-line class-methods-use-this
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Actual.getWidgetInfo();
     }
 

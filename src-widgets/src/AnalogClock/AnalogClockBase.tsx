@@ -23,16 +23,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-import React, { Component } from 'react';
+import React, { Component, CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 const TIME_DEGREE_OFFSET = 90;
-const calculateHourLabelDegree = labelIndex => labelIndex * 30 - TIME_DEGREE_OFFSET;
-const calculateTickLabelDegree = labelIndex => labelIndex * 6;
+const calculateHourLabelDegree = (labelIndex: number) => labelIndex * 30 - TIME_DEGREE_OFFSET;
+const calculateTickLabelDegree = (labelIndex: number) => labelIndex * 6;
 
 export const HOUR_LABELS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-const styles = () => ({
+const styles:Record<string, CSSProperties> = ({
     analogClockBase: {
         borderRadius: '50%',
         borderStyle: 'solid',
@@ -59,7 +59,18 @@ const styles = () => ({
     },
 });
 
-class AnalogClockBase extends Component {
+interface AnalogClockBaseProps {
+    backgroundColor: string;
+    ticksColor: string;
+    showNumbers: boolean;
+    size: number;
+    withSeconds: boolean;
+    secondHandColor: string;
+    handsColor: string;
+    children: React.ReactNode;
+}
+
+class AnalogClockBase extends Component<AnalogClockBaseProps> {
     render() {
         const labelSize = Math.round(0.064 * this.props.size);
         const tickSize = Math.round(0.036 * this.props.size);
