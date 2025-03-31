@@ -1,4 +1,5 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './leaflet-providers';
@@ -296,7 +297,6 @@ class Map extends Generic {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Map.getWidgetInfo();
     }
@@ -417,7 +417,7 @@ class Map extends Generic {
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
             const position = this.getPropertyValue(`position${i}`);
             let radius;
-            // eslint-disable-next-line no-restricted-properties
+
             if (window.isFinite(this.state.rxData[`radius${i}`])) {
                 radius = parseFloat(this.state.rxData[`radius${i}`]);
             } else {

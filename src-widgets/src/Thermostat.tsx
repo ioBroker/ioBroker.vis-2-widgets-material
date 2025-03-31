@@ -463,8 +463,8 @@ class Thermostat extends Generic {
         }
 
         newState.isChart =
-                newState.tempObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory] ||
-                newState.tempStateObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory];
+            newState.tempObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory] ||
+            newState.tempStateObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory];
 
         Object.keys(newState).find(key => JSON.stringify(this.state[key]) !== JSON.stringify(newState[key])) &&
             this.setState(newState);
@@ -479,7 +479,6 @@ class Thermostat extends Generic {
         await this.thermostatReadObjects();
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Thermostat.getWidgetInfo();
     }
@@ -505,6 +504,7 @@ class Thermostat extends Generic {
         if (!this.state.showDialog) {
             return null;
         }
+
         return (
             <Dialog
                 sx={{ '& .MuiDialog-paper': { height: '100%' } }}

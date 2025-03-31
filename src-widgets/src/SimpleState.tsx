@@ -1,7 +1,9 @@
 // ------------------- deprecated, use Switches.jsx instead -------------------
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 
-import { Button, Dialog, DialogContent, DialogTitle, Slider, IconButton, Box, SxProps } from '@mui/material';
+import type { SxProps } from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, Slider, IconButton, Box } from '@mui/material';
 
 import {
     Lightbulb as LightbulbIconOn,
@@ -9,7 +11,8 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { Icon, IobTheme } from '@iobroker/adapter-react-v5';
+import type { IobTheme } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/adapter-react-v5';
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
@@ -294,7 +297,6 @@ class SimpleState extends Generic {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return SimpleState.getWidgetInfo();
     }

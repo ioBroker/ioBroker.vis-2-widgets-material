@@ -12,8 +12,20 @@
  * Licensees may copy, distribute, display, and perform the work and make derivative works based on it only for noncommercial purposes.
  * (Free for non-commercial use).
  */
-import React, { type Component } from 'react';
-import type { AnyWidgetId, RxWidgetInfo, VisRxWidgetStateValues, StateID, RxWidgetInfoAttributesField, RxRenderWidgetProps, RxWidgetInfoWriteable, Writeable, VisViewProps, VisBaseWidgetProps, VisWidgetCommand } from '@iobroker/types-vis-2';
+import type React, { type Component } from 'react';
+import type {
+    AnyWidgetId,
+    RxWidgetInfo,
+    VisRxWidgetStateValues,
+    StateID,
+    RxWidgetInfoAttributesField,
+    RxRenderWidgetProps,
+    RxWidgetInfoWriteable,
+    Writeable,
+    VisViewProps,
+    VisBaseWidgetProps,
+    VisWidgetCommand,
+} from '@iobroker/types-vis-2';
 import VisBaseWidget, { type VisBaseWidgetState } from './visBaseWidget';
 type VisRxWidgetProps = VisBaseWidgetProps;
 export interface VisRxData {
@@ -31,16 +43,25 @@ export interface VisRxWidgetState extends VisBaseWidgetState {
     disabled?: boolean;
 }
 export declare const POSSIBLE_MUI_STYLES: string[];
-declare class VisRxWidget<TRxData extends Record<string, any>, TState extends Partial<VisRxWidgetState> = VisRxWidgetState> extends VisBaseWidget<VisRxWidgetState & TState & {
-    rxData: TRxData;
-}> {
+declare class VisRxWidget<
+    TRxData extends Record<string, any>,
+    TState extends Partial<VisRxWidgetState> = VisRxWidgetState,
+> extends VisBaseWidget<
+    VisRxWidgetState &
+        TState & {
+            rxData: TRxData;
+        }
+> {
     static POSSIBLE_MUI_STYLES: string[];
     private linkContext;
     /** Method called when state changed */
     private readonly onStateChangedBind;
-    protected newState?: Partial<VisRxWidgetState & TState & {
-        rxData: TRxData;
-    }> | null;
+    protected newState?: Partial<
+        VisRxWidgetState &
+            TState & {
+                rxData: TRxData;
+            }
+    > | null;
     private wrappedContent?;
     private updateTimer?;
     private ignoreMouseEvents?;
@@ -49,7 +70,10 @@ declare class VisRxWidget<TRxData extends Record<string, any>, TState extends Pa
     private informIncludedWidgets?;
     private filterDisplay?;
     constructor(props: VisRxWidgetProps);
-    static findField(widgetInfo: RxWidgetInfo | RxWidgetInfoWriteable, name: string): Writeable<RxWidgetInfoAttributesField> | null;
+    static findField(
+        widgetInfo: RxWidgetInfo | RxWidgetInfoWriteable,
+        name: string,
+    ): Writeable<RxWidgetInfoAttributesField> | null;
     static getI18nPrefix(): string;
     static getText(text: string | ioBroker.Translated): string;
     static t(key: string, ...args: string[]): string;
@@ -61,14 +85,18 @@ declare class VisRxWidget<TRxData extends Record<string, any>, TState extends Pa
      * Called if ioBroker state changed
      */
     onStateChanged(
-    /** state object */
-    id?: StateID | null, 
-    /** state value */
-    state?: ioBroker.State | null, 
-    /** if state should not be set */
-    doNotApplyState?: boolean): Partial<VisRxWidgetState & TState & {
-        rxData: TRxData;
-    }> | null;
+        /** state object */
+        id?: StateID | null,
+        /** state value */
+        state?: ioBroker.State | null,
+        /** if state should not be set */
+        doNotApplyState?: boolean,
+    ): Partial<
+        VisRxWidgetState &
+            TState & {
+                rxData: TRxData;
+            }
+    > | null;
     applyBinding(stateId: string, newState: typeof this.state): void;
     componentDidMount(): void;
     onRxDataChanged(_prevRxData: typeof this.state.rxData): void;
@@ -88,14 +116,25 @@ declare class VisRxWidget<TRxData extends Record<string, any>, TState extends Pa
     checkVisibility(stateId?: string | null, newState?: typeof this.newState): boolean;
     onPropertiesUpdated(): void;
     formatValue(value: number | string, round: number): string;
-    wrapContent(content: React.JSX.Element | React.JSX.Element[], addToHeader?: React.JSX.Element | null | React.JSX.Element[], cardContentStyle?: React.CSSProperties, headerStyle?: React.CSSProperties, onCardClick?: (e?: React.MouseEvent<HTMLDivElement>) => void, components?: Record<string, Component<any>>): React.JSX.Element | React.JSX.Element[] | null;
-    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element | null;
+    wrapContent(
+        content: React.JSX.Element | React.JSX.Element[],
+        addToHeader?: React.JSX.Element | null | React.JSX.Element[],
+        cardContentStyle?: React.CSSProperties,
+        headerStyle?: React.CSSProperties,
+        onCardClick?: (e?: React.MouseEvent<HTMLDivElement>) => void,
+        components?: Record<string, Component<any>>,
+    ): React.JSX.Element | React.JSX.Element[] | null;
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null;
     getWidgetView(view: string, props?: Partial<VisViewProps>): React.JSX.Element;
-    getWidgetInWidget(view: string, wid: AnyWidgetId, props?: {
-        index?: number;
-        refParent?: React.RefObject<HTMLDivElement>;
-        isRelative?: boolean;
-    }): React.JSX.Element;
+    getWidgetInWidget(
+        view: string,
+        wid: AnyWidgetId,
+        props?: {
+            index?: number;
+            refParent?: React.RefObject<HTMLDivElement>;
+            isRelative?: boolean;
+        },
+    ): React.JSX.Element;
     isSignalVisible(index: number): boolean;
     static text2style(textStyle: string, style: React.CSSProperties): React.CSSProperties;
     renderSignal(index: number): React.JSX.Element;

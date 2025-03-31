@@ -1,4 +1,5 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import moment from 'moment';
 import 'moment/locale/de';
 import 'moment/locale/es';
@@ -350,7 +351,6 @@ class WasherDryer extends Generic {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return WasherDryer.getWidgetInfo();
     }

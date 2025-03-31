@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
-import VisRxWidget, { VisRxWidgetState } from './visRxWidget';
+import type { VisRxWidgetState } from './visRxWidget';
+import type VisRxWidget from './visRxWidget';
 
-class Generic<RxData extends Record<string, any>, State extends Partial<VisRxWidgetState> = VisRxWidgetState> extends ((window as any).visRxWidget as typeof VisRxWidget)<RxData, State> {
+class Generic<RxData extends Record<string, any>, State extends Partial<VisRxWidgetState> = VisRxWidgetState> extends ((
+    window as any
+).visRxWidget as typeof VisRxWidget)<RxData, State> {
     getPropertyValue = (stateName: string): any => this.state.values[`${(this.state.rxData as any)[stateName]}.val`];
 
     static getI18nPrefix() {

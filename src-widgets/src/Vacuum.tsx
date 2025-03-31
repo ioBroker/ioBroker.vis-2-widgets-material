@@ -2,28 +2,39 @@ import PropTypes from 'prop-types';
 
 import {
     Button,
-    Card, CardContent, Dialog, DialogContent, DialogTitle, IconButton, Menu, MenuItem, Tooltip,
+    Card,
+    CardContent,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Menu,
+    MenuItem,
+    Tooltip,
 } from '@mui/material';
 
-import {
-    BatteryChargingFull, BatteryFull, Close, Home, Pause, PlayArrow,
-} from '@mui/icons-material';
+import { BatteryChargingFull, BatteryFull, Close, Home, Pause, PlayArrow } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import VacuumCleanerIcon from './Components/VacuumIcon';
-import { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
-export const FanIcon = props => <svg
-    viewBox="0 0 512 512"
-    width={props.width || 20}
-    height={props.height || props.width || 20}
-    xmlns="http://www.w3.org/2000/svg"
-    style={props.style}
->
-    <path fill="currentColor" d="M352.57 128c-28.09 0-54.09 4.52-77.06 12.86l12.41-123.11C289 7.31 279.81-1.18 269.33.13 189.63 10.13 128 77.64 128 159.43c0 28.09 4.52 54.09 12.86 77.06L17.75 224.08C7.31 223-1.18 232.19.13 242.67c10 79.7 77.51 141.33 159.3 141.33 28.09 0 54.09-4.52 77.06-12.86l-12.41 123.11c-1.05 10.43 8.11 18.93 18.59 17.62 79.7-10 141.33-77.51 141.33-159.3 0-28.09-4.52-54.09-12.86-77.06l123.11 12.41c10.44 1.05 18.93-8.11 17.62-18.59-10-79.7-77.51-141.33-159.3-141.33zM256 288a32 32 0 1 1 32-32 32 32 0 0 1-32 32z" />
-</svg>;
+export const FanIcon = props => (
+    <svg
+        viewBox="0 0 512 512"
+        width={props.width || 20}
+        height={props.height || props.width || 20}
+        xmlns="http://www.w3.org/2000/svg"
+        style={props.style}
+    >
+        <path
+            fill="currentColor"
+            d="M352.57 128c-28.09 0-54.09 4.52-77.06 12.86l12.41-123.11C289 7.31 279.81-1.18 269.33.13 189.63 10.13 128 77.64 128 159.43c0 28.09 4.52 54.09 12.86 77.06L17.75 224.08C7.31 223-1.18 232.19.13 242.67c10 79.7 77.51 141.33 159.3 141.33 28.09 0 54.09-4.52 77.06-12.86l-12.41 123.11c-1.05 10.43 8.11 18.93 18.59 17.62 79.7-10 141.33-77.51 141.33-159.3 0-28.09-4.52-54.09-12.86-77.06l123.11 12.41c10.44 1.05 18.93-8.11 17.62-18.59-10-79.7-77.51-141.33-159.3-141.33zM256 288a32 32 0 1 1 32-32 32 32 0 0 1-32 32z"
+        />
+    </svg>
+);
 
 const styles: Record<string, CSSProperties> = {
     vacuumBattery: {
@@ -42,7 +53,9 @@ const styles: Record<string, CSSProperties> = {
         minWidth: 'min-content',
     },
     vacuumButtons: {
-        display: 'flex', alignItems: 'center', gap: 4,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
     },
     vacuumContent: {
         width: '100%',
@@ -85,7 +98,7 @@ export const VACUUM_ID_ROLES = {
     'main-brush-left': { role: 'value.usage.brush' },
     'side-brush-left': { role: 'value.usage.brush.side' },
     'cleaning-count': { name: 'cleanups' },
-    start: { role: 'button', name:'start' },
+    start: { role: 'button', name: 'start' },
     home: { role: 'button', name: 'home' },
     pause: { role: 'button', name: 'pause' },
     map64: { role: 'vacuum.map.base64' },
@@ -150,27 +163,13 @@ const vacuumLoadStates = async (field, data, changeData, socket) => {
     }
 };
 
-export const VACUUM_CLEANING_STATES = [
-    'cleaning',
-    'spot Cleaning',
-    'zone cleaning',
-    'room cleaning',
-];
+export const VACUUM_CLEANING_STATES = ['cleaning', 'spot Cleaning', 'zone cleaning', 'room cleaning'];
 
-export const VACUUM_PAUSE_STATES = [
-    'pause',
-    'waiting',
-];
+export const VACUUM_PAUSE_STATES = ['pause', 'waiting'];
 
-export const VACUUM_CHARGING_STATES = [
-    'charging',
-    'charging Erro',
-];
+export const VACUUM_CHARGING_STATES = ['charging', 'charging Erro'];
 
-export const VACUUM_GOING_HOME_STATES = [
-    'back to home',
-    'docking',
-];
+export const VACUUM_GOING_HOME_STATES = ['back to home', 'docking'];
 
 export const vacuumGetStatusColor = status => {
     if (typeof status === 'boolean') {
@@ -209,7 +208,7 @@ class Vacuum extends Generic {
         return {
             id: 'tplMaterial2Vacuum',
             visSet: 'vis-2-widgets-material',
-            visWidgetLabel: 'vacuum',  // Label of widget
+            visWidgetLabel: 'vacuum', // Label of widget
             visName: 'Vacuum',
             visAttrs: [
                 {
@@ -356,7 +355,6 @@ class Vacuum extends Generic {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Vacuum.getWidgetInfo();
     }
@@ -404,13 +402,18 @@ class Vacuum extends Generic {
                     parts.pop();
                     parts.pop();
                     parts.push('rooms');
-                    const rooms = await this.props.context.socket.getObjectView(`${parts.join('.')}.room`, `${parts.join('.')}.room\u9999`, 'channel');
+                    const rooms = await this.props.context.socket.getObjectView(
+                        `${parts.join('.')}.room`,
+                        `${parts.join('.')}.room\u9999`,
+                        'channel',
+                    );
                     const result = [];
                     Object.keys(rooms).forEach(id =>
                         result.push({
                             value: `${id}.roomClean`,
                             label: Generic.getText(rooms[id].common?.name || id.split('.').pop()),
-                        }));
+                        }),
+                    );
                     result.sort((a, b) => a.label.localeCompare(b.label));
                     return result;
                 }
@@ -439,12 +442,18 @@ class Vacuum extends Generic {
     }
 
     vacuumRenderBattery() {
-        return this.vacuumGetObj('battery') && <div style={styles.vacuumBattery}>
-            {this.vacuumGetObj('is-charging') && this.vacuumGetValue('is-charging') ? <BatteryChargingFull /> : <BatteryFull />}
-            {this.vacuumGetValue('battery') || 0}
-            {' '}
-            {this.vacuumGetObj('battery').common?.unit}
-        </div>;
+        return (
+            this.vacuumGetObj('battery') && (
+                <div style={styles.vacuumBattery}>
+                    {this.vacuumGetObj('is-charging') && this.vacuumGetValue('is-charging') ? (
+                        <BatteryChargingFull />
+                    ) : (
+                        <BatteryFull />
+                    )}
+                    {this.vacuumGetValue('battery') || 0} {this.vacuumGetObj('battery').common?.unit}
+                </div>
+            )
+        );
     }
 
     vacuumRenderSpeed() {
@@ -456,7 +465,7 @@ class Vacuum extends Generic {
         options = obj.common.states;
         if (Array.isArray(options)) {
             const result = {};
-            options.forEach(item => result[item] = item);
+            options.forEach(item => (result[item] = item));
             options = result;
         }
 
@@ -477,27 +486,34 @@ class Vacuum extends Generic {
                     this.setState({ showSpeedMenu: e.currentTarget });
                 }}
             >
-                {options[value] !== undefined && options[value] !== null ? Generic.t(options[value]).replace('vis_2_widgets_material_', '') : value}
+                {options[value] !== undefined && options[value] !== null
+                    ? Generic.t(options[value]).replace('vis_2_widgets_material_', '')
+                    : value}
             </Button>,
-            this.state.showSpeedMenu ? <Menu
-                open={!0}
-                anchorEl={this.state.showSpeedMenu}
-                key="speedMenu"
-                onClose={() => this.setState({ showSpeedMenu: null })}
-            >
-                {Object.keys(options).map(state => <MenuItem
-                    key={state}
-                    value={state}
-                    selected={value === state}
-                    onClick={e => {
-                        const _value = e.target.value;
-                        this.setState({ showSpeedMenu: null }, () =>
-                            this.props.context.setValue(this.state.rxData['vacuum-fan-speed-oid'], _value));
-                    }}
+            this.state.showSpeedMenu ? (
+                <Menu
+                    open={!0}
+                    anchorEl={this.state.showSpeedMenu}
+                    key="speedMenu"
+                    onClose={() => this.setState({ showSpeedMenu: null })}
                 >
-                    {Generic.t(options[state]).replace('vis_2_widgets_material_', '')}
-                </MenuItem>)}
-            </Menu> : null,
+                    {Object.keys(options).map(state => (
+                        <MenuItem
+                            key={state}
+                            value={state}
+                            selected={value === state}
+                            onClick={e => {
+                                const _value = e.target.value;
+                                this.setState({ showSpeedMenu: null }, () =>
+                                    this.props.context.setValue(this.state.rxData['vacuum-fan-speed-oid'], _value),
+                                );
+                            }}
+                        >
+                            {Generic.t(options[state]).replace('vis_2_widgets_material_', '')}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            ) : null,
         ];
     }
 
@@ -514,63 +530,66 @@ class Vacuum extends Generic {
             >
                 {Generic.t('Room')}
             </Button>,
-            this.state.showRoomsMenu ? <Menu
-                onClose={() => this.setState({ showRoomsMenu: null })}
-                open={!0}
-                anchorEl={this.state.showRoomsMenu}
-                key="roomsMenu"
-            >
-                {this.state.rooms.map(room => <MenuItem
-                    key={room.value}
-                    value={room.value}
-                    onClick={() => {
-                        // build together mihome-vacuum.0.rooms.room1.roomClean
-                        const id = room.value;
-                        this.setState({ showRoomsMenu: null }, () =>
-                            this.props.context.setValue(id, true));
-                    }}
+            this.state.showRoomsMenu ? (
+                <Menu
+                    onClose={() => this.setState({ showRoomsMenu: null })}
+                    open={!0}
+                    anchorEl={this.state.showRoomsMenu}
+                    key="roomsMenu"
                 >
-                    {room.label}
-                </MenuItem>)}
-            </Menu> : null,
+                    {this.state.rooms.map(room => (
+                        <MenuItem
+                            key={room.value}
+                            value={room.value}
+                            onClick={() => {
+                                // build together mihome-vacuum.0.rooms.room1.roomClean
+                                const id = room.value;
+                                this.setState({ showRoomsMenu: null }, () => this.props.context.setValue(id, true));
+                            }}
+                        >
+                            {room.label}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            ) : null,
         ];
     }
 
     vacuumRenderSensors() {
-        const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(sensor =>
-            this.vacuumGetObj(sensor));
+        const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(
+            sensor => this.vacuumGetObj(sensor),
+        );
 
-        return sensors.length ? <div style={styles.vacuumSensorsContainer}>
-            <div style={styles.vacuumSensors}>
-                {sensors.map(sensor => {
-                    const object = this.vacuumGetObj(sensor);
+        return sensors.length ? (
+            <div style={styles.vacuumSensorsContainer}>
+                <div style={styles.vacuumSensors}>
+                    {sensors.map(sensor => {
+                        const object = this.vacuumGetObj(sensor);
 
-                    return <Card
-                        key={sensor}
-                        style={styles.vacuumSensorCard}
-                    >
-                        <CardContent
-                            style={{ ...styles.vacuumSensorCardContent, paddingBottom: 2 }}
-                        >
-                            <div>
-                                <span style={styles.vacuumSensorBigText}>
-                                    {this.vacuumGetValue(sensor) || 0}
-                                </span>
-                                {' '}
-                                <span style={styles.vacuumSensorSmallText}>
-                                    {object.common.unit}
-                                </span>
-                            </div>
-                            <div>
-                                <span style={styles.vacuumSensorSmallText}>
-                                    {Generic.t(sensor.replaceAll('-', '_'))}
-                                </span>
-                            </div>
-                        </CardContent>
-                    </Card>;
-                })}
+                        return (
+                            <Card
+                                key={sensor}
+                                style={styles.vacuumSensorCard}
+                            >
+                                <CardContent style={{ ...styles.vacuumSensorCardContent, paddingBottom: 2 }}>
+                                    <div>
+                                        <span style={styles.vacuumSensorBigText}>
+                                            {this.vacuumGetValue(sensor) || 0}
+                                        </span>{' '}
+                                        <span style={styles.vacuumSensorSmallText}>{object.common.unit}</span>
+                                    </div>
+                                    <div>
+                                        <span style={styles.vacuumSensorSmallText}>
+                                            {Generic.t(sensor.replaceAll('-', '_'))}
+                                        </span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
+                </div>
             </div>
-        </div> : null;
+        ) : null;
     }
 
     vacuumRenderButtons() {
@@ -593,49 +612,58 @@ class Vacuum extends Generic {
             }
         }
 
-        return <div style={styles.vacuumButtons}>
-            {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) &&
-            <Tooltip
-                title={Generic.t('Start')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <IconButton
-                    onClick={() => this.props.context.setValue(this.state.rxData['vacuum-start-oid'], true)}
-                >
-                    <PlayArrow />
-                </IconButton>
-            </Tooltip>}
-            {this.vacuumGetObj('pause') && !VACUUM_PAUSE_STATES.includes(smallStatus) && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
-            <Tooltip
-                title={Generic.t('Pause')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <IconButton
-                    onClick={() => this.props.context.setValue(this.state.rxData['vacuum-pause-oid'], true)}
-                >
-                    <Pause />
-                </IconButton>
-            </Tooltip>}
-            {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) &&
-            <Tooltip
-                title={Generic.t('Home')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <IconButton
-                    onClick={() => this.props.context.setValue(this.state.rxData['vacuum-home-oid'], true)}
-                >
-                    <Home />
-                </IconButton>
-            </Tooltip>}
-            {statusObj && <Tooltip
-                title={Generic.t('Status')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <div style={{ color: statusColor }}>
-                    {Generic.t(status).replace('vis_2_widgets_material_', '')}
-                </div>
-            </Tooltip>}
-        </div>;
+        return (
+            <div style={styles.vacuumButtons}>
+                {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) && (
+                    <Tooltip
+                        title={Generic.t('Start')}
+                        slotProps={{ popper: { sx: styles.tooltip } }}
+                    >
+                        <IconButton
+                            onClick={() => this.props.context.setValue(this.state.rxData['vacuum-start-oid'], true)}
+                        >
+                            <PlayArrow />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                {this.vacuumGetObj('pause') &&
+                    !VACUUM_PAUSE_STATES.includes(smallStatus) &&
+                    !VACUUM_CHARGING_STATES.includes(smallStatus) && (
+                        <Tooltip
+                            title={Generic.t('Pause')}
+                            slotProps={{ popper: { sx: styles.tooltip } }}
+                        >
+                            <IconButton
+                                onClick={() => this.props.context.setValue(this.state.rxData['vacuum-pause-oid'], true)}
+                            >
+                                <Pause />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) && (
+                    <Tooltip
+                        title={Generic.t('Home')}
+                        slotProps={{ popper: { sx: styles.tooltip } }}
+                    >
+                        <IconButton
+                            onClick={() => this.props.context.setValue(this.state.rxData['vacuum-home-oid'], true)}
+                        >
+                            <Home />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                {statusObj && (
+                    <Tooltip
+                        title={Generic.t('Status')}
+                        slotProps={{ popper: { sx: styles.tooltip } }}
+                    >
+                        <div style={{ color: statusColor }}>
+                            {Generic.t(status).replace('vis_2_widgets_material_', '')}
+                        </div>
+                    </Tooltip>
+                )}
+            </div>
+        );
     }
 
     vacuumRenderMap() {
@@ -645,12 +673,23 @@ class Vacuum extends Generic {
                 return <VacuumCleanerIcon style={styles.vacuumImage} />;
             }
             if (this.state.rxData['vacuum-own-image']) {
-                return <Icon src={this.state.rxData['vacuum-own-image']} style={styles.vacuumImage} />;
+                return (
+                    <Icon
+                        src={this.state.rxData['vacuum-own-image']}
+                        style={styles.vacuumImage}
+                    />
+                );
             }
             return null;
         }
 
-        return <img src={this.state.values[`${obj._id}.val`]} alt="vacuum" style={styles.vacuumImage} />;
+        return (
+            <img
+                src={this.state.values[`${obj._id}.val`]}
+                alt="vacuum"
+                style={styles.vacuumImage}
+            />
+        );
     }
 
     onCommand(command) {
@@ -693,29 +732,47 @@ class Vacuum extends Generic {
 
         const map = this.vacuumRenderMap();
 
-        const content = <div style={styles.vacuumContent}>
-            {battery || rooms ? <div style={styles.vacuumTopPanel}>
-                {rooms}
-                {battery}
-            </div> : null}
-            {map ? <div style={{ ...styles.vacuumMapContainer, height: `calc(100% - ${height}px)`, width: '100%' }}>
-                {map}
-            </div> : null}
-            {sensors}
-            {buttons || speed ? <div style={styles.vacuumBottomPanel}>
-                {buttons}
-                {speed}
-            </div> : null}
-        </div>;
+        const content = (
+            <div style={styles.vacuumContent}>
+                {battery || rooms ? (
+                    <div style={styles.vacuumTopPanel}>
+                        {rooms}
+                        {battery}
+                    </div>
+                ) : null}
+                {map ? (
+                    <div style={{ ...styles.vacuumMapContainer, height: `calc(100% - ${height}px)`, width: '100%' }}>
+                        {map}
+                    </div>
+                ) : null}
+                {sensors}
+                {buttons || speed ? (
+                    <div style={styles.vacuumBottomPanel}>
+                        {buttons}
+                        {speed}
+                    </div>
+                ) : null}
+            </div>
+        );
 
         if (this.state.rxData.externalDialog && !this.props.editMode) {
-            return this.state.dialog ? <Dialog open={!0} onClose={() => this.setState({ dialog: null })}>
-                <DialogTitle>
-                    {this.state.rxData.widgetTitle}
-                    <IconButton style={{ float: 'right', zIndex: 2 }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
-                </DialogTitle>
-                <DialogContent>{content}</DialogContent>
-            </Dialog> : null;
+            return this.state.dialog ? (
+                <Dialog
+                    open={!0}
+                    onClose={() => this.setState({ dialog: null })}
+                >
+                    <DialogTitle>
+                        {this.state.rxData.widgetTitle}
+                        <IconButton
+                            style={{ float: 'right', zIndex: 2 }}
+                            onClick={() => this.setState({ dialog: null })}
+                        >
+                            <Close />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent>{content}</DialogContent>
+                </Dialog>
+            ) : null;
         }
 
         return this.wrapContent(content);

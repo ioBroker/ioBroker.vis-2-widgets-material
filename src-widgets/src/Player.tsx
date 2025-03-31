@@ -1,4 +1,5 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import Color from 'color';
 import ColorThief from 'colorthief';
 
@@ -14,9 +15,10 @@ import {
     VolumeMute,
 } from '@mui/icons-material';
 
-import { Card, CardContent, IconButton, Slider, SxProps } from '@mui/material';
+import type { SxProps } from '@mui/material';
+import { Card, CardContent, IconButton, Slider } from '@mui/material';
 import Generic from './Generic';
-import { IobTheme } from '@iobroker/adapter-react-v5';
+import type { IobTheme } from '@iobroker/adapter-react-v5';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     content: {
@@ -219,7 +221,6 @@ class Player extends Generic {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Player.getWidgetInfo();
     }

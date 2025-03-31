@@ -1,4 +1,5 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import Generic from './Generic';
@@ -64,7 +65,6 @@ class ViewInWidget extends Generic {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return ViewInWidget.getWidgetInfo();
     }

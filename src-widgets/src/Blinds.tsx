@@ -1,4 +1,5 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import BlindsBase from './Components/BlindsBase';
@@ -254,7 +255,6 @@ class Blinds extends BlindsBase {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Blinds.getWidgetInfo();
     }

@@ -13,7 +13,18 @@
  * (Free for non-commercial use).
  */
 import React from 'react';
-import type { AnyWidgetId, ResizeHandler, GroupData, WidgetData, WidgetStyle, Widget, RxRenderWidgetProps, VisRxWidgetStateValues, VisWidgetCommand, VisBaseWidgetProps } from '@iobroker/types-vis-2';
+import type {
+    AnyWidgetId,
+    ResizeHandler,
+    GroupData,
+    WidgetData,
+    WidgetStyle,
+    Widget,
+    RxRenderWidgetProps,
+    VisRxWidgetStateValues,
+    VisWidgetCommand,
+    VisBaseWidgetProps,
+} from '@iobroker/types-vis-2';
 type Resize = 'left' | 'right' | 'top' | 'bottom' | 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | boolean;
 export interface WidgetDataState extends WidgetData {
     bindings: string[];
@@ -28,10 +39,13 @@ export interface WidgetStyleState extends WidgetStyle {
     _originalData?: string;
 }
 export interface VisBaseWidgetState {
-    applyBindings?: false | true | {
-        top: string | number;
-        left: string | number;
-    };
+    applyBindings?:
+        | false
+        | true
+        | {
+              top: string | number;
+              left: string | number;
+          };
     data: WidgetDataState | GroupDataState;
     draggable?: boolean;
     editMode: boolean;
@@ -70,7 +84,10 @@ interface CanHTMLDivElement extends HTMLDivElement {
     };
     _storedDisplay?: React.CSSProperties['display'];
 }
-declare class VisBaseWidget<TState extends Partial<VisBaseWidgetState> = VisBaseWidgetState> extends React.Component<VisBaseWidgetProps, TState & VisBaseWidgetState> {
+declare class VisBaseWidget<TState extends Partial<VisBaseWidgetState> = VisBaseWidgetState> extends React.Component<
+    VisBaseWidgetProps,
+    TState & VisBaseWidgetState
+> {
     static FORBIDDEN_CHARS: RegExp;
     /** We do not store the SVG Element in the state because it is cyclic */
     private relativeMoveMenu?;
@@ -90,33 +107,53 @@ declare class VisBaseWidget<TState extends Partial<VisBaseWidgetState> = VisBase
     protected movement?: VisBaseWidgetMovement;
     /** If resizing is currently locked */
     protected resizeLocked?: boolean;
-    protected visDynamicResizable: undefined | null | {
-        default: boolean;
-        desiredSize: {
-            width: number;
-            height: number;
-        } | boolean;
-    };
+    protected visDynamicResizable:
+        | undefined
+        | null
+        | {
+              default: boolean;
+              desiredSize:
+                  | {
+                        width: number;
+                        height: number;
+                    }
+                  | boolean;
+          };
     protected isCanWidget?: boolean;
     constructor(props: VisBaseWidgetProps);
     static replacePRJ_NAME(data: Record<string, any>, style: Record<string, any>, props: VisBaseWidgetProps): void;
     componentDidMount(): void;
     componentWillUnmount(): void;
     onCommand(command: VisWidgetCommand, _option?: any): any;
-    static getDerivedStateFromProps(props: VisBaseWidgetProps, state: VisBaseWidgetState): Partial<VisBaseWidgetState> | null;
+    static getDerivedStateFromProps(
+        props: VisBaseWidgetProps,
+        state: VisBaseWidgetState,
+    ): Partial<VisBaseWidgetState> | null;
     static removeFromArray(items: Record<string, any>, IDs: string[], view: string, widget: string): void;
     static parseStyle(style: string, isRxStyle?: boolean): Record<string, string | number>;
     onMouseDown(e: React.MouseEvent): void;
     createWidgetMovementShadow(): void;
     isResizable(): boolean;
-    onMove: (x: number | undefined, y: number | undefined, save?: boolean, calculateRelativeWidgetPosition?: null | ((id: AnyWidgetId, left: string, top: string, shadowDiv: HTMLDivElement, order: AnyWidgetId[]) => void)) => void;
+    onMove: (
+        x: number | undefined,
+        y: number | undefined,
+        save?: boolean,
+        calculateRelativeWidgetPosition?:
+            | null
+            | ((id: AnyWidgetId, left: string, top: string, shadowDiv: HTMLDivElement, order: AnyWidgetId[]) => void),
+    ) => void;
     onTempSelect: (selected?: boolean) => void;
     onResizeStart(e: React.MouseEvent, type: Resize): void;
     getResizeHandlers(selected: boolean, widget: Widget, borderWidth: string): React.JSX.Element[] | null;
     isUserMemberOfGroup(user: string, userGroups: string[]): boolean;
-    static isWidgetFilteredOutStatic(viewsActiveFilter: {
-        [view: string]: string[];
-    } | null, widgetData: WidgetData | GroupData, view: string, editMode: boolean): boolean;
+    static isWidgetFilteredOutStatic(
+        viewsActiveFilter: {
+            [view: string]: string[];
+        } | null,
+        widgetData: WidgetData | GroupData,
+        view: string,
+        editMode: boolean,
+    ): boolean;
     isWidgetFilteredOut(widgetData: WidgetData | GroupData): boolean;
     static isWidgetHidden(widgetData: WidgetData | GroupData, states: VisRxWidgetStateValues, id: string): boolean;
     /**
@@ -128,7 +165,13 @@ declare class VisBaseWidget<TState extends Partial<VisBaseWidgetState> = VisBase
     formatIntervalHelper(value: number, type: 'seconds' | 'minutes' | 'hours' | 'days'): string;
     formatInterval(timestamp: number, isMomentJs: boolean): string;
     startUpdateInterval(): void;
-    formatDate(value: string | Date | number, format?: boolean | string, interval?: boolean, isMomentJs?: boolean, forRx?: boolean): string | React.JSX.Element;
+    formatDate(
+        value: string | Date | number,
+        format?: boolean | string,
+        interval?: boolean,
+        isMomentJs?: boolean,
+        forRx?: boolean,
+    ): string | React.JSX.Element;
     onToggleRelative(e: React.MouseEvent): void;
     onToggleWidth(e: React.MouseEvent): void;
     onToggleLineBreak(e: React.MouseEvent): void;

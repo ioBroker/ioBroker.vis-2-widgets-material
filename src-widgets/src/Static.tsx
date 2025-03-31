@@ -198,7 +198,6 @@ class Static extends Generic {
         }
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Static.getWidgetInfo();
     }

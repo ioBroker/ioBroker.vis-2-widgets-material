@@ -1,24 +1,21 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import {
-    Wheel, rgbaToHsva, hsvaToHsla,
-    hsvaToRgba, hexToHsva,
-    hsvaToHex, hslaToHsva, ShadeSlider,
-    rgbaToHex, Sketch,
+    Wheel,
+    rgbaToHsva,
+    hsvaToHsla,
+    hsvaToRgba,
+    hexToHsva,
+    hsvaToHex,
+    hslaToHsva,
+    ShadeSlider,
+    rgbaToHex,
+    Sketch,
 } from '@uiw/react-color';
 
-import {
-    Button,
-    Dialog, DialogContent, DialogTitle,
-    IconButton, Slider, Switch, Tooltip,
-} from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip } from '@mui/material';
 
-import {
-    Brightness6,
-    Close,
-    ColorLens,
-    Thermostat,
-    WbAuto,
-} from '@mui/icons-material';
+import { Brightness6, Close, ColorLens, Thermostat, WbAuto } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 
 import { Icon } from '@iobroker/adapter-react-v5';
@@ -33,8 +30,12 @@ function mobileCheck() {
     let check = false;
     const userAgent = window.navigator.userAgent || window.navigator.vendor || window.opera;
     if (
-        /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series([46])0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(userAgent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br([ev])w|bumb|bw-([nu])|c55\/|capi|ccwa|cdm-|cell|chtm|cldc|cmd-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc-s|devi|dica|dmob|do([cp])o|ds(12|-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly([-_])|g1 u|g560|gene|gf-5|g-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd-([mpt])|hei-|hi(pt|ta)|hp( i|ip)|hs-c|ht(c([- _agpst])|tp)|hu(aw|tc)|i-(20|go|ma)|i230|iac([ \-/])|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja([tv])a|jbro|jemu|jigs|kddi|keji|kgt([ /])|klon|kpt |kwc-|kyo([ck])|le(no|xi)|lg( g|\/([klu])|50|54|-[a-w])|libw|lynx|m1-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t([- ov])|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30([02])|n50([025])|n7(0([01])|10)|ne(([cm])-|on|tf|wf|wg|wt)|nok([6i])|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan([adt])|pdxg|pg(13|-([1-8]|c))|phil|pire|pl(ay|uc)|pn-2|po(ck|rt|se)|prox|psio|pt-g|qa-a|qc(07|12|21|32|60|-[2-7]|i-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h-|oo|p-)|sdk\/|se(c([-01])|47|mc|nd|ri)|sgh-|shar|sie([-m])|sk-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h-|v-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl-|tdg-|tel([im])|tim-|t-mo|to(pl|sh)|ts(70|m-|m3|m5)|tx-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c([- ])|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas-|your|zeto|zte-/i
-            .test(userAgent.substr(0, 4))
+        /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series([46])0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
+            userAgent,
+        ) ||
+        /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br([ev])w|bumb|bw-([nu])|c55\/|capi|ccwa|cdm-|cell|chtm|cldc|cmd-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc-s|devi|dica|dmob|do([cp])o|ds(12|-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly([-_])|g1 u|g560|gene|gf-5|g-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd-([mpt])|hei-|hi(pt|ta)|hp( i|ip)|hs-c|ht(c([- _agpst])|tp)|hu(aw|tc)|i-(20|go|ma)|i230|iac([ \-/])|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja([tv])a|jbro|jemu|jigs|kddi|keji|kgt([ /])|klon|kpt |kwc-|kyo([ck])|le(no|xi)|lg( g|\/([klu])|50|54|-[a-w])|libw|lynx|m1-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t([- ov])|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30([02])|n50([025])|n7(0([01])|10)|ne(([cm])-|on|tf|wf|wg|wt)|nok([6i])|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan([adt])|pdxg|pg(13|-([1-8]|c))|phil|pire|pl(ay|uc)|pn-2|po(ck|rt|se)|prox|psio|pt-g|qa-a|qc(07|12|21|32|60|-[2-7]|i-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h-|oo|p-)|sdk\/|se(c([-01])|47|mc|nd|ri)|sgh-|shar|sie([-m])|sk-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h-|v-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl-|tdg-|tel([im])|tim-|t-mo|to(pl|sh)|ts(70|m-|m3|m5)|tx-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c([- ])|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas-|your|zeto|zte-/i.test(
+            userAgent.substr(0, 4),
+        )
     ) {
         check = true;
     }
@@ -47,10 +48,12 @@ function isTouchDevice() {
     if (!mobileCheck()) {
         return false;
     }
-    return (('ontouchstart' in window)
-        || (navigator.maxTouchPoints > 0)
+    return (
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
         // @ts-expect-error this is only for Internet Explorer 10, if unsupported remove it.
-        || (navigator.msMaxTouchPoints > 0));
+        navigator.msMaxTouchPoints > 0
+    );
 }
 
 const styles: Record<string, CSSProperties> = {
@@ -139,18 +142,18 @@ export const colorTemperatureToRGB = (kelvin: number) => {
         }
     } else {
         red = temp - 60;
-        red = 329.698727446 * (red ** (-0.1332047592));
+        red = 329.698727446 * red ** -0.1332047592;
 
         green = temp - 60;
-        green = 288.1221695283 * (green ** (-0.0755148492));
+        green = 288.1221695283 * green ** -0.0755148492;
 
         blue = 255;
     }
 
     return {
-        red: limit(red,   0, 255),
+        red: limit(red, 0, 255),
         green: limit(green, 0, 255),
-        blue: limit(blue,  0, 255),
+        blue: limit(blue, 0, 255),
     };
 };
 
@@ -164,7 +167,12 @@ const loadStates = async (field, data, changeData, socket) => {
             if (states) {
                 Object.values(states).forEach(state => {
                     const role = state.common.role;
-                    if (role && RGB_ROLES[role] && (!data[role] || data[role] === 'nothing_selected') && field !== role) {
+                    if (
+                        role &&
+                        RGB_ROLES[role] &&
+                        (!data[role] || data[role] === 'nothing_selected') &&
+                        field !== role
+                    ) {
                         data[RGB_ROLES[role]] = state._id;
                         if (RGB_ROLES[role] === 'color_temperature') {
                             if (!data.ct_min && state.common.min) {
@@ -182,7 +190,20 @@ const loadStates = async (field, data, changeData, socket) => {
     }
 };
 
-export const RGB_NAMES = ['switch', 'brightness', 'rgb', 'red', 'green', 'blue', 'white', 'color_temperature', 'hue', 'saturation', 'luminance', 'white_mode'];
+export const RGB_NAMES = [
+    'switch',
+    'brightness',
+    'rgb',
+    'red',
+    'green',
+    'blue',
+    'white',
+    'color_temperature',
+    'hue',
+    'saturation',
+    'luminance',
+    'white_mode',
+];
 
 class RGBLight extends Generic {
     constructor(props) {
@@ -227,7 +248,8 @@ class RGBLight extends Generic {
                             name: 'icon',
                             type: 'icon64',
                             label: 'icon',
-                            default: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iY3VycmVudENvbG9yIj4NCiAgICA8cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPg0KPC9zdmc+DQo=',
+                            default:
+                                'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iY3VycmVudENvbG9yIj4NCiAgICA8cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPg0KPC9zdmc+DQo=',
                             hidden: '!!data.externalDialog',
                         },
                         {
@@ -247,9 +269,7 @@ class RGBLight extends Generic {
                             label: 'type',
                             type: 'select',
                             noTranslation: true,
-                            options: [
-                                'rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct',
-                            ],
+                            options: ['rgb', 'rgbw', 'r/g/b', 'r/g/b/w', 'hue/sat/lum', 'ct'],
                             onChange: loadStates,
                         },
                         {
@@ -335,7 +355,11 @@ class RGBLight extends Generic {
                             name: 'hideBrightness',
                             type: 'checkbox',
                             label: 'hideBrightness',
-                            hidden: data => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
+                            hidden: data =>
+                                data.rgbType !== 'rgb' &&
+                                data.rgbType !== 'rgbw' &&
+                                data.rgbType !== 'r/g/b' &&
+                                data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
@@ -350,7 +374,11 @@ class RGBLight extends Generic {
                             name: 'noRgbPalette',
                             type: 'checkbox',
                             label: 'noRgbPalette',
-                            hidden: data => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
+                            hidden: data =>
+                                data.rgbType !== 'rgb' &&
+                                data.rgbType !== 'rgbw' &&
+                                data.rgbType !== 'r/g/b' &&
+                                data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
@@ -431,7 +459,6 @@ class RGBLight extends Generic {
         await this.rgbReadObjects();
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return RGBLight.getWidgetInfo();
     }
@@ -462,10 +489,13 @@ class RGBLight extends Generic {
                 const values = { ...this.state.values, [`${this.state.rxData[id]}.val`]: value };
                 this.setState({ values });
 
-                this.timeouts[id] = setTimeout(() => {
-                    this.timeouts[id] = null;
-                    this.props.context.setValue(this.state.rxData[id], value);
-                }, parseInt(this.state.rxData.timeout, 10) || 200);
+                this.timeouts[id] = setTimeout(
+                    () => {
+                        this.timeouts[id] = null;
+                        this.props.context.setValue(this.state.rxData[id], value);
+                    },
+                    parseInt(this.state.rxData.timeout, 10) || 200,
+                );
             }
         }
     };
@@ -526,7 +556,9 @@ class RGBLight extends Generic {
         }
     }
 
-    rgbIsOnlyHue = () => this.state.rxData.rgbType === 'hue/sat/lum' && (!this.state.rgbObjects.saturation || !this.state.rgbObjects.luminance);
+    rgbIsOnlyHue = () =>
+        this.state.rxData.rgbType === 'hue/sat/lum' &&
+        (!this.state.rgbObjects.saturation || !this.state.rgbObjects.luminance);
 
     rgbGetWheelColor = () => {
         let result = {
@@ -648,64 +680,79 @@ class RGBLight extends Generic {
     };
 
     rgbIsRgb = () => {
-        if ((this.state.rxData.rgbType === 'rgb' || this.state.rxData.rgbType === 'rgbw')
-        && this.state.rxData.rgb) {
+        if ((this.state.rxData.rgbType === 'rgb' || this.state.rxData.rgbType === 'rgbw') && this.state.rxData.rgb) {
             return true;
         }
 
-        return (this.state.rxData.rgbType === 'r/g/b' || this.state.rxData.rgbType === 'r/g/b/w')
-            && this.state.rgbObjects.red
-            && this.state.rgbObjects.green
-            && this.state.rgbObjects.blue;
+        return (
+            (this.state.rxData.rgbType === 'r/g/b' || this.state.rxData.rgbType === 'r/g/b/w') &&
+            this.state.rgbObjects.red &&
+            this.state.rgbObjects.green &&
+            this.state.rgbObjects.blue
+        );
     };
 
-    rgbIsWhite = () => (this.state.rxData.rgbType === 'rgbw' && this.state.rxData.rgb)
-        || (this.state.rxData.rgbType === 'r/g/b/w' && this.state.rgbObjects.white);
+    rgbIsWhite = () =>
+        (this.state.rxData.rgbType === 'rgbw' && this.state.rxData.rgb) ||
+        (this.state.rxData.rgbType === 'r/g/b/w' && this.state.rgbObjects.white);
 
     rgbIsHSL = () => this.state.rxData.rgbType === 'hue/sat/lum' && this.state.rgbObjects.hue;
 
     rgbRenderSwitch() {
-        return this.state.rgbObjects.switch && <div
-            style={{
-                ...styles.rgbSliderContainer,
-                justifyContent: 'center',
-            }}
-        >
-            {Generic.t('Off')}
-            <Switch
-                checked={this.getPropertyValue('switch') || false}
-                onChange={e => this.rgbSetId('switch', e.target.checked)}
-            />
-            {Generic.t('On')}
-        </div>;
+        return (
+            this.state.rgbObjects.switch && (
+                <div
+                    style={{
+                        ...styles.rgbSliderContainer,
+                        justifyContent: 'center',
+                    }}
+                >
+                    {Generic.t('Off')}
+                    <Switch
+                        checked={this.getPropertyValue('switch') || false}
+                        onChange={e => this.rgbSetId('switch', e.target.checked)}
+                    />
+                    {Generic.t('On')}
+                </div>
+            )
+        );
     }
 
     rgbRenderBrightness() {
-        return this.state.rgbObjects.brightness && <div style={styles.rgbSliderContainer}>
-            <Tooltip
-                title={Generic.t('Brightness')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <Brightness6 />
-            </Tooltip>
-            <Slider
-                min={this.rgbGetIdMin('brightness') || 0}
-                max={this.rgbGetIdMax('brightness') || 100}
-                valueLabelDisplay="auto"
-                value={this.getPropertyValue('brightness') || 0}
-                onChange={(e, value) => this.rgbSetId('brightness', value)}
-            />
-        </div>;
+        return (
+            this.state.rgbObjects.brightness && (
+                <div style={styles.rgbSliderContainer}>
+                    <Tooltip
+                        title={Generic.t('Brightness')}
+                        slotProps={{ popper: { sx: styles.tooltip } }}
+                    >
+                        <Brightness6 />
+                    </Tooltip>
+                    <Slider
+                        min={this.rgbGetIdMin('brightness') || 0}
+                        max={this.rgbGetIdMax('brightness') || 100}
+                        valueLabelDisplay="auto"
+                        value={this.getPropertyValue('brightness') || 0}
+                        onChange={(e, value) => this.rgbSetId('brightness', value)}
+                    />
+                </div>
+            )
+        );
     }
 
     rgbRenderSketch() {
-        return <div className="dark" style={styles.rgbWheel}>
-            <Sketch
-                color={this.rgbGetWheelColor()}
-                disableAlpha
-                onChange={color => this.rgbSetWheelColor(color.hsva)}
-            />
-        </div>;
+        return (
+            <div
+                className="dark"
+                style={styles.rgbWheel}
+            >
+                <Sketch
+                    color={this.rgbGetWheelColor()}
+                    disableAlpha
+                    onChange={color => this.rgbSetWheelColor(color.hsva)}
+                />
+            </div>
+        );
     }
 
     rgbRenderWheelTypeSwitch(isWheelVisible, twoPanels, whiteMode) {
@@ -717,50 +764,68 @@ class RGBLight extends Generic {
             return null;
         }
 
-        return !this.rgbIsOnlyHue() && <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
-            {whiteMode !== null ? <Tooltip
-                title={Generic.t('Switch white mode')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <IconButton onClick={() => this.rgbSetWhiteMode(!whiteMode)} color={whiteMode ? 'primary' : 'default'}>
-                    <WbAuto />
-                </IconButton>
-            </Tooltip> : null}
-            {!this.state.rxData.noRgbPalette && whiteMode !== true ? <Tooltip
-                title={Generic.t('Switch color picker')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
-                    <ColorLens />
-                </IconButton>
-            </Tooltip> : null}
-        </div>;
+        return (
+            !this.rgbIsOnlyHue() && (
+                <div style={{ textAlign: twoPanels ? 'right' : undefined }}>
+                    {whiteMode !== null ? (
+                        <Tooltip
+                            title={Generic.t('Switch white mode')}
+                            slotProps={{ popper: { sx: styles.tooltip } }}
+                        >
+                            <IconButton
+                                onClick={() => this.rgbSetWhiteMode(!whiteMode)}
+                                color={whiteMode ? 'primary' : 'default'}
+                            >
+                                <WbAuto />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null}
+                    {!this.state.rxData.noRgbPalette && whiteMode !== true ? (
+                        <Tooltip
+                            title={Generic.t('Switch color picker')}
+                            slotProps={{ popper: { sx: styles.tooltip } }}
+                        >
+                            <IconButton onClick={() => this.setState({ sketch: !this.state.sketch })}>
+                                <ColorLens />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null}
+                </div>
+            )
+        );
     }
 
     rgbRenderBrightnessSlider(isWheelVisible, whiteMode) {
         if (!isWheelVisible || this.state.sketch || this.state.rxData.hideBrightness || whiteMode === true) {
             return null;
         }
-        return !this.rgbIsOnlyHue() && <ShadeSlider
-            hsva={this.rgbGetWheelColor()}
-            onChange={shade =>
-                this.rgbSetWheelColor({ ...this.rgbGetWheelColor(), ...shade })}
-        />;
+        return (
+            !this.rgbIsOnlyHue() && (
+                <ShadeSlider
+                    hsva={this.rgbGetWheelColor()}
+                    onChange={shade => this.rgbSetWheelColor({ ...this.rgbGetWheelColor(), ...shade })}
+                />
+            )
+        );
     }
 
     rgbRenderWheel(isWheelVisible, whiteMode) {
         if (!isWheelVisible || whiteMode === true) {
             return null;
         }
-        return this.state.sketch ? this.rgbRenderSketch() :  <div style={styles.rgbWheel}>
-            <Wheel
-                color={this.rgbGetWheelColor()}
-                onChange={color => {
-                    color = JSON.parse(JSON.stringify(color));
-                    this.rgbSetWheelColor(color.hsva);
-                }}
-            />
-        </div>;
+        return this.state.sketch ? (
+            this.rgbRenderSketch()
+        ) : (
+            <div style={styles.rgbWheel}>
+                <Wheel
+                    color={this.rgbGetWheelColor()}
+                    onChange={color => {
+                        color = JSON.parse(JSON.stringify(color));
+                        this.rgbSetWheelColor(color.hsva);
+                    }}
+                />
+            </div>
+        );
     }
 
     rgbRenderWhite() {
@@ -777,76 +842,86 @@ class RGBLight extends Generic {
             max = this.rgbGetIdMax('white') || 100;
         }
 
-        return <div style={styles.rgbSliderContainer}>
-            <TbSquareLetterW style={{ width: 24, height: 24 }} />
-            <Slider
-                min={min}
-                max={max}
-                valueLabelDisplay="auto"
-                value={this.rgbGetWhite() || 0}
-                onChange={(e, value) => this.rgbSetWhite(value)}
-            />
-        </div>;
+        return (
+            <div style={styles.rgbSliderContainer}>
+                <TbSquareLetterW style={{ width: 24, height: 24 }} />
+                <Slider
+                    min={min}
+                    max={max}
+                    valueLabelDisplay="auto"
+                    value={this.rgbGetWhite() || 0}
+                    onChange={(e, value) => this.rgbSetWhite(value)}
+                />
+            </div>
+        );
     }
 
     rgbRenderColorTemperature(whiteMode) {
         if (this.state.rxData.rgbType !== 'ct' || whiteMode === true) {
             return null;
         }
-        return <div style={styles.rgbSliderContainer}>
-            <Tooltip
-                title={Generic.t('Color temperature')}
-                slotProps={{ popper: { sx: styles.tooltip } }}
-            >
-                <Thermostat />
-            </Tooltip>
-            <div
-                style={{
-                    ...styles.rgbSliderContainer,
-                    background:
-        `linear-gradient(to right, ${this.state.colorTemperatures.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
-                    flex: '1',
-                    borderRadius: 4,
-                }}
-            >
-                <Slider
-                    valueLabelDisplay="auto"
-                    min={this.rgbGetIdMin('color_temperature') || 2700}
-                    max={this.rgbGetIdMax('color_temperature') || 6000}
-                    value={this.getPropertyValue('color_temperature') || 0}
-                    onChange={(e, value) => this.rgbSetId('color_temperature', value)}
-                />
+        return (
+            <div style={styles.rgbSliderContainer}>
+                <Tooltip
+                    title={Generic.t('Color temperature')}
+                    slotProps={{ popper: { sx: styles.tooltip } }}
+                >
+                    <Thermostat />
+                </Tooltip>
+                <div
+                    style={{
+                        ...styles.rgbSliderContainer,
+                        background: `linear-gradient(to right, ${this.state.colorTemperatures.map(c => `rgb(${c.red}, ${c.green}, ${c.blue})`).join(', ')})`,
+                        flex: '1',
+                        borderRadius: 4,
+                    }}
+                >
+                    <Slider
+                        valueLabelDisplay="auto"
+                        min={this.rgbGetIdMin('color_temperature') || 2700}
+                        max={this.rgbGetIdMax('color_temperature') || 6000}
+                        value={this.getPropertyValue('color_temperature') || 0}
+                        onChange={(e, value) => this.rgbSetId('color_temperature', value)}
+                    />
+                </div>
             </div>
-        </div>;
+        );
     }
 
     rgbRenderDialog(wheelVisible, whiteMode) {
         if (!this.state.dialog) {
             return null;
         }
-        return <Dialog
-            fullWidth
-            maxWidth="sm"
-            open={!0}
-            sx={{ '& .MuiDialog-paper': styles.rgbDialog }}
-            onClose={() => this.setState({ dialog: false })}
-        >
-            <DialogTitle>
-                {this.state.rxData.widgetTitle}
-                <IconButton style={{ float: 'right', zIndex: 2 }} onClick={() => this.setState({ dialog: null })}><Close /></IconButton>
-            </DialogTitle>
-            <DialogContent style={{ maxWidth: 400 }}>
-                <div style={styles.rgbDialogContainer}>
-                    {this.rgbRenderSwitch()}
-                    {this.rgbRenderBrightness()}
-                    {this.rgbRenderWhite()}
-                    {this.rgbRenderWheelTypeSwitch(wheelVisible, false, whiteMode)}
-                    {this.rgbRenderWheel(wheelVisible, whiteMode)}
-                    {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
-                    {this.rgbRenderColorTemperature(whiteMode)}
-                </div>
-            </DialogContent>
-        </Dialog>;
+        return (
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={!0}
+                sx={{ '& .MuiDialog-paper': styles.rgbDialog }}
+                onClose={() => this.setState({ dialog: false })}
+            >
+                <DialogTitle>
+                    {this.state.rxData.widgetTitle}
+                    <IconButton
+                        style={{ float: 'right', zIndex: 2 }}
+                        onClick={() => this.setState({ dialog: null })}
+                    >
+                        <Close />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent style={{ maxWidth: 400 }}>
+                    <div style={styles.rgbDialogContainer}>
+                        {this.rgbRenderSwitch()}
+                        {this.rgbRenderBrightness()}
+                        {this.rgbRenderWhite()}
+                        {this.rgbRenderWheelTypeSwitch(wheelVisible, false, whiteMode)}
+                        {this.rgbRenderWheel(wheelVisible, whiteMode)}
+                        {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
+                        {this.rgbRenderColorTemperature(whiteMode)}
+                    </div>
+                </DialogContent>
+            </Dialog>
+        );
     }
 
     rgbGetColor = () => {
@@ -894,8 +969,10 @@ class RGBLight extends Generic {
         if (this.state.rxData.fullSize) {
             size = this.refService?.current?.clientWidth;
         } else if (this.contentRef.current) {
-            size = this.contentRef.current.offsetWidth > this.contentRef.current.offsetHeight
-                ? this.contentRef.current.offsetHeight : this.contentRef.current.offsetWidth;
+            size =
+                this.contentRef.current.offsetWidth > this.contentRef.current.offsetHeight
+                    ? this.contentRef.current.offsetHeight
+                    : this.contentRef.current.offsetWidth;
         }
 
         let switchState = null;
@@ -916,51 +993,55 @@ class RGBLight extends Generic {
         let rgbContent;
         if (this.state.rxData.fullSize && !this.state.rxData.externalDialog) {
             if (wheelVisible && size >= 350) {
-                rgbContent = <div
-                    ref={this.contentRef}
-                    style={{
-                        ...styles.rgbDialogContainer,
-                        flexDirection: 'row',
-                        width: '100%',
-                    }}
-                >
+                rgbContent = (
                     <div
+                        ref={this.contentRef}
                         style={{
-                            flexDirection: 'column',
-                            gap: 12,
-                            flexGrow: 1,
-                            display: 'flex',
+                            ...styles.rgbDialogContainer,
+                            flexDirection: 'row',
+                            width: '100%',
                         }}
+                    >
+                        <div
+                            style={{
+                                flexDirection: 'column',
+                                gap: 12,
+                                flexGrow: 1,
+                                display: 'flex',
+                            }}
+                        >
+                            {this.rgbRenderSwitch()}
+                            {this.rgbRenderBrightness()}
+                            {this.rgbRenderWhite()}
+                            {this.rgbRenderColorTemperature(whiteMode)}
+                            {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
+                            {this.rgbRenderWheelTypeSwitch(wheelVisible, true, whiteMode)}
+                        </div>
+                        <div
+                            style={{
+                                flexDirection: 'column',
+                                display: 'flex',
+                            }}
+                        >
+                            {this.rgbRenderWheel(wheelVisible, whiteMode)}
+                        </div>
+                    </div>
+                );
+            } else {
+                rgbContent = (
+                    <div
+                        ref={this.contentRef}
+                        style={styles.rgbDialogContainer}
                     >
                         {this.rgbRenderSwitch()}
                         {this.rgbRenderBrightness()}
                         {this.rgbRenderWhite()}
-                        {this.rgbRenderColorTemperature(whiteMode)}
-                        {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
-                        {this.rgbRenderWheelTypeSwitch(wheelVisible, true, whiteMode)}
-                    </div>
-                    <div
-                        style={{
-                            flexDirection: 'column',
-                            display: 'flex',
-                        }}
-                    >
+                        {this.rgbRenderWheelTypeSwitch(wheelVisible, false, whiteMode)}
                         {this.rgbRenderWheel(wheelVisible, whiteMode)}
+                        {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
+                        {this.rgbRenderColorTemperature(whiteMode)}
                     </div>
-                </div>;
-            } else {
-                rgbContent = <div
-                    ref={this.contentRef}
-                    style={styles.rgbDialogContainer}
-                >
-                    {this.rgbRenderSwitch()}
-                    {this.rgbRenderBrightness()}
-                    {this.rgbRenderWhite()}
-                    {this.rgbRenderWheelTypeSwitch(wheelVisible, false, whiteMode)}
-                    {this.rgbRenderWheel(wheelVisible, whiteMode)}
-                    {this.rgbRenderBrightnessSlider(wheelVisible, whiteMode)}
-                    {this.rgbRenderColorTemperature(whiteMode)}
-                </div>;
+                );
             }
         } else if (this.props.editMode || !this.state.rxData.externalDialog) {
             if (switchState) {
@@ -984,11 +1065,13 @@ class RGBLight extends Generic {
                     // just circle
                     icon = <div style={style} />;
                 } else {
-                    icon = <Icon
-                        src={icon}
-                        alt={this.props.id}
-                        style={style}
-                    />;
+                    icon = (
+                        <Icon
+                            src={icon}
+                            alt={this.props.id}
+                            style={style}
+                        />
+                    );
                 }
             } else {
                 icon = <ColorLens style={style} />;
@@ -1026,99 +1109,157 @@ class RGBLight extends Generic {
 
             let button;
             if (!this.state.rxData.onlyCircle) {
-                button = <Button
-                    onClick={!this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch ? () => this.setState({ dialog: true }) : undefined}
-                    onMouseDown={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        this.pressTimeout && clearTimeout(this.pressTimeout);
-                        this.pressTimeout = setTimeout(() => {
-                            this.pressTimeout = null;
-                            this.setState({ dialog: true });
-                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
-                    } : undefined}
-                    onMouseUp={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        if (this.pressTimeout) {
-                            clearTimeout(this.pressTimeout);
-                            this.pressTimeout = null;
-                            this.rgbSetId('switch', !switchState);
+                button = (
+                    <Button
+                        onClick={
+                            !this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch
+                                ? () => this.setState({ dialog: true })
+                                : undefined
                         }
-                    } : undefined}
-                    onTouchStart={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        this.pressTimeout && clearTimeout(this.pressTimeout);
-                        this.pressTimeout = setTimeout(() => {
-                            this.pressTimeout = null;
-                            this.setState({ dialog: true });
-                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
-                    } : undefined}
-                    onTouchEnd={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        if (this.pressTimeout) {
-                            clearTimeout(this.pressTimeout);
-                            this.pressTimeout = null;
-                            this.rgbSetId('switch', !switchState);
+                        onMouseDown={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      this.pressTimeout && clearTimeout(this.pressTimeout);
+                                      this.pressTimeout = setTimeout(
+                                          () => {
+                                              this.pressTimeout = null;
+                                              this.setState({ dialog: true });
+                                          },
+                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                      );
+                                  }
+                                : undefined
                         }
-                    } : undefined}
-                    style={{
-                        backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
-                    }}
-                >
-                    {icon}
-                </Button>;
+                        onMouseUp={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      if (this.pressTimeout) {
+                                          clearTimeout(this.pressTimeout);
+                                          this.pressTimeout = null;
+                                          this.rgbSetId('switch', !switchState);
+                                      }
+                                  }
+                                : undefined
+                        }
+                        onTouchStart={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      this.pressTimeout && clearTimeout(this.pressTimeout);
+                                      this.pressTimeout = setTimeout(
+                                          () => {
+                                              this.pressTimeout = null;
+                                              this.setState({ dialog: true });
+                                          },
+                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                      );
+                                  }
+                                : undefined
+                        }
+                        onTouchEnd={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      if (this.pressTimeout) {
+                                          clearTimeout(this.pressTimeout);
+                                          this.pressTimeout = null;
+                                          this.rgbSetId('switch', !switchState);
+                                      }
+                                  }
+                                : undefined
+                        }
+                        style={{
+                            backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
+                        }}
+                    >
+                        {icon}
+                    </Button>
+                );
             } else {
-                button = <IconButton
-                    onClick={!this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch ? () => this.setState({ dialog: true }) : undefined}
-                    onMouseDown={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        this.pressTimeout && clearTimeout(this.pressTimeout);
-                        this.pressTimeout = setTimeout(() => {
-                            this.pressTimeout = null;
-                            this.setState({ dialog: true });
-                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
-                    } : undefined}
-                    onMouseUp={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        if (this.pressTimeout) {
-                            clearTimeout(this.pressTimeout);
-                            this.pressTimeout = null;
-                            this.rgbSetId('switch', !switchState);
+                button = (
+                    <IconButton
+                        onClick={
+                            !this.state.rxData.toggleOnClick || !this.state.rgbObjects.switch
+                                ? () => this.setState({ dialog: true })
+                                : undefined
                         }
-                    } : undefined}
-                    onTouchStart={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        this.pressTimeout && clearTimeout(this.pressTimeout);
-                        this.pressTimeout = setTimeout(() => {
-                            this.pressTimeout = null;
-                            this.setState({ dialog: true });
-                        }, parseInt(this.state.rxData.pressDuration, 10) || 300);
-                    } : undefined}
-                    onTouchEnd={this.state.rxData.toggleOnClick && this.state.rgbObjects.switch ? () => {
-                        if (this.pressTimeout) {
-                            clearTimeout(this.pressTimeout);
-                            this.pressTimeout = null;
-                            this.rgbSetId('switch', !switchState);
+                        onMouseDown={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      this.pressTimeout && clearTimeout(this.pressTimeout);
+                                      this.pressTimeout = setTimeout(
+                                          () => {
+                                              this.pressTimeout = null;
+                                              this.setState({ dialog: true });
+                                          },
+                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                      );
+                                  }
+                                : undefined
                         }
-                    } : undefined}
-                    style={{
-                        backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
-                        width: size,
-                        height: size,
-                        borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
-                    }}
-                >
-                    {icon}
-                </IconButton>;
+                        onMouseUp={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      if (this.pressTimeout) {
+                                          clearTimeout(this.pressTimeout);
+                                          this.pressTimeout = null;
+                                          this.rgbSetId('switch', !switchState);
+                                      }
+                                  }
+                                : undefined
+                        }
+                        onTouchStart={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      this.pressTimeout && clearTimeout(this.pressTimeout);
+                                      this.pressTimeout = setTimeout(
+                                          () => {
+                                              this.pressTimeout = null;
+                                              this.setState({ dialog: true });
+                                          },
+                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                      );
+                                  }
+                                : undefined
+                        }
+                        onTouchEnd={
+                            this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
+                                ? () => {
+                                      if (this.pressTimeout) {
+                                          clearTimeout(this.pressTimeout);
+                                          this.pressTimeout = null;
+                                          this.rgbSetId('switch', !switchState);
+                                      }
+                                  }
+                                : undefined
+                        }
+                        style={{
+                            backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
+                            width: size,
+                            height: size,
+                            borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
+                        }}
+                    >
+                        {icon}
+                    </IconButton>
+                );
             }
 
-            rgbContent = <>
-                <div
-                    ref={this.contentRef}
-                    style={{
-                        ...styles.rgbContent,
-                        ...applyStyle,
-                    }}
-                >
-                    {button}
-                </div>
-                {this.rgbRenderDialog(wheelVisible, whiteMode)}
-            </>;
+            rgbContent = (
+                <>
+                    <div
+                        ref={this.contentRef}
+                        style={{
+                            ...styles.rgbContent,
+                            ...applyStyle,
+                        }}
+                    >
+                        {button}
+                    </div>
+                    {this.rgbRenderDialog(wheelVisible, whiteMode)}
+                </>
+            );
         } else if (this.state.rxData.externalDialog) {
             return this.rgbRenderDialog(wheelVisible);
         }

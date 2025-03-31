@@ -1,4 +1,5 @@
-import Lottie, { LottieRefCurrentProps } from 'lottie-react';
+import type { LottieRefCurrentProps } from 'lottie-react';
+import Lottie from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import animationLock from './animationLockGray.json';
 

@@ -23,7 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-import React, { Component, CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 const TIME_DEGREE_OFFSET = 90;
@@ -32,7 +33,7 @@ const calculateTickLabelDegree = (labelIndex: number) => labelIndex * 6;
 
 export const HOUR_LABELS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-const styles:Record<string, CSSProperties> = ({
+const styles: Record<string, CSSProperties> = {
     analogClockBase: {
         borderRadius: '50%',
         borderStyle: 'solid',
@@ -57,7 +58,7 @@ const styles:Record<string, CSSProperties> = ({
     hourLabelSpan: {
         fontWeight: 500,
     },
-});
+};
 
 interface AnalogClockBaseProps {
     backgroundColor: string;

@@ -1,4 +1,5 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -1350,7 +1351,6 @@ class Switches extends BlindsBase {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Switches.getWidgetInfo();
     }
@@ -4648,18 +4648,34 @@ class Switches extends BlindsBase {
             case '==':
                 value = value.toString();
                 val = val.toString();
-                if (val === '1') val = 'true';
-                if (value === '1') value = 'true';
-                if (val === '0') val = 'false';
-                if (value === '0') value = 'false';
+                if (val === '1') {
+                    val = 'true';
+                }
+                if (value === '1') {
+                    value = 'true';
+                }
+                if (val === '0') {
+                    val = 'false';
+                }
+                if (value === '0') {
+                    value = 'false';
+                }
                 return value !== val;
             case '!=':
                 value = value.toString();
                 val = val.toString();
-                if (val === '1') val = 'true';
-                if (value === '1') value = 'true';
-                if (val === '0') val = 'false';
-                if (value === '0') value = 'false';
+                if (val === '1') {
+                    val = 'true';
+                }
+                if (value === '1') {
+                    value = 'true';
+                }
+                if (val === '0') {
+                    val = 'false';
+                }
+                if (value === '0') {
+                    value = 'false';
+                }
                 return value === val;
             case '>=':
                 return val < value;

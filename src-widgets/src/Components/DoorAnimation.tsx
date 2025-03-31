@@ -1,4 +1,5 @@
-import Lottie, { LottieRef, LottieRefCurrentProps } from 'lottie-react';
+import type { LottieRefCurrentProps } from 'lottie-react';
+import Lottie, { LottieRef } from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import animationDoor from './animationDoor.json';
 

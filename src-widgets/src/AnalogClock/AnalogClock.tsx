@@ -27,13 +27,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import AnalogClockBase from './AnalogClockBase';
-import { ThemeType } from '@iobroker/adapter-react-v5';
+import type { ThemeType } from '@iobroker/adapter-react-v5';
 
 const TIME_DEGREE_OFFSET = 90;
 const calculateHourHandDegree = (hours: number, minutes: number) => hours * 30 + minutes * 0.5 - TIME_DEGREE_OFFSET;
 const calculateMinuteHandDegree = (hours: number, minutes: number, seconds: number) =>
     hours * 360 + minutes * 6 + seconds / 12 - TIME_DEGREE_OFFSET;
-const calculateSecondHandDegree = (minutes: number, seconds: number) => minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
+const calculateSecondHandDegree = (minutes: number, seconds: number) =>
+    minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
 
 const styles: Record<string, React.CSSProperties> = {
     analogClock: {
@@ -64,7 +65,7 @@ interface AnalogClockProps {
     backgroundColor: string;
     ticksColor: string;
     showNumbers: boolean;
-    size: number
+    size: number;
     withSeconds: boolean;
     handsColor: string;
     secondHandColor: string;

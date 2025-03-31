@@ -1,16 +1,14 @@
-// eslint-disable-next-line func-names
 (function (root, factory) {
-    // eslint-disable-next-line no-undef
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        // eslint-disable-next-line no-undef
+
         define(['leaflet'], factory);
     } else if (typeof modules === 'object' && module.exports) {
         // define a Common JS module that relies on 'leaflet'
         module.exports = factory(require('leaflet'));
     } else {
         // Assume Leaflet is loaded into global object L already
-        // eslint-disable-next-line no-undef
+
         factory(L);
     }
 })(this, L => {
@@ -24,7 +22,6 @@
             const variantName = parts[1];
 
             if (!providers[providerName]) {
-                // eslint-disable-next-line no-throw-literal
                 throw `No such provider (${providerName})`;
             }
 
@@ -36,7 +33,6 @@
             // overwrite values in provider from variant.
             if (variantName && 'variants' in providers[providerName]) {
                 if (!(variantName in providers[providerName].variants)) {
-                    // eslint-disable-next-line no-throw-literal
                     throw `No such variant of ${providerName} (${variantName})`;
                 }
                 const variant = providers[providerName].variants[variantName];
@@ -56,7 +52,7 @@
 
             // replace attribution placeholders with their values from toplevel provider attribution,
             // recursively
-            // eslint-disable-next-line func-names
+
             const attributionReplacer = function (attr) {
                 if (attr.indexOf('{attribution.') === -1) {
                     return attr;
@@ -1179,7 +1175,6 @@
         },
     };
 
-    // eslint-disable-next-line func-names
     L.tileLayer.provider = function (provider, options) {
         return new L.TileLayer.Provider(provider, options);
     };

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { Component, CSSProperties, MouseEventHandler, TouchEventHandler } from 'react';
+import type { CSSProperties, MouseEventHandler, TouchEventHandler } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { Dialog, DialogContent, DialogTitle, IconButton, Button, Fab } from '@mui/material';
@@ -184,10 +185,19 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
 
         DialogBlinds.mouseDown = true;
         this.eventToValue(e);
-        window.document.addEventListener('mousemove', this.onMouseMove as EventListener, { passive: false, capture: true });
+        window.document.addEventListener('mousemove', this.onMouseMove as EventListener, {
+            passive: false,
+            capture: true,
+        });
         window.document.addEventListener('mouseup', this.onMouseUp as EventListener, { passive: false, capture: true });
-        window.document.addEventListener('touchmove', this.onMouseMove as EventListener, { passive: false, capture: true });
-        window.document.addEventListener('touchend', this.onMouseUp as EventListener, { passive: false, capture: true });
+        window.document.addEventListener('touchmove', this.onMouseMove as EventListener, {
+            passive: false,
+            capture: true,
+        });
+        window.document.addEventListener('touchend', this.onMouseUp as EventListener, {
+            passive: false,
+            capture: true,
+        });
     };
 
     onMouseUp = (e: MouseEvent & TouchEvent) => {
@@ -196,10 +206,26 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         console.log('Stopped');
         if (DialogBlinds.mouseDown) {
             DialogBlinds.mouseDown = false;
-            window.document.removeEventListener('mousemove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
-            window.document.removeEventListener('mouseup', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
-            window.document.removeEventListener('touchmove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
-            window.document.removeEventListener('touchend', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener(
+                'mousemove',
+                this.onMouseMove as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
+            window.document.removeEventListener(
+                'mouseup',
+                this.onMouseUp as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
+            window.document.removeEventListener(
+                'touchmove',
+                this.onMouseMove as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
+            window.document.removeEventListener(
+                'touchend',
+                this.onMouseUp as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
         }
 
         this.setState({ lastControl: Date.now() }, () => {
@@ -212,10 +238,26 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         // document.getElementById('root').className = ``;
         if (DialogBlinds.mouseDown) {
             DialogBlinds.mouseDown = false;
-            window.document.removeEventListener('mousemove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
-            window.document.removeEventListener('mouseup', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
-            window.document.removeEventListener('touchmove', this.onMouseMove as EventListener, { passive: false, capture: true } as EventListenerOptions);
-            window.document.removeEventListener('touchend', this.onMouseUp as EventListener, { passive: false, capture: true } as EventListenerOptions);
+            window.document.removeEventListener(
+                'mousemove',
+                this.onMouseMove as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
+            window.document.removeEventListener(
+                'mouseup',
+                this.onMouseUp as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
+            window.document.removeEventListener(
+                'touchmove',
+                this.onMouseMove as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
+            window.document.removeEventListener(
+                'touchend',
+                this.onMouseUp as EventListener,
+                { passive: false, capture: true } as EventListenerOptions,
+            );
         }
     }
 
@@ -378,7 +420,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
     }
 
     generateContent() {
-        const sliderStyle:CSSProperties = {
+        const sliderStyle: CSSProperties = {
             position: 'absolute',
             width: '100%',
             left: 0,
@@ -388,7 +430,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
             transitionDuration: '0.3s',
         };
 
-        const handlerStyle:CSSProperties = {
+        const handlerStyle: CSSProperties = {
             position: 'absolute',
             width: '2em',
             height: '0.3em',

@@ -1,4 +1,5 @@
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 
 import { Button, Chip, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
@@ -219,7 +220,6 @@ class Security extends Generic {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
     getWidgetInfo() {
         return Security.getWidgetInfo();
     }
