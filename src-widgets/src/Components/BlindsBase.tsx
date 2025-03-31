@@ -3,6 +3,7 @@ import React from 'react';
 
 import Generic from '../Generic';
 import DialogBlinds from './DialogBlinds';
+import { VisRxWidgetState } from 'src/visRxWidget';
 
 const styles: Record<string, CSSProperties> = {
     blindHandle: {
@@ -91,7 +92,7 @@ const styles: Record<string, CSSProperties> = {
 
 export const STYLES = styles;
 
-interface BlindsBaseRxData {
+export interface BlindsBaseRxData {
     slideStop_oidX: string;
     slidePos_oidX: string;
     slideInvertX: boolean;
@@ -102,12 +103,15 @@ interface BlindsBaseRxData {
     sashCount: number;
 }
 
-interface BlindsBaseState {
+export interface BlindsBaseState extends VisRxWidgetState {
     showBlindsDialog: number | boolean | null;
     showBlindsDialogIndexOfButton: number;
 }
 
-class BlindsBase extends Generic<BlindsBaseRxData, BlindsBaseState> {
+class BlindsBase<
+    R extends BlindsBaseRxData = BlindsBaseRxData,
+    S extends BlindsBaseState = BlindsBaseState,
+> extends Generic<R, S> {
     // what we need
     // state.rxData.slideStop_oidX - optional
     // state.rxData.slidePos_oidX - required
@@ -121,14 +125,12 @@ class BlindsBase extends Generic<BlindsBaseRxData, BlindsBaseState> {
 
     // state.showBlindsDialog
 
-    lastClick: number | null = null;
-
     constructor(props: BlindsBase['props']) {
         super(props);
         (this.state as BlindsBaseState).showBlindsDialog = null;
     }
 
-    getMinMaxPosition(index: number, indexOfButton: number) {
+    getMinMaxPosition(index: number, indexOfButton?: number) {
         const stopOid = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
         let positionOid =
             index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
@@ -442,7 +444,7 @@ class BlindsBase extends Generic<BlindsBaseRxData, BlindsBaseState> {
         );
     }
 
-    renderWindows(size: number, indexOfButton: number) {
+    renderWindows(size: number, indexOfButton?: number) {
         /*
         $div.find('.hq-blind-blind2').each(function (id) {
             id++;

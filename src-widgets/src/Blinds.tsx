@@ -2,7 +2,9 @@ import type { CSSProperties } from 'react';
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import type { BlindsBaseRxData } from './Components/BlindsBase';
 import BlindsBase from './Components/BlindsBase';
+import type { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     cardContent: {
@@ -16,14 +18,33 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-class Blinds extends BlindsBase {
+interface BlindsRxData extends BlindsBaseRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    sashCount: number;
+    ratio: number;
+    borderWidth: number;
+    oid: string;
+    oid_stop: string;
+    showValue: boolean;
+    min: string;
+    max: string;
+    invert: boolean;
+    externalDialog: boolean;
+}
+
+class Blinds extends BlindsBase<BlindsRxData> {
+    refCardContent: React.RefObject<HTMLDivElement | null>;
+    lastRxData: string | undefined;
+    updateTimeout: ReturnType<typeof setTimeout> | undefined;
+
     constructor(props) {
         super(props);
         this.state.objects = {};
         this.refCardContent = React.createRef();
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Blinds',
             visSet: 'vis-2-widgets-material',
@@ -193,7 +214,7 @@ class Blinds extends BlindsBase {
                             onChange: async (field, data, changeData, socket) => {
                                 if (data[field.name]) {
                                     const object = await socket.getObject(data[field.name]);
-                                    const index = field.name.match(/(\d+)$/)[1];
+                                    const index = field.name!.match(/(\d+)$/)![1];
                                     if (object && object.common) {
                                         let changed = false;
                                         // try to find stop button
@@ -252,7 +273,7 @@ class Blinds extends BlindsBase {
                 position: 'relative',
             },
             visPrev: 'widgets/vis-2-widgets-material/img/prev_blinds.png',
-        };
+        } as const;
     }
 
     getWidgetInfo() {
@@ -338,12 +359,12 @@ class Blinds extends BlindsBase {
             this.updateTimeout =
                 this.updateTimeout ||
                 setTimeout(async () => {
-                    this.updateTimeout = null;
+                    this.updateTimeout = undefined;
                     await this.propertiesUpdate();
                 }, 50);
         }
 
-        let height;
+        let height: number;
         let width;
         if (!this.refCardContent.current) {
             setTimeout(() => this.forceUpdate(), 50);
@@ -368,7 +389,7 @@ class Blinds extends BlindsBase {
         }
 
         const data = this.getMinMaxPosition(0);
-        height -= 8;
+        height! -= 8;
 
         const content = (
             <div
@@ -386,8 +407,8 @@ class Blinds extends BlindsBase {
                         : undefined
                 }
             >
-                {height ? this.renderBlindsDialog() : null}
-                {height ? this.renderWindows({ height, width }) : null}
+                {height! ? this.renderBlindsDialog() : null}
+                {height! ? this.renderWindows({ height, width }) : null}
             </div>
         );
 
