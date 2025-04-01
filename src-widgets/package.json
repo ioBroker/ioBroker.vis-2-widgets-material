@@ -9,7 +9,7 @@
         "@iobroker/adapter-react-v5": "^7.2.1",
         "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
         "@mui/icons-material": "^6.1.9",
-        "@mui/material": "^6.1.9",
+        "@mui/material": "^7.0.1",
         "@react-spectrum/color": "^3.0.5",
         "@uiw/react-color": "^2.3.4",
         "color": "^4.2.3",
