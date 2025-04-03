@@ -103,7 +103,7 @@ declare class VisBaseWidget<TState extends Partial<VisBaseWidgetState> = VisBase
     private shadowDiv;
     private stealCursor?;
     private beforeIncludeColor?;
-    private lastClick?;
+    lastClick?: number;
     protected movement?: VisBaseWidgetMovement;
     /** If resizing is currently locked */
     protected resizeLocked?: boolean;

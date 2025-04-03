@@ -3,7 +3,7 @@ import React from 'react';
 
 import Generic from '../Generic';
 import DialogBlinds from './DialogBlinds';
-import { VisRxWidgetState } from 'src/visRxWidget';
+import type { VisRxWidgetState } from 'src/visRxWidget';
 
 const styles: Record<string, CSSProperties> = {
     blindHandle: {
@@ -444,7 +444,13 @@ class BlindsBase<
         );
     }
 
-    renderWindows(size: number, indexOfButton?: number) {
+    renderWindows(
+        size: {
+            width: number;
+            height: number;
+        },
+        indexOfButton?: number,
+    ): React.ReactNode {
         /*
         $div.find('.hq-blind-blind2').each(function (id) {
             id++;

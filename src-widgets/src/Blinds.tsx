@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import type { BlindsBaseRxData } from './Components/BlindsBase';
 import BlindsBase from './Components/BlindsBase';
-import type { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     cardContent: {
@@ -31,6 +31,8 @@ interface BlindsRxData extends BlindsBaseRxData {
     max: string;
     invert: boolean;
     externalDialog: boolean;
+    [key: `slideSensor_oid${number}`]: string;
+    [key: `slideRatio${number}`]: number;
 }
 
 class Blinds extends BlindsBase<BlindsRxData> {
@@ -276,11 +278,11 @@ class Blinds extends BlindsBase<BlindsRxData> {
         } as const;
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Blinds.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
             return;
@@ -326,16 +328,16 @@ class Blinds extends BlindsBase<BlindsRxData> {
         }
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.propertiesUpdate();
     }
 
-    async onRxDataChanged() {
+    async onRxDataChanged(): Promise<void> {
         await this.propertiesUpdate();
     }
 
-    onCommand(command) {
+    onCommand(command: VisWidgetCommand): any {
         const result = super.onCommand(command);
         if (result === false) {
             if (command === 'openDialog') {
@@ -351,7 +353,7 @@ class Blinds extends BlindsBase<BlindsRxData> {
         return result;
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element | React.JSX.Element[] | null {
         super.renderWidgetBody(props);
 
         const actualRxData = JSON.stringify(this.state.rxData);
@@ -365,7 +367,7 @@ class Blinds extends BlindsBase<BlindsRxData> {
         }
 
         let height: number;
-        let width;
+        let width: number;
         if (!this.refCardContent.current) {
             setTimeout(() => this.forceUpdate(), 50);
         } else {
@@ -408,7 +410,7 @@ class Blinds extends BlindsBase<BlindsRxData> {
                 }
             >
                 {height! ? this.renderBlindsDialog() : null}
-                {height! ? this.renderWindows({ height, width }) : null}
+                {height! ? this.renderWindows({ height: height!, width: width! }) : null}
             </div>
         );
 
