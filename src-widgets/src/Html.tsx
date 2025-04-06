@@ -37,35 +37,35 @@ class Html extends Generic {
                             default:
                                 'Admin Memory: <span style="color: #73b9ff">{system.adapter.admin.0.memHeapTotal.val}MB</span>',
                             label: 'html_template',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 !!data.iframe || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'iframe',
                             type: 'url',
                             label: 'iframe_url',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 !!data.html || !!data.image || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'iframe_oid',
                             type: 'id',
                             label: 'iframe_oid',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 !!data.html || !!data.image || !!data.image_oid || !!data.iframe || !!data.widget,
                         },
                         {
                             name: 'image',
                             type: 'url',
                             label: 'image_url',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 !!data.iframe || !!data.html || !!data.image_oid || !!data.iframe_oid || !!data.widget,
                         },
                         {
                             name: 'image_oid',
                             type: 'id',
                             label: 'image_oid',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 !!data.iframe || !!data.html || !!data.image || !!data.iframe_oid || !!data.widget,
                         },
                         {
@@ -81,7 +81,7 @@ class Html extends Generic {
                             ],
                             default: 'fill',
                             label: 'object_fit',
-                            hidden: data => !data.image && !data.image_oid,
+                            hidden: (data: WidgetData) => !data.image && !data.image_oid,
                         },
                         {
                             name: 'refreshInterval',
@@ -90,65 +90,65 @@ class Html extends Generic {
                             max: 180000,
                             step: 100,
                             label: 'refresh_interval',
-                            hidden: data => !!data.html || !!data.widget,
+                            hidden: (data: WidgetData) => !!data.html || !!data.widget,
                         },
                         {
                             name: 'refreshOnWakeUp',
                             type: 'checkbox',
                             label: 'refresh_on_wake_up',
-                            hidden: data => !!data.html || !!data.widget,
+                            hidden: (data: WidgetData) => !!data.html || !!data.widget,
                         },
                         {
                             name: 'refreshOnViewChange',
                             type: 'checkbox',
                             label: 'refresh_on_view_change',
-                            hidden: data => !!data.html || !!data.widget,
+                            hidden: (data: WidgetData) => !!data.html || !!data.widget,
                         },
                         {
                             name: 'scrollX',
                             type: 'checkbox',
                             label: 'scroll_x',
-                            hidden: data => !data.iframe && !data.iframe_oid,
+                            hidden: (data: WidgetData) => !data.iframe && !data.iframe_oid,
                         },
                         {
                             name: 'scrollY',
                             type: 'checkbox',
                             label: 'scroll_y',
-                            hidden: data => !data.iframe && !data.iframe_oid,
+                            hidden: (data: WidgetData) => !data.iframe && !data.iframe_oid,
                         },
                         {
                             name: 'seamless',
                             type: 'checkbox',
                             label: 'seamless',
                             default: true,
-                            hidden: data => !data.iframe && !data.iframe_oid,
+                            hidden: (data: WidgetData) => !data.iframe && !data.iframe_oid,
                         },
                         {
                             name: 'noSandbox',
                             type: 'checkbox',
                             label: 'no_sandbox',
                             default: true,
-                            hidden: data => !data.iframe && !data.iframe_oid,
+                            hidden: (data: WidgetData) => !data.iframe && !data.iframe_oid,
                         },
                         {
                             name: 'allowUserInteractions',
                             type: 'checkbox',
                             label: 'allow_user_interactions',
                             default: true,
-                            hidden: data => !data.image && !data.image_oid,
+                            hidden: (data: WidgetData) => !data.image && !data.image_oid,
                         },
                         {
                             name: 'refreshWithNoQuery',
                             type: 'checkbox',
                             label: 'refresh_with_no_query',
                             default: true,
-                            hidden: data => !data.image && !data.image_oid && !data.iframe && !data.iframe_oid,
+                            hidden: (data: WidgetData) => !data.image && !data.image_oid && !data.iframe && !data.iframe_oid,
                         },
                         {
                             name: 'widget',
                             type: 'widget',
                             label: 'widget_id',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 !!data.image || !!data.image_oid || !!data.iframe || !!data.iframe_oid || !!data.html,
                         },
                         {

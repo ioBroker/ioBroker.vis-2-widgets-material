@@ -123,7 +123,7 @@ class Lock extends Generic {
                             name: 'lockWorking-oid',
                             type: 'id',
                             label: 'lockWorking-oid',
-                            hidden: data => !data['lock-oid'],
+                            hidden: (data: WidgetData) => !data['lock-oid'],
                         },
                         {
                             name: 'doorSensor-oid',
@@ -139,19 +139,19 @@ class Lock extends Generic {
                                     changeData(data);
                                 }
                             },
-                            hidden: data => !!data['pincode-oid'],
+                            hidden: (data: WidgetData) => !!data['pincode-oid'],
                         },
                         {
                             name: 'pincode-oid',
                             type: 'id',
                             label: 'pincode_oid',
-                            hidden: data => !!data.pincode,
+                            hidden: (data: WidgetData) => !!data.pincode,
                         },
                         {
                             name: 'doNotConfirm',
                             type: 'checkbox',
                             label: 'doNotConfirm',
-                            hidden: data => !!data.pincode || !!data['pincode-oid'],
+                            hidden: (data: WidgetData) => !!data.pincode || !!data['pincode-oid'],
                         },
                         {
                             name: 'pincodeReturnButton',
@@ -159,7 +159,7 @@ class Lock extends Generic {
                             options: ['submit', 'backspace'],
                             default: 'submit',
                             label: 'pincode_return_button',
-                            hidden: data => !!data['pincode-oid'] && !!data.pincode,
+                            hidden: (data: WidgetData) => !!data['pincode-oid'] && !!data.pincode,
                         },
                         {
                             name: 'doorSize',
@@ -168,7 +168,7 @@ class Lock extends Generic {
                             min: 20,
                             max: 500,
                             default: 100,
-                            hidden: data => !data['doorOpen-oid'] && !data['doorSensor-oid'],
+                            hidden: (data: WidgetData) => !data['doorOpen-oid'] && !data['doorSensor-oid'],
                         },
                         {
                             name: 'lockSize',
@@ -177,19 +177,19 @@ class Lock extends Generic {
                             min: 15,
                             max: 500,
                             default: 40,
-                            hidden: data => !data['lock-oid'],
+                            hidden: (data: WidgetData) => !data['lock-oid'],
                         },
                         {
                             name: 'noLockAnimation',
                             label: 'noLockAnimation',
                             type: 'checkbox',
-                            hidden: data => !data['lock-oid'],
+                            hidden: (data: WidgetData) => !data['lock-oid'],
                         },
                         {
                             name: 'lockColor',
                             label: 'Lock color',
                             type: 'color',
-                            hidden: data => !data['lock-oid'] || !!data.noLockAnimation,
+                            hidden: (data: WidgetData) => !data['lock-oid'] || !!data.noLockAnimation,
                         },
                         {
                             name: 'externalDialog',

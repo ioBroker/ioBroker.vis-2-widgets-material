@@ -197,12 +197,12 @@ class Map extends Generic {
                         {
                             name: 'themeUrl',
                             label: 'theme_url',
-                            hidden: data => data.theme && data.theme !== 'default',
+                            hidden: (data: WidgetData) => data.theme && data.theme !== 'default',
                         },
                         {
                             name: 'themeAttribution',
                             label: 'theme_attribution',
-                            hidden: data => data.theme && data.theme !== 'default',
+                            hidden: (data: WidgetData) => data.theme && data.theme !== 'default',
                         },
                         {
                             name: 'defaultZoom',

@@ -276,42 +276,42 @@ class RGBLight extends Generic {
                             name: 'rgb',
                             type: 'id',
                             label: 'rgb',
-                            hidden: data => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw',
+                            hidden: (data: WidgetData) => data.rgbType !== 'rgb' && data.rgbType !== 'rgbw',
                             onChange: loadStates,
                         },
                         {
                             name: 'red',
                             type: 'id',
                             label: 'red',
-                            hidden: data => data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
+                            hidden: (data: WidgetData) => data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
                             name: 'green',
                             type: 'id',
                             label: 'green',
-                            hidden: data => data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
+                            hidden: (data: WidgetData) => data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
                             name: 'blue',
                             type: 'id',
                             label: 'blue',
-                            hidden: data => data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
+                            hidden: (data: WidgetData) => data.rgbType !== 'r/g/b' && data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
                             name: 'white',
                             type: 'id',
                             label: 'white',
-                            hidden: data => data.rgbType !== 'r/g/b/w' && data.rgbType !== 'rgbw',
+                            hidden: (data: WidgetData) => data.rgbType !== 'r/g/b/w' && data.rgbType !== 'rgbw',
                             onChange: loadStates,
                         },
                         {
                             name: 'color_temperature',
                             type: 'id',
                             label: 'color_temperature',
-                            hidden: data => data.rgbType !== 'ct',
+                            hidden: (data: WidgetData) => data.rgbType !== 'ct',
                             onChange: loadStates,
                         },
                         {
@@ -320,7 +320,7 @@ class RGBLight extends Generic {
                             min: 500,
                             max: 10000,
                             label: 'color_temperature_min',
-                            hidden: data => data.rgbType !== 'ct' || !data.color_temperature,
+                            hidden: (data: WidgetData) => data.rgbType !== 'ct' || !data.color_temperature,
                         },
                         {
                             name: 'ct_max',
@@ -328,34 +328,34 @@ class RGBLight extends Generic {
                             min: 500,
                             max: 10000,
                             label: 'color_temperature_max',
-                            hidden: data => data.rgbType !== 'ct' || !data.color_temperature,
+                            hidden: (data: WidgetData) => data.rgbType !== 'ct' || !data.color_temperature,
                         },
                         {
                             name: 'hue',
                             type: 'id',
                             label: 'hue',
-                            hidden: data => data.rgbType !== 'hue/sat/lum',
+                            hidden: (data: WidgetData) => data.rgbType !== 'hue/sat/lum',
                             onChange: loadStates,
                         },
                         {
                             name: 'saturation',
                             type: 'id',
                             label: 'saturation',
-                            hidden: data => data.rgbType !== 'hue/sat/lum',
+                            hidden: (data: WidgetData) => data.rgbType !== 'hue/sat/lum',
                             onChange: loadStates,
                         },
                         {
                             name: 'luminance',
                             type: 'id',
                             label: 'luminance',
-                            hidden: data => data.rgbType !== 'hue/sat/lum',
+                            hidden: (data: WidgetData) => data.rgbType !== 'hue/sat/lum',
                             onChange: loadStates,
                         },
                         {
                             name: 'hideBrightness',
                             type: 'checkbox',
                             label: 'hideBrightness',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 data.rgbType !== 'rgb' &&
                                 data.rgbType !== 'rgbw' &&
                                 data.rgbType !== 'r/g/b' &&
@@ -367,14 +367,14 @@ class RGBLight extends Generic {
                             type: 'id',
                             label: 'whiteMode',
                             tooltip: 'whiteModeTooltip',
-                            hidden: data => data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b/w',
+                            hidden: (data: WidgetData) => data.rgbType !== 'rgbw' && data.rgbType !== 'r/g/b/w',
                             onChange: loadStates,
                         },
                         {
                             name: 'noRgbPalette',
                             type: 'checkbox',
                             label: 'noRgbPalette',
-                            hidden: data =>
+                            hidden: (data: WidgetData) =>
                                 data.rgbType !== 'rgb' &&
                                 data.rgbType !== 'rgbw' &&
                                 data.rgbType !== 'r/g/b' &&

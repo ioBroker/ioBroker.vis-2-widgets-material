@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 
 import AnalogClock from './AnalogClock/AnalogClock';
 import Generic from './Generic';
+import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
 
 const styles: Record<string, CSSProperties> = {
     uClock: {
@@ -28,20 +30,22 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-function getTextWidth(text: string, font: string) {
+let getTextWidthCanvas: HTMLCanvasElement | null = null;
+
+function getTextWidth(text: string, font: string): number {
     // re-use a canvas object for better performance
-    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+    const canvas = getTextWidthCanvas || (getTextWidthCanvas = document.createElement('canvas'));
     const context = canvas.getContext('2d');
-    context.font = font;
-    const metrics = context.measureText(text);
+    context!.font = font;
+    const metrics = context!.measureText(text);
     return metrics.width;
 }
 
-function getCssStyle(element: Element, prop: string) {
+function getCssStyle(element: Element, prop: string): string {
     return window.getComputedStyle(element, null).getPropertyValue(prop);
 }
 
-function getCanvasFont(el = document.body) {
+function getCanvasFont(el = document.body): { fontWeight: string; fontSize: string; fontFamily: string } {
     const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
     const fontSize = getCssStyle(el, 'font-size') || '16px';
     const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
@@ -49,15 +53,39 @@ function getCanvasFont(el = document.body) {
     return { fontWeight, fontSize, fontFamily };
 }
 
-class Clock extends Generic {
-    constructor(props) {
+interface ClockRxData {
+    noCard: boolean;
+    type: string;
+    backgroundColor: string;
+    ticksColor: string;
+    handsColor: string;
+    secondHandColor: string;
+    withSeconds: boolean;
+    showNumbers: boolean;
+    blinkDelimiter: boolean;
+    hoursFormat: string;
+}
+
+interface ClockState extends VisRxWidgetState {
+    time: Date;
+    width: number;
+    height: number;
+    fontSize?: number;
+    timeFormat?: string;
+}
+
+class Clock extends Generic<ClockRxData, ClockState> {
+    refContainer: React.RefObject<HTMLDivElement | null>;
+    rotations?: [number, number, number];
+    timeInterval?: ReturnType<typeof setTimeout>;
+    constructor(props: Clock['props']) {
         super(props);
-        this.state.time = new Date();
-        this.state.width = 0;
+        (this.state as ClockState).time = new Date();
+        (this.state as ClockState).width = 0;
         this.refContainer = React.createRef();
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Clock',
             visSet: 'vis-2-widgets-material',
@@ -161,11 +189,11 @@ class Clock extends Generic {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Clock.getWidgetInfo();
     }
 
-    nextTick = () => {
+    nextTick = (): void => {
         const data = this.state.rxData || {};
         const time = new Date();
         let timeout;
@@ -178,27 +206,27 @@ class Clock extends Generic {
         this.setState({ time });
     };
 
-    onRxDataChanged() {
+    onRxDataChanged(): void {
         this.timeInterval && clearTimeout(this.timeInterval);
         this.timeInterval = setTimeout(() => {
-            this.timeInterval = null;
+            this.timeInterval = undefined;
             this.nextTick();
         }, 1000 - new Date().getMilliseconds());
     }
 
-    async componentDidMount() {
+    componentDidMount(): void {
         super.componentDidMount();
         this.timeInterval =
             this.timeInterval ||
             setTimeout(() => {
-                this.timeInterval = null;
+                this.timeInterval = undefined;
                 this.nextTick();
             }, 1000 - new Date().getMilliseconds());
 
         this.recalculateWidth();
     }
 
-    recalculateWidth() {
+    recalculateWidth(): void {
         if (this.refContainer.current) {
             let size = this.refContainer.current.clientWidth;
             if (this.state.rxData.type !== 'digital' && this.state.rxData.type !== 'digital2') {
@@ -218,7 +246,7 @@ class Clock extends Generic {
                 this.state.timeFormat !== timeFormat
             ) {
                 let fontSize = this.refContainer.current.clientHeight;
-                if (fontSize && this.state.rxData.type === 'digital' && !this.state.rxStyle['font-size']) {
+                if (fontSize && this.state.rxData.type === 'digital' && !this.state.rxStyle!['font-size']) {
                     const font = getCanvasFont(this.refContainer.current);
                     let textWidth;
                     do {
@@ -241,12 +269,12 @@ class Clock extends Generic {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         this.timeInterval && clearTimeout(this.timeInterval);
         super.componentWillUnmount();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(): void {
         super.componentDidUpdate && super.componentDidUpdate();
         this.recalculateWidth();
     }
@@ -275,7 +303,7 @@ class Clock extends Generic {
         OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
         SOFTWARE.
      */
-    renderSimpleClock() {
+    renderSimpleClock(): React.JSX.Element {
         const data = this.state.rxData || {};
         const now = new Date();
         const seconds = now.getSeconds();
@@ -408,18 +436,18 @@ class Clock extends Generic {
         );
     }
 
-    renderAnalogClock() {
+    renderAnalogClock(): React.JSX.Element {
         const data = this.state.rxData || {};
         return (
             <AnalogClock
                 style={{
                     marginTop:
-                        this.refContainer.current.clientHeight > this.refContainer.current.clientWidth
-                            ? (this.refContainer.current.clientHeight - this.refContainer.current.clientWidth) / 2
+                        this.refContainer.current!.clientHeight > this.refContainer.current!.clientWidth
+                            ? (this.refContainer.current!.clientHeight - this.refContainer.current!.clientWidth) / 2
                             : undefined,
                     marginLeft:
-                        this.refContainer.current.clientHeight < this.refContainer.current.clientWidth
-                            ? (this.refContainer.current.clientWidth - this.refContainer.current.clientHeight) / 2
+                        this.refContainer.current!.clientHeight < this.refContainer.current!.clientWidth
+                            ? (this.refContainer.current!.clientWidth - this.refContainer.current!.clientHeight) / 2
                             : undefined,
                 }}
                 size={this.state.width}
@@ -434,9 +462,13 @@ class Clock extends Generic {
         );
     }
 
-    getDigitalClockText(replaceWithZero: boolean) {
+    getDigitalClockText(replaceWithZero?: boolean): {
+        ampm?: string;
+        digits: string[];
+        hideDelimiter?: boolean;
+    } {
         const data = this.state.rxData || {};
-        const digits = [];
+        const digits: string[] = [];
         if (replaceWithZero) {
             digits.push('00');
             digits.push('00');
@@ -448,10 +480,7 @@ class Clock extends Generic {
 
         const time = new Date();
         if (data.hoursFormat === '12') {
-            digits
-                .push(time.getHours() % 12)
-                .toString()
-                .padStart(2, '0');
+            digits.push((time.getHours() % 12).toString().padStart(2, '0'));
         } else {
             digits.push(time.getHours().toString().padStart(2, '0'));
         }
@@ -468,7 +497,7 @@ class Clock extends Generic {
         };
     }
 
-    renderDigitalClock() {
+    renderDigitalClock(): React.JSX.Element {
         const time = this.getDigitalClockText();
         const timeDiv = [
             <span key="hours">{time.digits[0]}</span>,
@@ -503,7 +532,7 @@ class Clock extends Generic {
                 style={{
                     display: 'inline-block',
                     margin: '0 auto',
-                    fontSize: this.state.rxStyle['font-size'] || this.state.fontSize,
+                    fontSize: this.state.rxStyle!['font-size'] || this.state.fontSize,
                 }}
             >
                 {timeDiv}
@@ -511,7 +540,7 @@ class Clock extends Generic {
         );
     }
 
-    renderDigitalClock2() {
+    renderDigitalClock2(): React.JSX.Element {
         const data = this.state.rxData || {};
         const time = this.getDigitalClockText();
 
@@ -553,7 +582,7 @@ class Clock extends Generic {
         );
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element | React.JSX.Element[] | null {
         super.renderWidgetBody(props);
 
         let clock = null;
@@ -581,19 +610,19 @@ class Clock extends Generic {
             this.timeInterval =
                 this.timeInterval ||
                 setTimeout(() => {
-                    this.timeInterval = null;
+                    this.timeInterval = undefined;
                     this.nextTick();
                 }, 1000 - new Date().getMilliseconds());
         }
 
-        const style = {
+        const style: CSSProperties = {
             textAlign: 'center',
             lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-            fontFamily: this.state.rxStyle['font-family'],
-            fontShadow: this.state.rxStyle['font-shadow'],
-            fontStyle: this.state.rxStyle['font-style'],
-            fontWeight: this.state.rxStyle['font-weight'],
-            fontVariant: this.state.rxStyle['font-variant'],
+            fontFamily: this.state.rxStyle!['font-family'],
+            fontShadow: this.state.rxStyle!['font-shadow'],
+            fontStyle: this.state.rxStyle!['font-style'],
+            fontWeight: this.state.rxStyle!['font-weight'],
+            fontVariant: this.state.rxStyle!['font-variant'],
         };
 
         style.width = 'calc(100% - 4px)';

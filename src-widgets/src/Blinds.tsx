@@ -2,9 +2,9 @@ import type { CSSProperties } from 'react';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import type { BlindsBaseRxData } from './Components/BlindsBase';
+import type { BlindsBaseRxData, BlindsBaseState } from './Components/BlindsBase';
 import BlindsBase from './Components/BlindsBase';
-import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     cardContent: {
@@ -33,16 +33,22 @@ interface BlindsRxData extends BlindsBaseRxData {
     externalDialog: boolean;
     [key: `slideSensor_oid${number}`]: string;
     [key: `slideRatio${number}`]: number;
+    [key: `slidePos_oid${number}`]: string;
+    [key: `slideHandle_oid${number}`]: string;
 }
 
-class Blinds extends BlindsBase<BlindsRxData> {
+interface BlindsState extends BlindsBaseState {
+    objects: Record<string, Partial<ioBroker.Object | ioBroker.Object['common']>>;
+}
+
+class Blinds extends BlindsBase<BlindsRxData, BlindsState> {
     refCardContent: React.RefObject<HTMLDivElement | null>;
     lastRxData: string | undefined;
     updateTimeout: ReturnType<typeof setTimeout> | undefined;
 
-    constructor(props) {
+    constructor(props: Blinds['props']) {
         super(props);
-        this.state.objects = {};
+        (this.state as BlindsState).objects = {};
         this.refCardContent = React.createRef();
     }
 
@@ -98,8 +104,8 @@ class Blinds extends BlindsBase<BlindsRxData> {
                             label: 'blinds_position_oid',
                             noInit: true,
                             onChange: async (field, data, changeData, socket) => {
-                                if (data[field.name]) {
-                                    const object = await socket.getObject(data[field.name]);
+                                if (data[field.name!]) {
+                                    const object = await socket.getObject(data[field.name!]);
                                     if (object && object.common) {
                                         let changed = false;
 
@@ -131,31 +137,31 @@ class Blinds extends BlindsBase<BlindsRxData> {
                             default: '',
                             label: 'blinds_stop_oid',
                             noInit: true,
-                            hidden: data => !data.oid,
+                            hidden: (data: WidgetData) => !data.oid,
                         },
                         {
                             label: 'show_value',
                             type: 'checkbox',
                             name: 'showValue',
-                            hidden: data => !data.oid,
+                            hidden: (data: WidgetData) => !data.oid,
                             default: true,
                         },
                         {
                             label: 'min_position',
                             type: 'number',
-                            hidden: data => !data.oid,
+                            hidden: (data: WidgetData) => !data.oid,
                             name: 'min',
                         },
                         {
                             label: 'max_position',
                             type: 'number',
-                            hidden: data => !data.oid,
+                            hidden: (data: WidgetData) => !data.oid,
                             name: 'max',
                         },
                         {
                             label: 'invert_position',
                             type: 'checkbox',
-                            hidden: data => !data.oid,
+                            hidden: (data: WidgetData) => !data.oid,
                             name: 'invert',
                         },
                         {
@@ -204,18 +210,18 @@ class Blinds extends BlindsBase<BlindsRxData> {
                             min: 0.1,
                             max: 4,
                             step: 0.1,
-                            hidden: data => data.sashCount < 2,
+                            hidden: (data: WidgetData) => data.sashCount < 2,
                         },
                         {
                             name: 'slidePos_oid',
                             type: 'id',
                             default: '',
                             label: 'blinds_position_oid',
-                            hidden: data => !!data.oid,
+                            hidden: (data: WidgetData) => !!data.oid,
                             noInit: true,
                             onChange: async (field, data, changeData, socket) => {
-                                if (data[field.name]) {
-                                    const object = await socket.getObject(data[field.name]);
+                                if (data[field.name!]) {
+                                    const object = await socket.getObject(data[field.name!]);
                                     const index = field.name!.match(/(\d+)$/)![1];
                                     if (object && object.common) {
                                         let changed = false;
@@ -289,7 +295,7 @@ class Blinds extends BlindsBase<BlindsRxData> {
         }
 
         this.lastRxData = actualRxData;
-        const objects = {};
+        const objects: Record<string, Partial<ioBroker.Object | ioBroker.Object['common']>> = {};
         const ids = [];
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
             if (
