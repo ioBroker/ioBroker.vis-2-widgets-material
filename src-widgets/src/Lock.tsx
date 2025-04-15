@@ -25,6 +25,8 @@ import {
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
 
 const styles: Record<string, CSSProperties> = {
     content: {
@@ -54,16 +56,42 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-class Lock extends Generic {
-    constructor(props) {
+interface LockRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    'lock-oid': string;
+    'doorOpen-oid': string;
+    'lockWorking-oid': string;
+    'doorSensor-oid': string;
+    pincode: string;
+    'pincode-oid': string;
+    doNotConfirm: boolean;
+    pincodeReturnButton: string;
+    doorSize: number;
+    lockSize: number;
+    noLockAnimation: boolean;
+    lockColor: string;
+    externalDialog: boolean;
+}
+
+interface LockState extends VisRxWidgetState {
+    confirmDialog: string | boolean;
+    lockPinInput: string;
+    dialogPin: string | boolean;
+    invalidPin: boolean;
+    dialog: boolean | null;
+}
+
+class Lock extends Generic<LockRxData, LockState> {
+    constructor(props: Lock['props']) {
         super(props);
-        this.state.dialogPin = false;
-        this.state.lockPinInput = '';
-        this.state.invalidPin = false;
-        this.state.confirmDialog = false;
+        (this.state as LockState).dialogPin = false;
+        (this.state as LockState).lockPinInput = '';
+        (this.state as LockState).invalidPin = false;
+        (this.state as LockState).confirmDialog = false;
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Lock',
             visSet: 'vis-2-widgets-material',
@@ -92,7 +120,7 @@ class Lock extends Generic {
                                 if (data['lock-oid']) {
                                     const object = await socket.getObject(data['lock-oid']);
                                     if (object && object.common && object.common.role === 'switch.lock') {
-                                        const id = data[field.name].split('.');
+                                        const id = data[field.name!].split('.');
                                         id.pop();
                                         const states = await socket.getObjectView(
                                             `${id.join('.')}.`,
@@ -102,9 +130,9 @@ class Lock extends Generic {
                                         if (states) {
                                             Object.values(states).forEach(state => {
                                                 const role = state.common.role;
-                                                if (role.startsWith('button')) {
+                                                if (role!.startsWith('button')) {
                                                     data['doorOpen-oid'] = state._id;
-                                                } else if (role.includes('direction') || role.includes('working')) {
+                                                } else if (role!.includes('direction') || role!.includes('working')) {
                                                     data['lockWorking-oid'] = state._id;
                                                 }
                                             });
@@ -209,11 +237,11 @@ class Lock extends Generic {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Lock.getWidgetInfo();
     }
 
-    lockRenderUnlockDialog() {
+    lockRenderUnlockDialog(): React.ReactNode {
         if (!this.state.dialogPin) {
             return null;
         }
@@ -246,7 +274,7 @@ class Lock extends Generic {
                     </div>
                     <div style={styles.lockPinGrid}>
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0, pincodeReturnButton].map(button => {
-                            let buttonTitle = button;
+                            let buttonTitle: React.ReactNode = button;
                             if (button === 'backspace') {
                                 buttonTitle = <Backspace />;
                             } else if (button === 'submit') {
@@ -316,11 +344,11 @@ class Lock extends Generic {
         );
     }
 
-    lockGetPinCode() {
+    lockGetPinCode(): string {
         return this.state.rxData['pincode-oid'] ? this.getPropertyValue('pincode-oid') : this.state.rxData.pincode;
     }
 
-    lockRenderConfirmDialog() {
+    lockRenderConfirmDialog(): React.ReactNode {
         if (!this.state.confirmDialog) {
             return null;
         }
@@ -362,7 +390,7 @@ class Lock extends Generic {
         );
     }
 
-    onCommand(command) {
+    onCommand(command: VisWidgetCommand): any {
         const result = super.onCommand(command);
         if (result === false) {
             if (command === 'openDialog') {
@@ -378,7 +406,7 @@ class Lock extends Generic {
         return result;
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         const doorOpened = this.state.rxData['doorSensor-oid'] && this.getPropertyValue('doorSensor-oid');
         const lockOpened = this.getPropertyValue('lock-oid');
@@ -391,7 +419,7 @@ class Lock extends Generic {
                 {this.state.rxData['doorSensor-oid'] || this.state.rxData['doorOpen-oid'] ? (
                     <IconButton
                         disabled={!this.state.rxData['doorOpen-oid']}
-                        title={this.state.rxData['doorOpen-oid'] ? Generic.t('open_door') : null}
+                        title={this.state.rxData['doorOpen-oid'] ? Generic.t('open_door') : undefined}
                         onClick={() => {
                             if (this.lockGetPinCode()) {
                                 this.setState({ dialogPin: 'doorOpen-oid', lockPinInput: '' });

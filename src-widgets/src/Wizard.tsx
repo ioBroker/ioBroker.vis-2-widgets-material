@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Accordion,
     AccordionDetails,
@@ -20,9 +20,12 @@ import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
+import type { VisRxWidgetState } from './visRxWidget';
+import type VisRxWidget from './visRxWidget';
+import type { CustomPaletteProperties, RxWidgetInfo } from '@iobroker/types-vis-2';
 
-const WizardDialog = props => {
-    const [rooms, setRooms] = useState(null);
+const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }): React.ReactNode => {
+    const [rooms, setRooms] = useState<null | Awaited<ReturnType<(typeof props)['helpers']['detectDevices']>>>(null);
     const [devicesChecked, setDevicesChecked] = useState<Record<string, boolean>>({});
     const [roomsChecked, setRoomsChecked] = useState<Record<string, boolean>>({});
     const [onePage, setOnePage] = useState(window.localStorage.getItem('AppWizard.onePage') !== 'false');
@@ -73,7 +76,7 @@ const WizardDialog = props => {
         let newKey = props.helpers?.getNewWidgetIdNumber(project) || 1000;
         let changed = false;
         let firstCreatedRoom = '';
-        rooms.forEach(room => {
+        rooms!.forEach(room => {
             if (
                 !roomsChecked[room._id] ||
                 !room.devices.length ||
@@ -455,7 +458,7 @@ const WizardDialog = props => {
     );
 };
 
-const WizardIcon = () => (
+const WizardIcon = (): React.JSX.Element => (
     <svg
         stroke="currentColor"
         fill="none"
@@ -474,7 +477,7 @@ const WizardIcon = () => (
     </svg>
 );
 
-const WizardButton = props => {
+const WizardButton = (props: CustomPaletteProperties): React.ReactNode => {
     const [open, setOpen] = useState(false);
 
     return [
@@ -496,8 +499,14 @@ const WizardButton = props => {
     ];
 };
 
-class Wizard extends window.visRxWidget {
-    static getWidgetInfo() {
+declare global {
+    interface Window {
+        visRxWidget: typeof VisRxWidget;
+    }
+}
+
+class Wizard extends window.visRxWidget<Record<string, any>, VisRxWidgetState> {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Wizard',
             visSet: 'vis-2-widgets-material',
@@ -505,6 +514,7 @@ class Wizard extends window.visRxWidget {
             visWidgetLabel: 'wizard',
             visPrev: 'widgets/vis-2-widgets-material/img/prev_wizard.png',
             visOrder: 100,
+            visAttrs: [],
             customPalette: props => (
                 <WizardButton
                     key="wizard"

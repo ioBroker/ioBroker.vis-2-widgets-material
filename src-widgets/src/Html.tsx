@@ -1,17 +1,54 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 import Generic from './Generic';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
 
-class Html extends Generic {
-    constructor(props) {
+interface HtmlRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    html: string;
+    iframe: string;
+    iframe_oid: string;
+    image: string;
+    image_oid: string;
+    objectFit: string;
+    refreshInterval: string;
+    refreshOnWakeUp: boolean;
+    refreshOnViewChange: boolean;
+    scrollX: boolean;
+    scrollY: boolean;
+    seamless: boolean;
+    noSandbox: boolean;
+    allowUserInteractions: boolean;
+    refreshWithNoQuery: boolean;
+    widget: string;
+    doNotWantIncludeWidgets: boolean;
+}
+
+interface HtmlState extends VisRxWidgetState {
+    q: number;
+}
+
+class Html extends Generic<HtmlRxData, HtmlState> {
+    widgetRef: React.RefObject<HTMLDivElement | null>;
+    doNotWantIncludeWidgets: boolean | undefined;
+    uuid: string | undefined;
+    wakeUpInstalled: boolean | undefined;
+    viewChangeInstalled: boolean | undefined;
+    lastRefreshInterval: number | undefined;
+    refreshInterval: ReturnType<typeof setInterval> | undefined;
+    lastWidget: string | undefined;
+
+    constructor(props: Html['props']) {
         super(props);
 
-        this.state.q = Date.now();
+        (this.state as HtmlState).q = Date.now();
         this.widgetRef = React.createRef();
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Static',
             visSet: 'vis-2-widgets-material',
@@ -142,7 +179,8 @@ class Html extends Generic {
                             type: 'checkbox',
                             label: 'refresh_with_no_query',
                             default: true,
-                            hidden: (data: WidgetData) => !data.image && !data.image_oid && !data.iframe && !data.iframe_oid,
+                            hidden: (data: WidgetData) =>
+                                !data.image && !data.image_oid && !data.iframe && !data.iframe_oid,
                         },
                         {
                             name: 'widget',
@@ -169,11 +207,11 @@ class Html extends Generic {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Html.getWidgetInfo();
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         super.componentDidMount();
         this.reinitInterval();
         this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
@@ -201,7 +239,7 @@ class Html extends Generic {
     }
 
     // eslint-disable-next-line
-    onCommand(command, options) {
+    onCommand(command: VisWidgetCommand, options: any) {
         const result = super.onCommand(command, options);
         if (result === false) {
             if (command === 'include') {
@@ -216,11 +254,11 @@ class Html extends Generic {
         return result;
     }
 
-    reinitInterval() {
+    reinitInterval(): void {
         const refreshInterval = parseInt(this.state.rxData.refreshInterval, 10);
         if (refreshInterval !== this.lastRefreshInterval || this.state.rxData.widget !== this.lastWidget) {
             this.refreshInterval && clearInterval(this.refreshInterval);
-            this.refreshInterval = null;
+            this.refreshInterval = undefined;
             this.lastWidget = this.state.rxData.widget;
 
             this.lastRefreshInterval = refreshInterval;
@@ -230,10 +268,10 @@ class Html extends Generic {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         super.componentWillUnmount();
         this.refreshInterval && clearInterval(this.refreshInterval);
-        this.refreshInterval = null;
+        this.refreshInterval = undefined;
         if (this.wakeUpInstalled) {
             this.wakeUpInstalled = false;
             // remove the wake-up handler
@@ -246,11 +284,11 @@ class Html extends Generic {
         }
     }
 
-    refresh() {
+    refresh(): void {
         this.setState({ q: Date.now() });
     }
 
-    getUrl() {
+    getUrl(): string {
         let url = this.state.rxData.image || this.state.rxData.iframe;
         if (this.state.rxData.iframe_oid) {
             url = this.state.values[`${this.state.rxData.iframe_oid}.val`];
@@ -268,7 +306,7 @@ class Html extends Generic {
         return url;
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         const noCard = this.state.rxData.noCard || props.widget.usedInWidget;
 
@@ -289,13 +327,13 @@ class Html extends Generic {
             );
         }
 
-        const style = {
+        const style: CSSProperties = {
             width: '100%',
             height: !noCard && this.state.rxData.widgetTitle ? 'calc(100% - 36px)' : '100%',
             border: '0',
         };
 
-        Object.keys(this.state.rxStyle).forEach(key => {
+        Object.keys(this.state.rxStyle!).forEach(key => {
             if (key !== 'position' && key !== 'top' && key !== 'left' && key !== 'width' && key !== 'height') {
                 if (this.state.rxStyle[key] !== undefined && this.state.rxStyle[key] !== null) {
                     if (key.includes('-')) {

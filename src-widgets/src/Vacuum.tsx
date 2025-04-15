@@ -20,6 +20,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import Generic from './Generic';
 import VacuumCleanerIcon from './Components/VacuumIcon';
 import type { CSSProperties } from 'react';
+import React from 'react';
 
 export const FanIcon = props => (
     <svg
@@ -359,16 +360,16 @@ class Vacuum extends Generic {
         return Vacuum.getWidgetInfo();
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.vacuumPropertiesUpdate();
     }
 
-    async onRxDataChanged(/* prevRxData */) {
+    async onRxDataChanged(/* prevRxData */): Promise<void> {
         await this.vacuumPropertiesUpdate();
     }
 
-    async vacuumPropertiesUpdate() {
+    async vacuumPropertiesUpdate(): Promise<void> {
         const objects = {};
         const oids = [];
         const keys = Object.keys(VACUUM_ID_ROLES);
@@ -441,7 +442,7 @@ class Vacuum extends Generic {
         return this.state.objects[id];
     }
 
-    vacuumRenderBattery() {
+    vacuumRenderBattery(): React.ReactNode {
         return (
             this.vacuumGetObj('battery') && (
                 <div style={styles.vacuumBattery}>
@@ -456,7 +457,7 @@ class Vacuum extends Generic {
         );
     }
 
-    vacuumRenderSpeed() {
+    vacuumRenderSpeed(): React.ReactNode {
         const obj = this.vacuumGetObj('fan-speed');
         if (!obj) {
             return null;
@@ -517,7 +518,7 @@ class Vacuum extends Generic {
         ];
     }
 
-    vacuumRenderRooms() {
+    vacuumRenderRooms(): React.ReactNode {
         if (!this.state.rooms?.length) {
             return null;
         }
@@ -555,7 +556,7 @@ class Vacuum extends Generic {
         ];
     }
 
-    vacuumRenderSensors() {
+    vacuumRenderSensors(): React.ReactNode {
         const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(
             sensor => this.vacuumGetObj(sensor),
         );
@@ -592,7 +593,7 @@ class Vacuum extends Generic {
         ) : null;
     }
 
-    vacuumRenderButtons() {
+    vacuumRenderButtons(): React.ReactNode {
         let statusColor;
         const statusObj = this.vacuumGetObj('status');
         let status;
@@ -666,7 +667,7 @@ class Vacuum extends Generic {
         );
     }
 
-    vacuumRenderMap() {
+    vacuumRenderMap(): React.ReactNode {
         const obj = this.vacuumGetObj('map64');
         if (!obj) {
             if (this.state.rxData['vacuum-use-default-picture']) {
