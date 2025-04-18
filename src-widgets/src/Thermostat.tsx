@@ -28,6 +28,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
+import { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const BUTTONS = {
     AUTO: ThermostatAutoIcon,
@@ -120,7 +121,7 @@ class Thermostat extends Generic {
         this.state.horizontal = false;
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Thermostat',
             visSet: 'vis-2-widgets-material',
@@ -479,7 +480,7 @@ class Thermostat extends Generic {
         await this.thermostatReadObjects();
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Thermostat.getWidgetInfo();
     }
 

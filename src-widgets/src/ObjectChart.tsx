@@ -76,7 +76,7 @@ const SplitLineIcon = (props: SVGProps<SVGSVGElement>) => (
     'zh-cn': cnLocale,
 }; */
 
-function padding3(ms: number) {
+function padding3(ms: number): number | string {
     if (ms < 10) {
         return `00${ms}`;
     }
@@ -86,7 +86,7 @@ function padding3(ms: number) {
     return ms;
 }
 
-function padding2(num: number) {
+function padding2(num: number): number | string {
     if (num < 10) {
         return `0${num}`;
     }

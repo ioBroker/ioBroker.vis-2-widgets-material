@@ -10,6 +10,9 @@ import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 import { Close as CloseIcon, Fullscreen as OpenInFullIcon } from '@mui/icons-material';
 
 import Generic from './Generic';
+import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, WidgetData } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
+import { LegacyConnection } from '@iobroker/adapter-react-v5';
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -60,7 +63,14 @@ const MapContent = props => {
     }
 };
 
-const mapThemes = {
+const mapThemes: Record<
+    string,
+    {
+        url: string;
+        attribution: string;
+        title: string;
+    }
+> = {
     default: {
         url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -95,9 +105,14 @@ const mapThemes = {
     },
 };
 
-async function detectNameAndColor(field, data, changeData, socket) {
-    if (data[field.name]) {
-        const object = await socket.getObject(data[field.name]);
+async function detectNameAndColor(
+    field: RxWidgetInfoAttributesField,
+    data: WidgetData,
+    changeData: (newData: WidgetData) => void,
+    socket: LegacyConnection,
+): Promise<void> {
+    if (data[field.name!]) {
+        const object = await socket.getObject(data[field.name!]);
         let changed = false;
         let parentChannel;
         let parentDevice;
@@ -150,15 +165,45 @@ async function detectNameAndColor(field, data, changeData, socket) {
     }
 }
 
-class Map extends Generic {
-    constructor(props) {
+interface MapRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    markersCount: number;
+    theme: string;
+    themeUrl: string;
+    themeAttribution: string;
+    defaultZoom: number;
+    noUserInteractions: boolean;
+    hideZoomButtons: boolean;
+    hideFullScreenButton: boolean;
+    [key: `position${number}`]: string;
+    [key: `longitude${number}`]: number;
+    [key: `latitude${number}`]: number;
+    [key: `radius${number}`]: string;
+    [key: `name${number}`]: string;
+    [key: `color${number}`]: string;
+    [key: `icon${number}`]: string;
+    [key: `useHistory${number}`]: boolean;
+    [key: `oid${number}`]: string;
+}
+
+interface MapState extends VisRxWidgetState {
+    dialog: boolean;
+    history: Record<string, ioBroker.GetHistoryResult>;
+    objects: Record<string, ioBroker.Object>;
+    forceShowMap: boolean;
+}
+
+class Map extends Generic<MapRxData, MapState> {
+    fillDataTimer: ReturnType<typeof setTimeout> | null = null;
+    constructor(props: Map['props']) {
         super(props);
-        this.state.dialog = false;
-        this.state.history = {};
-        this.state.objects = {};
+        (this.state as MapState).dialog = false;
+        (this.state as MapState).history = {};
+        (this.state as MapState).objects = {};
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Map',
             visSet: 'vis-2-widgets-material',
@@ -297,11 +342,11 @@ class Map extends Generic {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Map.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         const options = {
             instance: this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
             from: false,
@@ -312,14 +357,14 @@ class Map extends Generic {
             count: 100,
         };
 
-        const newHistory = {};
+        const newHistory: Map['state']['history'] = {};
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
             if (
                 this.state.rxData[`position${i}`] &&
                 this.state.rxData[`useHistory${i}`] &&
                 this.state.objects[i]?.common?.custom &&
-                this.state.objects[i].common.custom[options.instance]
+                this.state.objects[i]?.common?.custom?.[options.instance]
             ) {
                 const history = await this.props.context.socket.getHistory(this.state.rxData[`position${i}`], options);
                 newHistory[i] = history.filter(position => position.val).sort((a, b) => (a.ts > b.ts ? 1 : -1));
@@ -328,7 +373,7 @@ class Map extends Generic {
 
         this.setState({ history: newHistory });
 
-        const objects = {};
+        const objects: Map['state']['objects'] = {};
 
         const ids = [];
         for (let index = 1; index <= this.state.rxData.markersCount; index++) {
@@ -344,7 +389,7 @@ class Map extends Generic {
                 // read object itself
                 const object = _objects[this.state.rxData[`position${index}`]];
                 if (!object) {
-                    objects[index] = { common: {}, _id: this.state.rxData[`position${index}`] };
+                    objects[index] = { common: {}, _id: this.state.rxData[`position${index}`] } as ioBroker.Object;
                     continue;
                 }
                 object.common = object.common || {};
@@ -378,7 +423,7 @@ class Map extends Generic {
                         }
                     }
                 }
-                objects[index] = { common: object.common, _id: object._id };
+                objects[index] = { common: object.common, _id: object._id } as ioBroker.Object;
             }
         }
 
@@ -387,7 +432,7 @@ class Map extends Generic {
         }
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.propertiesUpdate();
         this.fillDataTimer = setTimeout(() => {
@@ -396,22 +441,22 @@ class Map extends Generic {
         }, 2000);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         if (this.fillDataTimer) {
             clearTimeout(this.fillDataTimer);
             this.fillDataTimer = null;
         }
     }
 
-    async onRxDataChanged(/* prevRxData */) {
+    async onRxDataChanged(/* prevRxData */): Promise<void> {
         await this.propertiesUpdate();
     }
 
-    async onStateUpdated(/* id, state */) {
+    async onStateUpdated(/* id, state */): Promise<void> {
         await this.propertiesUpdate();
     }
 
-    renderMap() {
+    renderMap(): React.ReactNode {
         const markers = [];
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
@@ -519,7 +564,7 @@ class Map extends Generic {
                     {markers.map((marker, index) => {
                         const history =
                             this.state.history[marker.i]?.map(position => {
-                                const parts = position.val.split(';');
+                                const parts = position.val!.split(';');
                                 return [parseFloat(parts[1] || 0), parseFloat(parts[0] || 0)];
                             }) || [];
                         history.push([marker.latitude, marker.longitude]);
@@ -590,7 +635,7 @@ class Map extends Generic {
         );
     }
 
-    renderDialog() {
+    renderDialog(): React.ReactNode {
         return (
             <Dialog
                 open={!!this.state.dialog}
@@ -608,7 +653,7 @@ class Map extends Generic {
         );
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
 
         const content = (

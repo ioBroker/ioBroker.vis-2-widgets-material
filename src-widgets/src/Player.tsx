@@ -19,6 +19,8 @@ import type { SxProps } from '@mui/material';
 import { Card, CardContent, IconButton, Slider } from '@mui/material';
 import Generic from './Generic';
 import type { IobTheme } from '@iobroker/adapter-react-v5';
+import type { VisRxWidgetState } from './visRxWidget';
+import type { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     content: {
@@ -105,14 +107,40 @@ const loadStates = async (field, data, changeData, socket) => {
     }
 };
 
-class Player extends Generic {
-    constructor(props) {
+interface PlayerRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    title: string;
+    artist: string;
+    cover: string;
+    color: string;
+    state: string;
+    duration: string;
+    elapsed: string;
+    prev: string;
+    next: string;
+    volume: string;
+    mute: string;
+    repeat: string;
+    shuffle: string;
+}
+
+interface PlayerState extends VisRxWidgetState {
+    volume: number;
+}
+
+class Player extends Generic<PlayerRxData, PlayerState> {
+    coverRef: React.RefObject<HTMLImageElement | null>;
+
+    setVolumeTimer?: ReturnType<typeof setTimeout> = undefined;
+
+    constructor(props: Player['props']) {
         super(props);
         this.coverRef = React.createRef();
-        this.state.volume = 0;
+        (this.state as PlayerState).volume = 0;
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Player',
             visSet: 'vis-2-widgets-material',
@@ -221,11 +249,11 @@ class Player extends Generic {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Player.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         try {
             const volumeObject = await this.props.context.socket.getObject(this.state.rxData.volume);
             if (volumeObject) {
@@ -237,30 +265,30 @@ class Player extends Generic {
         }
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.propertiesUpdate();
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
-        this.setVolumeTimer = null;
+        this.setVolumeTimer = undefined;
         super.componentWillUnmount();
     }
 
-    async onRxDataChanged(prevRxData) {
+    async onRxDataChanged(prevRxData: Player['state']['rxData']): Promise<void> {
         if (prevRxData.volume !== this.state.rxData.volume) {
             await this.propertiesUpdate();
         }
     }
 
-    onStateUpdated(id, state) {
+    onStateUpdated(id: string, state: ioBroker.State): void {
         if (id === this.state.rxData.volume) {
             this.setState({ volume: state?.val || 0 });
         }
     }
 
-    static getTimeString = seconds => {
+    static getTimeString = (seconds: number | undefined | null): string => {
         if (seconds === undefined || seconds === null) {
             return '-:-';
         }

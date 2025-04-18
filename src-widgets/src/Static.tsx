@@ -300,7 +300,7 @@ class Static extends Generic {
         );
     }
 
-    renderDialog() {
+    renderDialog(): React.ReactNode {
         if (this.state.showDialog === null) {
             return null;
         }

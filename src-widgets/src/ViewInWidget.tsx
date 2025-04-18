@@ -3,6 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Generic from './Generic';
+import type { VisRxWidgetState } from './visRxWidget';
+import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     overlay: {
@@ -15,14 +17,27 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-class ViewInWidget extends Generic {
+interface ViewInWidgetRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    view: string;
+    button: boolean;
+}
+
+interface ViewInWidgetState extends VisRxWidgetState {
+    width: number;
+    height: number;
+}
+
+class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
+    refContainer: React.RefObject<HTMLDivElement | null>;
     constructor(props) {
         super(props);
-        this.state.width = 0;
+        (this.state as ViewInWidgetState).width = 0;
         this.refContainer = React.createRef();
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2ViewInWidget',
             visSet: 'vis-2-widgets-material',
@@ -65,16 +80,16 @@ class ViewInWidget extends Generic {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return ViewInWidget.getWidgetInfo();
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         this.recalculateWidth();
     }
 
-    recalculateWidth() {
+    recalculateWidth(): void {
         if (this.refContainer.current && this.refContainer.current.clientWidth !== this.state.width) {
             this.setState({
                 width: this.refContainer.current.clientWidth,
@@ -82,20 +97,20 @@ class ViewInWidget extends Generic {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         super.componentWillUnmount();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(): void {
         super.componentDidUpdate && super.componentDidUpdate();
         this.recalculateWidth();
     }
 
-    onNavigate() {
+    onNavigate(): void {
         window.vis.changeView(this.state.rxData.view, this.state.rxData.view);
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         const view = this.state.rxData.view;
 
@@ -118,7 +133,7 @@ class ViewInWidget extends Generic {
             let parentView = this.props.refParent.current;
             let count = 0;
             while (parentView.className.includes('vis-view') && count < 5) {
-                parentView = parentView.parentNode;
+                parentView = parentView.parentNode as HTMLElement;
                 count += 1;
             }
             if (parentView) {
@@ -153,11 +168,11 @@ class ViewInWidget extends Generic {
                               : 'calc(100% - 32px)',
                     textAlign: 'center',
                     lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-                    fontFamily: this.state.rxStyle['font-family'],
-                    fontShadow: this.state.rxStyle['font-shadow'],
-                    fontStyle: this.state.rxStyle['font-style'],
-                    fontWeight: this.state.rxStyle['font-weight'],
-                    fontVariant: this.state.rxStyle['font-variant'],
+                    fontFamily: this.state.rxStyle!['font-family'],
+                    fontShadow: this.state.rxStyle!['font-shadow'],
+                    fontStyle: this.state.rxStyle!['font-style'],
+                    fontWeight: this.state.rxStyle!['font-weight'],
+                    fontVariant: this.state.rxStyle!['font-variant'],
                 }}
                 ref={this.refContainer}
             >
