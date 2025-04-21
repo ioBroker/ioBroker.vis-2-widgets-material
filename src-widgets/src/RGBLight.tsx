@@ -22,6 +22,8 @@ import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import './sketch.css';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
 
 /**
  * Determine if we are on a mobile device
@@ -205,19 +207,62 @@ export const RGB_NAMES = [
     'white_mode',
 ];
 
-class RGBLight extends Generic {
-    constructor(props) {
+interface RGBLightRxData {
+    noCard: boolean;
+    fullSize: boolean;
+    widgetTitle: string;
+    icon: string;
+    switch: string;
+    brightness: string;
+    rgbType: string;
+    rgb: string;
+    red: string;
+    green: string;
+    blue: string;
+    white: string;
+    color_temperature: string;
+    ct_min: number;
+    ct_max: number;
+    hue: string;
+    saturation: string;
+    luminance: string;
+    hideBrightness: boolean;
+    white_mode: string;
+    noRgbPalette: boolean;
+    timeout: number;
+    toggleOnClick: boolean;
+    pressDuration: number;
+    borderRadius: number;
+    color: string;
+    colorEnabled: string;
+    onlyCircle: boolean;
+    externalDialog: boolean;
+}
+
+interface RGBLightState extends VisRxWidgetState {
+    dialog: boolean;
+    rgbObjects: Record<string, ioBroker.Object>;
+    colorTemperatures: Array<{ red: number; green: number; blue: number }>;
+    sketch: boolean;
+}
+
+class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
+    contentRef: React.RefObject<HTMLDivElement | null>;
+    timeouts: Record<string, ReturnType<typeof setTimeout>>;
+    isTouch: boolean;
+    pressTimeout: ReturnType<typeof setTimeout> | null = null;
+    constructor(props: RGBLight['props']) {
         super(props);
-        this.state.dialog = false;
-        this.state.rgbObjects = {};
-        this.state.colorTemperatures = [];
-        this.state.sketch = false;
+        (this.state as RGBLightState).dialog = false;
+        (this.state as RGBLightState).rgbObjects = {};
+        (this.state as RGBLightState).colorTemperatures = [];
+        (this.state as RGBLightState).sketch = false;
         this.contentRef = React.createRef();
         this.timeouts = {};
         this.isTouch = isTouchDevice();
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2RGBLight',
             visSet: 'vis-2-widgets-material',
@@ -445,32 +490,32 @@ class RGBLight extends Generic {
         };
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.rgbReadObjects();
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         super.componentWillUnmount();
         this.rgbDestroy();
     }
 
-    async onRxDataChanged() {
+    async onRxDataChanged(): Promise<void> {
         await this.rgbReadObjects();
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return RGBLight.getWidgetInfo();
     }
 
-    rgbGetIdMin = id => {
+    rgbGetIdMin = (id: string): number => {
         if (id === 'color_temperature') {
             return this.state.rxData.ct_min || this.state.rgbObjects[id]?.common?.min || 0;
         }
         return this.state.rgbObjects[id]?.common?.min || 0;
     };
 
-    rgbGetIdMax = id => {
+    rgbGetIdMax = (id: string): number => {
         if (id === 'color_temperature') {
             return this.state.rxData.ct_max || this.state.rgbObjects[id]?.common?.max || 0;
         }
@@ -500,7 +545,7 @@ class RGBLight extends Generic {
         }
     };
 
-    async rgbReadObjects() {
+    async rgbReadObjects(): Promise<void> {
         const rgbObjects = {};
         const idToRead = [];
         for (const k in RGB_NAMES) {
@@ -547,7 +592,7 @@ class RGBLight extends Generic {
         this.setState(newState);
     }
 
-    rgbDestroy() {
+    rgbDestroy(): void {
         for (const k in this.timeouts) {
             if (this.timeouts[k]) {
                 clearTimeout(this.timeouts[k]);
@@ -637,7 +682,7 @@ class RGBLight extends Generic {
         }
     };
 
-    rgbGetWhite = () => {
+    rgbGetWhite = (): number => {
         if (this.state.rxData.rgbType === 'r/g/b/w') {
             return this.getPropertyValue('white');
         }
@@ -679,12 +724,12 @@ class RGBLight extends Generic {
         return this.getPropertyValue('white_mode');
     };
 
-    rgbIsRgb = () => {
+    rgbIsRgb = (): boolean => {
         if ((this.state.rxData.rgbType === 'rgb' || this.state.rxData.rgbType === 'rgbw') && this.state.rxData.rgb) {
             return true;
         }
 
-        return (
+        return !!(
             (this.state.rxData.rgbType === 'r/g/b' || this.state.rxData.rgbType === 'r/g/b/w') &&
             this.state.rgbObjects.red &&
             this.state.rgbObjects.green &&
@@ -692,13 +737,15 @@ class RGBLight extends Generic {
         );
     };
 
-    rgbIsWhite = () =>
-        (this.state.rxData.rgbType === 'rgbw' && this.state.rxData.rgb) ||
-        (this.state.rxData.rgbType === 'r/g/b/w' && this.state.rgbObjects.white);
+    rgbIsWhite = (): boolean =>
+        !!(
+            (this.state.rxData.rgbType === 'rgbw' && this.state.rxData.rgb) ||
+            (this.state.rxData.rgbType === 'r/g/b/w' && this.state.rgbObjects.white)
+        );
 
-    rgbIsHSL = () => this.state.rxData.rgbType === 'hue/sat/lum' && this.state.rgbObjects.hue;
+    rgbIsHSL = (): boolean => this.state.rxData.rgbType === 'hue/sat/lum' && this.state.rgbObjects.hue;
 
-    rgbRenderSwitch() {
+    rgbRenderSwitch(): React.ReactNode {
         return (
             this.state.rgbObjects.switch && (
                 <div
@@ -718,7 +765,7 @@ class RGBLight extends Generic {
         );
     }
 
-    rgbRenderBrightness() {
+    rgbRenderBrightness(): React.ReactNode {
         return (
             this.state.rgbObjects.brightness && (
                 <div style={styles.rgbSliderContainer}>
@@ -740,7 +787,7 @@ class RGBLight extends Generic {
         );
     }
 
-    rgbRenderSketch() {
+    rgbRenderSketch(): React.ReactNode {
         return (
             <div
                 className="dark"
@@ -755,7 +802,7 @@ class RGBLight extends Generic {
         );
     }
 
-    rgbRenderWheelTypeSwitch(isWheelVisible, twoPanels, whiteMode) {
+    rgbRenderWheelTypeSwitch(isWheelVisible, twoPanels, whiteMode): React.ReactNode {
         if (!isWheelVisible) {
             return null;
         }
@@ -828,7 +875,7 @@ class RGBLight extends Generic {
         );
     }
 
-    rgbRenderWhite() {
+    rgbRenderWhite(): React.ReactNode {
         if (!this.rgbIsWhite()) {
             return null;
         }
@@ -856,7 +903,7 @@ class RGBLight extends Generic {
         );
     }
 
-    rgbRenderColorTemperature(whiteMode) {
+    rgbRenderColorTemperature(whiteMode): React.ReactNode {
         if (this.state.rxData.rgbType !== 'ct' || whiteMode === true) {
             return null;
         }
@@ -936,7 +983,7 @@ class RGBLight extends Generic {
         return hsvaToHex(this.rgbGetWheelColor());
     };
 
-    rgbGetTextColor = () => {
+    rgbGetTextColor = (): string => {
         if (this.state.rxData.rgbType === 'ct') {
             const color = colorTemperatureToRGB(this.getPropertyValue('color_temperature'));
             return color.red + color.green + color.blue > 3 * 128 ? '#000000' : '#ffffff';
@@ -945,7 +992,7 @@ class RGBLight extends Generic {
         return color.r + color.g + color.b > 3 * 128 ? '#000000' : '#ffffff';
     };
 
-    onCommand(command) {
+    onCommand(command: VisWidgetCommand): any {
         const result = super.onCommand(command);
         if (result === false) {
             if (command === 'openDialog') {
@@ -961,7 +1008,7 @@ class RGBLight extends Generic {
         return result;
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element | React.JSX.Element[] | null {
         super.renderWidgetBody(props);
 
         let size = 0;
@@ -1077,7 +1124,7 @@ class RGBLight extends Generic {
                 icon = <ColorLens style={style} />;
             }
 
-            let applyStyle = null;
+            let applyStyle: React.CSSProperties | null = null;
             if (this.state.rxData.noCard || props.widget.usedInWidget) {
                 applyStyle = {
                     boxSizing: 'border-box',

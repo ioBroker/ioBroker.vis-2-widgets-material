@@ -18,9 +18,9 @@ import {
 import type { SxProps } from '@mui/material';
 import { Card, CardContent, IconButton, Slider } from '@mui/material';
 import Generic from './Generic';
-import type { IobTheme } from '@iobroker/adapter-react-v5';
+import type { IobTheme, LegacyConnection } from '@iobroker/adapter-react-v5';
 import type { VisRxWidgetState } from './visRxWidget';
-import type { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxWidgetInfo, RxWidgetInfoAttributesField, WidgetData } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     content: {
@@ -80,11 +80,16 @@ const mediaTypes = [
     'shuffle',
 ];
 
-const loadStates = async (field, data, changeData, socket) => {
-    if (data[field.name]) {
-        const object = await socket.getObject(data[field.name]);
+const loadStates = async (
+    field: RxWidgetInfoAttributesField,
+    data: WidgetData,
+    changeData: (newData: WidgetData) => void,
+    socket: LegacyConnection,
+): Promise<void> => {
+    if (data[field.name!]) {
+        const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
-            const id = data[field.name].split('.');
+            const id = data[field.name!].split('.');
             id.pop();
             const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
             if (states) {
@@ -95,7 +100,7 @@ const loadStates = async (field, data, changeData, socket) => {
                         role &&
                         currentMediaTypes.includes(role) &&
                         (!data[role] || data[role] === 'nothing_selected') &&
-                        field !== role
+                        field.name !== role
                     ) {
                         currentMediaTypes.splice(currentMediaTypes.indexOf(role), 1);
                         data[role] = state._id;
@@ -127,6 +132,7 @@ interface PlayerRxData {
 
 interface PlayerState extends VisRxWidgetState {
     volume: number;
+    volumeObject: ioBroker.Object;
 }
 
 class Player extends Generic<PlayerRxData, PlayerState> {
@@ -258,7 +264,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
             const volumeObject = await this.props.context.socket.getObject(this.state.rxData.volume);
             if (volumeObject) {
                 const volume = await this.props.context.socket.getState(this.state.rxData.volume);
-                this.setState({ volumeObject, volume: volume?.val || 0 });
+                this.setState({ volumeObject, volume: (volume?.val as number) || 0 });
             }
         } catch (e) {
             // ignore
@@ -284,7 +290,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
 
     onStateUpdated(id: string, state: ioBroker.State): void {
         if (id === this.state.rxData.volume) {
-            this.setState({ volume: state?.val || 0 });
+            this.setState({ volume: (state?.val as number) || 0 });
         }
     }
 
@@ -301,7 +307,13 @@ class Player extends Generic<PlayerRxData, PlayerState> {
         return (this.state.rxData.color ? Color(this.state.rxData.color).rgb().color : null) || this.state.coverColor;
     }
 
-    wrapContent(content, addToHeader, cardContentStyle, headerStyle, onCardClick) {
+    wrapContent(
+        content: React.JSX.Element | React.JSX.Element[],
+        addToHeader?: React.JSX.Element | null | React.JSX.Element[],
+        cardContentStyle?: React.CSSProperties,
+        headerStyle?: React.CSSProperties,
+        onCardClick?: (e?: React.MouseEvent<HTMLDivElement>) => void,
+    ): React.JSX.Element | React.JSX.Element[] | null {
         const coverColor = this.getColor();
         let color;
         if (coverColor) {

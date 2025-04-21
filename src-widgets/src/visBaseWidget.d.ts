@@ -99,7 +99,7 @@ declare class VisBaseWidget<TState extends Partial<VisBaseWidgetState> = VisBase
     readonly onCommandBound: typeof this.onCommand;
     protected onResize: undefined | (() => void);
     private updateInterval?;
-    private pressTimeout?;
+    // private pressTimeout?;
     private shadowDiv;
     private stealCursor?;
     private beforeIncludeColor?;
