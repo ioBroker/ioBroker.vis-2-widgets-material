@@ -9,6 +9,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import ObjectChart from './ObjectChart';
+import type { VisRxWidgetState } from './visRxWidget';
 
 const styles = () => ({
     newValueLight: {
@@ -41,7 +42,23 @@ const styles = () => ({
     },
 });
 
-class Static extends Generic {
+interface StaticRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    count: number;
+    [key: `oid${number}`]: string;
+    [key: `icon${number}`]: string;
+    [key: `iconSmall${number}`]: string;
+    [key: `iconEnabled${number}`]: string;
+    [key: `iconEnabledSmall${number}`]: string;
+    [key: `color${number}`]: string;
+    [key: `colorEnabled${number}`]: string;
+    [key: `title${number}`]: string;
+}
+
+interface StaticState extends VisRxWidgetState {}
+
+class Static extends Generic<StaticRxData, StaticState> {
     constructor(props) {
         super(props);
         this.state.objects = {};

@@ -6,8 +6,18 @@ import { ToggleThemeMenu, I18n } from '@iobroker/adapter-react-v5';
 import { Button } from '@mui/material';
 
 import Generic from './Generic';
+import type { VisRxWidgetState } from './visRxWidget';
 
-class ThemeSwitcher extends Generic {
+interface ThemeSwitcherRxData {
+    themeType: string;
+    themeName: string;
+    simple: boolean;
+    variant: string;
+}
+
+interface ThemeSwitcherState extends VisRxWidgetState {}
+
+class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
     static getWidgetInfo() {
         return {
             id: 'tplMaterial2ThemeSwitcher',

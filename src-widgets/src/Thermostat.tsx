@@ -28,7 +28,8 @@ import { Icon } from '@iobroker/adapter-react-v5';
 
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
-import { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
 
 const BUTTONS = {
     AUTO: ThermostatAutoIcon,
@@ -112,7 +113,34 @@ function getModes(modeObj) {
     return result.length ? result : null;
 }
 
-class Thermostat extends Generic {
+interface ThermostatRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    'oid-temp-set': string;
+    'oid-temp-actual': string;
+    unit: string;
+    'oid-power': string;
+    'oid-mode': string;
+    'oid-boost': string;
+    'oid-party': string;
+    step: string;
+    timeout: number;
+    externalDialog: boolean;
+    count: number;
+    [key: `hide${number}`]: boolean;
+    [key: `title${number}`]: string;
+    [key: `tooltip${number}`]: string;
+    [key: `icon${number}`]: string;
+    [key: `iconSmall${number}`]: string;
+    [key: `color${number}`]: string;
+    [key: `noText${number}`]: boolean;
+    [key: `noIcon${number}`]: boolean;
+    [key: `value${number}`]: string;
+}
+
+interface ThermostatState extends VisRxWidgetState {}
+
+class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
     constructor(props) {
         super(props);
         this.state.showDialog = false;

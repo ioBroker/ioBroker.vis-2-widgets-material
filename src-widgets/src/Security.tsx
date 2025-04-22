@@ -67,7 +67,27 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-class Security extends Generic {
+interface SecurityRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    disarmText: string;
+    securityOffText: string;
+    buttonsCount: number;
+    [key: `oid${number}`]: string;
+    [key: `name${number}`]: string;
+    [key: `color${number}`]: string;
+    [key: `icon${number}`]: string;
+    [key: `iconSmall${number}`]: string;
+    [key: `pincode${number}`]: string;
+    [key: `pincode-oid${number}`]: string;
+    [key: `pincodeReturnButton${number}`]: string;
+    [key: `timerSeconds${number}`]: number;
+    [key: `timerSeconds-oid${number}`]: string;
+}
+
+interface SecurityState {}
+
+class Security extends Generic<SecurityRxData, SecurityState> {
     constructor(props) {
         super(props);
         this.state.objects = {};

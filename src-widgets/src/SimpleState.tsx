@@ -16,6 +16,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
+import type { VisRxWidgetState } from './visRxWidget';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     intermediate: {
@@ -109,7 +110,34 @@ const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     },
 };
 
-class SimpleState extends Generic {
+interface SimpleStateRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    values_count: number;
+    oid: string;
+    noIcon: boolean;
+    icon: string;
+    iconSmall: string;
+    iconEnabled: string;
+    iconEnabledSmall: string;
+    iconSize: number;
+    color: string;
+    colorEnabled: string;
+    title: string;
+    circleSize: number;
+    readOnly: boolean;
+    unit: string;
+    [key: `value${number}`]: string;
+    [key: `icon${number}`]: string;
+    [key: `iconSmall${number}`]: string;
+    [key: `color${number}`]: string;
+    [key: `title${number}`]: string;
+    [key: `iconSize${number}`]: number;
+}
+
+interface SimpleStateState extends VisRxWidgetState {}
+
+class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
     constructor(props) {
         super(props);
         this.state.showDimmerDialog = null;

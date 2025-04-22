@@ -13,6 +13,7 @@ import 'moment/locale/uk';
 import 'moment/locale/zh-cn';
 
 import Generic from './Generic';
+import type { VisRxWidgetState } from './visRxWidget';
 
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180.0);
@@ -266,7 +267,21 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-class WasherDryer extends Generic {
+interface WasherDryerRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    brand: string;
+    brandColor: string;
+    type: string;
+    'status-oid': string;
+    'start-time-oid': string;
+    'end-time-oid': string;
+    'dry-oid': string;
+}
+
+interface WasherDryerState extends VisRxWidgetState {}
+
+class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
     constructor(props) {
         super(props);
         this.refDiv = React.createRef();

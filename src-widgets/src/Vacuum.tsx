@@ -21,6 +21,8 @@ import Generic from './Generic';
 import VacuumCleanerIcon from './Components/VacuumIcon';
 import type { CSSProperties } from 'react';
 import React from 'react';
+import { VisRxWidgetState } from './visRxWidget';
+import { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 export const FanIcon = props => (
     <svg
@@ -198,14 +200,40 @@ export const vacuumGetStatusColor = status => {
     return null;
 };
 
-class Vacuum extends Generic {
+interface VacuumRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    externalDialog: boolean;
+    'vacuum-status-oid': string;
+    'vacuum-battery-oid': string;
+    'vacuum-is-charging-oid': string;
+    'vacuum-fan-speed-oid': string;
+    'vacuum-sensors-left-oid': string;
+    'vacuum-filter-left-oid': string;
+    'vacuum-main-brush-left-oid': string;
+    'vacuum-side-brush-left-oid': string;
+    'vacuum-cleaning-count-oid': string;
+    'vacuum-use-rooms': boolean;
+    'vacuum-map64-oid': string;
+    'vacuum-use-default-picture': boolean;
+    'vacuum-own-image': string;
+    'vacuum-start-oid': string;
+    'vacuum-home-oid': string;
+    'vacuum-pause-oid': string;
+}
+
+interface VacuumState extends VisRxWidgetState {
+
+}
+
+class Vacuum extends Generic<VacuumRxData, VacuumState> {
     constructor(props) {
         super(props);
         this.state.objects = {};
         this.state.rooms = [];
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Vacuum',
             visSet: 'vis-2-widgets-material',
@@ -356,7 +384,7 @@ class Vacuum extends Generic {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Vacuum.getWidgetInfo();
     }
 
@@ -424,7 +452,7 @@ class Vacuum extends Generic {
         return null;
     }
 
-    vacuumGetValue(id, numberValue) {
+    vacuumGetValue(id: string, numberValue: boolean) {
         const obj = this.vacuumGetObj(id);
         if (!obj) {
             return null;
