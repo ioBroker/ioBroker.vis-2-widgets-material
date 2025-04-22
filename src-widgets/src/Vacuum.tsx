@@ -15,14 +15,15 @@ import {
 
 import { BatteryChargingFull, BatteryFull, Close, Home, Pause, PlayArrow } from '@mui/icons-material';
 
+import type { LegacyConnection } from '@iobroker/adapter-react-v5';
 import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import VacuumCleanerIcon from './Components/VacuumIcon';
 import type { CSSProperties } from 'react';
 import React from 'react';
-import { VisRxWidgetState } from './visRxWidget';
-import { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
+import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
 
 export const FanIcon = props => (
     <svg
@@ -91,7 +92,7 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-export const VACUUM_ID_ROLES = {
+export const VACUUM_ID_ROLES: Record<string, { role?: string; name?: string }> = {
     status: { role: 'value.state' },
     battery: { role: 'value.battery' },
     'is-charging': { name: 'is_charging' },
@@ -107,9 +108,14 @@ export const VACUUM_ID_ROLES = {
     map64: { role: 'vacuum.map.base64' },
 };
 
-const vacuumLoadStates = async (field, data, changeData, socket) => {
-    if (data[field.name]) {
-        const object = await socket.getObject(data[field.name]);
+const vacuumLoadStates = async (
+    field: RxWidgetInfoAttributesField,
+    data: WidgetData,
+    changeData: (newData: WidgetData) => void,
+    socket: LegacyConnection,
+): Promise<void> => {
+    if (data[field.name!]) {
+        const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
             let parts = object._id.split('.');
             parts.pop();
@@ -174,7 +180,7 @@ export const VACUUM_CHARGING_STATES = ['charging', 'charging Erro'];
 
 export const VACUUM_GOING_HOME_STATES = ['back to home', 'docking'];
 
-export const vacuumGetStatusColor = status => {
+export const vacuumGetStatusColor = (status: null | undefined | string): string | null => {
     if (typeof status === 'boolean') {
         if (status) {
             return 'green';
@@ -223,11 +229,13 @@ interface VacuumRxData {
 }
 
 interface VacuumState extends VisRxWidgetState {
-
+    showSpeedMenu: HTMLAnchorElement | null;
+    showRoomsMenu: HTMLAnchorElement | null;
+    dialog: boolean | null;
 }
 
 class Vacuum extends Generic<VacuumRxData, VacuumState> {
-    constructor(props) {
+    constructor(props: Vacuum['props']) {
         super(props);
         this.state.objects = {};
         this.state.rooms = [];
@@ -452,7 +460,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         return null;
     }
 
-    vacuumGetValue(id: string, numberValue: boolean) {
+    vacuumGetValue(id: string, numberValue?: boolean) {
         const obj = this.vacuumGetObj(id);
         if (!obj) {
             return null;
@@ -466,7 +474,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         return value;
     }
 
-    vacuumGetObj(id) {
+    vacuumGetObj(id: string) {
         return this.state.objects[id];
     }
 
@@ -721,7 +729,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         );
     }
 
-    onCommand(command) {
+    onCommand(command: VisWidgetCommand): any {
         const result = super.onCommand(command);
         if (result === false) {
             if (command === 'openDialog') {
@@ -737,7 +745,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         return result;
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         const rooms = this.vacuumRenderRooms();
         const battery = this.vacuumRenderBattery();

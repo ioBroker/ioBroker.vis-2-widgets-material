@@ -175,7 +175,7 @@ const GRID_PADDING_LEFT = 80;
 const GRID_PADDING_RIGHT = 25;
 
 class ObjectChart extends Component {
-    constructor(props) {
+    constructor(props: ObjectChart['props']) {
         super(props);
         if (!this.props.from) {
             const from = new Date();

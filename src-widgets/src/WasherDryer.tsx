@@ -14,6 +14,7 @@ import 'moment/locale/zh-cn';
 
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
+import type { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180.0);
@@ -282,14 +283,17 @@ interface WasherDryerRxData {
 interface WasherDryerState extends VisRxWidgetState {}
 
 class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
-    constructor(props) {
+    refDiv: React.RefObject<HTMLDivElement | null>;
+    statusOID?: string;
+    updateInterval: ReturnType<typeof setInterval> | null = null;
+    constructor(props: WasherDryer['props']) {
         super(props);
         this.refDiv = React.createRef();
         this.state.object = { common: {} };
         moment.locale(props.context.lang);
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2WasherDryer',
             visSet: 'vis-2-widgets-material',
@@ -366,11 +370,11 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return WasherDryer.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         if (this.statusOID === this.state.rxData['status-oid']) {
             return;
         }
@@ -395,22 +399,22 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         super.componentWillUnmount();
         this.updateInterval && clearInterval(this.updateInterval);
         this.updateInterval = null;
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.propertiesUpdate();
     }
 
-    async onRxDataChanged() {
+    async onRxDataChanged(): Promise<void> {
         await this.propertiesUpdate();
     }
 
-    renderWasher(options) {
+    renderWasher(options): React.ReactNode {
         let circle;
         if (options.circle === 'full') {
             circle = (
@@ -567,7 +571,7 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
         );
     }
 
-    renderDishWasher(options) {
+    renderDishWasher(options): React.ReactNode {
         return (
             <div style={options.style}>
                 {/* header */}
@@ -627,7 +631,7 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
         );
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         const options = {};
 

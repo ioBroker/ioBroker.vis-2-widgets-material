@@ -20,7 +20,7 @@ import { Card, CardContent, IconButton, Slider } from '@mui/material';
 import Generic from './Generic';
 import type { IobTheme, LegacyConnection } from '@iobroker/adapter-react-v5';
 import type { VisRxWidgetState } from './visRxWidget';
-import type { RxWidgetInfo, RxWidgetInfoAttributesField, WidgetData } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, WidgetData } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     content: {
@@ -138,7 +138,7 @@ interface PlayerState extends VisRxWidgetState {
 class Player extends Generic<PlayerRxData, PlayerState> {
     coverRef: React.RefObject<HTMLImageElement | null>;
 
-    setVolumeTimer?: ReturnType<typeof setTimeout> = undefined;
+    setVolumeTimer: ReturnType<typeof setTimeout> | null = null;
 
     constructor(props: Player['props']) {
         super(props);
@@ -439,7 +439,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
         );
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
 
         let repeatIcon = null;

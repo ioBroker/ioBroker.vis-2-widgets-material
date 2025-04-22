@@ -10,6 +10,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import Generic from './Generic';
 import ObjectChart from './ObjectChart';
 import type { VisRxWidgetState } from './visRxWidget';
+import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles = () => ({
     newValueLight: {
@@ -56,16 +57,20 @@ interface StaticRxData {
     [key: `title${number}`]: string;
 }
 
-interface StaticState extends VisRxWidgetState {}
+interface StaticState extends VisRxWidgetState {
+    showDialog: number | null;
+}
 
 class Static extends Generic<StaticRxData, StaticState> {
-    constructor(props) {
+    lastRxData?: string;
+    updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    constructor(props: Static['props']) {
         super(props);
         this.state.objects = {};
         this.state.showDialog = null;
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Static',
             visSet: 'vis-2-widgets-material',
@@ -215,20 +220,20 @@ class Static extends Generic<StaticRxData, StaticState> {
         }
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Static.getWidgetInfo();
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         super.componentDidMount();
         this.propertiesUpdate().then(() => {});
     }
 
-    async onRxDataChanged() {
+    async onRxDataChanged(): Promise<void> {
         await this.propertiesUpdate();
     }
 
-    getStateIcon(key) {
+    getStateIcon(key: number): React.ReactNode {
         let icon = '';
         const isEnabled =
             this.state.objects[key].common.type === 'boolean' &&
@@ -282,7 +287,7 @@ class Static extends Generic<StaticRxData, StaticState> {
             return state.toString();
         }
 
-        const onClick = object.isChart
+        const onClick: React.MouseEventHandler | undefined = object.isChart
             ? e => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -363,7 +368,7 @@ class Static extends Generic<StaticRxData, StaticState> {
         );
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
 
         const actualRxData = JSON.stringify(this.state.rxData);

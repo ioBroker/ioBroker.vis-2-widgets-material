@@ -25,8 +25,6 @@ import ObjectChart from './ObjectChart';
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
 
-type Writable<T> = T extends object ? { -readonly [K in keyof T]: Writable<T[K]> } : T;
-
 echarts.use([
     TimelineComponent,
     ToolboxComponent,

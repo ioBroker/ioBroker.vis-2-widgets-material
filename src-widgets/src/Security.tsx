@@ -10,6 +10,7 @@ import {
     Security as SecurityIcon,
 } from '@mui/icons-material';
 import Generic from './Generic';
+import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     pinGrid: {
@@ -85,10 +86,16 @@ interface SecurityRxData {
     [key: `timerSeconds-oid${number}`]: string;
 }
 
-interface SecurityState {}
+interface SecurityState {
+    message: string | null;
+    dialog: true;
+    pinInput: string;
+}
 
 class Security extends Generic<SecurityRxData, SecurityState> {
-    constructor(props) {
+    timerInterval: ReturnType<typeof setInterval> | null = null;
+
+    constructor(props: Security['props']) {
         super(props);
         this.state.objects = {};
         this.state.dialog = false;
@@ -99,7 +106,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         this.state.timerSeconds = 0;
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Security',
             visSet: 'vis-2-widgets-material',
@@ -145,8 +152,8 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                             type: 'id',
                             label: 'oid',
                             onChange: async (field, data, changeData, socket) => {
-                                if (data[field.name]) {
-                                    const object = await socket.getObject(data[field.name]);
+                                if (data[field.name!]) {
+                                    const object = await socket.getObject(data[field.name!]);
                                     let changed = false;
                                     if (object && object.common) {
                                         if (
@@ -240,7 +247,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Security.getWidgetInfo();
     }
 
@@ -476,7 +483,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
             : this.state.rxData[`pincode${i}`];
     }
 
-    renderMessageDialog() {
+    renderMessageDialog(): React.ReactNode {
         return this.state.message ? (
             <DialogMessage
                 text={this.state.message}
@@ -485,7 +492,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         ) : null;
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
 
         const buttons = [];

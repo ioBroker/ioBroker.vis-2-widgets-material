@@ -17,6 +17,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
+import { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     intermediate: {
@@ -138,14 +139,14 @@ interface SimpleStateRxData {
 interface SimpleStateState extends VisRxWidgetState {}
 
 class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
-    constructor(props) {
+    constructor(props: SimpleState['props']) {
         super(props);
         this.state.showDimmerDialog = null;
         this.refDiv = React.createRef();
         this.state.object = { common: {} };
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2SimpleState',
             visSet: 'vis-2-widgets-material',
@@ -325,7 +326,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return SimpleState.getWidgetInfo();
     }
 
@@ -687,7 +688,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         );
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
 
         const actualRxData = JSON.stringify(this.state.rxData);

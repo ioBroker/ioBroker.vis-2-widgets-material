@@ -160,10 +160,10 @@ export const colorTemperatureToRGB = (kelvin: number) => {
 };
 
 const loadStates = async (field, data, changeData, socket) => {
-    if (data[field.name]) {
-        const object = await socket.getObject(data[field.name]);
+    if (data[field.name!]) {
+        const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
-            const id = data[field.name].split('.');
+            const id = data[field.name!].split('.');
             id.pop();
             const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
             if (states) {

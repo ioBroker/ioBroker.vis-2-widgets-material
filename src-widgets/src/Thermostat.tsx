@@ -138,10 +138,15 @@ interface ThermostatRxData {
     [key: `value${number}`]: string;
 }
 
-interface ThermostatState extends VisRxWidgetState {}
+interface ThermostatState extends VisRxWidgetState {
+    showDialog: boolean;
+    dialogTab: number;
+    size: number;
+    horizontal: boolean;
+}
 
 class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
-    constructor(props) {
+    constructor(props: Thermostat['props']) {
         super(props);
         this.state.showDialog = false;
         this.state.dialogTab = 1;
@@ -175,10 +180,10 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                             type: 'id',
                             label: 'temperature_oid',
                             onChange: async (field, data, changeData, socket) => {
-                                if (data[field.name]) {
-                                    const object = await socket.getObject(data[field.name]);
+                                if (data[field.name!]) {
+                                    const object = await socket.getObject(data[field.name!]);
                                     if (object?.common) {
-                                        const id = data[field.name].split('.');
+                                        const id = data[field.name!].split('.');
                                         id.pop();
                                         const states = await socket.getObjectView(
                                             `${id.join('.')}.`,
@@ -252,8 +257,8 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                             type: 'id',
                             label: 'mode_oid',
                             onChange: async (field, data, changeData, socket) => {
-                                if (data[field.name]) {
-                                    const object = await socket.getObject(data[field.name]);
+                                if (data[field.name!]) {
+                                    const object = await socket.getObject(data[field.name!]);
                                     const modes = getModes(object);
                                     if (modes) {
                                         let changed = false;
@@ -649,7 +654,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         return result;
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
 
         this.customStyle = {};

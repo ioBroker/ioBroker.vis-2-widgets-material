@@ -3,6 +3,7 @@ import React from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './leaflet-providers';
+import type { MarkerProps } from 'react-leaflet';
 import { Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, ZoomControl } from 'react-leaflet';
 
 import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
@@ -12,7 +13,8 @@ import { Close as CloseIcon, Fullscreen as OpenInFullIcon } from '@mui/icons-mat
 import Generic from './Generic';
 import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, WidgetData } from '@iobroker/types-vis-2';
 import type { VisRxWidgetState } from './visRxWidget';
-import { LegacyConnection } from '@iobroker/adapter-react-v5';
+import type { LegacyConnection } from '@iobroker/adapter-react-v5';
+import { WidgetStyleState } from './visBaseWidget';
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -34,7 +36,12 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-const MapContent = props => {
+interface MapContentProps {
+    rxStyle: WidgetStyleState;
+    rxData: MapRxData;
+}
+
+const MapContent = (props: MapContentProps): React.ReactNode => {
     const map = useMap();
     const [oldRxData, setOldRxData] = React.useState('');
     const [oldRxStyle, setOldRxStyle] = React.useState('');
@@ -61,6 +68,8 @@ const MapContent = props => {
         setOldRxStyle(JSON.stringify(props.rxStyle));
         setOldMarkers(JSON.stringify(props.markers));
     }
+
+    return null;
 };
 
 const mapThemes: Record<
@@ -121,13 +130,13 @@ async function detectNameAndColor(
             changed = true;
         } else if (object) {
             // try to detect parent
-            parentChannel = await this.getParentObject(data[field.name]);
+            parentChannel = await this.getParentObject(data[field.name!]);
             if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
                 if (parentChannel.common?.color) {
                     data[`name${field.index}`] = parentChannel.common.color;
                     changed = true;
                 } else {
-                    parentDevice = await this.getParentObject(data[field.name], true);
+                    parentDevice = await this.getParentObject(data[field.name!], true);
                     if (parentDevice.common?.color) {
                         data[`name${field.index}`] = parentDevice.common.color;
                         changed = true;
@@ -141,7 +150,7 @@ async function detectNameAndColor(
                 typeof object.common.name === 'object' ? object.common.name[Generic.getLanguage()] : object.common.name;
         } else if (object) {
             // try to detect parent
-            parentChannel = parentChannel || (await this.getParentObject(data[field.name]));
+            parentChannel = parentChannel || (await this.getParentObject(data[field.name!]));
             if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
                 if (parentChannel.common?.name) {
                     data[`name${field.index}`] =
@@ -150,7 +159,7 @@ async function detectNameAndColor(
                             : parentChannel.common.name;
                     changed = true;
                 } else {
-                    parentDevice = parentDevice || (await this.getParentObject(data[field.name], true));
+                    parentDevice = parentDevice || (await this.getParentObject(data[field.name!], true));
                     if (parentDevice.common?.name) {
                         data[`name${field.index}`] =
                             typeof parentDevice.common.name === 'object'

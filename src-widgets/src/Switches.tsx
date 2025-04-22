@@ -91,6 +91,7 @@ import {
     vacuumGetStatusColor,
 } from './Vacuum';
 import VacuumCleanerIcon from './Components/VacuumIcon';
+import { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const VacuumIcon = () => (
     <svg
@@ -131,10 +132,10 @@ const HISTORY = ['influxdb', 'sql', 'history'];
 echarts.use([TimelineComponent, LineChart, SVGRenderer]);
 
 const loadStates = async (field, data, changeData, socket, index) => {
-    if (data[field.name]) {
-        const object = await socket.getObject(data[field.name]);
+    if (data[field.name!]) {
+        const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
-            const id = data[field.name].split('.');
+            const id = data[field.name!].split('.');
             id.pop();
             const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
             if (states) {
@@ -170,8 +171,8 @@ const loadStates = async (field, data, changeData, socket, index) => {
 };
 
 const vacuumLoadStates = async (field, data, changeData, socket, index) => {
-    if (data[field.name]) {
-        const object = await socket.getObject(data[field.name]);
+    if (data[field.name!]) {
+        const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
             let parts = object._id.split('.');
             parts.pop();
@@ -193,7 +194,7 @@ const vacuumLoadStates = async (field, data, changeData, socket, index) => {
             if (states) {
                 let changed = false;
 
-                if (data[`type${index}`] !== 'vacuum' && data[field.name].startsWith('mihome-vacuum.')) {
+                if (data[`type${index}`] !== 'vacuum' && data[field.name!].startsWith('mihome-vacuum.')) {
                     changed = true;
                     data[`type${index}`] = 'vacuum';
                 }
@@ -464,7 +465,7 @@ const styles: Record<string, CSSProperties> = {
 };
 
 class Switches extends BlindsBase {
-    constructor(props) {
+    constructor(props: Switches['props']) {
         super(props);
         this.state.showControlDialog = null;
         this.state.inputValue = '';
@@ -483,7 +484,7 @@ class Switches extends BlindsBase {
         this.widgetRef = {};
     }
 
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Switches',
             visSet: 'vis-2-widgets-material',
@@ -573,12 +574,12 @@ class Switches extends BlindsBase {
                             label: 'oid',
                             hidden: 'data["widget" + index]',
                             onChange: async (field, data, changeData, socket, index) => {
-                                if (data[field.name]) {
-                                    if (data[field.name].startsWith('mihome-vacuum.')) {
+                                if (data[field.name!]) {
+                                    if (data[field.name!].startsWith('mihome-vacuum.')) {
                                         await vacuumLoadStates(field, data, changeData, socket, index);
                                         return;
                                     }
-                                    const object = await socket.getObject(data[field.name]);
+                                    const object = await socket.getObject(data[field.name!]);
 
                                     if (
                                         object?.common?.role &&
@@ -586,7 +587,7 @@ class Switches extends BlindsBase {
                                             object.common.role.includes('rgb') ||
                                             object.common.role.includes('lock'))
                                     ) {
-                                        const id = data[field.name].split('.');
+                                        const id = data[field.name!].split('.');
                                         id.pop();
                                         const states = await socket.getObjectView(
                                             `${id.join('.')}.`,
@@ -1351,7 +1352,7 @@ class Switches extends BlindsBase {
         };
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return Switches.getWidgetInfo();
     }
 
@@ -4703,7 +4704,7 @@ class Switches extends BlindsBase {
         }
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         this.customStyle = {};
         if (this.state.rxStyle['font-weight']) {

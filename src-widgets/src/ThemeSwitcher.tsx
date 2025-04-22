@@ -7,6 +7,7 @@ import { Button } from '@mui/material';
 
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
+import { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 interface ThemeSwitcherRxData {
     themeType: string;
@@ -18,7 +19,7 @@ interface ThemeSwitcherRxData {
 interface ThemeSwitcherState extends VisRxWidgetState {}
 
 class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
-    static getWidgetInfo() {
+    static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2ThemeSwitcher',
             visSet: 'vis-2-widgets-material',
@@ -115,17 +116,17 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
 
     onThemeChanged = event => this.setState({ themeName: event.matches ? 'dark' : 'light' });
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         if (this.state.rxData.themeType === 'system') {
             window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this.onThemeChanged);
         }
     }
 
-    getWidgetInfo() {
+    getWidgetInfo(): RxWidgetInfo {
         return ThemeSwitcher.getWidgetInfo();
     }
 
-    renderWidgetBody(props) {
+    renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         if (this.state.rxData.themeType === 'system' || this.state.rxData.themeType === 'static') {
             if (this.props.editMode) {
