@@ -637,7 +637,7 @@ class Map extends Generic<MapRxData, MapState> {
                         widget={this}
                         markers={markers}
                         rxData={this.state.rxData}
-                        rxStyle={this.state.rxStyle}
+                        rxStyle={this.state.rxStyle!}
                     />
                 </MapContainer>
             </>

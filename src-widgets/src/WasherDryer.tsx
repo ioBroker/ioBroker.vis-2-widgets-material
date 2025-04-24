@@ -14,7 +14,7 @@ import 'moment/locale/zh-cn';
 
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
-import type { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180.0);

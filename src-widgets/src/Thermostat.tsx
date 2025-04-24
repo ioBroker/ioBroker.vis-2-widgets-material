@@ -28,7 +28,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
-import type { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 import type { VisRxWidgetState } from './visRxWidget';
 
 const BUTTONS = {
@@ -397,7 +397,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         };
     }
 
-    async thermostatReadObjects() {
+    async thermostatReadObjects(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
             return;
@@ -504,12 +504,12 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
             this.setState(newState);
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.thermostatReadObjects();
     }
 
-    async onRxDataChanged() {
+    async onRxDataChanged(): Promise<void> {
         await this.thermostatReadObjects();
     }
 
@@ -534,7 +534,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         return value === undefined || value === null ? '' : value.toString();
     }
 
-    renderChartDialog() {
+    renderChartDialog(): React.ReactNode {
         if (!this.state.showDialog) {
             return null;
         }
@@ -580,7 +580,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         );
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(): void {
         if (super.componentDidUpdate) {
             super.componentDidUpdate();
         }
@@ -659,10 +659,10 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
 
         this.customStyle = {};
         if (this.state.rxStyle['font-weight']) {
-            this.customStyle.fontWeight = this.state.rxStyle['font-weight'];
+            this.customStyle.fontWeight = this.state.rxStyle!['font-weight'];
         }
         if (this.state.rxStyle['font-size']) {
-            this.customStyle.fontSize = this.state.rxStyle['font-size'];
+            this.customStyle.fontSize = this.state.rxStyle!['font-size'];
         }
         if (this.state.rxStyle['font-family']) {
             this.customStyle.fontFamily = this.state.rxStyle['font-family'];

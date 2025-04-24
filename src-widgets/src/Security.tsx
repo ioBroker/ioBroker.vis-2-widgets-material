@@ -254,7 +254,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         return Security.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
             return;
@@ -456,7 +456,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         );
     }
 
-    startTimer(i) {
+    startTimer(i): void {
         const timerSeconds = this.state.rxData[`timerSeconds${i}`];
         this.setState({ timerSeconds, timerDialog: true });
         if (this.state.rxData[`timerSeconds-oid${i}`]) {

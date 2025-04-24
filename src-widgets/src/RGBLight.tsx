@@ -18,11 +18,11 @@ import { Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch,
 import { Brightness6, Close, ColorLens, Thermostat, WbAuto } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon, LegacyConnection } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import './sketch.css';
-import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
 import type { VisRxWidgetState } from './visRxWidget';
 
 /**
@@ -112,7 +112,7 @@ export const RGB_ROLES = {
 
 // Start with a temperature, in Kelvin, somewhere between 1000 and 40000.  (Other values may work,
 //  but I can't make any promises about the quality of the algorithm's estimates above 40000 K.)
-function limit(x: number, min: number, max: number) {
+function limit(x: number, min: number, max: number): number {
     if (x < min) {
         return min;
     }
@@ -159,7 +159,12 @@ export const colorTemperatureToRGB = (kelvin: number) => {
     };
 };
 
-const loadStates = async (field, data, changeData, socket) => {
+const loadStates = async (
+    field: RxWidgetInfoAttributesField,
+    data: WidgetData,
+    changeData: (newData: WidgetData) => void,
+    socket: LegacyConnection,
+): Promise<void> => {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
@@ -656,7 +661,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return result;
     };
 
-    rgbSetWheelColor = color => {
+    rgbSetWheelColor = (color): void => {
         if (this.state.rxData.rgbType === 'hue/sat/lum') {
             color = hsvaToHsla(color);
             this.rgbSetId('hue', color.h);
@@ -697,7 +702,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return 0;
     };
 
-    rgbSetWhite = color => {
+    rgbSetWhite = (color): void => {
         if (this.state.rxData.rgbType === 'r/g/b/w') {
             this.rgbSetId('white', color);
         } else if (this.state.rxData.rgbType === 'rgbw') {
@@ -711,7 +716,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         }
     };
 
-    rgbSetWhiteMode = value => {
+    rgbSetWhiteMode = (value): void => {
         if (this.state.rxData.white_mode) {
             this.rgbSetId('white_mode', !!value);
         }
@@ -842,7 +847,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderBrightnessSlider(isWheelVisible: boolean, whiteMode) {
+    rgbRenderBrightnessSlider(isWheelVisible: boolean, whiteMode): React.ReactNode {
         if (!isWheelVisible || this.state.sketch || this.state.rxData.hideBrightness || whiteMode === true) {
             return null;
         }
@@ -856,7 +861,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderWheel(isWheelVisible: boolean, whiteMode: boolean) {
+    rgbRenderWheel(isWheelVisible: boolean, whiteMode: boolean): React.ReactNode {
         if (!isWheelVisible || whiteMode === true) {
             return null;
         }
@@ -935,7 +940,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderDialog(wheelVisible: boolean, whiteMode?: boolean) {
+    rgbRenderDialog(wheelVisible: boolean, whiteMode?: boolean): React.ReactNode {
         if (!this.state.dialog) {
             return null;
         }

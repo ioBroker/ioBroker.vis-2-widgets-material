@@ -162,7 +162,7 @@ class Static extends Generic<StaticRxData, StaticState> {
         };
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
             return;

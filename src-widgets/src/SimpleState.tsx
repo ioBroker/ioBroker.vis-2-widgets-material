@@ -17,7 +17,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
-import type { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     intermediate: {
@@ -143,11 +143,13 @@ interface SimpleStateState extends VisRxWidgetState {
 
 class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
     refDiv: React.RefObject<HTMLDivElement | null>;
+    updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    lastRxData: string | null = null;
     constructor(props: SimpleState['props']) {
         super(props);
-        this.state.showDimmerDialog = null;
+        (this.state as SimpleStateState).showDimmerDialog = null;
         this.refDiv = React.createRef();
-        this.state.object = { common: {} } as ioBroker.Object;
+        (this.state as SimpleStateState).object = { common: {} } as ioBroker.Object;
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -334,7 +336,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         return SimpleState.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
             return;
@@ -398,12 +400,12 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         }
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.propertiesUpdate();
     }
 
-    async onRxDataChanged() {
+    async onRxDataChanged(): Promise<void> {
         await this.propertiesUpdate();
     }
 
@@ -423,7 +425,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         return null;
     }
 
-    isOn(values) {
+    isOn(values): boolean {
         values = values || this.state.values;
         if (this.state.object.common.type === 'number') {
             return values[`${this.state.object._id}.val`] !== this.state.object.common.min;
@@ -520,7 +522,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         this.props.context.setValue(this.state.rxData.oid, values[oid]);
     }
 
-    controlSpecificState(value) {
+    controlSpecificState(value): void {
         const values = JSON.parse(JSON.stringify(this.state.values));
         const oid = `${this.state.object._id}.val`;
         values[oid] = value;

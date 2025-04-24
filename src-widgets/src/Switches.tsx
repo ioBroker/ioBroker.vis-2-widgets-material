@@ -1356,7 +1356,7 @@ class Switches extends BlindsBase {
         return Switches.getWidgetInfo();
     }
 
-    async propertiesUpdate() {
+    async propertiesUpdate(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
 
         if (this.lastRxData === actualRxData) {
@@ -1499,7 +1499,7 @@ class Switches extends BlindsBase {
         }
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         await this.propertiesUpdate();
         this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
@@ -1547,7 +1547,7 @@ class Switches extends BlindsBase {
         return result;
     }
 
-    async componentWillUnmount() {
+    async componentWillUnmount(): Promise<void> {
         this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
         this.updateDialogChartInterval = null;
 
@@ -1557,11 +1557,11 @@ class Switches extends BlindsBase {
         this.rgbDestroy();
     }
 
-    async onRxDataChanged() {
+    async onRxDataChanged(): Promise<void> {
         await this.propertiesUpdate();
     }
 
-    isOn(index, values) {
+    isOn(index, values): boolean {
         const obj = this.state.objects[index];
         if (!obj || typeof obj === 'string') {
             return false;
@@ -1696,7 +1696,7 @@ class Switches extends BlindsBase {
             : this.state.rxData[`color${index}`] || obj?.common?.color;
     }
 
-    changeSwitch = index => {
+    changeSwitch = (index): void => {
         if (
             this.state.objects[index].widgetType === 'rgb' ||
             this.state.objects[index].widgetType === 'lock' ||
@@ -1743,11 +1743,11 @@ class Switches extends BlindsBase {
         }
     };
 
-    buttonPressed(index) {
+    buttonPressed(index): void {
         this.props.context.setValue(this.state.rxData[`oid${index}`], true);
     }
 
-    setOnOff(index, isOn) {
+    setOnOff(index, isOn): void {
         const values = JSON.parse(JSON.stringify(this.state.values));
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = isOn ? this.state.objects[index].common.max : this.state.objects[index].common.min;
@@ -1755,7 +1755,7 @@ class Switches extends BlindsBase {
         this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
     }
 
-    controlSpecificState(index, value) {
+    controlSpecificState(index, value): void {
         const values = JSON.parse(JSON.stringify(this.state.values));
         const oid = `${this.state.objects[index]._id}.val`;
         values[oid] = value;
@@ -1763,7 +1763,7 @@ class Switches extends BlindsBase {
         this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
     }
 
-    renderControlDialog() {
+    renderControlDialog(): React.ReactNode {
         const index = this.state.showControlDialog;
         if (index !== null) {
             const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
@@ -2081,7 +2081,7 @@ class Switches extends BlindsBase {
         return null;
     }
 
-    renderWidgetInWidget(index, asButton, visibility) {
+    renderWidgetInWidget(index, asButton, visibility): React.ReactNode {
         const wid = this.state.rxData[`widget${index}`];
         const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
         if (widget && wid !== this.props.id) {
@@ -2144,7 +2144,7 @@ class Switches extends BlindsBase {
         return null;
     }
 
-    renderLine(index) {
+    renderLine(index): React.ReactNode {
         if (typeof this.state.objects[index] === 'string') {
             return this.renderWidgetInWidget(index, false, true);
         }
@@ -2692,7 +2692,7 @@ class Switches extends BlindsBase {
         return <div style={styles.infoData}>{staticElem}</div>;
     }
 
-    checkChartWidth() {
+    checkChartWidth(): void {
         Object.keys(this._refs).forEach(i => {
             if (this._refs[i] && this._refs[i].current) {
                 const width = this._refs[i].current.offsetWidth;
@@ -2708,7 +2708,7 @@ class Switches extends BlindsBase {
         });
     }
 
-    drawChart(index, style) {
+    drawChart(index, style): React.ReactNode {
         if (this.state.historyData[index] && this.state.chartWidth[index]) {
             const _style = {
                 height: 37,
@@ -2738,7 +2738,7 @@ class Switches extends BlindsBase {
         return null;
     }
 
-    async checkHistory(index, doNotRequestData) {
+    async checkHistory(index, doNotRequestData): Promise<void> {
         const custom = this.state.objects[index].common.custom;
 
         if (!custom || this.state.rxData[`hideChart${index}`]) {
@@ -2815,7 +2815,7 @@ class Switches extends BlindsBase {
         }
     }
 
-    async updateCharts(index) {
+    async updateCharts(index): Promise<void> {
         let indexesToUpdate;
         if (index !== undefined) {
             indexesToUpdate = [index];
@@ -3001,7 +3001,7 @@ class Switches extends BlindsBase {
         }
     }
 
-    renderButton(index, icon) {
+    renderButton(index, icon): Promise<void> {
         const visibility = this.checkLineVisibility(index);
         if (!visibility && !this.props.editMode) {
             return null;
@@ -3149,7 +3149,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    lockRenderUnlockDialog() {
+    lockRenderUnlockDialog(): React.ReactNode {
         if (this.state.dialogPin === null) {
             return null;
         }
@@ -3260,7 +3260,7 @@ class Switches extends BlindsBase {
             : this.state.rxData[`pincode${index}`];
     }
 
-    lockRenderConfirmDialog() {
+    lockRenderConfirmDialog(): React.ReactNode {
         if (!this.state.lockConfirmDialog) {
             return null;
         }
@@ -3303,7 +3303,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    lockRenderLine(index, buttonWidth, buttonHeight) {
+    lockRenderLine(index, buttonWidth, buttonHeight): React.ReactNode {
         let size = 30;
         if (buttonWidth) {
             size = Math.min((buttonWidth - 32) / 2, buttonHeight - 16);
@@ -3412,7 +3412,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    thermostatObjectIDs(index, ids) {
+    thermostatObjectIDs(index, ids): void {
         const _ids = ['oid', 'actual', 'boost', 'party'];
         _ids.forEach(id => {
             const _id = id + index;
@@ -3422,7 +3422,7 @@ class Switches extends BlindsBase {
         });
     }
 
-    thermostatReadObjects(index, _objects, objects, secondaryObjects) {
+    thermostatReadObjects(index, _objects, objects, secondaryObjects): void {
         let id = this.state.rxData[`oid${index}`];
 
         if (_objects[id]) {
@@ -3461,7 +3461,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    thermostatRenderDialog(index) {
+    thermostatRenderDialog(index): React.ReactNode {
         const setObj = this.state.objects[index];
         let tempValue = null;
         if (setObj?._id) {
@@ -3720,7 +3720,7 @@ class Switches extends BlindsBase {
         return this.state.secondaryObjects[index][id]?.common?.min || 0;
     };
 
-    rgbSetId = (index, id, value) => {
+    rgbSetId = (index, id, value): void => {
         if (this.state.secondaryObjects[index][id]) {
             this.timeouts = this.timeouts || {};
             this.timeouts[index] = this.timeouts[index] || {};
@@ -3744,7 +3744,7 @@ class Switches extends BlindsBase {
         }
     };
 
-    rgbObjectIDs(index, ids) {
+    rgbObjectIDs(index, ids): void {
         RGB_NAMES.forEach(name => {
             if (this.state.rxData[name + index] && this.state.rxData[name + index] !== 'nothing_selected') {
                 ids.push(this.state.rxData[name + index]);
@@ -3753,7 +3753,7 @@ class Switches extends BlindsBase {
         ids.push(this.state.rxData[`oid${index}`]);
     }
 
-    rgbReadObjects(index, _objects, objects, secondaryObjects) {
+    rgbReadObjects(index, _objects, objects, secondaryObjects): void {
         const _rgbObjects = {};
 
         RGB_NAMES.forEach(name => {
@@ -3789,7 +3789,7 @@ class Switches extends BlindsBase {
         };
     }
 
-    rgbDestroy() {
+    rgbDestroy(): void {
         if (this.timeouts) {
             for (const index in this.timeouts) {
                 for (const k in this.timeouts[index]) {
@@ -3802,7 +3802,7 @@ class Switches extends BlindsBase {
         }
     }
 
-    rgbIsOnlyHue = index =>
+    rgbIsOnlyHue = (index): boolean =>
         this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' &&
         (!this.state.secondaryObjects[index].saturation || !this.state.secondaryObjects[index].luminance);
 
@@ -3859,7 +3859,7 @@ class Switches extends BlindsBase {
         return result;
     };
 
-    rgbSetWheelColor = (index, color) => {
+    rgbSetWheelColor = (index, color): void => {
         if (this.state.rxData[`rgbType${index}`] === 'hue/sat/lum') {
             color = hsvaToHsla(color);
             this.rgbSetId(index, 'hue', color.h);
@@ -3903,7 +3903,7 @@ class Switches extends BlindsBase {
         return 0;
     };
 
-    rgbSetWhite = (index, color) => {
+    rgbSetWhite = (index, color): void => {
         if (this.state.rxData[`rgbType${index}`] === 'r/g/b/w') {
             this.rgbSetId(index, 'white', color);
         } else if (this.state.rxData[`rgbType${index}`] === 'rgbw') {
@@ -3917,7 +3917,7 @@ class Switches extends BlindsBase {
         }
     };
 
-    rgbSetWhiteMode = (index, value) => {
+    rgbSetWhiteMode = (index, value): void => {
         if (this.state.rxData.white_mode) {
             this.rgbSetId(`white_mode${index}`, !!value);
         }
@@ -3953,7 +3953,7 @@ class Switches extends BlindsBase {
     rgbIsHSL = index =>
         this.state.rxData[`rgbType${index}`] === 'hue/sat/lum' && this.state.secondaryObjects[index].hue;
 
-    rgbRenderSwitch(index) {
+    rgbRenderSwitch(index): React.ReactNode {
         return (
             this.state.secondaryObjects[index].switch && (
                 <div
@@ -3973,7 +3973,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderBrightness(index) {
+    rgbRenderBrightness(index): React.ReactNode {
         return (
             this.state.secondaryObjects[index].brightness && (
                 <div style={styles.rgbSliderContainer}>
@@ -3995,7 +3995,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderSketch(index) {
+    rgbRenderSketch(index): React.ReactNode {
         return (
             <div
                 className="dark"
@@ -4010,7 +4010,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderWheelTypeSwitch(index, isWheelVisible, twoPanels, whiteMode) {
+    rgbRenderWheelTypeSwitch(index, isWheelVisible, twoPanels, whiteMode): React.ReactNode {
         if (!isWheelVisible) {
             return null;
         }
@@ -4055,7 +4055,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderBrightnessSlider(index, isWheelVisible, whiteMode) {
+    rgbRenderBrightnessSlider(index, isWheelVisible, whiteMode): React.ReactNode {
         if (
             !isWheelVisible ||
             this.state.sketch[index] ||
@@ -4074,7 +4074,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderWheel(index, isWheelVisible, whiteMode) {
+    rgbRenderWheel(index, isWheelVisible, whiteMode): React.ReactNode {
         if (!isWheelVisible || whiteMode === true) {
             return null;
         }
@@ -4093,7 +4093,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderWhite(index) {
+    rgbRenderWhite(index): React.ReactNode {
         if (!this.rgbIsWhite(index)) {
             return null;
         }
@@ -4121,7 +4121,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderColorTemperature(index, whiteMode) {
+    rgbRenderColorTemperature(index, whiteMode): React.ReactNode {
         if (this.state.rxData[`rgbType${index}`] !== 'ct' || whiteMode === true) {
             return null;
         }
@@ -4153,7 +4153,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    rgbRenderDialog(index) {
+    rgbRenderDialog(index): React.ReactNode {
         const wheelVisible = this.rgbIsRgb(index) || this.rgbIsHSL(index);
         const whiteMode = this.rgbGetWhiteMode(index);
 
@@ -4191,7 +4191,7 @@ class Switches extends BlindsBase {
         return color.r + color.g + color.b > 3 * 128 ? '#000000' : '#ffffff';
     };
 
-    vacuumObjectIDs(index, ids) {
+    vacuumObjectIDs(index, ids): void {
         const keys = Object.keys(VACUUM_ID_ROLES);
         for (let k = 0; k < keys.length; k++) {
             const oid = this.state.rxData[`vacuum-${keys[k]}-oid${index}`];
@@ -4201,7 +4201,7 @@ class Switches extends BlindsBase {
         }
     }
 
-    async vacuumReadObjects(index, _objects, objects, secondaryObjects) {
+    async vacuumReadObjects(index, _objects, objects, secondaryObjects): Promise<void> {
         secondaryObjects[index] = {};
 
         objects[index] = {
@@ -4290,7 +4290,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    vacuumRenderSpeed(index) {
+    vacuumRenderSpeed(index): React.ReactNode {
         const obj = this.vacuumGetObj(index, 'fan-speed');
         if (!obj) {
             return null;
@@ -4354,7 +4354,7 @@ class Switches extends BlindsBase {
         ];
     }
 
-    vacuumRenderRooms(index) {
+    vacuumRenderRooms(index): React.ReactNode {
         if (!this.state.secondaryObjects[index] || !this.state.secondaryObjects[index].rooms?.length) {
             return null;
         }
@@ -4392,7 +4392,7 @@ class Switches extends BlindsBase {
         ];
     }
 
-    vacuumRenderSensors(index) {
+    vacuumRenderSensors(index): React.ReactNode {
         const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(
             sensor => this.vacuumGetObj(index, sensor),
         );
@@ -4429,7 +4429,7 @@ class Switches extends BlindsBase {
         ) : null;
     }
 
-    vacuumRenderButtons(index, withDialog) {
+    vacuumRenderButtons(index, withDialog): React.ReactNode {
         let statusColor;
         const statusObj = this.vacuumGetObj(index, 'status');
         let status;
@@ -4539,7 +4539,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    vacuumRenderMap(index) {
+    vacuumRenderMap(index): React.ReactNode {
         const obj = this.vacuumGetObj(index, 'map64');
         if (!obj) {
             if (this.state.rxData[`vacuum-use-default-picture${index}`]) {
@@ -4565,7 +4565,7 @@ class Switches extends BlindsBase {
         );
     }
 
-    vacuumRenderDialog(index) {
+    vacuumRenderDialog(index): React.ReactNode {
         const rooms = this.vacuumRenderRooms(index);
         const battery = this.vacuumRenderBattery(index);
         let height = 0;

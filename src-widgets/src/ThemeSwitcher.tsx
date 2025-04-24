@@ -7,7 +7,7 @@ import { Button } from '@mui/material';
 
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
-import { RxWidgetInfo } from '@iobroker/types-vis-2';
+import { RxRenderWidgetProps, RxWidgetInfo, WidgetData } from '@iobroker/types-vis-2';
 
 interface ThemeSwitcherRxData {
     themeType: string;
@@ -85,7 +85,7 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
         };
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         super.componentDidMount();
         let themeName;
         if (this.state.rxData.themeType === 'system') {
@@ -110,11 +110,11 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
         this.setState({ themeName }, () => this.setViewTheme(themeName));
     }
 
-    setViewTheme(themeName) {
+    setViewTheme(themeName): void {
         this.props.context?.toggleTheme && this.props.context?.toggleTheme(themeName || this.state.rxData.themeName);
     }
 
-    onThemeChanged = event => this.setState({ themeName: event.matches ? 'dark' : 'light' });
+    onThemeChanged = (event): void => this.setState({ themeName: event.matches ? 'dark' : 'light' });
 
     componentWillUnmount(): void {
         if (this.state.rxData.themeType === 'system') {

@@ -287,7 +287,7 @@ class ObjectChart extends Component {
         window.removeEventListener('resize', this.onResize);
     }
 
-    onResize = () => {
+    onResize = (): void => {
         this.timerResize && clearTimeout(this.timerResize);
         this.timerResize = setTimeout(() => {
             this.timerResize = null;
@@ -295,7 +295,7 @@ class ObjectChart extends Component {
         });
     };
 
-    onChange = (id, state) => {
+    onChange = (id, state): void => {
         if (
             (id === this.props.obj._id || id === this.props.obj2._id) &&
             state &&
@@ -860,11 +860,11 @@ class ObjectChart extends Component {
         };
     }
 
-    static getDerivedStateFromProps() {
+    static getDerivedStateFromProps(): null {
         return null;
     }
 
-    updateChart(start, end, withReadData, cb) {
+    updateChart(start, end, withReadData, cb): void {
         if (start) {
             this.start = start;
         }
@@ -923,7 +923,7 @@ class ObjectChart extends Component {
         }, 400);
     }
 
-    setNewRange(readData) {
+    setNewRange(readData): void {
         /* if (this.rangeRef.current &&
             this.rangeRef.current.childNodes[1] &&
             this.rangeRef.current.childNodes[1].value) {
@@ -951,7 +951,7 @@ class ObjectChart extends Component {
         }
     }
 
-    shiftTime() {
+    shiftTime(): void {
         const now = new Date();
         const delay = 60000 - now.getSeconds() - (1000 - now.getMilliseconds());
 
@@ -1024,7 +1024,7 @@ class ObjectChart extends Component {
         }, delay || 60000);
     }
 
-    setRelativeInterval(mins, dontSave, cb) {
+    setRelativeInterval(mins, dontSave, cb): void {
         if (!dontSave) {
             window.localStorage.setItem('App.relativeRange', mins);
             this.setState({ relativeRange: mins });
@@ -1109,7 +1109,7 @@ class ObjectChart extends Component {
         );
     }
 
-    installEventHandlers() {
+    installEventHandlers(): void {
         if (!this.echartsReact || typeof this.echartsReact.getEchartsInstance !== 'function') {
             return;
         }
@@ -1225,7 +1225,7 @@ class ObjectChart extends Component {
         }
     }
 
-    renderChart() {
+    renderChart(): React.ReactNode {
         if (this.chartValues && this.chartValues[this.props.obj._id]) {
             return (
                 <ReactEchartsCore
@@ -1403,7 +1403,7 @@ class ObjectChart extends Component {
         );
     }
 
-    render() {
+    render(): React.ReactNode {
         if (!this.state.historyInstances && !this.state.defaultHistory) {
             return <LinearProgress />;
         }
