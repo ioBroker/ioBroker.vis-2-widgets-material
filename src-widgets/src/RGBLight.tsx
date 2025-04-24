@@ -523,7 +523,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return this.state.rgbObjects[id]?.common?.max || 0;
     };
 
-    rgbSetId = (id, value) => {
+    rgbSetId = (id: string, value): void => {
         if (this.state.rgbObjects[id]) {
             this.timeouts[id] && clearTimeout(this.timeouts[id]);
 
@@ -601,7 +601,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         }
     }
 
-    rgbIsOnlyHue = () =>
+    rgbIsOnlyHue = (): boolean =>
         this.state.rxData.rgbType === 'hue/sat/lum' &&
         (!this.state.rgbObjects.saturation || !this.state.rgbObjects.luminance);
 
@@ -802,7 +802,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderWheelTypeSwitch(isWheelVisible, twoPanels, whiteMode): React.ReactNode {
+    rgbRenderWheelTypeSwitch(isWheelVisible: boolean, twoPanels, whiteMode): React.ReactNode {
         if (!isWheelVisible) {
             return null;
         }
@@ -842,7 +842,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderBrightnessSlider(isWheelVisible, whiteMode) {
+    rgbRenderBrightnessSlider(isWheelVisible: boolean, whiteMode) {
         if (!isWheelVisible || this.state.sketch || this.state.rxData.hideBrightness || whiteMode === true) {
             return null;
         }
@@ -856,7 +856,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderWheel(isWheelVisible, whiteMode) {
+    rgbRenderWheel(isWheelVisible: boolean, whiteMode: boolean) {
         if (!isWheelVisible || whiteMode === true) {
             return null;
         }
@@ -903,7 +903,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderColorTemperature(whiteMode): React.ReactNode {
+    rgbRenderColorTemperature(whiteMode: boolean): React.ReactNode {
         if (this.state.rxData.rgbType !== 'ct' || whiteMode === true) {
             return null;
         }
@@ -935,7 +935,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderDialog(wheelVisible, whiteMode) {
+    rgbRenderDialog(wheelVisible: boolean, whiteMode?: boolean) {
         if (!this.state.dialog) {
             return null;
         }

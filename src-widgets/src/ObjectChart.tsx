@@ -175,6 +175,9 @@ const GRID_PADDING_LEFT = 80;
 const GRID_PADDING_RIGHT = 25;
 
 class ObjectChart extends Component {
+    readTimeout: ReturnType<typeof setTimeout> | null;
+    timeTimer: ReturnType<typeof setTimeout> | null;
+
     constructor(props: ObjectChart['props']) {
         super(props);
         if (!this.props.from) {
@@ -242,7 +245,7 @@ class ObjectChart extends Component {
         this.onResize = this.onResize.bind(this);
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         const ids = [];
         if (this.props.obj._id && this.props.obj._id !== 'nothing_selected') {
             ids.push(this.props.obj._id);
@@ -258,7 +261,7 @@ class ObjectChart extends Component {
             .then(() => this.setRelativeInterval(this.state.relativeRange, true, () => this.forceUpdate()));
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         this.readTimeout && clearTimeout(this.readTimeout);
         this.readTimeout = null;
 

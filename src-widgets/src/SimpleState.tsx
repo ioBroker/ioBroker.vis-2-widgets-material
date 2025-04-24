@@ -17,7 +17,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
-import { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     intermediate: {
@@ -136,14 +136,18 @@ interface SimpleStateRxData {
     [key: `iconSize${number}`]: number;
 }
 
-interface SimpleStateState extends VisRxWidgetState {}
+interface SimpleStateState extends VisRxWidgetState {
+    showDimmerDialog: boolean | null;
+    object: ioBroker.Object;
+}
 
 class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
+    refDiv: React.RefObject<HTMLDivElement | null>;
     constructor(props: SimpleState['props']) {
         super(props);
         this.state.showDimmerDialog = null;
         this.refDiv = React.createRef();
-        this.state.object = { common: {} };
+        this.state.object = { common: {} } as ioBroker.Object;
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -427,7 +431,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         return !!values[`${this.state.object._id}.val`];
     }
 
-    getStateIcon(isOn) {
+    getStateIcon(isOn?: boolean) {
         let icon = '';
         if (this.state.rxData.noIcon) {
             return null;
@@ -489,7 +493,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
             : this.state.rxData.color || this.state.object.common.color;
     }
 
-    changeSwitch = () => {
+    changeSwitch = (): void => {
         if (this.state.object.common.type === 'number' || this.state.object.common.states) {
             this.setState({ showDimmerDialog: true });
         } else {
@@ -508,7 +512,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         }
     };
 
-    setOnOff(isOn) {
+    setOnOff(isOn: boolean): void {
         const values = JSON.parse(JSON.stringify(this.state.values));
         const oid = `${this.state.object._id}.val`;
         values[oid] = isOn ? this.state.object.common.max : this.state.object.common.min;
@@ -524,7 +528,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         this.props.context.setValue(this.state.rxData.oid, values[oid]);
     }
 
-    renderDimmerDialog() {
+    renderDimmerDialog(): React.ReactNode {
         if (this.state.showDimmerDialog) {
             const isLamp =
                 this.state.object.common.min === 0 &&
@@ -631,7 +635,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         return null;
     }
 
-    renderCircular() {
+    renderCircular(): React.ReactNode {
         const value = this.state.values[`${this.state.object._id}.val`];
         const object = this.state.object;
         if (value === undefined || value === null) {

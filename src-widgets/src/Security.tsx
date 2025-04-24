@@ -88,22 +88,25 @@ interface SecurityRxData {
 
 interface SecurityState {
     message: string | null;
-    dialog: true;
+    dialog: boolean;
     pinInput: string;
+    timerDialog: boolean;
+    invalidPin: boolean;
+    timerSeconds: number;
 }
 
 class Security extends Generic<SecurityRxData, SecurityState> {
-    timerInterval: ReturnType<typeof setInterval> | null = null;
+    timerInterval?: ReturnType<typeof setInterval>;
 
     constructor(props: Security['props']) {
         super(props);
-        this.state.objects = {};
-        this.state.dialog = false;
-        this.state.timerDialog = false;
-        this.state.pinInput = '';
-        this.state.invalidPin = false;
-        this.state.timerI = null;
-        this.state.timerSeconds = 0;
+        (this.state as SecurityState).objects = {};
+        (this.state as SecurityState).dialog = false;
+        (this.state as SecurityState).timerDialog = false;
+        (this.state as SecurityState).pinInput = '';
+        (this.state as SecurityState).invalidPin = false;
+        // (this.state as SecurityState).timerI = null;
+        (this.state as SecurityState).timerSeconds = 0;
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -312,22 +315,22 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         }
     }
 
-    async onRxDataChanged(/* prevRxData */) {
+    async onRxDataChanged(/* prevRxData */): Promise<void> {
         await this.propertiesUpdate();
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         super.componentDidMount();
         this.propertiesUpdate();
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         this.timerInterval && clearInterval(this.timerInterval);
-        this.timerInterval = null;
+        this.timerInterval = undefined;
         super.componentWillUnmount();
     }
 
-    renderUnlockDialog() {
+    renderUnlockDialog(): React.ReactNode {
         let lockedId = null;
         let pincode = null;
         let pincodeReturnButton = null;
@@ -423,8 +426,8 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         );
     }
 
-    renderTimerDialog() {
-        const onClose = () => {
+    renderTimerDialog(): React.ReactNode {
+        const onClose = (): void => {
             this.setState({ timerDialog: false });
             if (this.state.rxData.timerSecondsOid) {
                 this.props.context.setValue(this.state.rxData.timerSecondsOid, -1);
@@ -477,7 +480,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         }, 1000);
     }
 
-    getPincode(i) {
+    getPincode(i: number): string {
         return this.state.rxData[`pincode-oid${i}`]
             ? this.getPropertyValue(`pincode-oid${i}`)
             : this.state.rxData[`pincode${i}`];

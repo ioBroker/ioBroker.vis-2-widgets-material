@@ -59,6 +59,7 @@ interface StaticRxData {
 
 interface StaticState extends VisRxWidgetState {
     showDialog: number | null;
+    objects: Record<string, ioBroker.Object>;
 }
 
 class Static extends Generic<StaticRxData, StaticState> {
@@ -348,7 +349,7 @@ class Static extends Generic<StaticRxData, StaticState> {
                 </DialogTitle>
                 <DialogContent>
                     <ObjectChart
-                        t={word => Generic.t(word)}
+                        t={(word: string) => Generic.t(word)}
                         lang={Generic.getLanguage()}
                         socket={this.props.context.socket}
                         obj={this.state.objects[index]}
