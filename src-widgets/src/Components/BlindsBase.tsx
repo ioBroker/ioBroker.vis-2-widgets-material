@@ -93,9 +93,15 @@ const styles: Record<string, CSSProperties> = {
 export const STYLES = styles;
 
 export interface BlindsBaseRxData {
-    slideStop_oidX: string;
-    slidePos_oidX: string;
-    slideInvertX: boolean;
+    [key: `slideStop_oid${number}`]: string;
+    [key: `slidePos_oid${number}`]: string;
+    [key: `slideInvert${number}`]: boolean;
+    [key: `slideMin${number}`]: string;
+    [key: `slideMax${number}`]: string;
+    [key: `slideSensor_oid${number}`]: string;
+    [key: `slideHandle_oid${number}`]: string;
+    [key: `slideType${number}`]: string;
+    [key: `slideRatio${number}`]: number;
     oid: string;
     invert: boolean;
     min: string;
@@ -195,7 +201,7 @@ class BlindsBase<
                     }
                 }
             }
-            max = parseFloat(this.state.rxData[`slideMa${index}`]);
+            max = parseFloat(this.state.rxData[`slideMax${index}`]);
             if (Number.isNaN(max)) {
                 max = parseFloat(this.state.objects[index]?.max);
                 if (Number.isNaN(max)) {

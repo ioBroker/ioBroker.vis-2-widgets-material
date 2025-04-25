@@ -2,7 +2,7 @@ interface VacuumCleanerIconProps {
     style?: React.CSSProperties;
 }
 
-const VacuumCleanerIcon = (props: VacuumCleanerIconProps) => (
+const VacuumCleanerIcon = (props: VacuumCleanerIconProps): React.ReactNode => (
     <svg
         viewBox="0 0 360 360"
         xmlns="http://www.w3.org/2000/svg"

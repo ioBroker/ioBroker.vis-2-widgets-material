@@ -129,7 +129,10 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         };
     }
 
-    static getDerivedStateFromProps(nextProps: DialogBlindsProps, state: DialogBlindsState) {
+    static getDerivedStateFromProps(
+        nextProps: DialogBlindsProps,
+        state: DialogBlindsState,
+    ): Partial<DialogBlindsState> | null {
         let newState: Partial<DialogBlindsState> | null = null;
         if (nextProps.startValue !== state.value && !DialogBlinds.mouseDown && Date.now() - state.lastControl > 1000) {
             newState = newState || {};
@@ -142,7 +145,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         return newState || null;
     }
 
-    eventToValue(e: MouseEvent & TouchEvent) {
+    eventToValue(e: MouseEvent & TouchEvent): void {
         const pageY = e.touches ? e.touches[e.touches.length - 1].clientY : e.clientY;
 
         let value = 100 - Math.round(((pageY - this.top!) / this.height!) * 100) + 9;
@@ -162,7 +165,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
     }
 
-    onMouseMove = (e: MouseEvent & TouchEvent) => {
+    onMouseMove = (e: MouseEvent & TouchEvent): void => {
         if (DialogBlinds.mouseDown) {
             e.preventDefault();
             e.stopPropagation();
@@ -170,7 +173,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
     };
 
-    onMouseDown = (e: MouseEvent & TouchEvent) => {
+    onMouseDown = (e: MouseEvent & TouchEvent): void => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -200,7 +203,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         });
     };
 
-    onMouseUp = (e: MouseEvent & TouchEvent) => {
+    onMouseUp = (e: MouseEvent & TouchEvent): void => {
         e.preventDefault();
         e.stopPropagation();
         console.log('Stopped');
@@ -234,7 +237,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         });
     };
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         // document.getElementById('root').className = ``;
         if (DialogBlinds.mouseDown) {
             DialogBlinds.mouseDown = false;
@@ -261,7 +264,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
     }
 
-    getTopButtonName() {
+    getTopButtonName(): React.ReactNode {
         switch (this.props.type) {
             case DialogBlinds.types.blinds:
                 return <IconUp style={{ width: 20, height: 20 }} />;
@@ -274,7 +277,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
     }
 
-    getBottomButtonName() {
+    getBottomButtonName(): React.ReactNode {
         switch (this.props.type) {
             case DialogBlinds.types.blinds:
                 return <IconDown style={{ width: 20, height: 20 }} />;
@@ -287,7 +290,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
     }
 
-    onButtonDown(e: React.MouseEvent, buttonName: string) {
+    onButtonDown(e: React.MouseEvent, buttonName: string): void {
         e && e.stopPropagation();
         if (Date.now() - this.button.time < 50) {
             return;
@@ -363,7 +366,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
     };
     */
-    getSliderColor() {
+    getSliderColor(): string | undefined {
         if (this.props.type === DialogBlinds.types.blinds) {
             return undefined;
         }
@@ -376,7 +379,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         return '#888';
     }
 
-    getValueText() {
+    getValueText(): string {
         let unit = '%';
         if (this.props.type !== DialogBlinds.types.blinds && this.props.type !== DialogBlinds.types.dimmer) {
             unit = this.props.unit || '';
@@ -385,7 +388,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         return this.state.value + unit;
     }
 
-    getToggleButton() {
+    getToggleButton(): React.ReactNode {
         if (!this.props.onToggle) {
             return null;
         }
@@ -402,7 +405,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         );
     }
 
-    getStopButton() {
+    getStopButton(): React.ReactNode {
         if (!this.props.onStop) {
             return null;
         }
@@ -419,7 +422,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         );
     }
 
-    generateContent() {
+    generateContent(): React.ReactNode {
         const sliderStyle: CSSProperties = {
             position: 'absolute',
             width: '100%',
@@ -496,7 +499,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         );
     }
 
-    render() {
+    render(): React.ReactNode {
         return (
             <Dialog
                 open={!0}

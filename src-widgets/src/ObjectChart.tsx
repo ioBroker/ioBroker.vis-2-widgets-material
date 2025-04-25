@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 // import { LocalizationProvider, TimePicker, DatePicker } from '@mui/x-date-pickers';
+import type { SxProps, Theme } from '@mui/material';
 import { Paper, LinearProgress, InputLabel, MenuItem, FormControl, Select, Toolbar, Fab, Box } from '@mui/material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -32,7 +33,10 @@ import brLocale from 'date-fns/locale/pt-BR';
 import deLocale from 'date-fns/locale/de';
 import nlLocale from 'date-fns/locale/nl';
 */
+import type { IobTheme, LegacyConnection } from '@iobroker/adapter-react-v5';
 import { Utils, withWidth } from '@iobroker/adapter-react-v5';
+import type { EChartsOption, SeriesOption } from 'echarts';
+import type { YAXisOption } from 'echarts/types/dist/shared';
 
 // icons
 // import EchartsIcon from '../../assets/echarts.png';
@@ -93,7 +97,7 @@ function padding2(num: number): number | string {
     return num;
 }
 
-const styles: Record<string, CSSProperties> = {
+const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     paper: {
         height: '100%',
         maxHeight: '100%',
@@ -174,9 +178,82 @@ const styles: Record<string, CSSProperties> = {
 const GRID_PADDING_LEFT = 80;
 const GRID_PADDING_RIGHT = 25;
 
-class ObjectChart extends Component {
+interface ObjectChartProps {
+    socket: LegacyConnection;
+    objects: Record<string, ioBroker.Object>;
+    customsInstances: string[];
+    obj: ioBroker.Object;
+    obj2: ioBroker.Object;
+    historyInstance?: string;
+    historyInstances?: Array<{ id: string; alive: boolean }>;
+    defaultHistory?: string;
+    lang: string;
+    themeType: 'light' | 'dark';
+    noToolbar?: boolean;
+    customsStyles?: Record<string, CSSProperties | SxProps<IobTheme>>;
+    customsClasses?: Record<string, CSSProperties | SxProps<IobTheme>>;
+    customsIcons?: Record<string, React.ReactNode>;
+    customsComponents?: Record<string, React.ReactNode>;
+    unit?: string;
+    unit2?: string;
+    isFloatComma?: boolean;
+    chartTitle?: string;
+    title?: string;
+    title2?: string;
+    objLineType?: 'step' | 'line';
+    obj2LineType?: 'step' | 'line';
+    objBackgroundColor?: string;
+    objColor?: string;
+    obj2BackgroundColor?: string;
+    obj2Color?: string;
+    from: number;
+    end: number;
+    t: (key: string) => string;
+    systemConfig: ioBroker.SystemConfigObject;
+}
+
+interface ObjectChartState {
+    historyInstance: string;
+    historyInstances: Array<{ id: string; alive: boolean }> | null;
+    defaultHistory: string;
+    chartHeight: number;
+    chartWidth: number;
+    relativeRange: string;
+    splitLine: boolean;
+    maxYLen: number;
+    maxYLen2: number;
+    max: number;
+}
+
+interface ChartData {
+    min?: number;
+    max?: number;
+    diff?: number;
+    withTime?: boolean;
+    withSeconds?: boolean;
+    lastX?: number;
+    lastWidth?: number | null;
+}
+
+class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
     readTimeout: ReturnType<typeof setTimeout> | null;
     timeTimer: ReturnType<typeof setTimeout> | null;
+    start: number;
+    end: number;
+    echartsReact: ReactEchartsCore | null = null;
+    rangeRef: React.RefObject<HTMLElement | null>;
+    maxYLenTimeout: ReturnType<typeof setTimeout> | null = null;
+    maxYLenTimeout2: ReturnType<typeof setTimeout> | null = null;
+    timerResize: ReturnType<typeof setTimeout> | null = null;
+    mouseDown: boolean = false;
+    chart: ChartData;
+    divRef: React.RefObject<HTMLDivElement | null>;
+    unit: string;
+    unit2: string;
+    minY!: Record<string, number | null>;
+    maxY!: Record<string, number | null>;
+    minX!: Record<string, number | null>;
+    maxX!: Record<string, number | null>;
 
     constructor(props: ObjectChart['props']) {
         super(props);
@@ -193,8 +270,8 @@ class ObjectChart extends Component {
             this.end = this.props.end;
         }
         let relativeRange = window.localStorage.getItem('App.relativeRange') || '30';
-        const min = parseInt(window.localStorage.getItem('App.absoluteStart'), 10) || 0;
-        const max = parseInt(window.localStorage.getItem('App.absoluteEnd'), 10) || 0;
+        const min = parseInt(window.localStorage.getItem('App.absoluteStart')!, 10) || 0;
+        const max = parseInt(window.localStorage.getItem('App.absoluteEnd')!, 10) || 0;
 
         if ((!min || !max) && (!relativeRange || relativeRange === 'absolute')) {
             relativeRange = '30';
@@ -220,7 +297,6 @@ class ObjectChart extends Component {
             maxYLen2: 0,
         };
 
-        this.echartsReact = createRef();
         this.rangeRef = createRef();
         this.readTimeout = null;
         this.chartValues = null;
@@ -295,7 +371,7 @@ class ObjectChart extends Component {
         });
     };
 
-    onChange = (id, state): void => {
+    onChange = (id: string, state: ioBroker.State | null | undefined): void => {
         if (
             (id === this.props.obj._id || id === this.props.obj2._id) &&
             state &&
@@ -317,7 +393,7 @@ class ObjectChart extends Component {
     };
 
     prepareData() {
-        let list;
+        let list: { id: string; alive: boolean }[];
 
         if (this.props.noToolbar) {
             return new Promise(resolve => {
@@ -371,9 +447,9 @@ class ObjectChart extends Component {
             });
     }
 
-    async getHistoryInstances() {
-        const list = [];
-        const ids = [];
+    async getHistoryInstances(): Promise<{ id: string; alive: boolean }[]> {
+        const list: { id: string; alive: boolean }[] = [];
+        const ids: string[] = [];
 
         if (this.props.historyInstance) {
             return list;
@@ -404,7 +480,7 @@ class ObjectChart extends Component {
                 const alive = await this.props.socket.getState(ids[i]);
                 const item = list.find(it => ids[i].endsWith(`${it.id}.alive`));
                 if (item) {
-                    item.alive = alive && alive.val;
+                    item.alive = (alive as boolean) && (alive!.val as boolean);
                 }
             }
         }
@@ -412,7 +488,7 @@ class ObjectChart extends Component {
         return list;
     }
 
-    readHistoryRange() {
+    readHistoryRange(): Promise<void> {
         const now = new Date();
         const oldest = new Date(2000, 0, 1);
 
@@ -440,7 +516,7 @@ class ObjectChart extends Component {
             });
     }
 
-    readHistory(start, end, id) {
+    readHistory(start: number, end: number, id?: string) {
         /* interface GetHistoryOptions {
             instance?: string;
             start?: number;
@@ -509,10 +585,10 @@ class ObjectChart extends Component {
                 ) {
                     console.error('Strange data!');
                 }
-                if (minY === null || values[t].val < minY) {
+                if (minY === null || values[t].val! < minY) {
                     minY = values[t].val;
                 }
-                if (maxY === null || values[t].val > maxY) {
+                if (maxY === null || values[t].val! > maxY) {
                     maxY = values[t].val;
                 }
             }
@@ -536,21 +612,21 @@ class ObjectChart extends Component {
             this.maxX = this.maxX || {};
 
             this.chartValues[id] = chart;
-            this.minY[id] = minY;
-            this.maxY[id] = maxY;
+            this.minY[id] = minY as number;
+            this.maxY[id] = maxY as number;
 
-            this.minX[id] = minY;
-            this.maxX[id] = maxY;
+            this.minX[id] = minY as number;
+            this.maxX[id] = maxY as number;
 
-            if (this.minY[id] < 10) {
-                this.minY[id] = Math.round(this.minY[id] * 10) / 10;
+            if (this.minY[id]! < 10) {
+                this.minY[id] = Math.round(this.minY[id]! * 10) / 10;
             } else {
-                this.minY[id] = Math.ceil(this.minY[id]);
+                this.minY[id] = Math.ceil(this.minY[id]!);
             }
-            if (this.maxY[id] < 10) {
-                this.maxY[id] = Math.round(this.maxY[id] * 10) / 10;
+            if (this.maxY[id]! < 10) {
+                this.maxY[id] = Math.round(this.maxY[id]! * 10) / 10;
             } else {
-                this.maxY[id] = Math.ceil(this.maxY[id]);
+                this.maxY[id] = Math.ceil(this.maxY[id]!);
             }
             return chart;
         });
@@ -578,21 +654,21 @@ class ObjectChart extends Component {
         return data;
     }
 
-    getOption() {
+    getOption(): EChartsOption {
         let widthAxis;
         if (this.minY[this.props.obj._id] !== null && this.minY[this.props.obj._id] !== undefined) {
-            widthAxis = (this.minY[this.props.obj._id].toString() + this.unit).length * 9 + 12;
+            widthAxis = (this.minY[this.props.obj._id]!.toString() + this.unit).length * 9 + 12;
         }
         if (this.maxY[this.props.obj._id] !== null && this.maxY[this.props.obj._id] !== undefined) {
-            const w = (this.maxY[this.props.obj._id].toString() + this.unit).length * 9 + 12;
-            if (w > widthAxis) {
+            const w = (this.maxY[this.props.obj._id]!.toString() + this.unit).length * 9 + 12;
+            if (w > (widthAxis as number)) {
                 widthAxis = w;
             }
         }
 
         if (this.state.maxYLen) {
             const w = this.state.maxYLen * 9 + 12;
-            if (w > widthAxis) {
+            if (w > (widthAxis as number)) {
                 widthAxis = w;
             }
         }
@@ -600,11 +676,11 @@ class ObjectChart extends Component {
         let widthAxis2;
         if (this.props.obj2) {
             if (this.minY[this.props.obj2._id] !== null && this.minY[this.props.obj2._id] !== undefined) {
-                widthAxis2 = (this.minY[this.props.obj2._id].toString() + this.unit2).length * 9 + 12;
+                widthAxis2 = (this.minY[this.props.obj2._id]!.toString() + this.unit2).length * 9 + 12;
             }
             if (this.maxY[this.props.obj2._id] !== null && this.maxY[this.props.obj2._id] !== undefined) {
-                const w = (this.maxY[this.props.obj2._id].toString() + this.unit2).length * 9 + 12;
-                if (w > widthAxis2) {
+                const w = (this.maxY[this.props.obj2._id]!.toString() + this.unit2).length * 9 + 12;
+                if (w > (widthAxis2 as number)) {
                     widthAxis2 = w;
                 }
             }
@@ -617,7 +693,7 @@ class ObjectChart extends Component {
             }
         }
 
-        const serie = {
+        const serie: SeriesOption = {
             xAxisIndex: 0,
             type: 'line',
             step: this.props.objLineType === 'step' ? 'start' : undefined,
@@ -630,7 +706,7 @@ class ObjectChart extends Component {
             areaStyle: {},
         };
 
-        const yAxis = [
+        const yAxis: YAXisOption[] = [
             {
                 type: 'value',
                 boundaryGap: [0, '100%'],
@@ -664,7 +740,7 @@ class ObjectChart extends Component {
             },
         ];
 
-        let serie2;
+        let serie2: SeriesOption;
         if (this.props.obj2) {
             serie2 = {
                 xAxisIndex: 0,
@@ -719,15 +795,15 @@ class ObjectChart extends Component {
 
         if (this.props.obj?.common?.type === 'boolean') {
             serie.step = 'end';
-            yAxis[0].axisLabel.showMaxLabel = false;
-            yAxis[0].axisLabel.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+            yAxis[0].axisLabel!.showMaxLabel = false;
+            yAxis[0].axisLabel!.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
             yAxis[0].max = 1.5;
             yAxis[0].interval = 1;
             widthAxis = 50;
         } else if (this.props.obj?.common?.type === 'number' && this.props.obj.common.states) {
             serie.step = 'end';
-            yAxis[0].axisLabel.showMaxLabel = false;
-            yAxis[0].axisLabel.formatter = value =>
+            yAxis[0].axisLabel!.showMaxLabel = false;
+            yAxis[0].axisLabel!.formatter = value =>
                 this.props.obj.common.states[value] !== undefined ? this.props.obj.common.states[value] : value;
             const keys = Object.keys(this.props.obj.common.states);
             keys.sort();
@@ -755,15 +831,15 @@ class ObjectChart extends Component {
 
         if (this.props.obj2?.common?.type === 'boolean') {
             serie.step = 'end';
-            yAxis[1].axisLabel.showMaxLabel = false;
-            yAxis[1].axisLabel.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+            yAxis[1].axisLabel!.showMaxLabel = false;
+            yAxis[1].axisLabel!.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
             yAxis[1].max = 1.5;
             yAxis[1].interval = 1;
             widthAxis2 = 50;
         } else if (this.props.obj2?.common?.type === 'number' && this.props.obj2.common.states) {
             serie.step = 'end';
-            yAxis[1].axisLabel.showMaxLabel = false;
-            yAxis[1].axisLabel.formatter = value =>
+            yAxis[1].axisLabel!.showMaxLabel = false;
+            yAxis[1].axisLabel!.formatter = value =>
                 this.props.obj2.common.states[value] !== undefined ? this.props.obj2.common.states[value] : value;
             const keys = Object.keys(this.props.obj2.common.states);
             keys.sort();
@@ -800,7 +876,7 @@ class ObjectChart extends Component {
                     ? ''
                     : this.props.chartTitle !== undefined
                       ? this.props.chartTitle
-                      : Utils.getObjectNameFromObj(this.props.obj, this.props.lang),
+                      : Utils.getObjectNameFromObj(this.props.obj, this.props.lang as ioBroker.Languages),
                 padding: [
                     10, // up
                     0, // right
@@ -843,7 +919,7 @@ class ObjectChart extends Component {
                 max: this.chart.max,
                 axisTick: { alignWithLabel: true },
                 axisLabel: {
-                    formatter: value => {
+                    formatter: (value: number) => {
                         const date = new Date(value);
                         if (this.chart.withSeconds) {
                             return `${padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}`;
@@ -856,7 +932,7 @@ class ObjectChart extends Component {
                 },
             },
             yAxis,
-            series: [serie, serie2],
+            series: [serie, serie2!],
         };
     }
 
@@ -864,7 +940,7 @@ class ObjectChart extends Component {
         return null;
     }
 
-    updateChart(start, end, withReadData, cb): void {
+    updateChart(start?: number, end?: number, withReadData?: boolean, cb?: () => void): void {
         if (start) {
             this.start = start;
         }
@@ -879,7 +955,7 @@ class ObjectChart extends Component {
         this.readTimeout = setTimeout(() => {
             this.readTimeout = null;
 
-            const diff = this.chart.max - this.chart.min;
+            const diff = this.chart.max! - this.chart.min!;
             if (diff !== this.chart.diff) {
                 this.chart.diff = diff;
                 this.chart.withTime = this.chart.diff < 3600000 * 24 * 7;
@@ -923,14 +999,14 @@ class ObjectChart extends Component {
         }, 400);
     }
 
-    setNewRange(readData): void {
+    setNewRange(readData?: boolean): void {
         /* if (this.rangeRef.current &&
             this.rangeRef.current.childNodes[1] &&
             this.rangeRef.current.childNodes[1].value) {
             this.rangeRef.current.childNodes[0].innerHTML = '';
             this.rangeRef.current.childNodes[1].value = '';
         } */
-        this.chart.diff = this.chart.max - this.chart.min;
+        this.chart.diff = this.chart.max! - this.chart.min!;
         this.chart.withTime = this.chart.diff < 3600000 * 24 * 7;
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
 
@@ -964,7 +1040,7 @@ class ObjectChart extends Component {
 
         const max = now.getTime();
         let min;
-        let mins = this.state.relativeRange;
+        let mins: string | number = this.state.relativeRange;
 
         if (mins === 'day') {
             now.setHours(0);
@@ -1024,10 +1100,10 @@ class ObjectChart extends Component {
         }, delay || 60000);
     }
 
-    setRelativeInterval(mins, dontSave, cb): void {
+    setRelativeInterval(mins: string | number, dontSave?: boolean, cb?: () => void): void {
         if (!dontSave) {
-            window.localStorage.setItem('App.relativeRange', mins);
-            this.setState({ relativeRange: mins });
+            window.localStorage.setItem('App.relativeRange', mins as string);
+            this.setState({ relativeRange: mins as string });
         }
         if (mins === 'absolute') {
             this.timeTimer && clearTimeout(this.timeTimer);
@@ -1100,7 +1176,7 @@ class ObjectChart extends Component {
             now.setFullYear(now.getFullYear() - 1);
             this.chart.min = now.getTime();
         } else {
-            mins = parseInt(mins, 10);
+            mins = parseInt(mins as string, 10);
             this.chart.min = this.chart.max - mins * 60000;
         }
 
@@ -1115,8 +1191,8 @@ class ObjectChart extends Component {
         }
 
         const zr = this.echartsReact.getEchartsInstance().getZr();
-        if (!zr._iobInstalled) {
-            zr._iobInstalled = true;
+        if (!(zr as any)._iobInstalled) {
+            (zr as any)._iobInstalled = true;
             zr.on('mousedown', e => {
                 console.log('mouse down');
                 this.mouseDown = true;
@@ -1128,7 +1204,7 @@ class ObjectChart extends Component {
                 this.setNewRange(true);
             });
             zr.on('mousewheel', e => {
-                let diff = this.chart.max - this.chart.min;
+                let diff = this.chart.max! - this.chart.min!;
                 const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
                 const x = e.offsetX - GRID_PADDING_LEFT;
                 const pos = x / width;
@@ -1137,21 +1213,21 @@ class ObjectChart extends Component {
                 const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
                 diff *= amount;
                 const move = oldDiff - diff;
-                this.chart.max += move * (1 - pos);
-                this.chart.min -= move * pos;
+                this.chart.max! += move * (1 - pos);
+                this.chart.min! -= move * pos;
 
                 this.setNewRange();
             });
             zr.on('mousemove', e => {
                 if (this.mouseDown) {
-                    const moved = this.chart.lastX - (e.offsetX - GRID_PADDING_LEFT);
+                    const moved = this.chart.lastX! - (e.offsetX - GRID_PADDING_LEFT);
                     this.chart.lastX = e.offsetX - GRID_PADDING_LEFT;
-                    const diff = this.chart.max - this.chart.min;
+                    const diff = this.chart.max! - this.chart.min!;
                     const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
                     const shift = Math.round((moved * diff) / width);
-                    this.chart.min += shift;
-                    this.chart.max += shift;
+                    this.chart.min! += shift;
+                    this.chart.max! += shift;
                     this.setNewRange();
                 }
             });
@@ -1186,10 +1262,10 @@ class ObjectChart extends Component {
                         // zoom
                         const fingerWidth = Math.abs(touches[0].pageX - touches[1].pageX);
                         if (this.chart.lastWidth !== null && fingerWidth !== this.chart.lastWidth) {
-                            let diff = this.chart.max - this.chart.min;
+                            let diff = this.chart.max! - this.chart.min!;
                             const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
-                            const amount = fingerWidth > this.chart.lastWidth ? 1.1 : 0.9;
+                            const amount = fingerWidth > this.chart.lastWidth! ? 1.1 : 0.9;
                             const positionX =
                                 touches[0].pageX > touches[1].pageX
                                     ? touches[1].pageX - GRID_PADDING_LEFT + fingerWidth / 2
@@ -1201,21 +1277,21 @@ class ObjectChart extends Component {
                             diff *= amount;
                             const move = oldDiff - diff;
 
-                            this.chart.max += move * (1 - pos);
-                            this.chart.min -= move * pos;
+                            this.chart.max! += move * (1 - pos);
+                            this.chart.min! -= move * pos;
 
                             this.setNewRange();
                         }
                         this.chart.lastWidth = fingerWidth;
                     } else {
                         // swipe
-                        const moved = this.chart.lastX - pageX;
-                        const diff = this.chart.max - this.chart.min;
+                        const moved = this.chart.lastX! - pageX;
+                        const diff = this.chart.max! - this.chart.min!;
                         const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
                         const shift = Math.round((moved * diff) / chartWidth);
-                        this.chart.min += shift;
-                        this.chart.max += shift;
+                        this.chart.min! += shift;
+                        this.chart.max! += shift;
 
                         this.setNewRange();
                     }
@@ -1229,7 +1305,9 @@ class ObjectChart extends Component {
         if (this.chartValues && this.chartValues[this.props.obj._id]) {
             return (
                 <ReactEchartsCore
-                    ref={e => (this.echartsReact = e)}
+                    ref={e => {
+                        this.echartsReact = e;
+                    }}
                     echarts={echarts}
                     option={this.getOption()}
                     notMerge
@@ -1244,7 +1322,7 @@ class ObjectChart extends Component {
         return <LinearProgress />;
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(): void {
         if (this.divRef.current) {
             const width = this.divRef.current.offsetWidth;
             const height = this.divRef.current.offsetHeight;
@@ -1286,18 +1364,18 @@ class ObjectChart extends Component {
     }
    */
 
-    renderToolbar() {
+    renderToolbar(): React.ReactNode {
         if (this.props.noToolbar) {
             return null;
         }
 
-        const showTimeSettings = window.clientWidth > 600;
+        const showTimeSettings = window.document.body.clientWidth > 600;
 
         return (
             <Toolbar>
                 <FormControl
                     variant="standard"
-                    style={styles.selectRelativeTime}
+                    style={styles.selectRelativeTime as CSSProperties}
                 >
                     <InputLabel>{this.props.t('relative')}</InputLabel>
                     <Select
@@ -1393,9 +1471,9 @@ class ObjectChart extends Component {
                             window.localStorage.setItem('App.splitLine', this.state.splitLine ? 'false' : 'true');
                             this.setState({ splitLine: !this.state.splitLine });
                         }}
-                        style={styles.splitLineButton}
+                        style={styles.splitLineButton as CSSProperties}
                     >
-                        <SplitLineIcon style={styles.splitLineButtonIcon} />
+                        <SplitLineIcon style={styles.splitLineButtonIcon as CSSProperties} />
                         {this.props.t('Show lines')}
                     </Fab>
                 ) : null}
@@ -1409,13 +1487,13 @@ class ObjectChart extends Component {
         }
 
         return (
-            <Paper style={styles.paper}>
+            <Paper style={styles.paper as CSSProperties}>
                 {this.renderToolbar()}
                 <Box
                     component="div"
                     ref={this.divRef}
-                    style={styles.chart}
-                    sx={this.props.noToolbar ? styles.chartWithoutToolbar : styles.chartWithToolbar}
+                    style={styles.chart as CSSProperties}
+                    sx={(this.props.noToolbar ? styles.chartWithoutToolbar : styles.chartWithToolbar) as SxProps<Theme>}
                 >
                     {this.renderChart()}
                 </Box>

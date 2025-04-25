@@ -8,7 +8,7 @@ interface DoorAnimationProps {
     size?: number;
 }
 
-const DoorAnimation = (props: DoorAnimationProps) => {
+const DoorAnimation = (props: DoorAnimationProps): React.ReactNode => {
     const [open, setOpen] = useState(false);
     const ref = useRef<LottieRefCurrentProps>(null);
 

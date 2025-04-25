@@ -3,7 +3,7 @@ import Lottie from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import animationLock from './animationLockGray.json';
 
-function rgb2array(color: string) {
+function rgb2array(color: string): string {
     color = color.replace(/^#/, '');
     if (color.length === 3) {
         color = color.replace(/./g, '$&$&');
@@ -40,7 +40,7 @@ interface LockAnimationProps {
     style?: React.CSSProperties;
 }
 
-const LockAnimation = (props: LockAnimationProps) => {
+const LockAnimation = (props: LockAnimationProps): React.ReactNode => {
     const [open, setOpen] = useState(false);
     const [json, setJson] = useState(animationLock);
     const ref = useRef<LottieRefCurrentProps>(null);

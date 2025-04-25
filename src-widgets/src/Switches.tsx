@@ -77,7 +77,7 @@ import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import { Icon, Utils } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
-import BlindsBase, { STYLES } from './Components/BlindsBase';
+import BlindsBase, { BlindsBaseRxData, BlindsBaseState, STYLES } from './Components/BlindsBase';
 import WindowClosed from './Components/WindowClosed';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
@@ -464,7 +464,102 @@ const styles: Record<string, CSSProperties> = {
     ...STYLES,
 };
 
-class Switches extends BlindsBase {
+interface SwitchesRxData extends BlindsBaseRxData {
+    noCard: boolean;
+    widgetTitle: string;
+    count: number;
+    type: string;
+    allSwitch: boolean;
+    orientation: string;
+    buttonsWidth: number;
+    doNotWantIncludeWidgets: boolean;
+    [key: `oid${number}`]: string;
+    [key: `type${number}`]: string;
+    [key: `noIcon${number}`]: boolean;
+    [key: `icon${number}`]: string;
+    [key: `iconSmall${number}`]: string;
+    [key: `iconEnabled${number}`]: string;
+    [key: `iconEnabledSmall${number}`]: string;
+    [key: `color${number}`]: string;
+    [key: `colorEnabled${number}`]: string;
+    [key: `slideInvert${number}`]: boolean;
+    [key: `title${number}`]: string;
+    [key: `unit${number}`]: string;
+    [key: `step${number}`]: string;
+    [key: `hideChart${number}`]: boolean;
+    [key: `chartPeriod${number}`]: number;
+    [key: `buttonText${number}`]: string;
+    [key: `buttonIcon${number}`]: string;
+    [key: `buttonImage${number}`]: string;
+    [key: `buttonIconActive${number}`]: string;
+    [key: `buttonImageActive${number}`]: string;
+    [key: `infoInactiveText${number}`]: string;
+    [key: `infoActiveText${number}`]: string;
+    [key: `infoInactiveIcon${number}`]: string;
+    [key: `infoActiveIcon${number}`]: string;
+    [key: `infoInactiveImage${number}`]: string;
+    [key: `infoActiveImage${number}`]: string;
+    [key: `infoInactiveColor${number}`]: string;
+    [key: `infoActiveColor${number}`]: string;
+    [key: `widget${number}`]: string;
+    [key: `height${number}`]: number;
+    [key: `position${number}`]: number;
+    [key: `hide${number}`]: boolean;
+    [key: `actual${number}`]: string;
+    [key: `boost${number}`]: string;
+    [key: `party${number}`]: string;
+    [key: `switch${number}`]: string;
+    [key: `brightness${number}`]: string;
+    [key: `rgbType${number}`]: string;
+    [key: `red${number}`]: string;
+    [key: `green${number}`]: string;
+    [key: `blue${number}`]: string;
+    [key: `white${number}`]: string;
+    [key: `color_temperature${number}`]: string;
+    [key: `ct_min${number}`]: number;
+    [key: `ct_max${number}`]: number;
+    [key: `hue${number}`]: string;
+    [key: `saturation${number}`]: string;
+    [key: `luminance${number}`]: string;
+    [key: `hideBrightness${number}`]: boolean;
+    [key: `whiteMode${number}`]: boolean;
+    [key: `noRgbPalette${number}`]: boolean;
+    [key: `open${number}`]: string;
+    [key: `working${number}`]: string;
+    [key: `sensor${number}`]: string;
+    [key: `pincode${number}`]: string;
+    [key: `oid-pincode${number}`]: string;
+    [key: `doNotConfirm${number}`]: boolean;
+    [key: `noLockAnimation${number}`]: boolean;
+    [key: `lockColor${number}`]: string;
+    [key: `pincodeReturnButton${number}`]: string;
+    [key: `timeout${number}`]: number;
+    [key: `status${number}`]: string;
+    [key: `battery${number}`]: string;
+    [key: `is_charging${number}`]: string;
+    [key: `fan_speed${number}`]: string;
+    [key: `sensors_left${number}`]: string;
+    [key: `filter_left${number}`]: string;
+    [key: `main_brush_left${number}`]: string;
+    [key: `side_brush_left${number}`]: string;
+    [key: `cleaning_count${number}`]: string;
+    [key: `vacuum-use-rooms${number}`]: boolean;
+    [key: `vacuum-map64-oid${number}`]: string;
+    [key: `useDefaultPicture${number}`]: boolean;
+    [key: `ownImage${number}`]: string;
+    [key: `start${number}`]: string;
+    [key: `home${number}`]: string;
+    [key: `pause${number}`]: string;
+    [key: `visibility-oid${number}`]: string;
+    [key: `visibility-cond${number}`]: string;
+    [key: `visibility-val${number}`]: string;
+}
+
+interface SwitchesState extends BlindsBaseState {
+}
+
+class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
+    timeouts: Record<number, Record<string, ReturnType<typeof setTimeout>>>;
     constructor(props: Switches['props']) {
         super(props);
         this.state.showControlDialog = null;

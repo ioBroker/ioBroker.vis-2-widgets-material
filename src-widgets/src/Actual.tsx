@@ -702,7 +702,7 @@ class Actual extends Generic<RxData, ActualState> {
                 </DialogTitle>
                 <DialogContent>
                     <ObjectChart
-                        t={key => Generic.t(key)}
+                        t={(key: string) => Generic.t(key)}
                         lang={Generic.getLanguage()}
                         socket={this.props.context.socket}
                         obj={this.state.objects?.main || this.state.objects?.secondary}
