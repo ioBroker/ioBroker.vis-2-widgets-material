@@ -1,6 +1,6 @@
 // ------------------- deprecated, use Switches.jsx instead -------------------
-import type { CSSProperties } from 'react';
-import React from 'react';
+import React, { type CSSProperties } from 'react';
+
 
 import type { SxProps } from '@mui/material';
 import { Button, Dialog, DialogContent, DialogTitle, Slider, IconButton, Box } from '@mui/material';

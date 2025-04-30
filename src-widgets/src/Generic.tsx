@@ -1,10 +1,11 @@
-import PropTypes from 'prop-types';
-import type { VisRxWidgetState } from './visRxWidget';
-import type VisRxWidget from './visRxWidget';
+import type { VisRxWidgetState } from '@iobroker/types-vis-2';
 
-class Generic<RxData extends Record<string, any>, State extends Partial<VisRxWidgetState> = VisRxWidgetState> extends ((
-    window as any
-).visRxWidget as typeof VisRxWidget)<RxData, State> {
+import type VisRxWidget from '@iobroker/types-vis-2/visRxWidget';
+
+export default class Generic<
+    RxData extends Record<string, any>,
+    State extends Partial<VisRxWidgetState> = VisRxWidgetState,
+> extends ((window as any).visRxWidget as typeof VisRxWidget)<RxData, State> {
     getPropertyValue = (stateName: string): any => this.state.values[`${(this.state.rxData as any)[stateName]}.val`];
 
     static getI18nPrefix(): string {
@@ -15,7 +16,7 @@ class Generic<RxData extends Record<string, any>, State extends Partial<VisRxWid
         const parts = id.split('.');
         parts.pop();
         const parentOID = parts.join('.');
-        return this.props.context.socket.getObject(parentOID);
+        return await this.props.context.socket.getObject(parentOID);
     }
 
     static getObjectIcon(obj: ioBroker.Object, id: string, imagePrefix: string): string | null {
@@ -60,12 +61,3 @@ class Generic<RxData extends Record<string, any>, State extends Partial<VisRxWid
         return src || null;
     }
 }
-
-Generic.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
-
-export default Generic;

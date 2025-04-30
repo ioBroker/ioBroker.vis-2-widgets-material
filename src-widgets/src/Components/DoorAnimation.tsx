@@ -1,6 +1,5 @@
-import type { LottieRefCurrentProps } from 'lottie-react';
-import Lottie, { LottieRef } from 'lottie-react';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Lottie, { type LottieRefCurrentProps } from 'lottie-react';
 import animationDoor from './animationDoor.json';
 
 interface DoorAnimationProps {

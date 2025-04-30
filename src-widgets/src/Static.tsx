@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { type CSSProperties } from 'react';
+
 
 import { Dialog, DialogContent, DialogTitle, IconButton, Switch } from '@mui/material';
 

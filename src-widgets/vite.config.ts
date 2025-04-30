@@ -2,8 +2,9 @@ import react from '@vitejs/plugin-react';
 import commonjs from 'vite-plugin-commonjs';
 import vitetsConfigPaths from 'vite-tsconfig-paths';
 import { federation } from '@module-federation/vite';
-import { moduleFederationShared } from './modulefederation.admin.config';
-import pack from './package.json';
+import { moduleFederationShared } from '@iobroker/types-vis-2/modulefederation.vis.config';
+import { readFileSync } from 'node:fs';
+const pack = JSON.parse(readFileSync('./package.json').toString());
 
 const config = {
     plugins: [

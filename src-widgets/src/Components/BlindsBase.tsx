@@ -1,5 +1,4 @@
-import type { CSSProperties } from 'react';
-import React from 'react';
+import React, { type CSSProperties } from 'react';
 
 import Generic from '../Generic';
 import DialogBlinds from './DialogBlinds';
@@ -100,18 +99,23 @@ export interface BlindsBaseRxData {
     [key: `slideMax${number}`]: string;
     [key: `slideSensor_oid${number}`]: string;
     [key: `slideHandle_oid${number}`]: string;
-    [key: `slideType${number}`]: string;
+    [key: `slideType${number}`]: '' | 'left' | 'right' | 'top' | 'bottom';
     [key: `slideRatio${number}`]: number;
     oid: string;
+    oid_stop: string;
     invert: boolean;
     min: string;
     max: string;
     sashCount: number;
+    ratio: number | string;
+    borderWidth: number | string;
 }
 
 export interface BlindsBaseState extends VisRxWidgetState {
     showBlindsDialog: number | boolean | null;
-    showBlindsDialogIndexOfButton: number;
+    showBlindsDialogIndexOfButton?: number;
+    objects: ioBroker.StateCommon[];
+    main?: ioBroker.StateCommon;
 }
 
 class BlindsBase<
@@ -136,15 +140,30 @@ class BlindsBase<
         (this.state as BlindsBaseState).showBlindsDialog = null;
     }
 
-    getMinMaxPosition(index: number, indexOfButton?: number) {
+    getMinMaxPosition(
+        index: number,
+        indexOfButton?: number,
+    ): {
+        min: number;
+        max: number;
+        shutterPos: number;
+        invert: boolean;
+        stopOid: string;
+        positionOid: string;
+        customOid: boolean;
+        hasControl: boolean;
+    } {
         const stopOid = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
-        let positionOid =
+        let positionOid: string =
             index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
-        let invert =
+        let invert: boolean =
             index && !this.state.rxData.oid ? this.state.rxData[`slideInvert${index}`] : this.state.rxData.invert;
 
         if (indexOfButton !== undefined) {
-            positionOid = this.state.objects[indexOfButton]._id;
+            positionOid =
+                this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected'
+                    ? this.state.rxData[`slidePos_oid${index}`]
+                    : '';
             invert = this.state.rxData[`slideInvert${indexOfButton}`];
         }
 
@@ -153,48 +172,52 @@ class BlindsBase<
             invert = this.state.rxData.invert;
         }
 
-        let min;
-        let max;
+        let min: number;
+        let max: number;
 
         if (!index) {
             min = parseFloat(this.state.rxData.min);
             if (Number.isNaN(min)) {
-                min = this.state.objects.main?.min;
-                if (Number.isNaN(min)) {
+                if (this.state.main?.min === undefined || Number.isNaN(this.state.main?.min)) {
                     min = 0;
+                } else {
+                    min = this.state.main.min;
                 }
             }
             max = parseFloat(this.state.rxData.max);
             if (Number.isNaN(max)) {
-                max = this.state.objects.main?.max;
-                if (Number.isNaN(max)) {
+                if (this.state.main?.max === undefined || Number.isNaN(this.state.main?.max)) {
                     max = 100;
+                } else {
+                    max = this.state.main.max;
                 }
             }
         } else if (indexOfButton !== undefined) {
-            min = parseFloat(this.state.objects[indexOfButton].common.min);
+            min = parseFloat(this.state.objects[indexOfButton]?.min as any as string);
             if (Number.isNaN(min)) {
-                min = this.state.objects.main?.min;
-                if (Number.isNaN(min)) {
+                if (this.state.main?.min === undefined || Number.isNaN(min)) {
                     min = 0;
+                } else {
+                    min = this.state.main.min;
                 }
             }
 
-            max = parseFloat(this.state.objects[indexOfButton].common.max);
+            max = parseFloat(this.state.objects[indexOfButton]?.max as any as string);
             if (Number.isNaN(max)) {
-                max = this.state.objects.main?.max;
-                if (Number.isNaN(max)) {
+                if (this.state.main?.max === undefined || Number.isNaN(max)) {
                     max = 100;
+                } else {
+                    max = this.state.main.max;
                 }
             }
         } else {
             min = parseFloat(this.state.rxData[`slideMin${index}`]);
             if (Number.isNaN(min)) {
-                min = parseFloat(this.state.objects[index]?.min);
+                min = parseFloat(this.state.objects[index]?.min as any as string);
                 if (Number.isNaN(min)) {
                     min = parseFloat(this.state.rxData.min);
                     if (Number.isNaN(min)) {
-                        min = parseFloat(this.state.objects.main?.min);
+                        min = parseFloat(this.state.main?.min as any as string);
                         if (Number.isNaN(min)) {
                             min = 0;
                         }
@@ -203,15 +226,16 @@ class BlindsBase<
             }
             max = parseFloat(this.state.rxData[`slideMax${index}`]);
             if (Number.isNaN(max)) {
-                max = parseFloat(this.state.objects[index]?.max);
-                if (Number.isNaN(max)) {
+                if (this.state.objects[index]?.max === undefined || Number.isNaN(this.state.objects[index]?.max)) {
                     max = parseFloat(this.state.rxData.max);
                     if (Number.isNaN(max)) {
-                        max = parseFloat(this.state.objects.main?.max);
+                        max = parseFloat(this.state.main?.max as any as string);
                         if (Number.isNaN(max)) {
                             max = 100;
                         }
                     }
+                } else {
+                    max = parseFloat(this.state.objects[index].max as any as string);
                 }
             }
         }
@@ -242,11 +266,11 @@ class BlindsBase<
             stopOid,
             positionOid,
             customOid: positionOid !== this.state.rxData.oid,
-            hasControl: positionOid !== 'nothing_selected' && positionOid,
+            hasControl: positionOid !== 'nothing_selected' && !!positionOid,
         };
     }
 
-    renderBlindsDialog() {
+    renderBlindsDialog(): React.JSX.Element | null {
         if (this.state.showBlindsDialog !== null) {
             const data = this.getMinMaxPosition(
                 this.state.showBlindsDialog === true ? 0 : (this.state.showBlindsDialog as number),
@@ -261,8 +285,8 @@ class BlindsBase<
                     }}
                     onStop={
                         data.stopOid && data.stopOid !== 'nothing_selected'
-                            ? () => this.props.context.setValue(data.stopOid, { val: true, ack: false })
-                            : null
+                            ? () => this.props.context.setValue(data.stopOid, true)
+                            : undefined
                     }
                     onValueChange={value => {
                         // calculate real value
@@ -283,7 +307,21 @@ class BlindsBase<
         return null;
     }
 
-    renderOneWindow(index: number, options) {
+    renderOneWindow(
+        index: number,
+        options: {
+            slideOid: string;
+            handleOid: string;
+            type: '' | 'left' | 'right' | 'top' | 'bottom';
+            flex: number;
+            borderWidth: number;
+            size: {
+                width: number;
+                height: number;
+            };
+            indexOfButton?: number;
+        },
+    ): React.JSX.Element {
         const data = this.getMinMaxPosition(index, options.indexOfButton);
 
         let handlePos = null;
@@ -491,7 +529,7 @@ class BlindsBase<
         */
         let width: number;
         let height: number;
-        const ratio = parseFloat(this.state.rxData.ratio) || 1;
+        const ratio = parseFloat(this.state.rxData.ratio as string) || 1;
         height = size.height;
         width = Math.round(height * ratio);
         if (width > size.width) {
@@ -500,7 +538,7 @@ class BlindsBase<
         }
         const _size = size.width > size.height ? size.height : size.width;
 
-        let borderWidth = parseFloat(this.state.rxData.borderWidth) || 2.5;
+        let borderWidth = parseFloat(this.state.rxData.borderWidth as string) || 2.5;
         borderWidth = Math.round((_size * borderWidth) / 10) / 10;
         if (borderWidth < 1) {
             borderWidth = 1;

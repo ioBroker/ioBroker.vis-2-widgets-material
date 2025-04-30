@@ -23,13 +23,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-import type { CSSProperties } from 'react';
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, type CSSProperties } from 'react';
 
 const TIME_DEGREE_OFFSET = 90;
-const calculateHourLabelDegree = (labelIndex: number) => labelIndex * 30 - TIME_DEGREE_OFFSET;
-const calculateTickLabelDegree = (labelIndex: number) => labelIndex * 6;
+const calculateHourLabelDegree = (labelIndex: number): number => labelIndex * 30 - TIME_DEGREE_OFFSET;
+const calculateTickLabelDegree = (labelIndex: number): number => labelIndex * 6;
 
 export const HOUR_LABELS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
@@ -72,7 +70,7 @@ interface AnalogClockBaseProps {
 }
 
 class AnalogClockBase extends Component<AnalogClockBaseProps> {
-    render() {
+    render(): React.JSX.Element {
         const labelSize = Math.round(0.064 * this.props.size);
         const tickSize = Math.round(0.036 * this.props.size);
 
@@ -134,13 +132,5 @@ class AnalogClockBase extends Component<AnalogClockBaseProps> {
         );
     }
 }
-
-AnalogClockBase.propTypes = {
-    backgroundColor: PropTypes.string,
-    ticksColor: PropTypes.string,
-    showNumbers: PropTypes.bool,
-    size: PropTypes.number,
-    withSeconds: PropTypes.bool,
-};
 
 export default AnalogClockBase;

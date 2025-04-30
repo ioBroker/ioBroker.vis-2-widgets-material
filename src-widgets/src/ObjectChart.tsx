@@ -1,5 +1,4 @@
-import type { SVGProps, CSSProperties } from 'react';
-import React, { createRef, Component } from 'react';
+import React, { createRef, Component, type SVGProps, type CSSProperties } from 'react';
 import PropTypes from 'prop-types';
 
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';

@@ -1,8 +1,7 @@
-import React, { CSSProperties } from 'react';
-import PropTypes from 'prop-types';
+import React, { type CSSProperties } from 'react';
 
 import Generic from './Generic';
-import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetProps, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
 import type { VisRxWidgetState } from './visRxWidget';
 
 interface HtmlRxData {
@@ -41,10 +40,9 @@ class Html extends Generic<HtmlRxData, HtmlState> {
     refreshInterval: ReturnType<typeof setInterval> | undefined;
     lastWidget: string | undefined;
 
-    constructor(props: Html['props']) {
+    constructor(props: RxWidgetProps) {
         super(props);
-
-        (this.state as HtmlState).q = Date.now();
+        this.state = { ...this.state, q: Date.now() };
         this.widgetRef = React.createRef();
     }
 

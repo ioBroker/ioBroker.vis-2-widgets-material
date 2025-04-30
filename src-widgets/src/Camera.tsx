@@ -1,12 +1,13 @@
-import type { CSSProperties } from 'react';
-import React from 'react';
+import React, { type CSSProperties } from 'react';
 import moment from 'moment';
 
 import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+
+import type { RxRenderWidgetProps, RxWidgetInfo, WidgetData } from '@iobroker/types-vis-2';
+
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
-import type { RxRenderWidgetProps, RxWidgetInfo, WidgetData } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     dialogTitle: {
@@ -78,8 +79,8 @@ interface CameraState extends VisRxWidgetState {
 }
 
 class Camera extends Generic<CameraRxData, CameraState> {
-    imageRef: React.RefObject<HTMLImageElement | null>;
-    fullImageRef: React.RefObject<HTMLImageElement | null>;
+    imageRef: React.RefObject<HTMLImageElement>;
+    fullImageRef: React.RefObject<HTMLImageElement>;
     cameraInterval: ReturnType<typeof setInterval> | null;
     imageInterval?: ReturnType<typeof setInterval> | null;
     fullImageInterval?: ReturnType<typeof setInterval> | undefined;
@@ -188,7 +189,7 @@ class Camera extends Generic<CameraRxData, CameraState> {
         return url || noImageSvg;
     }
 
-    async propertiesUpdate(): Promise<void> {
+    propertiesUpdate(): void {
         if (this.imageInterval) {
             clearInterval(this.imageInterval);
             this.imageInterval = null;
@@ -227,13 +228,13 @@ class Camera extends Generic<CameraRxData, CameraState> {
         }
     }
 
-    async componentDidMount(): Promise<void> {
+    componentDidMount(): void {
         super.componentDidMount();
-        await this.propertiesUpdate();
+        this.propertiesUpdate();
     }
 
-    async onRxDataChanged(/* prevRxData */): Promise<void> {
-        await this.propertiesUpdate();
+    onRxDataChanged(/* prevRxData */): void {
+        this.propertiesUpdate();
     }
 
     componentWillUnmount(): void {

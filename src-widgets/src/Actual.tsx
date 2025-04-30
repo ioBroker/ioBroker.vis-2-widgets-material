@@ -1,7 +1,8 @@
 import React, { type CSSProperties } from 'react';
-import PropTypes from 'prop-types';
 
 import { Dialog, DialogContent, DialogTitle, IconButton, Tooltip } from '@mui/material';
+
+import { Close as IconClose, DeviceThermostat as ThermostatIcon, Opacity as HumidityIcon } from '@mui/icons-material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -15,12 +16,12 @@ import {
     LegendComponent,
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
+import type { EChartsOption, LineSeriesOption } from 'echarts';
+import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
 
 import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
-
-import { Close as IconClose, DeviceThermostat as ThermostatIcon, Opacity as HumidityIcon } from '@mui/icons-material';
-
 import { Icon } from '@iobroker/adapter-react-v5';
+
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
@@ -127,11 +128,17 @@ interface ActualState extends VisRxWidgetState {
     objects: Record<string, ioBroker.Object>;
     isChart: boolean;
     containerHeight: number;
-    [key: `chart-data-${string}`]: string | null;
+    chartData: {
+        [oid: string]: {
+            data: { value: [ts: number, val: number] }[];
+            min: number;
+            max: number;
+        } | null;
+    };
 }
 
 class Actual extends Generic<RxData, ActualState> {
-    refContainer: React.RefObject<HTMLDivElement | null>;
+    refContainer: React.RefObject<HTMLDivElement>;
 
     mainTimer: ReturnType<typeof setInterval> | undefined;
 
@@ -458,9 +465,9 @@ class Actual extends Generic<RxData, ActualState> {
                     },
                     parseInt(this.state.rxData.updateInterval, 10) * 1000 || 60000,
                 ); // every minute by default
-        } else if (this.state[`chart-data-${this.state.rxData['oid-main']}`]) {
+        } else if (this.state.chartData[this.state.rxData['oid-main']]) {
             // delete chart data
-            (newState as any)[`chart-data-${this.state.rxData['oid-main']}`] = null;
+            this.state.chartData[this.state.rxData['oid-main']] = null;
             changed = true;
         }
         if (
@@ -475,9 +482,9 @@ class Actual extends Generic<RxData, ActualState> {
                     () => this.readHistory(this.state.objects.secondary?._id),
                     parseInt(this.state.rxData.updateInterval, 10) * 60 || 60000,
                 ); // every minute by default
-        } else if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) {
+        } else if (this.state.chartData[this.state.rxData['oid-secondary']]) {
             // delete chart data
-            (newState as any)[`chart-data-${this.state.rxData['oid-secondary']}`] = null;
+            this.state.chartData[this.state.rxData['oid-secondary']] = null;
             changed = true;
         }
 
@@ -490,9 +497,15 @@ class Actual extends Generic<RxData, ActualState> {
         }
     }
 
-    static convertData = (values: ioBroker.State[], chart) => {
-        const data = [];
-        if (!values || !values.length) {
+    static convertData(
+        values: ioBroker.State[],
+        chart: {
+            min?: number;
+            max?: number;
+        },
+    ): { value: [ts: number, val: number] }[] {
+        const data: { value: [ts: number, val: number] }[] = [];
+        if (!values?.length) {
             return data;
         }
         for (let i = 0; i < values.length; i++) {
@@ -502,15 +515,16 @@ class Actual extends Generic<RxData, ActualState> {
                 values[i].val = 0;
             }
 
-            data.push({ value: [values[i].ts, values[i].val] });
+            data.push({ value: [values[i].ts, values[i].val as number] });
         }
-        if (!chart.min) {
+
+        if (chart.min === undefined || chart.max === undefined) {
             chart.min = values[0].ts;
             chart.max = values[values.length - 1].ts;
         }
 
         return data;
-    };
+    }
 
     readHistory = async (id: string): Promise<void> => {
         const timeInterval = this.state.rxData.timeInterval || 12;
@@ -523,7 +537,7 @@ class Actual extends Generic<RxData, ActualState> {
         const end = Date.now();
         const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
-        const options = {
+        const options: ioBroker.GetHistoryOptions = {
             instance: defaultHistory || 'history.0',
             start,
             end,
@@ -531,7 +545,7 @@ class Actual extends Generic<RxData, ActualState> {
             from: false,
             ack: false,
             q: false,
-            addID: false,
+            addId: false,
             aggregate: 'minmax',
         };
 
@@ -554,9 +568,11 @@ class Actual extends Generic<RxData, ActualState> {
                         state.val !== undefined &&
                         chart.push({ ts: Date.now(), val: state.val } as ioBroker.State);
 
-                    const _chart = {};
-                    _chart.data = Actual.convertData(chart, _chart);
-                    this.setState({ [`chart-data-${id}`]: _chart });
+                    const _chart: { min?: number; max?: number } = {};
+                    const data = Actual.convertData(chart, _chart);
+                    const chartData = this.state.chartData;
+                    chartData[id] = { data, min: _chart.min!, max: _chart.max! };
+                    this.setState({ chartData });
                 }
             })
             .catch(e => console.error(`Cannot read history: ${e}`));
@@ -599,9 +615,9 @@ class Actual extends Generic<RxData, ActualState> {
         return `rgba(${r!},${g!},${b!},${opacity})`;
     }
 
-    getOptions() {
-        const series = [];
-        if (this.state[`chart-data-${this.state.rxData['oid-main']}`] && !this.state.rxData.noChart) {
+    getOptions(): EChartsOption {
+        const series: LineSeriesOption[] = [];
+        if (this.state.chartData[this.state.rxData['oid-main']] && !this.state.rxData.noChart) {
             let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || '';
             if (!name) {
                 if (this.state.objects?.secondary?.common?.role?.includes('temperature')) {
@@ -612,18 +628,22 @@ class Actual extends Generic<RxData, ActualState> {
             const mainBackgroundColor = Actual.getColor(this.state.rxData['color-main'] || '#F3B11F', 0.14);
 
             series.push({
-                backgroundColor: mainBackgroundColor,
-                color: mainColor,
+                areaStyle: {
+                    color: mainBackgroundColor,
+                },
+                lineStyle: {
+                    color: mainColor,
+                },
                 type: 'line',
                 smooth: true,
                 showSymbol: false,
                 // itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state[`chart-data-${this.state.rxData['oid-main']}`]!.data,
-                areaStyle: { type: 'default' },
+                data: this.state.chartData[this.state.rxData['oid-main']]!.data,
+                // areaStyle: { type: 'default' },
                 name,
             });
         }
-        if (this.state[`chart-data-${this.state.rxData['oid-secondary']}`] && !this.state.rxData['noData-secondary']) {
+        if (this.state.chartData[this.state.rxData['oid-secondary']] && !this.state.rxData['noData-secondary']) {
             let name =
                 this.state.rxData['title-secondary'] ||
                 Generic.getText(this.state.objects?.secondary?.common?.name) ||
@@ -637,17 +657,27 @@ class Actual extends Generic<RxData, ActualState> {
             const secondaryBackgroundColor = Actual.getColor(this.state.rxData['color-secondary'] || '#F3B11F', 0.14);
 
             series.push({
-                backgroundColor: secondaryBackgroundColor,
-                color: secondaryColor,
+                areaStyle: {
+                    color: secondaryBackgroundColor,
+                },
+                lineStyle: {
+                    color: secondaryColor,
+                },
                 type: 'line',
                 smooth: true,
                 showSymbol: false,
                 // itemStyle: { normal: { areaStyle: { type: 'default' } } },
-                data: this.state[`chart-data-${this.state.rxData['oid-secondary']}`]!.data,
-                areaStyle: { type: 'default' },
+                data: this.state.chartData[this.state.rxData['oid-secondary']]!.data,
                 name,
             });
         }
+
+        const xAxis: TimeAxisBaseOption = {
+            show: false,
+            // @ts-expect-error wrong typing
+            boundaryGap: false,
+            type: 'time',
+        };
 
         return {
             animation: false,
@@ -661,11 +691,8 @@ class Actual extends Generic<RxData, ActualState> {
             },
             legend: undefined,
             calculable: true,
-            xAxis: {
-                show: false,
-                boundaryGap: false,
-                type: 'time',
-            },
+            // @ts-expect-error wrong typing
+            xAxis,
             yAxis: {
                 show: false,
             },
@@ -761,9 +788,9 @@ class Actual extends Generic<RxData, ActualState> {
 
         const onCardClick =
             !this.state.showDialog && this.state.isChart
-                ? (e: Event) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                ? (e?: React.MouseEvent<HTMLDivElement>) => {
+                      e?.preventDefault();
+                      e?.stopPropagation();
                       this.setState({ showDialog: true });
                   }
                 : undefined;
@@ -931,8 +958,8 @@ class Actual extends Generic<RxData, ActualState> {
                     </Tooltip>
                 ) : null}
                 {this.state.containerHeight &&
-                (this.state[`chart-data-${this.state.rxData['oid-main']}`] ||
-                    this.state[`chart-data-${this.state.rxData['oid-secondary']}`]) ? (
+                (this.state.chartData[this.state.rxData['oid-main']] ||
+                    this.state.chartData[this.state.rxData['oid-secondary']]) ? (
                     <ReactEchartsCore
                         echarts={echarts}
                         option={this.getOptions()}
@@ -969,13 +996,5 @@ class Actual extends Generic<RxData, ActualState> {
         );
     }
 }
-
-Actual.propTypes = {
-    systemConfig: PropTypes.object,
-    socket: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
 
 export default Actual;

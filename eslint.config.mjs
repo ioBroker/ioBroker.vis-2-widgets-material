@@ -29,4 +29,13 @@ export default [
             ],
         },
     },
+    {
+        ignores: [
+            'src-widgets/.__mf__temp/**/*',
+            'src-widgets/build/**/*',
+            'src-widgets/node_modules/**/*',
+            'widgets/**/*',
+            'test/**/*',
+        ],
+    },
 ];

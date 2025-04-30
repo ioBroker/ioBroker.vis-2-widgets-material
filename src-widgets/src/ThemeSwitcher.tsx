@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { type CSSProperties } from 'react';
 
 import { ToggleThemeMenu, I18n } from '@iobroker/adapter-react-v5';
 

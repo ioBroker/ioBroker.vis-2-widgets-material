@@ -15,13 +15,12 @@ import {
     TextField,
 } from '@mui/material';
 import { Add, Close, ExpandMore, Lightbulb, QuestionMark } from '@mui/icons-material';
-
+import type { PatternControl } from '@iobroker/type-detector';
 import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
-import type { VisRxWidgetState } from './visRxWidget';
-import type VisRxWidget from './visRxWidget';
+import type { VisRxWidgetState, VisRxWidget } from './visRxWidget';
 import type { CustomPaletteProperties, RxWidgetInfo } from '@iobroker/types-vis-2';
 
 const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }): React.ReactNode => {
@@ -35,7 +34,7 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
 
     useEffect(() => {
         (async () => {
-            let _rooms = (await props.helpers?.detectDevices(props.socket)) || [];
+            let _rooms: PatternControl[] = (await props.helpers?.detectDevices(props.socket)) || [];
             // ignore buttons
             _rooms.forEach(room => {
                 room.devices = room.devices.filter(device => device.common.role !== 'button');

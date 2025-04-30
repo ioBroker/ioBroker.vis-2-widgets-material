@@ -23,12 +23,11 @@
         "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
         "@alcalzone/release-script-plugin-license": "^3.7.0",
         "@iobroker/build-tools": "^2.0.15",
-        "@iobroker/eslint-config": "^1.0.1",
-        "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
+        "@iobroker/eslint-config": "^2.0.1",
         "@iobroker/vis-2-widgets-testing": "^1.0.5",
         "@types/mocha": "^10.0.10",
-        "@types/node": "^22.13.7",
-        "mocha": "^10.8.2"
+        "@types/node": "^22.15.3",
+        "mocha": "^11.1.0"
     },
     "files": [
         "admin/",
@@ -39,7 +38,7 @@
     ],
     "scripts": {
         "prepublishOnly": "gulp",
-        "lint": "eslint -c eslint.config.mjs",
+        "lint": "eslint -c eslint.config.mjs --debug",
         "build": "node tasks",
         "copy-files": "node tasks --copy-files",
         "release": "release-script",
@@ -47,7 +46,7 @@
         "release-minor": "release-script minor --yes",
         "release-major": "release-script major --yes",
         "test": "mocha ./test/*.test.js",
-        "update-packages": "ncu --upgrade && cd src-widgets && ncu --upgrade && cd ..",
+        "update-packages": "npx -y npm-check-updates --upgrade && cd src-widgets && npx -y npm-check-updates --upgrade && cd ..",
         "npm": "npm i && cd src-widgets && npm i -f"
     },
     "bugs": {

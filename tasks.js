@@ -27,13 +27,13 @@ function copyAllFiles() {
 if (process.argv.includes('--copy-files')) {
     copyAllFiles();
 } else if (process.argv.includes('--build')) {
-    buildReact(`${__dirname}/src-widgets`, { rootDir: __dirname, craco: true }).catch(() =>
+    buildReact(`${__dirname}/src-widgets`, { rootDir: __dirname, vite: true }).catch(() =>
         console.error('Error by build'),
     );
 } else {
     deleteFoldersRecursive('src-widgets/build');
     deleteFoldersRecursive('widgets');
     npmInstall('src-widgets')
-        .then(() => buildReact(`${__dirname}/src-widgets`, { rootDir: __dirname, craco: true }))
+        .then(() => buildReact(`${__dirname}/src-widgets`, { rootDir: __dirname, vite: true }))
         .then(() => copyAllFiles());
 }

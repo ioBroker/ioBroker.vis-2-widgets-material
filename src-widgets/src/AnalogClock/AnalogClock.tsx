@@ -24,16 +24,17 @@ SOFTWARE.
  */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 
-import AnalogClockBase from './AnalogClockBase';
 import type { ThemeType } from '@iobroker/adapter-react-v5';
 
+import AnalogClockBase from './AnalogClockBase';
+
 const TIME_DEGREE_OFFSET = 90;
-const calculateHourHandDegree = (hours: number, minutes: number) => hours * 30 + minutes * 0.5 - TIME_DEGREE_OFFSET;
-const calculateMinuteHandDegree = (hours: number, minutes: number, seconds: number) =>
+const calculateHourHandDegree = (hours: number, minutes: number): number =>
+    hours * 30 + minutes * 0.5 - TIME_DEGREE_OFFSET;
+const calculateMinuteHandDegree = (hours: number, minutes: number, seconds: number): number =>
     hours * 360 + minutes * 6 + seconds / 12 - TIME_DEGREE_OFFSET;
-const calculateSecondHandDegree = (minutes: number, seconds: number) =>
+const calculateSecondHandDegree = (minutes: number, seconds: number): number =>
     minutes * 360 + seconds * 6 - TIME_DEGREE_OFFSET;
 
 const styles: Record<string, React.CSSProperties> = {
@@ -74,7 +75,7 @@ interface AnalogClockProps {
 }
 
 class AnalogClock extends Component<AnalogClockProps> {
-    render() {
+    render(): React.JSX.Element {
         const time = new Date();
         const hours = time.getHours() % 12;
         const minutes = time.getMinutes();

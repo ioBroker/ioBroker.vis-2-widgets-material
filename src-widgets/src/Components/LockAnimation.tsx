@@ -1,6 +1,5 @@
-import type { LottieRefCurrentProps } from 'lottie-react';
-import Lottie from 'lottie-react';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Lottie, { type LottieRefCurrentProps } from 'lottie-react';
 import animationLock from './animationLockGray.json';
 
 function rgb2array(color: string): string {

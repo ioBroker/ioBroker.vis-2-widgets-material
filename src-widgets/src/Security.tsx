@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react';
-import React from 'react';
+import React, { type CSSProperties } from 'react';
+
 
 import { Button, Chip, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';

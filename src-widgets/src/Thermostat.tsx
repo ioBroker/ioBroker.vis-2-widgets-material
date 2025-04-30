@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { type CSSProperties } from 'react';
+
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Tooltip } from '@mui/material';

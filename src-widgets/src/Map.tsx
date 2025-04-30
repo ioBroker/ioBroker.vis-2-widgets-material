@@ -1,9 +1,8 @@
-import type { CSSProperties } from 'react';
-import React from 'react';
+import React, { type CSSProperties } from 'react';
+
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './leaflet-providers';
-import type { MarkerProps } from 'react-leaflet';
 import { Popup, TileLayer, MapContainer, Marker, useMap, Polyline, Circle, ZoomControl } from 'react-leaflet';
 
 import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
@@ -16,12 +15,17 @@ import type { VisRxWidgetState } from './visRxWidget';
 import type { LegacyConnection } from '@iobroker/adapter-react-v5';
 import { WidgetStyleState } from './visBaseWidget';
 
+// @ts-expect-error ignore
 delete L.Icon.Default.prototype._getIconUrl;
 
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
 });
 
 const styles: Record<string, CSSProperties> = {
@@ -203,13 +207,11 @@ interface MapState extends VisRxWidgetState {
     forceShowMap: boolean;
 }
 
-class Map extends Generic<MapRxData, MapState> {
+export default class Map extends Generic<MapRxData, MapState> {
     fillDataTimer: ReturnType<typeof setTimeout> | null = null;
     constructor(props: Map['props']) {
         super(props);
-        (this.state as MapState).dialog = false;
-        (this.state as MapState).history = {};
-        (this.state as MapState).objects = {};
+        this.state = { ...this.state, dialog: false, history: {}, objects: {} };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -584,9 +586,9 @@ class Map extends Generic<MapRxData, MapState> {
                                   iconRetinaUrl: marker.icon,
                                   iconAnchor: new L.Point(16, 16),
                                   popupAnchor: new L.Point(0, -16),
-                                  shadowUrl: null,
-                                  shadowSize: null,
-                                  shadowAnchor: null,
+                                  shadowUrl: undefined,
+                                  shadowSize: undefined,
+                                  shadowAnchor: undefined,
                                   iconSize: new L.Point(32, 32),
                                   className: 'leaflet-div-icon',
                               })
@@ -724,5 +726,3 @@ class Map extends Generic<MapRxData, MapState> {
         );
     }
 }
-
-export default Map;

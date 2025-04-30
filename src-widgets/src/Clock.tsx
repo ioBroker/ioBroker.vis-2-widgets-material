@@ -1,18 +1,13 @@
-import type { CSSProperties } from 'react';
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { type CSSProperties } from 'react';
 
 import AnalogClock from './AnalogClock/AnalogClock';
 import Generic from './Generic';
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
-import type { VisRxWidgetState } from './visRxWidget';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState, VisRxWidgetProps } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     uClock: {
         verticalAlign: 'middle',
-        animationName: 'vis-2-widgets-material-uClockFadeIn',
-        animationDuration: '500ms',
-        animationEasing: 'ease-in-out',
+        animation: 'vis-2-widgets-material-uClockFadeIn 500ms ease-in-out',
         animationFillMode: 'both',
         backgroundColor: '#fff',
         borderRadius: '50%',
@@ -78,7 +73,7 @@ class Clock extends Generic<ClockRxData, ClockState> {
     refContainer: React.RefObject<HTMLDivElement | null>;
     rotations?: [number, number, number];
     timeInterval?: ReturnType<typeof setTimeout>;
-    constructor(props: Clock['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
         (this.state as ClockState).time = new Date();
         (this.state as ClockState).width = 0;

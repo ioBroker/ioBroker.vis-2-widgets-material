@@ -1,4 +1,5 @@
 import Generic from './Generic';
+import type { SingleWidget, WidgetStyle, ObjectForDetector  } from '@iobroker/types-vis-2';
 
 const ICONS: Record<string, string> = {
     motion: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xMy41IDUuNWMxLjEgMCAyLS45IDItMnMtLjktMi0yLTJzLTIgLjktMiAycy45IDIgMiAyek05LjggOC45TDcgMjNoMi4xbDEuOC04bDIuMSAydjZoMnYtNy41bC0yLjEtMmwuNi0zQzE0LjggMTIgMTYuOCAxMyAxOSAxM3YtMmMtMS45IDAtMy41LTEtNC4zLTIuNGwtMS0xLjZjLS40LS42LTEtMS0xLjctMWMtLjMgMC0uNS4xLS44LjFMNiA4LjNWMTNoMlY5LjZsMS44LS43Ii8+PC9zdmc+',
@@ -71,7 +72,18 @@ const MEDIA_TYPES = [
     'shuffle',
 ];
 
-const simpleState = (device, role, style, settings) => {
+function simpleState(
+    device: ObjectForDetector[],
+    role: 'SET' | 'ACTUAL',
+    style: WidgetStyle,
+    settings: {
+        colorEnabled?: string;
+        iconSmall?: string;
+        iconEnabledSmall?: string;
+        standardIcons?: boolean;
+        icon?: string;
+    },
+): null | SingleWidget {
     const set = device.states.find(state => state.common.role === role || state.name === role);
     if (!set) {
         return null;
@@ -109,10 +121,10 @@ const simpleState = (device, role, style, settings) => {
         },
         style,
     };
-};
+}
 
-export const getDeviceWidget = (device, standardIcons) => {
-    const style = {
+export function getDeviceWidget(device, standardIcons: boolean): false | SingleWidget {
+    const style: WidgetStyle = {
         left: '0px', // here must be string
         top: '0px', // here must be string
         width: '100%',
@@ -343,7 +355,7 @@ export const getDeviceWidget = (device, standardIcons) => {
     }
 
     return false;
-};
+}
 
 export const getDeviceWidgetOnePage = (device, widgetId, parentWidget, viewObj, standardIcons) => {
     const addSwitch = (role, settings) => {

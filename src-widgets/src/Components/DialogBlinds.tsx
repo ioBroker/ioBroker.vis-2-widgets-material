@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Denis Haev <dogafox@gmail.com>
+ * Copyright 2018-2025 Denis Haev <dogafox@gmail.com>
  *
  * Licensed under the Creative Commons Attribution-NonCommercial License, Version 4.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { CSSProperties, MouseEventHandler, TouchEventHandler } from 'react';
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, type CSSProperties, type MouseEventHandler, type TouchEventHandler } from 'react';
 
 import { Dialog, DialogContent, DialogTitle, IconButton, Button, Fab } from '@mui/material';
 
@@ -66,16 +64,15 @@ const styles: Record<string, CSSProperties> = {
 const LAMP_ON_COLOR = '#c7c70e';
 
 interface DialogBlindsProps {
-    dialogKey: string;
     onClose: () => void;
-    onStop: () => void;
-    onToggle: () => void;
+    onStop?: () => void;
+    onToggle?: () => void;
     onValueChange: (value: number) => void;
     startValue: number;
-    startToggleValue: boolean;
+    startToggleValue?: boolean;
     type: number;
-    unit: string;
-    background: string;
+    unit?: string;
+    background?: string;
 }
 
 interface DialogBlindsState {
@@ -101,7 +98,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         timeUp: number;
     };
 
-    refSlider: React.RefObject<HTMLDivElement | null>;
+    refSlider: React.RefObject<HTMLDivElement>;
 
     type: number;
 
@@ -394,8 +391,6 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
         return (
             <Fab
-                key={`${this.props.dialogKey}-toggle-button`}
-                // active={this.props.startToggleValue}
                 onClick={this.props.onToggle}
                 className="dimmer-button"
                 style={styles.buttonToggleStyle}
@@ -520,19 +515,5 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         );
     }
 }
-
-DialogBlinds.propTypes = {
-    dialogKey: PropTypes.string,
-
-    onClose: PropTypes.func,
-
-    onStop: PropTypes.func,
-    onToggle: PropTypes.func,
-
-    onValueChange: PropTypes.func,
-    startValue: PropTypes.number,
-    startToggleValue: PropTypes.bool,
-    type: PropTypes.number,
-};
 
 export default DialogBlinds;

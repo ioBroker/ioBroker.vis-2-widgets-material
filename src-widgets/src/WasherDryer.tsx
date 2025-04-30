@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react';
-import React from 'react';
+import React, { type CSSProperties } from 'react';
+
 import moment from 'moment';
 import 'moment/locale/de';
 import 'moment/locale/es';

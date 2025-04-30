@@ -1,10 +1,8 @@
-import type { CSSProperties } from 'react';
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { type CSSProperties } from 'react';
 
-import type { BlindsBaseRxData, BlindsBaseState } from './Components/BlindsBase';
-import BlindsBase from './Components/BlindsBase';
 import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
+
+import BlindsBase, { type BlindsBaseRxData, type BlindsBaseState } from './Components/BlindsBase';
 
 const styles: Record<string, CSSProperties> = {
     cardContent: {
@@ -37,19 +35,14 @@ interface BlindsRxData extends BlindsBaseRxData {
     [key: `slideHandle_oid${number}`]: string;
 }
 
-interface BlindsState extends BlindsBaseState {
-    objects: Record<string, Partial<ioBroker.Object | ioBroker.Object['common']>>;
-}
-
-class Blinds extends BlindsBase<BlindsRxData, BlindsState> {
-    refCardContent: React.RefObject<HTMLDivElement | null>;
+class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
+    refCardContent: React.RefObject<HTMLDivElement> = React.createRef();
     lastRxData: string | undefined;
     updateTimeout: ReturnType<typeof setTimeout> | undefined;
 
     constructor(props: Blinds['props']) {
         super(props);
-        (this.state as BlindsState).objects = {};
-        this.refCardContent = React.createRef();
+        this.state = { ...this.state, objects: [] };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -295,7 +288,7 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsState> {
         }
 
         this.lastRxData = actualRxData;
-        const objects: Record<string, Partial<ioBroker.Object | ioBroker.Object['common']>> = {};
+        const objects: ioBroker.StateCommon[] = [];
         const ids = [];
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
             if (
@@ -308,9 +301,11 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsState> {
         if (this.state.rxData.oid && this.state.rxData.oid !== 'nothing_selected') {
             ids.push(this.state.rxData.oid);
         }
-        const _objects = ids.length ? await this.props.context.socket.getObjectsById(ids) : {};
+        const _objects: Record<string, ioBroker.StateObject> = ids.length
+            ? ((await this.props.context.socket.getObjectsById(ids)) as Record<string, ioBroker.StateObject>)
+            : {};
         const _object = _objects[this.state.rxData.oid] || null;
-        objects.main = _object?.common || {};
+        const main = _object?.common || ({} as ioBroker.StateCommon);
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
@@ -320,17 +315,15 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsState> {
             ) {
                 // read object itself
                 const object = _objects[this.state.rxData[`slidePos_oid${index}`]];
-                if (!object) {
-                    objects[index] = {};
-                    continue;
-                }
-
-                objects[index] = object?.common || {};
+                objects[index] = object?.common || ({} as ioBroker.StateCommon);
             }
         }
 
-        if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {
-            this.setState({ objects });
+        if (
+            JSON.stringify(objects) !== JSON.stringify(this.state.objects) ||
+            JSON.stringify(main) !== JSON.stringify(this.state.main)
+        ) {
+            this.setState({ objects, main });
         }
     }
 
@@ -434,12 +427,5 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsState> {
         );
     }
 }
-
-Blinds.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
 
 export default Blinds;

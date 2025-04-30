@@ -1,18 +1,23 @@
 (function (root, factory) {
+    // @ts-expect-error fix later
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
 
+        // @ts-expect-error fix later
         define(['leaflet'], factory);
+        // @ts-expect-error fix later
     } else if (typeof modules === 'object' && module.exports) {
         // define a Common JS module that relies on 'leaflet'
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         module.exports = factory(require('leaflet'));
     } else {
         // Assume Leaflet is loaded into global object L already
 
         factory(L);
     }
-})(this, L => {
+})(this, (L: any) => {
     L.TileLayer.Provider = L.TileLayer.extend({
+        // @ts-expect-error fix later
         initialize(arg, options) {
             const providers = L.TileLayer.Provider.providers;
 
@@ -22,7 +27,7 @@
             const variantName = parts[1];
 
             if (!providers[providerName]) {
-                throw `No such provider (${providerName})`;
+                throw new Error(`No such provider (${providerName})`);
             }
 
             let provider = {
@@ -33,7 +38,7 @@
             // overwrite values in provider from variant.
             if (variantName && 'variants' in providers[providerName]) {
                 if (!(variantName in providers[providerName].variants)) {
-                    throw `No such variant of ${providerName} (${variantName})`;
+                    throw new Error(`No such variant of ${providerName} (${variantName})`);
                 }
                 const variant = providers[providerName].variants[variantName];
                 let variantOptions;
@@ -53,8 +58,8 @@
             // replace attribution placeholders with their values from toplevel provider attribution,
             // recursively
 
-            const attributionReplacer = function (attr) {
-                if (attr.indexOf('{attribution.') === -1) {
+            const attributionReplacer = (attr: string): string => {
+                if (!attr.includes('{attribution.')) {
                     return attr;
                 }
                 return attr.replace(/\{attribution.(\w*)}/g, (match, attributionName) =>
@@ -1175,6 +1180,7 @@
         },
     };
 
+    // @ts-expect-error fix later
     L.tileLayer.provider = function (provider, options) {
         return new L.TileLayer.Provider(provider, options);
     };
