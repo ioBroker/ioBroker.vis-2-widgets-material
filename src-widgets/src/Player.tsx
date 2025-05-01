@@ -98,7 +98,7 @@ const loadStates = async (
         if (object && object.common) {
             const id = data[field.name!].split('.');
             id.pop();
-            const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+            const states = await socket.getObjectViewSystem('state', `${id.join('.')}.`, `${id.join('.')}.\u9999`);
             if (states) {
                 const currentMediaTypes = [...mediaTypes];
                 Object.values(states).forEach(state => {
@@ -276,7 +276,10 @@ class Player extends Generic<PlayerRxData, PlayerState> {
             const volumeObject = await this.props.context.socket.getObject(this.state.rxData.volume);
             if (volumeObject) {
                 const volume = await this.props.context.socket.getState(this.state.rxData.volume);
-                this.setState({ volumeObject, volume: (volume?.val as number) || 0 });
+                this.setState({
+                    volumeObject: volumeObject as ioBroker.StateObject,
+                    volume: (volume?.val as number) || 0,
+                });
             }
         } catch {
             // ignore
@@ -501,7 +504,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                     <IconButton
                                         color={this.getPropertyValue('repeat') ? 'primary' : undefined}
                                         onClick={() => {
-                                            let newValue = null;
+                                            let newValue: number;
                                             if (parseInt(this.getPropertyValue('repeat')) === 1) {
                                                 newValue = 2;
                                             } else if (parseInt(this.getPropertyValue('repeat')) === 2) {
@@ -633,7 +636,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                 max={this.state.volumeObject?.common?.max || 100}
                                 value={this.state.volume}
                                 valueLabelDisplay="auto"
-                                onChange={(e, value) => {
+                                onChange={(_e, value) => {
                                     this.setState({ volume: value }, () => {
                                         this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
                                         this.setVolumeTimer = setTimeout(() => {

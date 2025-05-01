@@ -14,7 +14,7 @@ import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import { Icon, type IobTheme } from '@iobroker/adapter-react-v5';
 import type {
     RxRenderWidgetProps,
-    RxWidgetInfo,
+    RxWidgetInfo, VisRxWidgetProps,
     VisRxWidgetState,
     VisRxWidgetStateValues,
 } from '@iobroker/types-vis-2';
@@ -149,7 +149,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
     updateTimeout: ReturnType<typeof setTimeout> | null = null;
     updateTimer1: ReturnType<typeof setTimeout> | null = null;
     lastRxData: string | null = null;
-    constructor(props: SimpleState['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {
             ...this.state,

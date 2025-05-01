@@ -9,7 +9,7 @@ import {
 } from '@mui/icons-material';
 
 import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
 
@@ -87,27 +87,31 @@ interface SecurityRxData {
     [key: `timerSeconds-oid${number}`]: string;
 }
 
-interface SecurityState {
+interface SecurityState extends VisRxWidgetState {
     message: string | null;
     dialog: boolean;
     pinInput: string;
-    timerDialog: boolean;
+    timerDialog: null | number;
     invalidPin: boolean;
     timerSeconds: number;
+    objects: { common: ioBroker.StateCommon; _id: string }[];
 }
 
 class Security extends Generic<SecurityRxData, SecurityState> {
-    timerInterval?: ReturnType<typeof setInterval>;
+    private timerInterval?: ReturnType<typeof setInterval>;
+    private lastRxData = '';
 
-    constructor(props: Security['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        (this.state as SecurityState).objects = {};
-        (this.state as SecurityState).dialog = false;
-        (this.state as SecurityState).timerDialog = false;
-        (this.state as SecurityState).pinInput = '';
-        (this.state as SecurityState).invalidPin = false;
-        // (this.state as SecurityState).timerI = null;
-        (this.state as SecurityState).timerSeconds = 0;
+        this.state = {
+            ...this.state,
+            dialog: false,
+            objects: [],
+            timerDialog: null,
+            pinInput: '',
+            invalidPin: false,
+            timerSeconds: 0,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -159,20 +163,21 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                                 if (data[field.name!]) {
                                     const object = await socket.getObject(data[field.name!]);
                                     let changed = false;
-                                    if (object && object.common) {
+                                    if (object?.common) {
                                         if (
                                             object.common.color &&
+                                            // @ts-expect-error fixed in @types/iobroker
                                             data[`color${field.index}`] !== object.common.color
                                         ) {
+                                            // @ts-expect-error fixed in @types/iobroker
                                             data[`color${field.index}`] = object.common.color;
                                             changed = true;
                                         }
                                         if (object.common.name) {
-                                            const name =
-                                                object.common.name && typeof object.common.name === 'object'
-                                                    ? object.common.name[this.getLanguage()]
-                                                    : object.common.name;
+                                            const name = object.common.name ? Generic.getText(object.common.name) : '';
+                                            // @ts-expect-error fixed in @types/iobroker
                                             if (data[`name${field.index}`] !== name) {
+                                                // @ts-expect-error fixed in @types/iobroker
                                                 data[`name${field.index}`] = name;
                                                 changed = true;
                                             }
@@ -206,12 +211,14 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                         {
                             name: 'pincode',
                             label: 'pincode',
-                            onChange: async (field, data, changeData /* , socket */) => {
+                            onChange: (field, data, changeData /* , socket */): Promise<void> => {
+                                // @ts-expect-error fixed in @types/iobroker
                                 data[`pincode${field.index}`] = (data[`pincode${field.index}`] || '').replace(
                                     /[^0-9]/g,
                                     '',
                                 );
                                 changeData(data);
+                                return Promise.resolve();
                             },
                             hidden: (data, index) => !!data[`pincode-oid${index}`],
                         },
@@ -263,9 +270,9 @@ class Security extends Generic<SecurityRxData, SecurityState> {
 
         this.lastRxData = actualRxData;
 
-        const objects = {};
+        const objects: { common: ioBroker.StateCommon; _id: string; isChart: boolean }[] = [];
         const ids = [];
-        for (let index = 1; index <= this.state.rxData.count; index++) {
+        for (let index = 1; index <= this.state.rxData.buttonsCount; index++) {
             if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
                 ids.push(this.state.rxData[`oid${index}`]);
             }
@@ -277,11 +284,15 @@ class Security extends Generic<SecurityRxData, SecurityState> {
             const object = _objects[this.state.rxData[`oid${index}`]];
             // read object itself
             if (!object) {
-                objects[index] = { common: {}, _id: this.state.rxData[`oid${index}`] };
+                objects[index] = {
+                    common: {} as ioBroker.StateCommon,
+                    _id: this.state.rxData[`oid${index}`],
+                    isChart: false,
+                };
                 continue;
             }
-            object.common = object.common || {};
-            object.isChart = !!(
+            object.common ||= {} as ioBroker.StateCommon;
+            const isChart = !!(
                 object.common.custom && object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]
             );
             if (
@@ -308,7 +319,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                     }
                 }
             }
-            objects[index] = { common: object.common, _id: object._id };
+            objects[index] = { common: object.common as ioBroker.StateCommon, _id: object._id, isChart };
         }
 
         if (JSON.stringify(objects) !== JSON.stringify(this.state.objects)) {
@@ -322,7 +333,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
 
     async componentDidMount(): Promise<void> {
         super.componentDidMount();
-        this.propertiesUpdate();
+        await this.propertiesUpdate();
     }
 
     componentWillUnmount(): void {
@@ -332,7 +343,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
     }
 
     renderUnlockDialog(): React.ReactNode {
-        let lockedId = null;
+        let lockedId: string | null = null;
         let pincode = null;
         let pincodeReturnButton = null;
         for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
@@ -371,7 +382,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                     </div>
                     <div style={styles.pinGrid}>
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0, pincodeReturnButton].map(button => {
-                            let buttonTitle = button;
+                            let buttonTitle: string | number | null | React.JSX.Element = button;
                             if (button === 'backspace') {
                                 buttonTitle = <Backspace />;
                             } else if (button === 'submit') {
@@ -393,7 +404,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                                     onClick={() => {
                                         if (button === 'submit') {
                                             if (this.state.pinInput === pincode) {
-                                                this.props.context.setValue(lockedId, false);
+                                                lockedId && this.props.context.setValue(lockedId, false);
                                                 this.setState({ dialog: false });
                                             } else {
                                                 this.setState({ pinInput: '', invalidPin: true });
@@ -411,7 +422,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                                             const pinInput = this.state.pinInput + button;
                                             this.setState({ pinInput });
                                             if (pincodeReturnButton === 'backspace' && pinInput === pincode) {
-                                                this.props.context.setValue(lockedId, false);
+                                                lockedId && this.props.context.setValue(lockedId, false);
                                                 this.setState({ dialog: false });
                                             }
                                         }
@@ -427,21 +438,30 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         );
     }
 
-    renderTimerDialog(): React.ReactNode {
+    renderTimerDialog(): React.JSX.Element | null {
+        if (this.state.timerDialog === null) {
+            return null;
+        }
+
         const onClose = (): void => {
-            this.setState({ timerDialog: false });
-            if (this.state.rxData.timerSecondsOid) {
-                this.props.context.setValue(this.state.rxData.timerSecondsOid, -1);
+            const index = this.state.timerDialog!;
+            this.setState({ timerDialog: null });
+            if (this.state.rxData[`timerSeconds-oid${index}`]) {
+                this.props.context.setValue(this.state.rxData[`timerSeconds-oid${index}`], -1);
             }
             clearInterval(this.timerInterval);
         };
+        const index = this.state.timerDialog;
+
         return (
             <Dialog
-                open={this.state.timerDialog}
+                open={!0}
                 onClose={onClose}
                 style={styles.timerDialog}
             >
-                <DialogTitle>{Generic.t('lock_after', this.state.timerSeconds)}</DialogTitle>
+                <DialogTitle>
+                    {Generic.t('lock_after', (this.state.rxData[`timerSeconds${index}`] || 0).toString())}
+                </DialogTitle>
                 <DialogContent>
                     <div style={styles.timerSeconds}>{this.state.timerSeconds}</div>
                     <div>
@@ -457,26 +477,26 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         );
     }
 
-    startTimer(i): void {
-        const timerSeconds = this.state.rxData[`timerSeconds${i}`];
-        this.setState({ timerSeconds, timerDialog: true });
-        if (this.state.rxData[`timerSeconds-oid${i}`]) {
-            this.props.context.setValue(this.state.rxData[`timerSeconds-oid${i}`], timerSeconds);
+    startTimer(index: number): void {
+        const timerSeconds = this.state.rxData[`timerSeconds${index}`];
+        this.setState({ timerSeconds, timerDialog: index });
+        if (this.state.rxData[`timerSeconds-oid${index}`]) {
+            this.props.context.setValue(this.state.rxData[`timerSeconds-oid${index}`], timerSeconds);
         }
         this.timerInterval = setInterval(() => {
             const _timerSeconds = this.state.timerSeconds - 1;
             this.setState({ timerSeconds: _timerSeconds });
             if (!_timerSeconds) {
-                if (!this.state.rxData[`oid${i}`]) {
+                if (!this.state.rxData[`oid${index}`]) {
                     this.setState({ message: Generic.t('no_oid') });
                 } else {
-                    this.props.context.setValue(this.state.rxData[`oid${i}`], true);
+                    this.props.context.setValue(this.state.rxData[`oid${index}`], true);
                 }
-                if (this.state.rxData[`timerSeconds-oid${i}`]) {
-                    this.props.context.setValue(this.state.rxData[`timerSeconds-oid${i}`], 0);
+                if (this.state.rxData[`timerSeconds-oid${index}`]) {
+                    this.props.context.setValue(this.state.rxData[`timerSeconds-oid${index}`], 0);
                 }
                 this.timerInterval && clearInterval(this.timerInterval);
-                this.setState({ timerDialog: false });
+                this.setState({ timerDialog: null });
             }
         }, 1000);
     }
@@ -499,10 +519,21 @@ class Security extends Generic<SecurityRxData, SecurityState> {
     renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
 
-        const buttons = [];
+        const buttons: {
+            i: number;
+            oid: string;
+            name: string;
+            color: string;
+            icon: string | undefined;
+        }[] = [];
 
-        let locked = false;
-        let lockedButton = null;
+        let lockedButton: {
+            i: number;
+            oid: string;
+            name: string;
+            color: string;
+            icon: string | undefined;
+        } | null = null;
 
         for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
             buttons.push({
@@ -516,7 +547,6 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                     this.state.objects[i]?.common?.icon,
             });
             if (this.getPropertyValue(`oid${i}`)) {
-                locked = true;
                 lockedButton = buttons[buttons.length - 1];
             }
         }
@@ -526,7 +556,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                 {this.renderUnlockDialog()}
                 {this.renderTimerDialog()}
                 {this.renderMessageDialog()}
-                {locked ? (
+                {lockedButton ? (
                     <div style={styles.lockedButton}>
                         <Button
                             variant="contained"
@@ -579,7 +609,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
             <Chip
                 label={
                     <span style={styles.status}>
-                        {locked ? (
+                        {lockedButton ? (
                             <>
                                 <SecurityIcon />
                                 {lockedButton.name}
@@ -593,8 +623,8 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                     </span>
                 }
                 style={{
-                    backgroundColor: locked ? 'orange' : 'green',
-                    color: locked ? 'black' : 'white',
+                    backgroundColor: lockedButton ? 'orange' : 'green',
+                    color: lockedButton ? 'black' : 'white',
                 }}
             />
         );

@@ -43,8 +43,9 @@ import deLocale from 'date-fns/locale/de';
 import nlLocale from 'date-fns/locale/nl';
 */
 import { type ThemeType, Utils, withWidth, type IobTheme, type LegacyConnection } from '@iobroker/adapter-react-v5';
-import type { EChartsOption, SeriesOption } from 'echarts';
+import type { EChartsOption, LineSeriesOption } from 'echarts';
 import type { YAXisOption } from 'echarts/types/dist/shared';
+import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
 
 // icons
 // import EchartsIcon from '../../assets/echarts.png';
@@ -133,7 +134,7 @@ const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     notAliveInstance: {
         opacity: 0.5,
     },
-    customRange: theme => ({
+    customRange: (theme: IobTheme): React.CSSProperties => ({
         color: theme?.palette?.primary.main || '#00bcd4',
     }),
     splitLineButtonIcon: {
@@ -396,7 +397,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             if (!this.state.max || state.ts - this.state.max < 120000) {
                 this.chartValues?.[id]?.push({ val: state.val as number, ts: state.ts });
                 if (id === this.props.obj._id) {
-                    this.rangeValues.push({ val: state.val as number, ts: state.ts });
+                    this.rangeValues.push({ val: state.val as number, ts: state.ts } as ioBroker.State);
                 }
 
                 // update only if the end is near to now
@@ -707,11 +708,12 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             }
         }
 
-        const serie: SeriesOption = {
+        const serie: LineSeriesOption = {
             xAxisIndex: 0,
             type: 'line',
             step: this.props.objLineType === 'step' ? 'start' : undefined,
             showSymbol: false,
+            // @ts-expect-error fix later
             hoverAnimation: true,
             animation: false,
             data: this.convertData(null, this.props.obj._id),
@@ -749,12 +751,13 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                     showMinLabel: true,
                 },
                 axisTick: {
+                    // @ts-expect-error fix later
                     alignWithLabel: true,
                 },
             },
         ];
 
-        let serie2: SeriesOption;
+        let serie2: LineSeriesOption;
         if (this.props.obj2) {
             serie2 = {
                 xAxisIndex: 0,
@@ -762,6 +765,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 yAxisIndex: 1,
                 step: this.props.obj2LineType === 'step' || !this.props.obj2LineType ? 'start' : undefined,
                 showSymbol: false,
+                // @ts-expect-error fix later
                 hoverAnimation: true,
                 animation: false,
                 data: this.convertData(null, this.props.obj2._id),
@@ -802,6 +806,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                     showMinLabel: true,
                 },
                 axisTick: {
+                    // @ts-expect-error fix later
                     alignWithLabel: true,
                 },
             });
@@ -810,19 +815,19 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         if (this.props.obj?.common?.type === 'boolean') {
             serie.step = 'end';
             yAxis[0].axisLabel!.showMaxLabel = false;
-            yAxis[0].axisLabel!.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+            (yAxis[0] as TimeAxisBaseOption).axisLabel!.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
             yAxis[0].max = 1.5;
-            yAxis[0].interval = 1;
+            (yAxis[0] as TimeAxisBaseOption).interval = 1;
             widthAxis = 50;
         } else if (this.props.obj?.common?.type === 'number' && this.props.obj.common.states) {
             serie.step = 'end';
             yAxis[0].axisLabel!.showMaxLabel = false;
-            yAxis[0].axisLabel!.formatter = value =>
+            (yAxis[0] as TimeAxisBaseOption).axisLabel!.formatter = value =>
                 this.props.obj.common.states[value] !== undefined ? this.props.obj.common.states[value] : value;
             const keys = Object.keys(this.props.obj.common.states);
             keys.sort();
             yAxis[0].max = parseFloat(keys[keys.length - 1]) + 0.5;
-            yAxis[0].interval = 1;
+            (yAxis[0] as TimeAxisBaseOption).interval = 1;
             let max = '';
             for (let i = 0; i < keys.length; i++) {
                 if (
@@ -846,19 +851,19 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         if (this.props.obj2?.common?.type === 'boolean') {
             serie.step = 'end';
             yAxis[1].axisLabel!.showMaxLabel = false;
-            yAxis[1].axisLabel!.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+            (yAxis[1] as TimeAxisBaseOption).axisLabel!.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
             yAxis[1].max = 1.5;
-            yAxis[1].interval = 1;
+            (yAxis[1] as TimeAxisBaseOption).interval = 1;
             widthAxis2 = 50;
         } else if (this.props.obj2?.common?.type === 'number' && this.props.obj2.common.states) {
             serie.step = 'end';
             yAxis[1].axisLabel!.showMaxLabel = false;
-            yAxis[1].axisLabel!.formatter = value =>
+            (yAxis[1] as TimeAxisBaseOption).axisLabel!.formatter = value =>
                 this.props.obj2.common.states[value] !== undefined ? this.props.obj2.common.states[value] : value;
             const keys = Object.keys(this.props.obj2.common.states);
             keys.sort();
             yAxis[1].max = parseFloat(keys[keys.length - 1]) + 0.5;
-            yAxis[1].interval = 1;
+            (yAxis[1] as TimeAxisBaseOption).interval = 1;
             let max = '';
             for (let i = 0; i < keys.length; i++) {
                 if (
@@ -978,7 +983,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
 
             if (withReadData) {
                 this.readHistory(start, end).then(async values => {
-                    let values2;
+                    let values2: { val: number; ts: number; i?: boolean }[] | undefined;
                     if (this.props.obj2) {
                         values2 = await this.readHistory(start, end, this.props.obj2._id);
                     }
@@ -987,7 +992,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                         this.echartsReact.getEchartsInstance().setOption({
                             series: [
                                 { data: this.convertData(values, this.props.obj._id) },
-                                this.props.obj2 ? { data: this.convertData(values2, this.props.obj2._id) } : undefined,
+                                this.props.obj2 ? { data: this.convertData(values2!, this.props.obj2._id) } : undefined,
                             ],
                             xAxis: {
                                 min: this.chart.min,
@@ -995,7 +1000,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                             },
                         });
                     }
-                    cb && cb();
+                    cb?.();
                 });
             } else if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                 this.echartsReact.getEchartsInstance().setOption({
@@ -1008,7 +1013,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                         max: this.chart.max,
                     },
                 });
-                cb && cb();
+                cb?.();
             }
         }, 400);
     }
