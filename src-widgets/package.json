@@ -13,7 +13,7 @@
         "@react-spectrum/color": "^3.0.6",
         "@uiw/react-color": "^2.3.4",
         "color": "^4.2.3",
-        "colorthief": "^2.4.0",
+        "colorthief": "^2.6.0",
         "craco-esbuild": "^0.6.1",
         "craco-module-federation": "^1.1.0",
         "date-fns": "^4.1.0",
