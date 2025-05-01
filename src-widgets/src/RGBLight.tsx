@@ -35,6 +35,7 @@ import type {
 /**
  * Determine if we are on a mobile device
  */
+/*
 function mobileCheck(): boolean {
     let check = false;
     // @ts-expect-error
@@ -51,10 +52,11 @@ function mobileCheck(): boolean {
     }
     return check;
 }
+*/
 /**
  * Determine if the device supports touch input
  */
-function isTouchDevice(): boolean {
+/* function isTouchDevice(): boolean {
     if (!mobileCheck()) {
         return false;
     }
@@ -65,7 +67,7 @@ function isTouchDevice(): boolean {
         navigator.msMaxTouchPoints > 0
     );
 }
-
+*/
 const styles: Record<string, CSSProperties> = {
     rgbDialog: {
         maxWidth: 400,
@@ -276,7 +278,6 @@ interface RGBLightState extends VisRxWidgetState {
 class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
     contentRef: React.RefObject<HTMLDivElement> = React.createRef();
     timeouts: Record<string, ReturnType<typeof setTimeout> | null> = {};
-    isTouch: boolean = isTouchDevice();
     _pressTimeout: ReturnType<typeof setTimeout> | null = null;
     constructor(props: RGBLight['props']) {
         super(props);

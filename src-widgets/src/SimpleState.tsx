@@ -12,7 +12,12 @@ import {
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import { Icon, type IobTheme } from '@iobroker/adapter-react-v5';
-import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState } from '@iobroker/types-vis-2';
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    VisRxWidgetState,
+    VisRxWidgetStateValues,
+} from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
 
@@ -119,7 +124,7 @@ interface SimpleStateRxData {
     iconSmall: string;
     iconEnabled: string;
     iconEnabledSmall: string;
-    iconSize: number;
+    iconSize: number | string;
     color: string;
     colorEnabled: string;
     title: string;
@@ -136,18 +141,21 @@ interface SimpleStateRxData {
 
 interface SimpleStateState extends VisRxWidgetState {
     showDimmerDialog: boolean | null;
-    object: ioBroker.Object;
+    object: { common: ioBroker.StateCommon; _id: string; type: ioBroker.ObjectType | '' };
 }
 
 class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
-    refDiv: React.RefObject<HTMLDivElement | null>;
+    refDiv: React.RefObject<HTMLDivElement> = React.createRef();
     updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    updateTimer1: ReturnType<typeof setTimeout> | null = null;
     lastRxData: string | null = null;
     constructor(props: SimpleState['props']) {
         super(props);
-        (this.state as SimpleStateState).showDimmerDialog = null;
-        this.refDiv = React.createRef();
-        (this.state as SimpleStateState).object = { common: {} } as ioBroker.Object;
+        this.state = {
+            ...this.state,
+            showDimmerDialog: null,
+            object: { common: {} as ioBroker.StateCommon, _id: '', type: '' },
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -187,7 +195,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                     if (object?.common?.states) {
                                         if (Array.isArray(object.common.states)) {
                                             // convert to {'state1': 'state1', 'state2': 'state2', ...}
-                                            const states = {};
+                                            const states: Record<string, string> = {};
                                             object.common.states.forEach(state => (states[state] = state));
                                             object.common.states = states;
                                         }
@@ -342,17 +350,18 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
 
         this.lastRxData = actualRxData;
         if (!this.state.rxData.oid || this.state.rxData.oid === 'nothing_selected') {
-            this.setState({ object: { common: {} } });
+            this.setState({ object: { common: {} as ioBroker.StateCommon, _id: '', type: '' } });
             return;
         }
         // read object itself
-        let object = await this.props.context.socket.getObject(this.state.rxData.oid);
-        if (!object) {
-            object = { common: {} };
+        const stateObj = await this.props.context.socket.getObject(this.state.rxData.oid);
+        let object: { common: ioBroker.StateCommon; _id: string; type: ioBroker.ObjectType | '' };
+        if (!stateObj) {
+            object = { common: {} as ioBroker.StateCommon, _id: '', type: '' };
         } else {
-            object = { common: object.common, _id: object._id, type: object.type };
+            object = { common: stateObj.common as ioBroker.StateCommon, _id: stateObj._id, type: stateObj.type };
         }
-        object.common = object.common || {};
+        object.common ||= {} as ioBroker.StateCommon;
         if (object.common.type === 'number') {
             if (object.common.max === undefined) {
                 object.common.max = 100;
@@ -363,7 +372,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         }
         if (object.common.states && Array.isArray(object.common.states)) {
             // convert to {'state1': 'state1', 'state2': 'state2', ...}
-            const states = {};
+            const states: Record<string, string> = {};
             object.common.states.forEach(state => (states[state] = state));
             object.common.states = states;
         }
@@ -407,9 +416,9 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         await this.propertiesUpdate();
     }
 
-    getValueData() {
+    getValueData(): { color?: string; icon?: string; title?: string } | null {
         const valueId = this.state.values[`${this.state.rxData.oid}.val`];
-        const value = this.state.object.common?.states[valueId];
+        const value: string | undefined = (this.state.object.common?.states as Record<string, string>)[valueId];
         for (let i = 1; i <= this.state.rxData.values_count; i++) {
             if (this.state.rxData[`value${i}`] === value) {
                 return {
@@ -423,16 +432,16 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         return null;
     }
 
-    isOn(values): boolean {
-        values = values || this.state.values;
+    isOn(values?: VisRxWidgetStateValues): boolean {
+        values ||= this.state.values;
         if (this.state.object.common.type === 'number') {
             return values[`${this.state.object._id}.val`] !== this.state.object.common.min;
         }
         return !!values[`${this.state.object._id}.val`];
     }
 
-    getStateIcon(isOn?: boolean) {
-        let icon = '';
+    getStateIcon(isOn?: boolean): React.JSX.Element | null {
+        let icon: string | undefined = '';
         if (this.state.rxData.noIcon) {
             return null;
         }
@@ -447,17 +456,17 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
 
         icon = icon || this.state.rxData.icon || this.state.rxData.iconSmall;
         icon = icon || this.state.object.common.icon;
-        isOn = isOn !== undefined ? isOn : this.isOn();
+        isOn = isOn ?? this.isOn();
         const color = this.getColor(isOn);
 
         if (icon) {
             let size = 40;
             let style = styles.iconCustom;
             if (this.state.rxData.iconSize) {
-                size = parseFloat(this.state.rxData.iconSize);
+                size = parseFloat(this.state.rxData.iconSize as string);
                 style = undefined;
             }
-            icon = (
+            return (
                 <Icon
                     src={icon}
                     style={{
@@ -468,21 +477,19 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                     }}
                 />
             );
-        } else if (isOn) {
-            icon = (
+        }
+        if (isOn) {
+            return (
                 <LightbulbIconOn
                     color="primary"
                     style={{ color }}
                 />
             );
-        } else {
-            icon = <LightbulbIconOff style={{ color }} />;
         }
-
-        return icon;
+        return <LightbulbIconOff style={{ color }} />;
     }
 
-    getColor(isOn) {
+    getColor(isOn: boolean): string | undefined {
         if (this.state.object.common.states) {
             return this.getValueData()?.color;
         }
@@ -499,6 +506,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         } else {
             const values = JSON.parse(JSON.stringify(this.state.values));
             const oid = `${this.state.object._id}.val`;
+            // @ts-expect-error artefact
             if (this.state.object.common.type === 'number') {
                 values[oid] =
                     values[oid] === this.state.object.common.max
@@ -520,9 +528,9 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         this.props.context.setValue(this.state.rxData.oid, values[oid]);
     }
 
-    controlSpecificState(value): void {
-        const values = JSON.parse(JSON.stringify(this.state.values));
-        const oid = `${this.state.object._id}.val`;
+    controlSpecificState(value: string): void {
+        const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
+        const oid: `${string}.val` = `${this.state.object._id}.val`;
         values[oid] = value;
         this.setState({ values });
         this.props.context.setValue(this.state.rxData.oid, values[oid]);
@@ -542,7 +550,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                     onClose={() => this.setState({ showDimmerDialog: null })}
                 >
                     <DialogTitle>
-                        {this.state.rxData.title || this.state.object.common.name}
+                        {this.state.rxData.title || Generic.getText(this.state.object.common.name)}
                         <IconButton
                             style={{ float: 'right' }}
                             onClick={() => this.setState({ showDimmerDialog: null })}
@@ -561,6 +569,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                                 ? styles.buttonInactive
                                                 : undefined
                                         }
+                                        // @ts-expect-error grey is OK
                                         color={
                                             this.state.values[`${this.state.object._id}.val`] === state
                                                 ? 'primary'
@@ -568,7 +577,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                         }
                                         onClick={() => this.controlSpecificState(state)}
                                     >
-                                        {this.state.object.common.states[state]}
+                                        {(this.state.object.common.states as Record<string, string>)[state]}
                                     </Button>
                                 ))}
                             </div>
@@ -583,6 +592,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                                 : styles.buttonInactive),
                                             width: '50%',
                                         }}
+                                        // @ts-expect-error grey is OK
                                         color="grey"
                                         onClick={() => this.setOnOff(false)}
                                         startIcon={isLamp ? <LightbulbIconOff /> : null}
@@ -641,15 +651,18 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         if (value === undefined || value === null) {
             return null;
         }
-        if (value < object.common.min || value > object.common.max) {
+        if (
+            (object.common.min !== undefined && value < object.common.min) ||
+            (object.common.max !== undefined && value > object.common.max)
+        ) {
             return value + (this.state.rxData.unit || this.state.object.common?.unit || '');
         }
 
         let size = this.state.rxData.circleSize;
         if (!size) {
-            size = this.refDiv.current?.offsetHeight;
-            if (size > this.refDiv.current?.offsetWidth) {
-                size = this.refDiv.current?.offsetWidth;
+            size = this.refDiv.current?.offsetHeight || 0;
+            if (size > (this.refDiv.current?.offsetWidth || 0)) {
+                size = this.refDiv.current?.offsetWidth || 0;
             }
         }
         size = size || 80;
@@ -658,12 +671,10 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         }
 
         if (!this.refDiv.current) {
-            this.updateTimer1 =
-                this.updateTimer1 ||
-                setTimeout(() => {
-                    this.updateTimer1 = null;
-                    this.forceUpdate();
-                }, 50);
+            this.updateTimer1 ||= setTimeout(() => {
+                this.updateTimer1 = null;
+                this.forceUpdate();
+            }, 50);
         }
 
         return (
@@ -674,7 +685,6 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                 arcColor={this.props.context.theme.palette.primary.main}
                 arcBackgroundColor={this.props.context.themeType === 'dark' ? '#DDD' : '#222'}
                 startAngle={0}
-                step={1}
                 endAngle={360}
                 handle1={{ value }}
             >
@@ -697,12 +707,10 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
 
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout =
-                this.updateTimeout ||
-                setTimeout(async () => {
-                    this.updateTimeout = null;
-                    await this.propertiesUpdate();
-                }, 50);
+            this.updateTimeout ||= setTimeout(async () => {
+                this.updateTimeout = null;
+                await this.propertiesUpdate();
+            }, 50);
         }
         const isOn = this.isOn();
         const icon = this.getStateIcon(isOn);
@@ -712,9 +720,13 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         let value;
         if (this.state.object._id && (this.state.object.common.type === 'number' || this.state.object.common.states)) {
             value = this.state.values[`${this.state.object._id}.val`];
-            if (this.state.object.common.states && this.state.object.common.states[value] !== undefined) {
-                value = this.state.object.common.states[value];
+            if (
+                this.state.object.common.states &&
+                (this.state.object.common.states as Record<string, string>)[value] !== undefined
+            ) {
+                value = (this.state.object.common.states as Record<string, string>)[value];
             } else {
+                // @ts-expect-error fixed in @iobroker/types-vis-2
                 value = this.formatValue(value);
             }
         }
@@ -776,6 +788,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                         <Button
                             onClick={() => this.changeSwitch()}
                             disabled={this.state.rxData.readOnly}
+                            // @ts-expect-error grey is OK
                             color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
                             style={{
                                 ...styles.button,
@@ -808,7 +821,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                 ) : null}
                             </div>
                             <div style={{ ...styles.text, color }}>
-                                {this.state.rxData.title || this.state.object.common.name}
+                                {this.state.rxData.title || Generic.getText(this.state.object.common.name)}
                             </div>
                             {this.state.object.common.states && value !== undefined && value !== null ? (
                                 <div

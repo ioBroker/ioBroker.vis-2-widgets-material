@@ -111,11 +111,15 @@ export interface BlindsBaseRxData {
     ratio: number | string;
     borderWidth: number | string;
 }
-
+export type HelperObject = {
+    common: ioBroker.StateCommon;
+    _id?: string;
+    widgetType?: WidgetType;
+};
 export interface BlindsBaseState extends VisRxWidgetState {
     showBlindsDialog: number | boolean | null;
     showBlindsDialogIndexOfButton?: number;
-    objects: ({ common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } | null | string)[];
+    objects: (HelperObject | null | string)[];
     main?: ioBroker.StateCommon;
 }
 
@@ -521,7 +525,7 @@ class BlindsBase<
             height: number;
         },
         indexOfButton?: number,
-    ): React.ReactNode {
+    ): React.JSX.Element {
         /*
         $div.find('.hq-blind-blind2').each(function (id) {
             id++;

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTitle, IconButton, Switch } from '@mui/mat
 import { Close as IconClose } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
-import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
 import ObjectChart from './ObjectChart';
@@ -57,16 +57,19 @@ interface StaticRxData {
 
 interface StaticState extends VisRxWidgetState {
     showDialog: number | null;
-    objects: Record<string, ioBroker.Object>;
+    objects: { common: ioBroker.StateCommon; _id: string; isChart: boolean }[];
 }
 
 class Static extends Generic<StaticRxData, StaticState> {
     lastRxData?: string;
     updateTimeout: ReturnType<typeof setTimeout> | null = null;
-    constructor(props: Static['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        this.state.objects = {};
-        this.state.showDialog = null;
+        this.state = {
+            ...this.state,
+            objects: [],
+            showDialog: null,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -168,7 +171,7 @@ class Static extends Generic<StaticRxData, StaticState> {
 
         this.lastRxData = actualRxData;
 
-        const objects = {};
+        const objects: { common: ioBroker.StateCommon; _id: string; isChart: boolean }[] = [];
 
         const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
@@ -176,13 +179,15 @@ class Static extends Generic<StaticRxData, StaticState> {
         for (let i = 1; i <= this.state.rxData.count; i++) {
             if (this.state.rxData[`oid${i}`]) {
                 // read object itself
-                const object = await this.props.context.socket.getObject(this.state.rxData[`oid${i}`]);
+                const object: ioBroker.StateObject | null | undefined = await this.props.context.socket.getObject(
+                    this.state.rxData[`oid${i}`],
+                );
                 if (!object) {
-                    objects[i] = { common: {} };
+                    objects[i] = { common: {} as ioBroker.StateCommon, _id: '', isChart: false };
                     continue;
                 }
                 object.common = object.common || {};
-                object.isChart = !!(defaultHistory && object.common.custom && object.common.custom[defaultHistory]);
+                const isChart = !!(defaultHistory && object.common.custom?.[defaultHistory]);
                 if (
                     !this.state.rxData[`icon${i}`] &&
                     !this.state.rxData[`iconSmall${i}`] &&
@@ -210,7 +215,7 @@ class Static extends Generic<StaticRxData, StaticState> {
                         }
                     }
                 }
-                objects[i] = { common: object.common, _id: object._id, isChart: object.isChart };
+                objects[i] = { common: object.common, _id: object._id, isChart };
             }
         }
 
@@ -232,24 +237,22 @@ class Static extends Generic<StaticRxData, StaticState> {
         await this.propertiesUpdate();
     }
 
-    getStateIcon(key: number): React.ReactNode {
-        let icon = '';
+    getStateIcon(key: number): React.JSX.Element | null {
+        let iconStr: string | undefined = '';
+        let icon: React.JSX.Element | null = null;
         const isEnabled =
             this.state.objects[key].common.type === 'boolean' &&
             this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (isEnabled) {
-            icon = this.state.rxData[`iconEnabled${key}`] || this.state.rxData[`iconEnabledSmall${key}`];
+            iconStr = this.state.rxData[`iconEnabled${key}`] || this.state.rxData[`iconEnabledSmall${key}`];
         }
-        icon = icon || this.state.rxData[`icon${key}`] || this.state.rxData[`iconSmall${key}`];
+        iconStr ||= this.state.rxData[`icon${key}`] || this.state.rxData[`iconSmall${key}`];
+        iconStr ||= this.state.objects[key].common.icon;
 
-        if (!icon) {
-            icon = this.state.objects[key].common.icon;
-        }
-
-        if (icon) {
+        if (iconStr) {
             icon = (
                 <Icon
-                    src={icon}
+                    src={iconStr}
                     style={{
                         width: 24,
                         height: 24,
@@ -261,7 +264,7 @@ class Static extends Generic<StaticRxData, StaticState> {
         return icon;
     }
 
-    getColor(key) {
+    getColor(key: number): string | undefined {
         const isEnabled =
             this.state.objects[key].common.type === 'boolean' &&
             this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
@@ -272,15 +275,15 @@ class Static extends Generic<StaticRxData, StaticState> {
             : this.state.rxData[`color${key}`] || this.state.objects[key].common.color;
     }
 
-    getValue(key, styleUpdateVal) {
+    getValue(key: number, styleUpdateVal: React.CSSProperties): string | React.JSX.Element | null {
         const object = this.state.objects[key];
         const state = this.state.values[`${this.state.rxData[`oid${key}`]}.val`];
         if (state === undefined) {
-            return '';
+            return null;
         }
         if (object?.common?.states) {
-            if (object.common.states[state?.toString()] !== undefined) {
-                return object.common.states[state.toString()];
+            if ((object.common.states as Record<string, string>)[state?.toString()] !== undefined) {
+                return (object.common.states as Record<string, string>)[state.toString()];
             }
 
             return state.toString();
@@ -308,6 +311,7 @@ class Static extends Generic<StaticRxData, StaticState> {
         if (object?.common?.type === 'number') {
             val = `${state}${object.common.unit || ''}`;
         } else {
+            // @ts-expect-error fixed in vis-2-types
             val = this.formatValue(state);
         }
         return (
@@ -380,58 +384,52 @@ class Static extends Generic<StaticRxData, StaticState> {
                 }, 50);
         }
 
-        const icons = Object.keys(this.state.objects).map(key => this.getStateIcon(key));
+        const icons: (React.JSX.Element | null)[] = this.state.objects.map((_, index) => this.getStateIcon(index));
         const anyIcon = icons.find(icon => icon);
         const styleUpdateVal = this.props.context.themeType === 'dark' ? styles.newValueDark : styles.newValueLight;
 
         const content = (
             <>
                 {this.renderDialog()}
-                {Object.keys(this.state.objects).map((key, i) => (
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            alignItems: 'center',
-                        }}
-                        key={key}
-                    >
-                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            {anyIcon ? (
-                                <span
-                                    style={{
-                                        width: 24,
-                                        height: 24,
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}
-                                >
-                                    {icons[i]}
+                {this.state.objects.map((obj, index) =>
+                    obj ? (
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                width: '100%',
+                                alignItems: 'center',
+                            }}
+                            key={index}
+                        >
+                            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                {anyIcon ? (
+                                    <span
+                                        style={{
+                                            width: 24,
+                                            height: 24,
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        {icons[index]}
+                                    </span>
+                                ) : null}
+                                <span style={{ color: this.getColor(index), paddingLeft: 16 }}>
+                                    {this.state.rxData[`title${index}`] || Generic.getText(obj.common.name)}
                                 </span>
-                            ) : null}
-                            <span style={{ color: this.getColor(key), paddingLeft: 16 }}>
-                                {this.state.rxData[`title${key}`] ||
-                                    Generic.getText(this.state.objects[key].common.name)}
                             </span>
-                        </span>
 
-                        {this.getValue(key, styleUpdateVal)}
-                    </div>
-                ))}
+                            {this.getValue(index, styleUpdateVal)}
+                        </div>
+                    ) : null,
+                )}
             </>
         );
 
         return this.wrapContent(content);
     }
 }
-
-Static.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
 
 export default Static;
