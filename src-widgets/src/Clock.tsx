@@ -69,15 +69,17 @@ interface ClockState extends VisRxWidgetState {
     timeFormat?: string;
 }
 
-class Clock extends Generic<ClockRxData, ClockState> {
-    refContainer: React.RefObject<HTMLDivElement | null>;
+export default class Clock extends Generic<ClockRxData, ClockState> {
+    refContainer: React.RefObject<HTMLDivElement> = React.createRef();
     rotations?: [number, number, number];
     timeInterval?: ReturnType<typeof setTimeout>;
     constructor(props: VisRxWidgetProps) {
         super(props);
-        (this.state as ClockState).time = new Date();
-        (this.state as ClockState).width = 0;
-        this.refContainer = React.createRef();
+        this.state = {
+            ...this.state,
+            time: new Date(),
+            width: 0,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -265,12 +267,15 @@ class Clock extends Generic<ClockRxData, ClockState> {
     }
 
     componentWillUnmount(): void {
-        this.timeInterval && clearTimeout(this.timeInterval);
+        if (this.timeInterval) {
+            clearTimeout(this.timeInterval);
+            this.timeInterval = undefined;
+        }
         super.componentWillUnmount();
     }
 
-    componentDidUpdate(): void {
-        super.componentDidUpdate && super.componentDidUpdate();
+    componentDidUpdate(prevProps: VisRxWidgetProps, prevState: typeof this.state): void {
+        super.componentDidUpdate(prevProps, prevState);
         this.recalculateWidth();
     }
 
@@ -613,11 +618,11 @@ class Clock extends Generic<ClockRxData, ClockState> {
         const style: CSSProperties = {
             textAlign: 'center',
             lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-            fontFamily: this.state.rxStyle!['font-family'],
-            fontShadow: this.state.rxStyle!['font-shadow'],
-            fontStyle: this.state.rxStyle!['font-style'],
+            fontFamily: this.state.rxStyle!['font-family'] as CSSProperties['fontFamily'],
+            textShadow: this.state.rxStyle!['text-shadow'] as CSSProperties['textShadow'],
+            fontStyle: this.state.rxStyle!['font-style'] as CSSProperties['fontStyle'],
             fontWeight: this.state.rxStyle!['font-weight'],
-            fontVariant: this.state.rxStyle!['font-variant'],
+            fontVariant: this.state.rxStyle!['font-variant'] as CSSProperties['fontVariant'],
         };
 
         style.width = 'calc(100% - 4px)';
@@ -652,12 +657,3 @@ class Clock extends Generic<ClockRxData, ClockState> {
         return this.wrapContent(content, null);
     }
 }
-
-Clock.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
-
-export default Clock;

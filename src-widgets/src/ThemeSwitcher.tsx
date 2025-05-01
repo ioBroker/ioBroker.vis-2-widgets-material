@@ -1,23 +1,23 @@
-import React, { type CSSProperties } from 'react';
-
-import { ToggleThemeMenu, I18n } from '@iobroker/adapter-react-v5';
+import React from 'react';
 
 import { Button } from '@mui/material';
 
+import type { RxRenderWidgetProps, RxWidgetInfo, WidgetData, VisRxWidgetState } from '@iobroker/types-vis-2';
+import { ToggleThemeMenu, I18n, type ThemeName } from '@iobroker/adapter-react-v5';
+
 import Generic from './Generic';
-import type { VisRxWidgetState } from './visRxWidget';
-import { RxRenderWidgetProps, RxWidgetInfo, WidgetData } from '@iobroker/types-vis-2';
 
 interface ThemeSwitcherRxData {
-    themeType: string;
-    themeName: string;
-    simple: boolean;
-    variant: string;
+    themeType: 'system' | 'static' | 'variable';
+    themeName: ThemeName;
+    variant: 'contained' | 'text' | 'outlined';
 }
 
-interface ThemeSwitcherState extends VisRxWidgetState {}
+interface ThemeSwitcherState extends VisRxWidgetState {
+    themeName: ThemeName;
+}
 
-class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
+export default class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
     static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2ThemeSwitcher',
@@ -45,27 +45,18 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
                             noTranslation: true,
                             options: [
                                 { value: 'dark', label: 'dark' },
-                                { value: 'dark-blue', label: 'dark-blue' },
                                 { value: 'light', label: 'light' },
-                                { value: 'colored', label: 'colored' },
                             ],
                             default: 'light',
                             label: 'theme_name',
                             hidden: (data: WidgetData) => data.themeType === 'system',
                         },
                         {
-                            name: 'simple',
-                            type: 'checkbox',
-                            default: true,
-                            label: 'only_light_dark',
-                            hidden: (data: WidgetData) => data.themeType !== 'variable',
-                        },
-                        {
                             name: 'variant',
                             type: 'select',
                             options: [
                                 { value: 'contained', label: 'Contained' },
-                                { value: 'standard', label: 'Standard' },
+                                { value: 'text', label: 'Text' },
                                 { value: 'outlined', label: 'Outlined' },
                             ],
                             default: 'outlined',
@@ -86,15 +77,16 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
 
     componentDidMount(): void {
         super.componentDidMount();
-        let themeName;
+        let themeName: ThemeName;
+        // get browser theme
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            // dark mode
+            themeName = 'dark';
+        } else {
+            themeName = 'light';
+        }
+
         if (this.state.rxData.themeType === 'system') {
-            // get browser theme
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                // dark mode
-                themeName = 'dark';
-            } else {
-                themeName = 'light';
-            }
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', this.onThemeChanged);
             this.setState({ themeName }, () => this.setViewTheme(themeName));
         } else if (this.state.rxData.themeType === 'static') {
@@ -103,17 +95,19 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
         } else if (this.state.rxData.themeType === 'variable') {
             // get the last theme from local storage
             themeName =
-                window.localStorage.getItem('App.themeName') ||
+                (window.localStorage.getItem('App.themeName') as ThemeName) ||
                 (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         }
         this.setState({ themeName }, () => this.setViewTheme(themeName));
     }
 
-    setViewTheme(themeName): void {
-        this.props.context?.toggleTheme && this.props.context?.toggleTheme(themeName || this.state.rxData.themeName);
+    setViewTheme(themeName: ThemeName): void {
+        // @ts-expect-error fixed in vis-2-widgets
+        this.props.context?.toggleTheme?.(themeName || this.state.rxData.themeName);
     }
 
-    onThemeChanged = (event): void => this.setState({ themeName: event.matches ? 'dark' : 'light' });
+    onThemeChanged = (event: { matches: boolean }): void =>
+        this.setState({ themeName: event.matches ? 'dark' : 'light' });
 
     componentWillUnmount(): void {
         if (this.state.rxData.themeType === 'system') {
@@ -143,7 +137,7 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
                                 width: '100%',
                                 textAlign: 'center',
                             }}
-                            themeName={this.state.themeName}
+                            themeName={this.state.themeName as 'dark' | 'light'}
                             toggleTheme={() => {}}
                             t={I18n.t}
                         />
@@ -164,27 +158,14 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
                         e.stopPropagation();
                         const themeName = this.state.themeName;
 
-                        let newThemeName;
-                        if (this.state.rxData.simple) {
-                            newThemeName = themeName === 'dark' ? 'light' : 'dark';
-                        } else {
-                            // dark => blue => colored => light => dark
-                            newThemeName =
-                                themeName === 'dark'
-                                    ? 'blue'
-                                    : themeName === 'blue'
-                                      ? 'colored'
-                                      : themeName === 'colored'
-                                        ? 'light'
-                                        : 'dark';
-                        }
+                        const newThemeName = themeName === 'dark' ? 'light' : 'dark';
 
                         window.localStorage.setItem('App.themeName', newThemeName);
                         this.setState({ themeName: newThemeName }, () => this.setViewTheme(newThemeName));
                     }}
                 >
                     <ToggleThemeMenu
-                        themeName={this.state.themeName}
+                        themeName={this.state.themeName as 'dark' | 'light'}
                         toggleTheme={() => {}}
                         t={I18n.t}
                     />
@@ -195,12 +176,3 @@ class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwitcherState> {
         return null;
     }
 }
-
-ThemeSwitcher.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
-
-export default ThemeSwitcher;

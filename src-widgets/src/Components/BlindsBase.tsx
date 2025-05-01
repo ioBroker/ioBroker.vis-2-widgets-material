@@ -2,7 +2,8 @@ import React, { type CSSProperties } from 'react';
 
 import Generic from '../Generic';
 import DialogBlinds from './DialogBlinds';
-import type { VisRxWidgetState } from 'src/visRxWidget';
+import type { VisRxWidgetState } from '@iobroker/types-vis-2';
+import type { WidgetType } from '../deviceWidget';
 
 const styles: Record<string, CSSProperties> = {
     blindHandle: {
@@ -114,7 +115,7 @@ export interface BlindsBaseRxData {
 export interface BlindsBaseState extends VisRxWidgetState {
     showBlindsDialog: number | boolean | null;
     showBlindsDialogIndexOfButton?: number;
-    objects: ioBroker.StateCommon[];
+    objects: ({ common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } | null | string)[];
     main?: ioBroker.StateCommon;
 }
 
@@ -193,28 +194,46 @@ class BlindsBase<
                 }
             }
         } else if (indexOfButton !== undefined) {
-            min = parseFloat(this.state.objects[indexOfButton]?.min as any as string);
-            if (Number.isNaN(min)) {
-                if (this.state.main?.min === undefined || Number.isNaN(min)) {
+            const objectMin =
+                typeof this.state.objects[indexOfButton] === 'object'
+                    ? parseFloat(this.state.objects[indexOfButton]?.common?.min as any as string)
+                    : undefined;
+            if (objectMin === undefined || Number.isNaN(objectMin)) {
+                if (
+                    this.state.main?.min === undefined ||
+                    Number.isNaN(parseFloat(this.state.main.min as any as string))
+                ) {
                     min = 0;
                 } else {
                     min = this.state.main.min;
                 }
+            } else {
+                min = objectMin;
             }
 
-            max = parseFloat(this.state.objects[indexOfButton]?.max as any as string);
-            if (Number.isNaN(max)) {
-                if (this.state.main?.max === undefined || Number.isNaN(max)) {
+            const objectMax =
+                typeof this.state.objects[indexOfButton] === 'object'
+                    ? parseFloat(this.state.objects[indexOfButton]?.common?.max as any as string)
+                    : undefined;
+
+            if (objectMax === undefined || Number.isNaN(objectMax)) {
+                if (this.state.main?.max === undefined || Number.isNaN(this.state.main.max)) {
                     max = 100;
                 } else {
                     max = this.state.main.max;
                 }
+            } else {
+                max = objectMax;
             }
         } else {
             min = parseFloat(this.state.rxData[`slideMin${index}`]);
             if (Number.isNaN(min)) {
-                min = parseFloat(this.state.objects[index]?.min as any as string);
-                if (Number.isNaN(min)) {
+                const objectMin =
+                    typeof this.state.objects[index] === 'object'
+                        ? parseFloat(this.state.objects[index]?.common?.min as any as string)
+                        : undefined;
+
+                if (objectMin === undefined || Number.isNaN(objectMin)) {
                     min = parseFloat(this.state.rxData.min);
                     if (Number.isNaN(min)) {
                         min = parseFloat(this.state.main?.min as any as string);
@@ -222,11 +241,17 @@ class BlindsBase<
                             min = 0;
                         }
                     }
+                } else {
+                    min = objectMin;
                 }
             }
             max = parseFloat(this.state.rxData[`slideMax${index}`]);
             if (Number.isNaN(max)) {
-                if (this.state.objects[index]?.max === undefined || Number.isNaN(this.state.objects[index]?.max)) {
+                const objectMax =
+                    typeof this.state.objects[index] === 'object'
+                        ? parseFloat(this.state.objects[index]?.common?.max as any as string)
+                        : undefined;
+                if (objectMax === undefined || Number.isNaN(objectMax)) {
                     max = parseFloat(this.state.rxData.max);
                     if (Number.isNaN(max)) {
                         max = parseFloat(this.state.main?.max as any as string);
@@ -235,7 +260,7 @@ class BlindsBase<
                         }
                     }
                 } else {
-                    max = parseFloat(this.state.objects[index].max as any as string);
+                    max = objectMax;
                 }
             }
         }
@@ -280,6 +305,7 @@ class BlindsBase<
             return (
                 <DialogBlinds
                     onClose={() => {
+                        // @ts-expect-error fixed in vis-2-types
                         this.lastClick = Date.now();
                         this.setState({ showBlindsDialog: null });
                     }}
@@ -450,6 +476,7 @@ class BlindsBase<
                             ? e => {
                                   e.preventDefault();
                                   e.stopPropagation();
+                                  // @ts-expect-error fixed in vis-2-widgets
                                   this.lastClick = Date.now();
                                   this.setState({
                                       showBlindsDialog: index,

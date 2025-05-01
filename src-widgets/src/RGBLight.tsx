@@ -11,6 +11,7 @@ import {
     ShadeSlider,
     rgbaToHex,
     Sketch,
+    type HsvaColor,
 } from '@uiw/react-color';
 
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip } from '@mui/material';
@@ -18,18 +19,25 @@ import { Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch,
 import { Brightness6, Close, ColorLens, Thermostat, WbAuto } from '@mui/icons-material';
 import { TbSquareLetterW } from 'react-icons/tb';
 
-import { Icon, LegacyConnection } from '@iobroker/adapter-react-v5';
+import { Icon, type LegacyConnection } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import './sketch.css';
-import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
-import type { VisRxWidgetState } from './visRxWidget';
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    RxWidgetInfoAttributesField,
+    VisWidgetCommand,
+    WidgetData,
+    VisRxWidgetState,
+} from '@iobroker/types-vis-2';
 
 /**
  * Determine if we are on a mobile device
  */
-function mobileCheck() {
+function mobileCheck(): boolean {
     let check = false;
+    // @ts-expect-error
     const userAgent = window.navigator.userAgent || window.navigator.vendor || window.opera;
     if (
         /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series([46])0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
@@ -46,7 +54,7 @@ function mobileCheck() {
 /**
  * Determine if the device supports touch input
  */
-function isTouchDevice() {
+function isTouchDevice(): boolean {
     if (!mobileCheck()) {
         return false;
     }
@@ -91,8 +99,21 @@ const styles: Record<string, CSSProperties> = {
         pointerEvents: 'none',
     },
 };
+export type RGB_NAMES_TYPE =
+    | 'switch'
+    | 'brightness'
+    | 'rgb'
+    | 'red'
+    | 'green'
+    | 'blue'
+    | 'white'
+    | 'color_temperature'
+    | 'hue'
+    | 'saturation'
+    | 'luminance'
+    | 'white_mode';
 
-export const RGB_ROLES = {
+export const RGB_ROLES: { [role: string]: RGB_NAMES_TYPE } = {
     'switch.light': 'switch',
     switch: 'switch',
     'level.brightness': 'brightness',
@@ -123,7 +144,7 @@ function limit(x: number, min: number, max: number): number {
     return x;
 }
 
-export const colorTemperatureToRGB = (kelvin: number) => {
+export const colorTemperatureToRGB = (kelvin: number): { red: number; green: number; blue: number } => {
     const temp = kelvin / 100;
 
     let red;
@@ -167,18 +188,19 @@ const loadStates = async (
 ): Promise<void> => {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
-        if (object && object.common) {
+        if (object?.common) {
             const id = data[field.name!].split('.');
             id.pop();
-            const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+            // get all siblings of the object
+            const states = await socket.getObjectViewSystem('state', `${id.join('.')}.`, `${id.join('.')}.\u9999`);
             if (states) {
                 Object.values(states).forEach(state => {
                     const role = state.common.role;
                     if (
                         role &&
                         RGB_ROLES[role] &&
-                        (!data[role] || data[role] === 'nothing_selected') &&
-                        field !== role
+                        (!data[role] || data[role] === 'nothing_selected') //&&
+                        //  field.name !== role
                     ) {
                         data[RGB_ROLES[role]] = state._id;
                         if (RGB_ROLES[role] === 'color_temperature') {
@@ -197,7 +219,7 @@ const loadStates = async (
     }
 };
 
-export const RGB_NAMES = [
+export const RGB_NAMES: RGB_NAMES_TYPE[] = [
     'switch',
     'brightness',
     'rgb',
@@ -219,7 +241,7 @@ interface RGBLightRxData {
     icon: string;
     switch: string;
     brightness: string;
-    rgbType: string;
+    rgbType: 'hue/sat/lum' | 'rgb' | 'rgbw' | 'r/g/b' | 'r/g/b/w' | 'ct';
     rgb: string;
     red: string;
     green: string;
@@ -234,10 +256,10 @@ interface RGBLightRxData {
     hideBrightness: boolean;
     white_mode: string;
     noRgbPalette: boolean;
-    timeout: number;
+    timeout: number | string;
     toggleOnClick: boolean;
-    pressDuration: number;
-    borderRadius: number;
+    pressDuration: number | string;
+    borderRadius: number | string;
     color: string;
     colorEnabled: string;
     onlyCircle: boolean;
@@ -252,19 +274,19 @@ interface RGBLightState extends VisRxWidgetState {
 }
 
 class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
-    contentRef: React.RefObject<HTMLDivElement | null>;
-    timeouts: Record<string, ReturnType<typeof setTimeout>>;
-    isTouch: boolean;
-    pressTimeout: ReturnType<typeof setTimeout> | null = null;
+    contentRef: React.RefObject<HTMLDivElement> = React.createRef();
+    timeouts: Record<string, ReturnType<typeof setTimeout> | null> = {};
+    isTouch: boolean = isTouchDevice();
+    _pressTimeout: ReturnType<typeof setTimeout> | null = null;
     constructor(props: RGBLight['props']) {
         super(props);
-        (this.state as RGBLightState).dialog = false;
-        (this.state as RGBLightState).rgbObjects = {};
-        (this.state as RGBLightState).colorTemperatures = [];
-        (this.state as RGBLightState).sketch = false;
-        this.contentRef = React.createRef();
-        this.timeouts = {};
-        this.isTouch = isTouchDevice();
+        this.state = {
+            ...this.state,
+            dialog: false,
+            rgbObjects: {},
+            colorTemperatures: [],
+            sketch: false,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -528,9 +550,12 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return this.state.rgbObjects[id]?.common?.max || 0;
     };
 
-    rgbSetId = (id: string, value): void => {
+    rgbSetId = (id: RGB_NAMES_TYPE, value: number | string | boolean): void => {
         if (this.state.rgbObjects[id]) {
-            this.timeouts[id] && clearTimeout(this.timeouts[id]);
+            if (this.timeouts[id]) {
+                clearTimeout(this.timeouts[id]);
+                this.timeouts[id] = null;
+            }
 
             // control switch directly without timeout
             if (id === 'switch' || id === 'white_mode') {
@@ -544,26 +569,27 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         this.timeouts[id] = null;
                         this.props.context.setValue(this.state.rxData[id], value);
                     },
-                    parseInt(this.state.rxData.timeout, 10) || 200,
+                    parseInt(this.state.rxData.timeout as string, 10) || 200,
                 );
             }
         }
     };
 
     async rgbReadObjects(): Promise<void> {
-        const rgbObjects = {};
-        const idToRead = [];
+        const rgbObjects: Record<string, ioBroker.StateObject> = {};
+        const idToRead: string[] = [];
         for (const k in RGB_NAMES) {
             const id = RGB_NAMES[k];
             if (this.state.rxData[id] && this.state.rxData[id] !== 'nothing_selected') {
                 idToRead.push(this.state.rxData[id]);
             }
         }
-        const _objects = await this.props.context.socket.getObjectsById(idToRead);
-        const newState = {};
+        const _objects: Record<string, ioBroker.StateObject> = (await this.props.context.socket.getObjectsById(
+            idToRead,
+        )) as Record<string, ioBroker.StateObject>;
+        const newState: Partial<RGBLightState> = {};
 
-        for (const k in RGB_NAMES) {
-            const id = RGB_NAMES[k];
+        for (const id of RGB_NAMES) {
             if (this.state.rxData[id]) {
                 const object = _objects[this.state.rxData[id]];
                 if (object) {
@@ -573,11 +599,19 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         }
         newState.rgbObjects = rgbObjects;
 
-        // calculate array of color temperatures to draw slider
+        // calculate an array of color temperatures to draw slider
         if (rgbObjects.color_temperature) {
             const colors = [];
-            let min = parseInt(this.state.rxData.ct_min || rgbObjects.color_temperature?.common?.min, 10) || 2700;
-            let max = parseInt(this.state.rxData.ct_max || rgbObjects.color_temperature?.common?.max, 10) || 6000;
+            let min =
+                parseInt(
+                    (this.state.rxData.ct_min || rgbObjects.color_temperature?.common?.min) as any as string,
+                    10,
+                ) || 2700;
+            let max =
+                parseInt(
+                    (this.state.rxData.ct_max || rgbObjects.color_temperature?.common?.max) as any as string,
+                    10,
+                ) || 6000;
             if (max < min) {
                 const tmp = max;
                 max = min;
@@ -594,7 +628,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
             newState.colorTemperatures = [];
         }
 
-        this.setState(newState);
+        this.setState(newState as any);
     }
 
     rgbDestroy(): void {
@@ -610,12 +644,12 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         this.state.rxData.rgbType === 'hue/sat/lum' &&
         (!this.state.rgbObjects.saturation || !this.state.rgbObjects.luminance);
 
-    rgbGetWheelColor = () => {
-        let result = {
-            h: undefined,
-            s: undefined,
-            v: undefined,
-            a: undefined,
+    rgbGetWheelColor = (): HsvaColor => {
+        let result: HsvaColor = {
+            h: 0,
+            s: 0,
+            v: 0,
+            a: 1,
         };
 
         if (this.state.rxData.rgbType === 'hue/sat/lum') {
@@ -623,12 +657,14 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                 h: this.getPropertyValue('hue'),
                 s: this.rgbIsOnlyHue() ? 100 : this.getPropertyValue('saturation'),
                 l: this.rgbIsOnlyHue() ? 50 : this.getPropertyValue('luminance'),
+                a: 1,
             });
         } else if (this.state.rxData.rgbType === 'r/g/b' || this.state.rxData.rgbType === 'r/g/b/w') {
             result = rgbaToHsva({
                 r: this.getPropertyValue('red'),
                 g: this.getPropertyValue('green'),
                 b: this.getPropertyValue('blue'),
+                a: 1,
             });
         } else if (this.state.rxData.rgbType === 'rgb') {
             try {
@@ -661,19 +697,19 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return result;
     };
 
-    rgbSetWheelColor = (color): void => {
+    rgbSetWheelColor = (color: HsvaColor): void => {
         if (this.state.rxData.rgbType === 'hue/sat/lum') {
-            color = hsvaToHsla(color);
+            const _color = hsvaToHsla(color);
             this.rgbSetId('hue', color.h);
             if (!this.rgbIsOnlyHue()) {
-                this.rgbSetId('saturation', color.s);
-                this.rgbSetId('luminance', color.l);
+                this.rgbSetId('saturation', _color.s);
+                this.rgbSetId('luminance', _color.l);
             }
         } else if (this.state.rxData.rgbType === 'r/g/b' || this.state.rxData.rgbType === 'r/g/b/w') {
-            color = hsvaToRgba(color);
-            this.rgbSetId('red', color.r);
-            this.rgbSetId('green', color.g);
-            this.rgbSetId('blue', color.b);
+            const _color = hsvaToRgba(color);
+            this.rgbSetId('red', _color.r);
+            this.rgbSetId('green', _color.g);
+            this.rgbSetId('blue', _color.b);
         } else if (this.state.rxData.rgbType === 'rgb') {
             this.rgbSetId('rgb', hsvaToHex(color));
         } else if (this.state.rxData.rgbType === 'rgbw') {
@@ -702,7 +738,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return 0;
     };
 
-    rgbSetWhite = (color): void => {
+    rgbSetWhite = (color: number): void => {
         if (this.state.rxData.rgbType === 'r/g/b/w') {
             this.rgbSetId('white', color);
         } else if (this.state.rxData.rgbType === 'rgbw') {
@@ -716,15 +752,15 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         }
     };
 
-    rgbSetWhiteMode = (value): void => {
+    rgbSetWhiteMode = (value: boolean): void => {
         if (this.state.rxData.white_mode) {
-            this.rgbSetId('white_mode', !!value);
+            this.rgbSetId('white_mode', value);
         }
     };
 
-    rgbGetWhiteMode = () => {
+    rgbGetWhiteMode = (): boolean | undefined => {
         if (!this.state.rxData.white_mode) {
-            return null;
+            return undefined;
         }
         return this.getPropertyValue('white_mode');
     };
@@ -748,7 +784,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
             (this.state.rxData.rgbType === 'r/g/b/w' && this.state.rgbObjects.white)
         );
 
-    rgbIsHSL = (): boolean => this.state.rxData.rgbType === 'hue/sat/lum' && this.state.rgbObjects.hue;
+    rgbIsHSL = (): boolean => this.state.rxData.rgbType === 'hue/sat/lum' && !!this.state.rgbObjects.hue;
 
     rgbRenderSwitch(): React.ReactNode {
         return (
@@ -807,7 +843,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderWheelTypeSwitch(isWheelVisible: boolean, twoPanels, whiteMode): React.ReactNode {
+    rgbRenderWheelTypeSwitch(isWheelVisible: boolean, twoPanels: boolean, whiteMode?: boolean): React.ReactNode {
         if (!isWheelVisible) {
             return null;
         }
@@ -847,7 +883,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderBrightnessSlider(isWheelVisible: boolean, whiteMode): React.ReactNode {
+    rgbRenderBrightnessSlider(isWheelVisible: boolean, whiteMode?: boolean): React.ReactNode {
         if (!isWheelVisible || this.state.sketch || this.state.rxData.hideBrightness || whiteMode === true) {
             return null;
         }
@@ -861,7 +897,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderWheel(isWheelVisible: boolean, whiteMode: boolean): React.ReactNode {
+    rgbRenderWheel(isWheelVisible: boolean, whiteMode?: boolean): React.ReactNode {
         if (!isWheelVisible || whiteMode === true) {
             return null;
         }
@@ -908,7 +944,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderColorTemperature(whiteMode: boolean): React.ReactNode {
+    rgbRenderColorTemperature(whiteMode?: boolean): React.ReactNode {
         if (this.state.rxData.rgbType !== 'ct' || whiteMode === true) {
             return null;
         }
@@ -940,7 +976,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbRenderDialog(wheelVisible: boolean, whiteMode?: boolean): React.ReactNode {
+    rgbRenderDialog(wheelVisible: boolean, whiteMode?: boolean): React.JSX.Element | null {
         if (!this.state.dialog) {
             return null;
         }
@@ -956,7 +992,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                     {this.state.rxData.widgetTitle}
                     <IconButton
                         style={{ float: 'right', zIndex: 2 }}
-                        onClick={() => this.setState({ dialog: null })}
+                        onClick={() => this.setState({ dialog: false })}
                     >
                         <Close />
                     </IconButton>
@@ -976,13 +1012,14 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
-    rgbGetColor = () => {
+    rgbGetColor = (): string => {
         if (this.state.rxData.rgbType === 'ct') {
             const color = colorTemperatureToRGB(this.getPropertyValue('color_temperature'));
             return rgbaToHex({
                 r: color.red,
                 g: color.green,
                 b: color.blue,
+                a: 1,
             });
         }
         return hsvaToHex(this.rgbGetWheelColor());
@@ -1101,8 +1138,8 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
             } else {
                 props.className = `${props.className} vis-off`.trim();
             }
-            let icon = this.state.rxData.icon;
-            const style = {
+            let icon: React.JSX.Element | string = this.state.rxData.icon;
+            const style: React.CSSProperties = {
                 color: this.rgbGetColor(),
                 width: '90%',
                 height: '90%',
@@ -1171,13 +1208,15 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onMouseDown={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      this.pressTimeout && clearTimeout(this.pressTimeout);
-                                      this.pressTimeout = setTimeout(
+                                      if (this._pressTimeout) {
+                                          clearTimeout(this._pressTimeout);
+                                      }
+                                      this._pressTimeout = setTimeout(
                                           () => {
-                                              this.pressTimeout = null;
+                                              this._pressTimeout = null;
                                               this.setState({ dialog: true });
                                           },
-                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                          parseInt(this.state.rxData.pressDuration as string, 10) || 300,
                                       );
                                   }
                                 : undefined
@@ -1185,9 +1224,9 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onMouseUp={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      if (this.pressTimeout) {
-                                          clearTimeout(this.pressTimeout);
-                                          this.pressTimeout = null;
+                                      if (this._pressTimeout) {
+                                          clearTimeout(this._pressTimeout);
+                                          this._pressTimeout = null;
                                           this.rgbSetId('switch', !switchState);
                                       }
                                   }
@@ -1196,13 +1235,13 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onTouchStart={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      this.pressTimeout && clearTimeout(this.pressTimeout);
-                                      this.pressTimeout = setTimeout(
+                                      this._pressTimeout && clearTimeout(this._pressTimeout);
+                                      this._pressTimeout = setTimeout(
                                           () => {
-                                              this.pressTimeout = null;
+                                              this._pressTimeout = null;
                                               this.setState({ dialog: true });
                                           },
-                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                          parseInt(this.state.rxData.pressDuration as string, 10) || 300,
                                       );
                                   }
                                 : undefined
@@ -1210,9 +1249,9 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onTouchEnd={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      if (this.pressTimeout) {
-                                          clearTimeout(this.pressTimeout);
-                                          this.pressTimeout = null;
+                                      if (this._pressTimeout) {
+                                          clearTimeout(this._pressTimeout);
+                                          this._pressTimeout = null;
                                           this.rgbSetId('switch', !switchState);
                                       }
                                   }
@@ -1222,7 +1261,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                             backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
                             width: '100%',
                             height: '100%',
-                            borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
+                            borderRadius: parseInt(this.state.rxData.borderRadius as string, 10) || undefined,
                         }}
                     >
                         {icon}
@@ -1239,13 +1278,13 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onMouseDown={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      this.pressTimeout && clearTimeout(this.pressTimeout);
-                                      this.pressTimeout = setTimeout(
+                                      this._pressTimeout && clearTimeout(this._pressTimeout);
+                                      this._pressTimeout = setTimeout(
                                           () => {
-                                              this.pressTimeout = null;
+                                              this._pressTimeout = null;
                                               this.setState({ dialog: true });
                                           },
-                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                          parseInt(this.state.rxData.pressDuration as string, 10) || 300,
                                       );
                                   }
                                 : undefined
@@ -1253,9 +1292,9 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onMouseUp={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      if (this.pressTimeout) {
-                                          clearTimeout(this.pressTimeout);
-                                          this.pressTimeout = null;
+                                      if (this._pressTimeout) {
+                                          clearTimeout(this._pressTimeout);
+                                          this._pressTimeout = null;
                                           this.rgbSetId('switch', !switchState);
                                       }
                                   }
@@ -1264,13 +1303,13 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onTouchStart={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      this.pressTimeout && clearTimeout(this.pressTimeout);
-                                      this.pressTimeout = setTimeout(
+                                      this._pressTimeout && clearTimeout(this._pressTimeout);
+                                      this._pressTimeout = setTimeout(
                                           () => {
-                                              this.pressTimeout = null;
+                                              this._pressTimeout = null;
                                               this.setState({ dialog: true });
                                           },
-                                          parseInt(this.state.rxData.pressDuration, 10) || 300,
+                                          parseInt(this.state.rxData.pressDuration as string, 10) || 300,
                                       );
                                   }
                                 : undefined
@@ -1278,9 +1317,9 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         onTouchEnd={
                             this.state.rxData.toggleOnClick && this.state.rgbObjects.switch
                                 ? () => {
-                                      if (this.pressTimeout) {
-                                          clearTimeout(this.pressTimeout);
-                                          this.pressTimeout = null;
+                                      if (this._pressTimeout) {
+                                          clearTimeout(this._pressTimeout);
+                                          this._pressTimeout = null;
                                           this.rgbSetId('switch', !switchState);
                                       }
                                   }
@@ -1290,7 +1329,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                             backgroundColor: this.state.rxData.onlyCircle ? backgroundColor : undefined,
                             width: size,
                             height: size,
-                            borderRadius: parseInt(this.state.rxData.borderRadius, 10) || undefined,
+                            borderRadius: parseInt(this.state.rxData.borderRadius as string, 10) || undefined,
                         }}
                     >
                         {icon}
@@ -1313,14 +1352,14 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                 </>
             );
         } else if (this.state.rxData.externalDialog) {
-            return this.rgbRenderDialog(wheelVisible);
+            return this.rgbRenderDialog(wheelVisible)!;
         }
 
         if (this.state.rxData.noCard || props.widget.usedInWidget) {
-            return rgbContent;
+            return rgbContent || <div />;
         }
 
-        return this.wrapContent(rgbContent, null);
+        return this.wrapContent(rgbContent || <div />, null);
     }
 }
 

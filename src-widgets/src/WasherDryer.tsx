@@ -12,11 +12,16 @@ import 'moment/locale/ru';
 import 'moment/locale/uk';
 import 'moment/locale/zh-cn';
 
-import Generic from './Generic';
-import type { VisRxWidgetState } from './visRxWidget';
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState } from '@iobroker/types-vis-2';
 
-function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+import Generic from './Generic';
+
+function polarToCartesian(
+    centerX: number,
+    centerY: number,
+    radius: number,
+    angleInDegrees: number,
+): { x: number; y: number } {
     const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180.0);
 
     return {
@@ -25,7 +30,7 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     };
 }
 
-function describeArc(x, y, radius, startAngle, endAngle) {
+function describeArc(x: number, y: number, radius: number, startAngle: number, endAngle: number): string {
     const start = polarToCartesian(x, y, radius, startAngle);
     const end = polarToCartesian(x, y, radius, endAngle);
 
@@ -34,175 +39,177 @@ function describeArc(x, y, radius, startAngle, endAngle) {
     return ['M', start.x, start.y, 'A', radius, radius, 0, arcSweep, 1, end.x, end.y].join(' ');
 }
 
-const Dishes = props => (
-    <svg
-        style={props.style}
-        viewBox="0 0 44 35"
-    >
-        <rect
-            fill="#A1C8EC"
-            height="35"
-            width="44"
-            y="0.00283"
-            x="-0.01558"
-        />
-        <line
-            stroke="#7FABDA"
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            fill="none"
-            y2="14.71955"
-            x2="43.84278"
-            y1="14.71955"
-            x1="-0.01558"
-        />
-        <path
-            fill="#7FABDA"
-            d="m9.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="3.00283"
-            x2="8.98442"
-            y1="3.00283"
-            x1="4.98442"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="7.00283"
-            x2="6.98442"
-            y1="3.00283"
-            x1="6.98442"
-        />
-        <path
-            fill="#7FABDA"
-            d="m19.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="3.00283"
-            x2="18.98442"
-            y1="3.00283"
-            x1="14.98442"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="7.00283"
-            x2="16.98442"
-            y1="3.00283"
-            x1="16.98442"
-        />
-        <path
-            fill="#7FABDA"
-            d="m29.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="3.00283"
-            x2="28.98442"
-            y1="3.00283"
-            x1="24.98442"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="7.00283"
-            x2="26.98442"
-            y1="3.00283"
-            x1="26.98442"
-        />
-        <path
-            fill="#7FABDA"
-            d="m39.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="3.00283"
-            x2="38.98442"
-            y1="3.00283"
-            x1="34.98442"
-        />
-        <line
-            strokeMiterlimit="10"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            stroke="#7FABDA"
-            fill="none"
-            y2="7.00283"
-            x2="36.98442"
-            y1="3.00283"
-            x1="36.98442"
-        />
-        <path
-            fill="#6F98BC"
-            d="m16.98442,31.00283c0,-6.627 -5.373,-12 -12,-12c-1.787,0 -3.476,0.401 -5,1.102l0,14.898l16.283,0c0.448,-1.253 0.717,-2.592 0.717,-4z"
-        />
-        <path
-            fill="#7FABDA"
-            d="m12.98442,31.00283c0,-4.418 -3.582,-8 -8,-8c-1.893,0 -3.63,0.661 -5,1.76l0,10.24l11.918,0c0.685,-1.177 1.082,-2.54 1.082,-4z"
-        />
-        <path
-            fill="#568BB2"
-            d="m13.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
-        />
-        <path
-            fill="#7FABDA"
-            d="m13.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
-        />
-        <path
-            fill="#6F98BC"
-            d="m22.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
-        />
-        <path
-            fill="#7FABDA"
-            d="m22.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
-        />
-        <path
-            fill="#568BB2"
-            d="m31.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
-        />
-        <path
-            fill="#7FABDA"
-            d="m31.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
-        />
-    </svg>
-);
+function Dishes(props: { style?: React.CSSProperties }): React.JSX.Element {
+    return (
+        <svg
+            style={props.style}
+            viewBox="0 0 44 35"
+        >
+            <rect
+                fill="#A1C8EC"
+                height="35"
+                width="44"
+                y="0.00283"
+                x="-0.01558"
+            />
+            <line
+                stroke="#7FABDA"
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                fill="none"
+                y2="14.71955"
+                x2="43.84278"
+                y1="14.71955"
+                x1="-0.01558"
+            />
+            <path
+                fill="#7FABDA"
+                d="m9.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="3.00283"
+                x2="8.98442"
+                y1="3.00283"
+                x1="4.98442"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="7.00283"
+                x2="6.98442"
+                y1="3.00283"
+                x1="6.98442"
+            />
+            <path
+                fill="#7FABDA"
+                d="m19.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="3.00283"
+                x2="18.98442"
+                y1="3.00283"
+                x1="14.98442"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="7.00283"
+                x2="16.98442"
+                y1="3.00283"
+                x1="16.98442"
+            />
+            <path
+                fill="#7FABDA"
+                d="m29.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="3.00283"
+                x2="28.98442"
+                y1="3.00283"
+                x1="24.98442"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="7.00283"
+                x2="26.98442"
+                y1="3.00283"
+                x1="26.98442"
+            />
+            <path
+                fill="#7FABDA"
+                d="m39.98442,15.00283l-6,0l0,-5c0,-1.657 1.343,-3 3,-3l0,0c1.657,0 3,1.343 3,3l0,5z"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="3.00283"
+                x2="38.98442"
+                y1="3.00283"
+                x1="34.98442"
+            />
+            <line
+                strokeMiterlimit="10"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                stroke="#7FABDA"
+                fill="none"
+                y2="7.00283"
+                x2="36.98442"
+                y1="3.00283"
+                x1="36.98442"
+            />
+            <path
+                fill="#6F98BC"
+                d="m16.98442,31.00283c0,-6.627 -5.373,-12 -12,-12c-1.787,0 -3.476,0.401 -5,1.102l0,14.898l16.283,0c0.448,-1.253 0.717,-2.592 0.717,-4z"
+            />
+            <path
+                fill="#7FABDA"
+                d="m12.98442,31.00283c0,-4.418 -3.582,-8 -8,-8c-1.893,0 -3.63,0.661 -5,1.76l0,10.24l11.918,0c0.685,-1.177 1.082,-2.54 1.082,-4z"
+            />
+            <path
+                fill="#568BB2"
+                d="m13.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
+            />
+            <path
+                fill="#7FABDA"
+                d="m13.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
+            />
+            <path
+                fill="#6F98BC"
+                d="m22.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
+            />
+            <path
+                fill="#7FABDA"
+                d="m22.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
+            />
+            <path
+                fill="#568BB2"
+                d="m31.98442,19.00283c-1.586,0 -3.087,0.33 -4.471,0.891c4.381,1.788 7.471,6.085 7.471,11.109c0,1.408 -0.269,2.747 -0.717,4l9,0c0.448,-1.253 0.717,-2.592 0.717,-4c0,-6.627 -5.373,-12 -12,-12z"
+            />
+            <path
+                fill="#7FABDA"
+                d="m31.98442,23.00283c-0.024,0 -0.047,0.003 -0.071,0.003c1.904,2.124 3.071,4.921 3.071,7.997c0,1.408 -0.269,2.747 -0.717,4l4.636,0c0.685,-1.177 1.082,-2.54 1.082,-4c-0.001,-4.418 -3.583,-8 -8.001,-8z"
+            />
+        </svg>
+    );
+}
 
 const styles: Record<string, CSSProperties> = {
     rotatedItem: {
@@ -280,16 +287,21 @@ interface WasherDryerRxData {
     'dry-oid': string;
 }
 
-interface WasherDryerState extends VisRxWidgetState {}
+interface WasherDryerState extends VisRxWidgetState {
+    object: ioBroker.StateObject;
+}
 
-class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
-    refDiv: React.RefObject<HTMLDivElement | null>;
+export default class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
+    refDiv: React.RefObject<HTMLDivElement>;
     statusOID?: string;
-    updateInterval: ReturnType<typeof setInterval> | null = null;
+    _updateInterval: ReturnType<typeof setInterval> | null = null;
     constructor(props: WasherDryer['props']) {
         super(props);
         this.refDiv = React.createRef();
-        this.state.object = { common: {} };
+        this.state = {
+            ...this.state,
+            object: { common: {} } as ioBroker.StateObject,
+        };
         moment.locale(props.context.lang);
     }
 
@@ -381,16 +393,21 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
 
         this.statusOID = this.state.rxData['status-oid'];
         if (!this.statusOID || this.statusOID === 'nothing_selected') {
-            this.setState({ object: { common: {} } });
+            this.setState({ object: { common: {} } as ioBroker.StateObject });
             return;
         }
         // read object itself
         let object = await this.props.context.socket.getObject(this.statusOID);
-        object = { common: object?.common || {}, _id: object?._id };
+        object = {
+            common: (object?.common as ioBroker.StateCommon) || ({} as ioBroker.StateCommon),
+            _id: object?._id,
+            native: {},
+            type: 'state',
+        };
 
         if (object.common.states && Array.isArray(object.common.states)) {
             // convert to {'state1': 'state1', 'state2': 'state2', ...}
-            const states = {};
+            const states: Record<string, string> = {};
             object.common.states.forEach(state => (states[state] = state));
             object.common.states = states;
         }
@@ -401,8 +418,8 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
 
     componentWillUnmount(): void {
         super.componentWillUnmount();
-        this.updateInterval && clearInterval(this.updateInterval);
-        this.updateInterval = null;
+        this._updateInterval && clearInterval(this._updateInterval);
+        this._updateInterval = null;
     }
 
     async componentDidMount(): Promise<void> {
@@ -414,7 +431,19 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
         await this.propertiesUpdate();
     }
 
-    renderWasher(options): React.ReactNode {
+    renderWasher(options: {
+        circle: 'full' | 'short';
+        color?: string;
+        value: number;
+        backgroundColor?: string;
+        wSize: number;
+        style?: React.CSSProperties;
+        brandLen?: number;
+        statusColor?: string;
+        fontSize?: number;
+        timeText?: string;
+        status: 'run' | 'stop' | 'active' | 'inactive';
+    }): React.ReactNode {
         let circle;
         if (options.circle === 'full') {
             circle = (
@@ -511,9 +540,9 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
                             justifyContent: 'center',
                             color: this.state.rxData.brandColor || undefined,
                             fontSize:
-                                options.brandLen <= 3
+                                (options.brandLen || 0) <= 3
                                     ? Math.round(options.wSize / 10)
-                                    : Math.round(options.wSize / (options.brandLen * 2.5)),
+                                    : Math.round(options.wSize / (options.brandLen! * 2.5)),
                         }}
                     >
                         {this.state.rxData.brand}
@@ -566,12 +595,27 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
                 </div>
                 {/* divider */}
                 <div style={styles.divider} />
-                <div style={{ ...styles.footer, color: options.statusColor }}>{options.status}</div>
+                <div style={{ ...styles.footer, color: options.statusColor }}>
+                    {Generic.t(options.status.toLowerCase()).replace('vis_2_widgets_material_', '')}
+                </div>
             </div>
         );
     }
 
-    renderDishWasher(options): React.ReactNode {
+    renderDishWasher(options: {
+        // circle: 'full' | 'short';
+        // color: string;
+        // value: number;
+        // backgroundColor: string;
+        wSize: number;
+        style?: React.CSSProperties;
+        brandLen: number;
+        statusColor?: string;
+        running?: boolean;
+        fontSize?: number;
+        timeText?: string;
+        status: 'run' | 'stop' | 'active' | 'inactive';
+    }): React.ReactNode {
         return (
             <div style={options.style}>
                 {/* header */}
@@ -626,17 +670,38 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
                 </div>
                 {/* divider */}
                 <div style={styles.divider} />
-                <div style={{ ...styles.footer, color: options.statusColor }}>{options.status}</div>
+                <div style={{ ...styles.footer, color: options.statusColor }}>
+                    {Generic.t(options.status.toLowerCase()).replace('vis_2_widgets_material_', '')}
+                </div>
             </div>
         );
     }
 
     renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
-        const options = {};
+        const options: {
+            circle: 'full' | 'short';
+            color?: string;
+            value: number;
+            backgroundColor?: string;
+            wSize: number;
+            style?: React.CSSProperties;
+            brandLen: number;
+            statusColor?: string;
+            fontSize?: number;
+            timeText?: string;
+            status: 'inactive' | 'stop' | 'run' | 'active';
+            running?: boolean;
+        } = {
+            circle: 'short',
+            wSize: 0,
+            status: 'inactive',
+            value: 0,
+            brandLen: 50,
+        };
 
-        const width = this.refDiv.current?.clientWidth;
-        const height = this.refDiv.current?.clientHeight;
+        const width = this.refDiv.current?.clientWidth || 0;
+        const height = this.refDiv.current?.clientHeight || 0;
         const ratio = 1.3;
         if (width) {
             if (width * ratio < height) {
@@ -669,6 +734,7 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
             options.running = false;
             options.status = 'inactive';
         } else if (this.state.object?.common?.states) {
+            // @ts-expect-error it is OK
             options.status = (this.state.object.common.states[mode] || mode || '').toString().toLowerCase();
             options.running =
                 options.status.includes('run') ||
@@ -679,8 +745,6 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
                 options.status.includes('run') ||
                 (options.status.includes('active') && !options.status.includes('inactive'));
         }
-
-        options.status = Generic.t(options.status.toLowerCase()).replace('vis_2_widgets_material_', '');
 
         options.backgroundColor = '#264d72';
         options.color = '#3679be';
@@ -732,7 +796,7 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
                     options.timeText = `${hours}:${minutes.toString().padStart(2, '0')}`;
                 }
             }
-            options.circle = options.circle || 'short';
+            options.circle ||= 'short';
             options.fontSize = Math.round(options.wSize / 5);
         } else if (this.state.rxData['end-time-oid'] && this.state.values[`${this.state.rxData['end-time-oid']}.val`]) {
             const endTime = new Date(this.state.values[`${this.state.rxData['end-time-oid']}.val`]);
@@ -742,11 +806,11 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
             options.fontSize = Math.round(options.wSize / 10);
         }
 
-        if (options.timeText && !this.updateInterval) {
-            this.updateInterval = setInterval(() => this.forceUpdate(), 30000);
-        } else if (!options.timeText && this.updateInterval) {
-            clearInterval(this.updateInterval);
-            this.updateInterval = null;
+        if (options.timeText && !this._updateInterval) {
+            this._updateInterval = setInterval(() => this.forceUpdate(), 30000);
+        } else if (!options.timeText && this._updateInterval) {
+            clearInterval(this._updateInterval);
+            this._updateInterval = null;
         }
 
         const content = (
@@ -769,8 +833,11 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
 }
 `}
                 </style>
-                {options.wSize && this.state.rxData.type !== 'dish' ? this.renderWasher(options) : null}
-                {options.wSize && this.state.rxData.type === 'dish' ? this.renderDishWasher(options) : null}
+                {options.wSize
+                    ? this.state.rxData.type === 'dish'
+                        ? this.renderDishWasher(options)
+                        : this.renderWasher(options)
+                    : null}
             </div>
         );
 
@@ -781,5 +848,3 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
         return this.wrapContent(content);
     }
 }
-
-export default WasherDryer;

@@ -1,6 +1,7 @@
-import React, { type CSSProperties } from 'react';
+import React from 'react';
 
 import Color from 'color';
+// @ts-expect-error no types
 import ColorThief from 'colorthief';
 
 import {
@@ -15,14 +16,20 @@ import {
     VolumeMute,
 } from '@mui/icons-material';
 
-import type { SxProps } from '@mui/material';
 import { Card, CardContent, IconButton, Slider } from '@mui/material';
-import Generic from './Generic';
-import type { IobTheme, LegacyConnection } from '@iobroker/adapter-react-v5';
-import type { VisRxWidgetState } from './visRxWidget';
-import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, WidgetData } from '@iobroker/types-vis-2';
 
-const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
+import type { IobTheme, LegacyConnection } from '@iobroker/adapter-react-v5';
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    RxWidgetInfoAttributesField,
+    WidgetData,
+    VisRxWidgetState,
+} from '@iobroker/types-vis-2';
+
+import Generic from './Generic';
+
+const styles: Record<string, any> = {
     content: {
         display: 'flex',
         flex: 1,
@@ -46,7 +53,7 @@ const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
     },
     zIndex: { zIndex: 1 },
     player: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
-    volumeSlider: theme => ({
+    volumeSlider: (theme: IobTheme): any => ({
         color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
         '& .MuiSlider-track': {
             border: 'none',
@@ -132,18 +139,23 @@ interface PlayerRxData {
 
 interface PlayerState extends VisRxWidgetState {
     volume: number;
-    volumeObject: ioBroker.Object;
+    volumeObject: ioBroker.StateObject | null;
+    coverColor?: [r: number, g: number, b: number];
 }
 
 class Player extends Generic<PlayerRxData, PlayerState> {
-    coverRef: React.RefObject<HTMLImageElement | null>;
+    coverRef: React.RefObject<HTMLImageElement>;
 
     setVolumeTimer: ReturnType<typeof setTimeout> | null = null;
 
     constructor(props: Player['props']) {
         super(props);
         this.coverRef = React.createRef();
-        (this.state as PlayerState).volume = 0;
+        this.state = {
+            ...this.state,
+            volume: 0,
+            volumeObject: null,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -266,7 +278,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                 const volume = await this.props.context.socket.getState(this.state.rxData.volume);
                 this.setState({ volumeObject, volume: (volume?.val as number) || 0 });
             }
-        } catch (e) {
+        } catch {
             // ignore
         }
     }
@@ -277,8 +289,10 @@ class Player extends Generic<PlayerRxData, PlayerState> {
     }
 
     componentWillUnmount(): void {
-        this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
-        this.setVolumeTimer = undefined;
+        if (this.setVolumeTimer) {
+            clearTimeout(this.setVolumeTimer);
+            this.setVolumeTimer = null;
+        }
         super.componentWillUnmount();
     }
 
@@ -303,8 +317,9 @@ class Player extends Generic<PlayerRxData, PlayerState> {
             .padStart(2, '0')}`;
     };
 
-    getColor() {
-        return (this.state.rxData.color ? Color(this.state.rxData.color).rgb().color : null) || this.state.coverColor;
+    getColor(): [r: number, g: number, b: number] | undefined {
+        // @ts-expect-error fix later
+        return (this.state.rxData.color ? Color(this.state.rxData.color).rgb().array() : null) || this.state.coverColor;
     }
 
     wrapContent(
@@ -334,7 +349,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                     margin: 4,
                     position: 'relative',
                     backgroundImage: 'none',
-                    backgroundColor: coverColor ? `rgb(${coverColor.join(', ')}` : null,
+                    backgroundColor: coverColor ? `rgb(${coverColor.join(', ')}` : undefined,
                     color,
                 }}
                 onClick={onCardClick}
@@ -369,7 +384,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                 onLoad={() => {
                                     const img = this.coverRef.current;
                                     const colorThief = new ColorThief();
-                                    const _coverColor = colorThief.getColor(img);
+                                    const _coverColor: [r: number, g: number, b: number] = colorThief.getColor(img);
                                     this.setState({ coverColor: _coverColor });
                                 }}
                             />
@@ -393,7 +408,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                     right: 0,
                                     backgroundImage: coverColor
                                         ? `linear-gradient(to right, rgb(${coverColor.join(', ')}), rgba(${coverColor.join(', ')}, 0))`
-                                        : null,
+                                        : undefined,
                                 }}
                             ></div>
                         </div>
@@ -454,7 +469,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
         }
 
         const coverColor = this.getColor();
-        let color;
+        let color: string | undefined;
         if (coverColor) {
             color = (coverColor[0] + coverColor[1] + coverColor[2]) / 3 < 128 ? 'white' : 'black';
         }
@@ -587,9 +602,11 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                             value={this.getPropertyValue('elapsed') || 0}
                             valueLabelDisplay="auto"
                             valueLabelFormat={Player.getTimeString}
-                            readOnly
-                            // onChange={e =>
-                            //    this.props.context.setValue(this.state.rxData.elapsed, e.target.value)}
+                            slotProps={{
+                                input: {
+                                    readOnly: true,
+                                },
+                            }}
                         />
                     ) : null}
                     {this.state.rxData.duration && this.state.rxData.duration !== 'nothing_selected'

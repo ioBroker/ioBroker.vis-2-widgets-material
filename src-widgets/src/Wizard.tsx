@@ -15,16 +15,23 @@ import {
     TextField,
 } from '@mui/material';
 import { Add, Close, ExpandMore, Lightbulb, QuestionMark } from '@mui/icons-material';
-import type { PatternControl } from '@iobroker/type-detector';
 import { Icon } from '@iobroker/adapter-react-v5';
 
 import Generic from './Generic';
 import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
-import type { VisRxWidgetState, VisRxWidget } from './visRxWidget';
-import type { CustomPaletteProperties, RxWidgetInfo } from '@iobroker/types-vis-2';
+import type {
+    VisRxWidgetState,
+    AnyWidgetId,
+    CustomPaletteProperties,
+    DetectorResult,
+    Project,
+    RxWidgetInfo,
+    SingleWidget,
+    SingleWidgetId,
+} from '@iobroker/types-vis-2';
 
 const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }): React.ReactNode => {
-    const [rooms, setRooms] = useState<null | Awaited<ReturnType<(typeof props)['helpers']['detectDevices']>>>(null);
+    const [rooms, setRooms] = useState<null | DetectorResult[]>(null);
     const [devicesChecked, setDevicesChecked] = useState<Record<string, boolean>>({});
     const [roomsChecked, setRoomsChecked] = useState<Record<string, boolean>>({});
     const [onePage, setOnePage] = useState(window.localStorage.getItem('AppWizard.onePage') !== 'false');
@@ -33,8 +40,8 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
     );
 
     useEffect(() => {
-        (async () => {
-            let _rooms: PatternControl[] = (await props.helpers?.detectDevices(props.socket)) || [];
+        void (async () => {
+            let _rooms: DetectorResult[] = (await props.helpers?.detectDevices(props.socket)) || [];
             // ignore buttons
             _rooms.forEach(room => {
                 room.devices = room.devices.filter(device => device.common.role !== 'button');
@@ -55,9 +62,9 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
             });
 
             setRooms(_rooms);
-            const _checked = {};
-            const _devicesChecked = {};
-            const _roomsChecked = {};
+            const _checked: Record<string, boolean> = {};
+            const _devicesChecked: Record<string, boolean> = {};
+            const _roomsChecked: Record<string, boolean> = {};
             _rooms.forEach(room => {
                 _roomsChecked[room._id] = true;
                 room.devices.forEach(device => {
@@ -68,11 +75,11 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
             setDevicesChecked(_devicesChecked);
             setRoomsChecked(_roomsChecked);
         })();
-    }, [props.helpers, props.open, props.socket]);
+    }, [props.helpers, props.socket]);
 
-    const handleSubmit = () => {
-        const project = JSON.parse(JSON.stringify(props.project));
-        let newKey = props.helpers?.getNewWidgetIdNumber(project) || 1000;
+    const handleSubmit = (): void => {
+        const project: Project = JSON.parse(JSON.stringify(props.project));
+        let newKey = props.helpers?.getNewWidgetIdNumber(false, project) || 1000;
         let changed = false;
         let firstCreatedRoom = '';
         rooms!.forEach(room => {
@@ -84,14 +91,15 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                 return;
             }
             let viewId = Generic.getText(room.common.name);
-            let roomWidget;
+            let roomWidget: SingleWidget | undefined;
             if (onePage) {
                 roomWidget = Object.values(project[props.selectedView].widgets).find(
                     _widget => _widget.data.wizardId === room._id,
                 );
 
-                roomWidget = roomWidget || {
+                roomWidget ||= {
                     tpl: 'tplMaterial2Switches',
+                    widgetSet: 'vis-2-widgets-material',
                     data: {
                         name: Generic.getText(room.common.name),
                         widgetTitle: Generic.getText(room.common.name),
@@ -114,21 +122,21 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                     if (!devicesChecked[device._id]) {
                         return;
                     }
-                    const widgetId = `w${newKey.toString().padStart(6, '0')}`;
+                    const widgetId: SingleWidgetId = `w${newKey.toString().padStart(6, '0')}`;
                     changed = true;
-                    if (getDeviceWidgetOnePage(device, widgetId, roomWidget, project[viewId], standardIcons)) {
+                    if (getDeviceWidgetOnePage(device, widgetId, roomWidget!, project[viewId], standardIcons)) {
                         newKey++;
                     }
                 });
 
                 // try to find existing widget
                 const projectRoomWidget = Object.keys(project[props.selectedView].widgets).find(
-                    _widget => roomWidget === project[props.selectedView].widgets[_widget],
+                    _widget => roomWidget === project[props.selectedView].widgets[_widget as AnyWidgetId],
                 );
 
                 // if not found => add new widget
                 if (!projectRoomWidget) {
-                    const roomWidgetId = `w${newKey.toString().padStart(6, '0')}`;
+                    const roomWidgetId: SingleWidgetId = `w${newKey.toString().padStart(6, '0')}`;
                     project[props.selectedView].widgets[roomWidgetId] = roomWidget;
                     newKey++;
                 }
@@ -139,24 +147,26 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                 if (projectView) {
                     viewId = projectView;
                 } else if (project[viewId]) {
-                    project[viewId].settings.wizardId = room._id;
+                    project[viewId].settings!.wizardId = room._id;
                 } else {
                     // create a new view
                     project[viewId] = {
                         name: Generic.getText(room.common.name),
-                        parentId: null,
+                        parentId: undefined,
                         settings: {
                             style: {},
                             wizardId: room._id,
                         },
+                        rerender: false,
+                        filterList: [],
                         widgets: {},
-                        activeWidgets: {},
+                        activeWidgets: [],
                     };
                     if (room.common.icon?.startsWith('data:image')) {
-                        project[viewId].settings.navigationIcon = room.common.icon;
+                        project[viewId].settings!.navigationIcon = room.common.icon;
                     }
                     if (room.common.color) {
-                        project[viewId].settings.navigationBackground = room.common.color;
+                        project[viewId].settings!.navigationBackground = room.common.color;
                     }
 
                     // add new view to opened views
@@ -173,19 +183,20 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                     }
 
                     const projectWidget = Object.keys(project[viewId].widgets).find(
-                        _widget =>
-                            project[viewId].widgets && project[viewId].widgets[_widget].data?.wizardId === device._id,
+                        _widget => project[viewId].widgets?.[_widget as AnyWidgetId].data?.wizardId === device._id,
                     );
 
                     if (!projectWidget) {
                         changed = true;
                         const widget = getDeviceWidget(device, standardIcons);
                         if (widget) {
-                            const widgetId = `w${newKey.toString().padStart(6, '0')}`;
+                            const widgetId: SingleWidgetId = `w${newKey.toString().padStart(6, '0')}`;
                             project[viewId].widgets[widgetId] = widget;
                             newKey++;
                         } else {
-                            console.warn(`Cannot find widget for ${device._id} (${device.common.name})`);
+                            console.warn(
+                                `Cannot find widget for ${device._id} (${JSON.stringify(device.common.name)})`,
+                            );
                         }
                     } else {
                         // merge ??
@@ -198,7 +209,7 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
         if (changed && firstCreatedRoom) {
             setTimeout(() => {
                 // open first created room
-                props.changeView && props.changeView(firstCreatedRoom);
+                props.changeView?.(firstCreatedRoom);
             }, 100);
         }
         props.onClose();
@@ -206,7 +217,7 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
 
     const allChecked = rooms?.every(room => roomsChecked[room._id]);
     const anyChecked = rooms?.some(room => roomsChecked[room._id]);
-    const counters = rooms?.map(room => room.devices.reduce((a, b) => a + (devicesChecked[b._id] ? 1 : 0), 0));
+    const counters = rooms?.map(room => room.devices.reduce((a, b) => a + (devicesChecked[b._id] ? 1 : 0), 0)) || [];
 
     return (
         <Dialog
@@ -214,8 +225,8 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
             open={!0}
             onClose={props.onClose}
             fullWidth
-            PaperProps={{
-                style: {
+            sx={{
+                '& .MuiDialog-paper': {
                     maxHeight: 'calc(100% - 80px)',
                     height: 'calc(100% - 80px)',
                 },
@@ -322,7 +333,7 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                                                 <Checkbox
                                                     title={Generic.t('Select/Unselect all devices in room')}
                                                     indeterminate={
-                                                        counters[roomId] !== room.devices.length && counters[roomId]
+                                                        counters[roomId] !== room.devices.length && !!counters[roomId]
                                                     }
                                                     checked={counters[roomId] === room.devices.length}
                                                     disabled={!roomsChecked[room._id]}
@@ -354,8 +365,8 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                                                 >
                                                     {Generic.t(
                                                         '%s of %s devices selected',
-                                                        counters[roomId],
-                                                        room.devices.length,
+                                                        counters[roomId]?.toString() || '0',
+                                                        room.devices.length.toString(),
                                                     )}
                                                 </div>
                                             </div>
@@ -448,6 +459,7 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                     variant="contained"
                     onClick={() => props.onClose()}
                     startIcon={<Close />}
+                    // @ts-expect-error grey could be
                     color="grey"
                 >
                     {Generic.t('Cancel')}
@@ -498,13 +510,7 @@ const WizardButton = (props: CustomPaletteProperties): React.ReactNode => {
     ];
 };
 
-declare global {
-    interface Window {
-        visRxWidget: typeof VisRxWidget;
-    }
-}
-
-class Wizard extends window.visRxWidget<Record<string, any>, VisRxWidgetState> {
+export default class Wizard extends window.visRxWidget<Record<string, any>, VisRxWidgetState> {
     static getWidgetInfo(): RxWidgetInfo {
         return {
             id: 'tplMaterial2Wizard',
@@ -523,5 +529,3 @@ class Wizard extends window.visRxWidget<Record<string, any>, VisRxWidgetState> {
         };
     }
 }
-
-export default Wizard;

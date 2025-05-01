@@ -1,16 +1,17 @@
 import React, { type CSSProperties } from 'react';
 
-
 import { Button, Chip, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material';
-import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
 import {
     Backspace,
     Check,
     RemoveModerator as RemoveModeratorIcon,
     Security as SecurityIcon,
 } from '@mui/icons-material';
-import Generic from './Generic';
+
+import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
 import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+
+import Generic from './Generic';
 
 const styles: Record<string, CSSProperties> = {
     pinGrid: {

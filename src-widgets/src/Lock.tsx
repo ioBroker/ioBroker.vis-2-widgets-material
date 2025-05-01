@@ -1,6 +1,5 @@
 import React, { type CSSProperties } from 'react';
 
-
 import {
     Button,
     CircularProgress,
@@ -22,11 +21,17 @@ import {
     Close,
 } from '@mui/icons-material';
 
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    VisWidgetCommand,
+    WidgetData,
+    VisRxWidgetState,
+} from '@iobroker/types-vis-2';
+
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
-import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
-import type { VisRxWidgetState } from './visRxWidget';
 
 const styles: Record<string, CSSProperties> = {
     content: {
@@ -82,7 +87,7 @@ interface LockState extends VisRxWidgetState {
     dialog: boolean | null;
 }
 
-class Lock extends Generic<LockRxData, LockState> {
+export default class Lock extends Generic<LockRxData, LockState> {
     constructor(props: Lock['props']) {
         super(props);
         (this.state as LockState).dialogPin = false;
@@ -161,11 +166,12 @@ class Lock extends Generic<LockRxData, LockState> {
                         {
                             name: 'pincode',
                             label: 'pincode',
-                            onChange: async (field, data, changeData /* , socket */) => {
-                                if (data.pincode && data.pincode.match(/[^0-9]/g)) {
+                            onChange: (field, data, changeData /* , socket */): Promise<void> => {
+                                if (data.pincode?.match(/[^0-9]/g)) {
                                     data.pincode = data.pincode.replace(/[^0-9]/g, '');
                                     changeData(data);
                                 }
+                                return Promise.resolve();
                             },
                             hidden: (data: WidgetData) => !!data['pincode-oid'],
                         },
@@ -378,6 +384,7 @@ class Lock extends Generic<LockRxData, LockState> {
                     </Button>
                     <Button
                         variant="contained"
+                        // @ts-expect-error grey is a valid color
                         color="grey"
                         autoFocus
                         onClick={() => this.setState({ confirmDialog: false })}
@@ -520,5 +527,3 @@ class Lock extends Generic<LockRxData, LockState> {
         });
     }
 }
-
-export default Lock;

@@ -1,4 +1,4 @@
-import React, { type CSSProperties } from 'react';
+import React from 'react';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -72,70 +72,87 @@ import {
 import { TbSquareLetterW } from 'react-icons/tb';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
-import { Icon, Utils } from '@iobroker/adapter-react-v5';
+import { Icon, type LegacyConnection, Utils } from '@iobroker/adapter-react-v5';
+import type {
+    AnyWidgetId,
+    GroupWidget,
+    RxWidgetInfo,
+    RxWidgetInfoAttributesField,
+    SingleWidget,
+    VisRxWidgetProps,
+    VisRxWidgetStateValues,
+    WidgetData,
+} from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
-import BlindsBase, { BlindsBaseRxData, BlindsBaseState, STYLES } from './Components/BlindsBase';
+import BlindsBase, { type BlindsBaseRxData, type BlindsBaseState, STYLES } from './Components/BlindsBase';
 import WindowClosed from './Components/WindowClosed';
 import DoorAnimation from './Components/DoorAnimation';
 import LockAnimation from './Components/LockAnimation';
-import { colorTemperatureToRGB, RGB_NAMES, RGB_ROLES } from './RGBLight';
+import { colorTemperatureToRGB, RGB_NAMES, type RGB_NAMES_TYPE, RGB_ROLES } from './RGBLight';
 import {
     FanIcon,
     VACUUM_CHARGING_STATES,
     VACUUM_CLEANING_STATES,
     VACUUM_ID_ROLES,
+    type VACUUM_ID_ROLES_TYPE,
     VACUUM_PAUSE_STATES,
     vacuumGetStatusColor,
 } from './Vacuum';
 import VacuumCleanerIcon from './Components/VacuumIcon';
-import { RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { WidgetType } from './deviceWidget';
 
-const VacuumIcon = () => (
-    <svg
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-    >
-        <path
-            strokeWidth="1"
-            fill="none"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            stroke="currentColor"
-            d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z"
-        />
-        <path
-            strokeWidth="1"
-            fill="none"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            stroke="currentColor"
-            d="M14 9a2 2 0 1 1 -4 0a2 2 0 0 1 4 0z"
-        />
-        <path
-            strokeWidth="2"
-            fill="none"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            stroke="currentColor"
-            d="M12 16h.01"
-        />
-    </svg>
-);
-
-// import ObjectChart from './ObjectChart';
+function VacuumIcon(): React.JSX.Element {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                strokeWidth="1"
+                fill="none"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                stroke="currentColor"
+                d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z"
+            />
+            <path
+                strokeWidth="1"
+                fill="none"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                stroke="currentColor"
+                d="M14 9a2 2 0 1 1 -4 0a2 2 0 0 1 4 0z"
+            />
+            <path
+                strokeWidth="2"
+                fill="none"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                stroke="currentColor"
+                d="M12 16h.01"
+            />
+        </svg>
+    );
+}
 
 const HISTORY = ['influxdb', 'sql', 'history'];
 
 echarts.use([TimelineComponent, LineChart, SVGRenderer]);
 
-const loadStates = async (field, data, changeData, socket, index) => {
+async function loadStates(
+    field: RxWidgetInfoAttributesField,
+    data: WidgetData,
+    changeData: (newData: WidgetData) => void,
+    socket: LegacyConnection,
+    index?: number,
+): Promise<void> {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
             const id = data[field.name!].split('.');
             id.pop();
-            const states = await socket.getObjectView(`${id.join('.')}.`, `${id.join('.')}.\u9999`, 'state');
+            const states = await socket.getObjectViewSystem('state', `${id.join('.')}.`, `${id.join('.')}.\u9999`);
             if (states) {
                 let changed = false;
                 Object.values(states).forEach(state => {
@@ -144,7 +161,7 @@ const loadStates = async (field, data, changeData, socket, index) => {
                         role &&
                         RGB_ROLES[role] &&
                         (!data[role] || data[role] === 'nothing_selected') &&
-                        field !== role
+                        field.name !== role
                     ) {
                         changed = true;
                         if (RGB_ROLES[role] === 'rgb') {
@@ -166,9 +183,15 @@ const loadStates = async (field, data, changeData, socket, index) => {
             }
         }
     }
-};
+}
 
-const vacuumLoadStates = async (field, data, changeData, socket, index) => {
+const vacuumLoadStates = async (
+    field: RxWidgetInfoAttributesField,
+    data: WidgetData,
+    changeData: (newData: WidgetData) => void,
+    socket: LegacyConnection,
+    index?: number,
+): Promise<void> => {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
         if (object && object.common) {
@@ -198,7 +221,7 @@ const vacuumLoadStates = async (field, data, changeData, socket, index) => {
                 }
 
                 Object.keys(VACUUM_ID_ROLES).forEach(name => {
-                    if (!data[`vacuum-${name}-oid${index}`]) {
+                    if (!data[`vacuum-${name as VACUUM_ID_ROLES_TYPE}-oid${index}`]) {
                         // try to find state
                         Object.values(states).forEach(state => {
                             const _parts = state._id.split('.');
@@ -211,12 +234,14 @@ const vacuumLoadStates = async (field, data, changeData, socket, index) => {
                             }
 
                             const role = state.common.role;
-                            if (VACUUM_ID_ROLES[name].role && !role?.includes(VACUUM_ID_ROLES[name].role)) {
+                            const vacuumRole = VACUUM_ID_ROLES[name as VACUUM_ID_ROLES_TYPE].role;
+                            if (vacuumRole && !role?.includes(vacuumRole)) {
                                 return;
                             }
-                            if (VACUUM_ID_ROLES[name].name) {
-                                const last = state._id.split('.').pop().toLowerCase();
-                                if (!last.includes(VACUUM_ID_ROLES[name].name)) {
+                            const vacuumName = VACUUM_ID_ROLES[name as VACUUM_ID_ROLES_TYPE].name;
+                            if (vacuumName) {
+                                const last = state._id.split('.').pop()!.toLowerCase();
+                                if (!last.includes(vacuumName)) {
                                     return;
                                 }
                             }
@@ -233,7 +258,7 @@ const vacuumLoadStates = async (field, data, changeData, socket, index) => {
     }
 };
 
-const styles: Record<string, CSSProperties> = {
+const styles: Record<string, any> = {
     intermediate: {
         opacity: 0.2,
     },
@@ -466,13 +491,15 @@ interface SwitchesRxData extends BlindsBaseRxData {
     noCard: boolean;
     widgetTitle: string;
     count: number;
-    type: string;
+    type: 'lines' | 'buttons';
     allSwitch: boolean;
-    orientation: string;
+    orientation: 'h' | 'v' | 'f';
     buttonsWidth: number;
+    // TODO: Check if it really used
+    buttonsHeight: number;
     doNotWantIncludeWidgets: boolean;
     [key: `oid${number}`]: string;
-    [key: `type${number}`]: string;
+    [key: `type${number}`]: WidgetType;
     [key: `noIcon${number}`]: boolean;
     [key: `icon${number}`]: string;
     [key: `iconSmall${number}`]: string;
@@ -485,7 +512,7 @@ interface SwitchesRxData extends BlindsBaseRxData {
     [key: `unit${number}`]: string;
     [key: `step${number}`]: string;
     [key: `hideChart${number}`]: boolean;
-    [key: `chartPeriod${number}`]: number;
+    [key: `chartPeriod${number}`]: string;
     [key: `buttonText${number}`]: string;
     [key: `buttonIcon${number}`]: string;
     [key: `buttonImage${number}`]: string;
@@ -499,26 +526,16 @@ interface SwitchesRxData extends BlindsBaseRxData {
     [key: `infoActiveImage${number}`]: string;
     [key: `infoInactiveColor${number}`]: string;
     [key: `infoActiveColor${number}`]: string;
-    [key: `widget${number}`]: string;
+    [key: `widget${number}`]: AnyWidgetId;
     [key: `height${number}`]: number;
     [key: `position${number}`]: number;
     [key: `hide${number}`]: boolean;
     [key: `actual${number}`]: string;
     [key: `boost${number}`]: string;
     [key: `party${number}`]: string;
-    [key: `switch${number}`]: string;
-    [key: `brightness${number}`]: string;
-    [key: `rgbType${number}`]: string;
-    [key: `red${number}`]: string;
-    [key: `green${number}`]: string;
-    [key: `blue${number}`]: string;
-    [key: `white${number}`]: string;
-    [key: `color_temperature${number}`]: string;
+    [key: `rgbType${number}`]: 'rgb' | 'rgbw' | 'r/g/b' | 'r/g/b/w' | 'hue/sat/lum' | 'ct';
     [key: `ct_min${number}`]: number;
     [key: `ct_max${number}`]: number;
-    [key: `hue${number}`]: string;
-    [key: `saturation${number}`]: string;
-    [key: `luminance${number}`]: string;
     [key: `hideBrightness${number}`]: boolean;
     [key: `whiteMode${number}`]: boolean;
     [key: `noRgbPalette${number}`]: boolean;
@@ -530,8 +547,8 @@ interface SwitchesRxData extends BlindsBaseRxData {
     [key: `doNotConfirm${number}`]: boolean;
     [key: `noLockAnimation${number}`]: boolean;
     [key: `lockColor${number}`]: string;
-    [key: `pincodeReturnButton${number}`]: string;
-    [key: `timeout${number}`]: number;
+    [key: `pincodeReturnButton${number}`]: 'submit' | 'backspace';
+    [key: `timeout${number}`]: number | string;
     [key: `status${number}`]: string;
     [key: `battery${number}`]: string;
     [key: `is_charging${number}`]: string;
@@ -541,7 +558,8 @@ interface SwitchesRxData extends BlindsBaseRxData {
     [key: `main_brush_left${number}`]: string;
     [key: `side_brush_left${number}`]: string;
     [key: `cleaning_count${number}`]: string;
-    [key: `vacuum-use-rooms${number}`]: boolean;
+    [key: `vacuum-${VACUUM_ID_ROLES_TYPE}${number}`]: boolean;
+    [key: `vacuum-status-oid${number}`]: string;
     [key: `vacuum-map64-oid${number}`]: string;
     [key: `useDefaultPicture${number}`]: boolean;
     [key: `ownImage${number}`]: string;
@@ -549,32 +567,81 @@ interface SwitchesRxData extends BlindsBaseRxData {
     [key: `home${number}`]: string;
     [key: `pause${number}`]: string;
     [key: `visibility-oid${number}`]: string;
-    [key: `visibility-cond${number}`]: string;
+    [key: `visibility-cond${number}`]:
+        | '=='
+        | '!='
+        | '<='
+        | '>='
+        | '<'
+        | '>'
+        | 'consist'
+        | 'not consist'
+        | 'exist'
+        | 'not exist';
     [key: `visibility-val${number}`]: string;
+    [key: `${RGB_NAMES_TYPE}${number}`]: string;
+    // TODO: Check if it really used
+    [key: `width${number}`]: string;
 }
 
+type SecondaryNames = RGB_NAMES_TYPE | 'oid' | 'actual' | VACUUM_ID_ROLES_TYPE | 'rooms';
+
 interface SwitchesState extends BlindsBaseState {
+    showControlDialog: number | null;
+    inputValue: string | number | boolean;
+    showSetButton: any[];
+    inputValues: string[];
+    historyData: Record<string, any>;
+    chartWidth: Record<string, number>;
+    chartHeight: Record<string, number>;
+    sketch: Record<string, number>;
+
+    secondaryObjects: Partial<Record<SecondaryNames, ioBroker.StateObject>>[];
+
+    lockConfirmDialog: null | { index: number; oid: 'open' | 'oid' };
+
+    dialogPin: null | { index: number; oid: 'open' | 'oid' };
+    invalidPin: boolean;
+    lockPinInput: string;
+
+    showRoomsMenu: (EventTarget & HTMLAnchorElement) | null;
 }
 
 class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
-    timeouts: Record<number, Record<string, ReturnType<typeof setTimeout>>>;
-    constructor(props: Switches['props']) {
+    private timeouts: Record<number, Record<string, ReturnType<typeof setTimeout> | null>> = {};
+    private history: Record<number, any> = {};
+    // this.refs name does not work (I don't know why)
+    private _refs: (React.RefObject<any> | null)[] = [];
+    private widgetRef: Record<number, React.RefObject<any>> = {};
+    private lastRxData = '';
+    private doNotWantIncludeWidgets: boolean;
+    private updateDialogChartInterval: ReturnType<typeof setInterval> | null = null;
+    private updateChartInterval: ReturnType<typeof setInterval> | null = null;
+    private customStyle: React.CSSProperties | undefined;
+    private updateTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        this.state.showControlDialog = null;
-        this.state.inputValue = '';
-        this.state.showSetButton = [];
-        this.state.inputValues = [];
-        // this.state.values = {};
-        this.state.objects = {};
-        this.state.historyData = {};
-        this.state.chartWidth = {};
-        this.state.chartHeight = {};
-        this.state.sketch = {};
-        this.state.dialogPin = null;
-        this.timeouts = {};
-        this.history = {};
-        this._refs = {}; // this.refs name does not work (I don't know why)
-        this.widgetRef = {};
+        this.state = {
+            ...this.state,
+            showControlDialog: null,
+            inputValue: '',
+            showSetButton: [],
+            inputValues: [],
+            objects: [],
+            historyData: {},
+            chartWidth: {},
+            chartHeight: {},
+            sketch: {},
+            secondaryObjects: [],
+
+            dialogPin: null,
+            invalidPin: false,
+            lockPinInput: '',
+            showRoomsMenu: null,
+        };
+
+        this.doNotWantIncludeWidgets = this.state.rxData.doNotWantIncludeWidgets;
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -742,7 +809,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                                         role &&
                                                         RGB_ROLES[role] &&
                                                         (!data[role] || data[role] === 'nothing_selected') &&
-                                                        field !== role
+                                                        field.name !== role
                                                     ) {
                                                         changed = true;
                                                         if (RGB_ROLES[role] === 'rgb') {
@@ -904,18 +971,18 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             name: 'chartPeriod',
                             type: 'select',
                             options: [
-                                { value: 10, label: '10_minutes' },
-                                { value: 30, label: '30_minutes' },
-                                { value: 60, label: '1_hour' },
-                                { value: 120, label: '2_hours' },
-                                { value: 180, label: '3_hours' },
-                                { value: 360, label: '6_hours' },
-                                { value: 720, label: '12_hours' },
-                                { value: 1440, label: '1_day' },
-                                { value: 2880, label: '2_days' },
-                                { value: 10080, label: '1_week' },
+                                { value: '10', label: '10_minutes' },
+                                { value: '30', label: '30_minutes' },
+                                { value: '60', label: '1_hour' },
+                                { value: '120', label: '2_hours' },
+                                { value: '180', label: '3_hours' },
+                                { value: '360', label: '6_hours' },
+                                { value: '720', label: '12_hours' },
+                                { value: '1440', label: '1_day' },
+                                { value: '2880', label: '2_days' },
+                                { value: '10080', label: '1_week' },
                             ],
-                            default: 60,
+                            default: '60',
                             label: 'chart_period',
                             hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["hideChart" + index]',
                         },
@@ -1232,11 +1299,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         {
                             name: 'pincode',
                             label: 'pincode',
-                            onChange: async (field, data, changeData, socket, index) => {
+                            onChange: (field, data, changeData, socket, index): Promise<void> => {
                                 if (data[`pincode${index}`] && data[`pincode${index}`].match(/[^0-9]/g)) {
                                     data[`pincode${index}`] = data[`pincode${index}`].replace(/[^0-9]/g, '');
                                     changeData(data);
                                 }
+                                return Promise.resolve();
                             },
                             hidden: (data, index) =>
                                 !!data[`widget${index}`] ||
@@ -1410,6 +1478,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         },
                         {
                             type: 'delimiter',
+                            name: 'delimiter',
                         },
                         // ---------- visibility -----------------
                         {
@@ -1457,9 +1526,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
 
         this.lastRxData = actualRxData;
-        const objects = {};
-        const secondaryObjects = {};
-        const ids = [];
+        const objects: ({ common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } | null | string)[] = [];
+        const secondaryObjects: Partial<Record<SecondaryNames, ioBroker.StateObject>>[] = [];
+        const ids: string[] = [];
         for (let index = 1; index <= this.state.rxData.count; index++) {
             if (this.state.rxData[`type${index}`] === 'rgb') {
                 this.rgbObjectIDs(index, ids);
@@ -1471,7 +1540,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 ids.push(this.state.rxData[`oid${index}`]);
             }
         }
-        const _objects = ids.length ? await this.props.context.socket.getObjectsById(ids) : {};
+        const _objects: Record<string, ioBroker.StateObject> = ids.length
+            ? ((await this.props.context.socket.getObjectsById(ids)) as Record<string, ioBroker.StateObject>)
+            : {};
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.count; index++) {
@@ -1485,23 +1556,23 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 // read an object itself
                 const object = _objects[this.state.rxData[`oid${index}`]];
                 if (!object) {
-                    objects[index] = { common: {} };
+                    objects[index] = { common: {} } as ioBroker.StateObject;
                     continue;
                 }
-                object.common = object.common || {};
+                object.common ||= {} as ioBroker.StateCommon;
                 let widgetType = this.state.rxData[`type${index}`];
 
                 if (widgetType === 'auto') {
                     // not writable => info
                     if (object.common.write === false) {
                         widgetType = 'info';
-                    } else if (object.common.states && object.common.write !== false) {
+                    } else if (object.common.states && (object.common.write as any) !== false) {
                         // with states => select
                         widgetType = 'select';
                     } else if (object.common.type === 'number' && object.common.max !== undefined) {
                         // number writable max => slider
                         widgetType = 'slider';
-                    } else if (object.common.type === 'boolean' && object.common.write !== false) {
+                    } else if (object.common.type === 'boolean' && (object.common.write as any) !== false) {
                         // boolean writable => switch
                         widgetType = 'switch';
                     } else if (object.common.type === 'boolean' && object.common.read === false) {
@@ -1513,24 +1584,20 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 }
 
                 if (object.common.type === 'number') {
-                    if (object.common.max === undefined) {
-                        object.common.max = 100;
-                    }
-                    if (object.common.min === undefined) {
-                        object.common.min = 0;
-                    }
+                    object.common.max ??= 100;
+                    object.common.min ??= 0;
                 }
                 if (object.common.states && Array.isArray(object.common.states)) {
                     // convert to {'state1': 'state1', 'state2': 'state2', ...}
-                    const states = {};
+                    const states: Record<string, string> = {};
                     object.common.states.forEach(state => (states[state] = state));
                     object.common.states = states;
                 }
 
-                object.common.unit = object.common.unit || this.state.rxData[`unit${index}`];
+                object.common.unit ||= this.state.rxData[`unit${index}`];
 
                 if (this.state.rxData[`noIcon${index}`]) {
-                    object.common.icon = null;
+                    object.common.icon = undefined;
                 } else if (
                     !this.state.rxData[`icon${index}`] &&
                     !this.state.rxData[`iconSmall${index}`] &&
@@ -1546,10 +1613,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             idArray.slice(0, -2).join('.'),
                         );
                         if (grandParentObject?.common?.icon) {
-                            object.common.icon = Generic.getObjectIcon(grandParentObject, grandParentObject._id);
+                            object.common.icon =
+                                Generic.getObjectIcon(grandParentObject, grandParentObject._id) || undefined;
                         }
                     } else {
-                        object.common.icon = Generic.getObjectIcon(parentObject, parentObject._id);
+                        object.common.icon = Generic.getObjectIcon(parentObject, parentObject._id) || undefined;
                     }
                 }
 
@@ -1567,7 +1635,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 }
             } else if (this.state.rxData[`widget${index}`]) {
                 objects[index] = this.state.rxData[`widget${index}`];
-                this.widgetRef[index] = this.widgetRef[index] || React.createRef();
+                this.widgetRef[index] ||= React.createRef();
             } else if (this.widgetRef[index]) {
                 delete this.widgetRef[index];
                 objects[index] = null;
@@ -1576,12 +1644,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
         if (this.doNotWantIncludeWidgets !== !!this.state.rxData.doNotWantIncludeWidgets) {
             this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
-            this.props.askView &&
-                this.props.askView('update', {
-                    id: this.props.id,
-                    uuid: this.uuid,
-                    doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
-                });
+            this.props.askView?.('update', {
+                id: this.props.id,
+                // @ts-expect-error Fixed in @iobroker/vis-2-types
+                uuid: this.uuid,
+                doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
+            });
         }
 
         if (
@@ -1601,6 +1669,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         this.props.askView &&
             this.props.askView('update', {
                 id: this.props.id,
+                // @ts-expect-error Fixed in @iobroker/vis-2-types
                 uuid: this.uuid,
                 canHaveWidgets: true,
                 doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
@@ -1608,11 +1677,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     }
 
     // eslint-disable-next-line
-    onCommand(command, options) {
+    onCommand(command: 'include', options: any): any {
         const result = super.onCommand(command, options);
         if (result === false) {
             if (command === 'include') {
-                let found = false;
+                let found: false | number = false;
                 // find first completely free position
                 for (let index = 1; index <= this.state.rxData.count; index++) {
                     if (
@@ -1632,7 +1701,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     found = widget.data.count;
                 }
                 widget.data[`widget${found}`] = options;
-                this.props.context.changeProject(project);
+                void this.props.context.changeProject(project);
                 return true;
             }
         }
@@ -1640,12 +1709,16 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         return result;
     }
 
-    async componentWillUnmount(): Promise<void> {
-        this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
-        this.updateDialogChartInterval = null;
+    componentWillUnmount(): void {
+        if (this.updateDialogChartInterval) {
+            clearInterval(this.updateDialogChartInterval);
+            this.updateDialogChartInterval = null;
+        }
 
-        this.updateChartInterval && clearInterval(this.updateChartInterval);
-        this.updateChartInterval = null;
+        if (this.updateChartInterval) {
+            clearInterval(this.updateChartInterval);
+            this.updateChartInterval = null;
+        }
 
         this.rgbDestroy();
     }
@@ -1654,44 +1727,46 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         await this.propertiesUpdate();
     }
 
-    isOn(index, values): boolean {
+    isOn(index: number, values?: VisRxWidgetStateValues): boolean {
         const obj = this.state.objects[index];
         if (!obj || typeof obj === 'string') {
             return false;
         }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } = obj;
 
-        values = values || this.state.values;
-        if (obj.widgetType === 'rgb' || obj.widgetType === 'thermostat' || obj.widgetType === 'vacuum') {
+        values ||= this.state.values;
+        if (trueObj.widgetType === 'rgb' || trueObj.widgetType === 'thermostat' || trueObj.widgetType === 'vacuum') {
             // analyse rgb
             return values[`${this.state.rxData[`switch${index}`]}.val`];
         }
-        if (obj.common.type === 'number') {
-            return values[`${this.state.objects[index]._id}.val`] !== obj.common.min;
+        if (trueObj.common.type === 'number') {
+            return values[`${trueObj._id}.val`] !== trueObj.common.min;
         }
 
-        return !!values[`${this.state.objects[index]._id}.val`];
+        return !!values[`${trueObj._id}.val`];
     }
 
-    getStateIcon(index) {
+    getStateIcon(index: number): React.JSX.Element | undefined {
         const obj = this.state.objects[index];
-        let icon = '';
+        let iconStr: string | undefined;
+        let icon: React.JSX.Element | undefined;
         if (this.state.rxData[`noIcon${index}`]) {
-            return null;
+            return undefined;
         }
         if (this.isOn(index)) {
-            icon = this.state.rxData[`iconEnabled${index}`] || this.state.rxData[`iconEnabledSmall${index}`];
+            iconStr = this.state.rxData[`iconEnabled${index}`] || this.state.rxData[`iconEnabledSmall${index}`];
         }
 
-        icon = icon || this.state.rxData[`icon${index}`] || this.state.rxData[`iconSmall${index}`];
-        icon = icon || obj?.common?.icon;
+        iconStr ||= this.state.rxData[`icon${index}`] || this.state.rxData[`iconSmall${index}`];
+        iconStr ||= typeof obj === 'object' ? obj?.common?.icon : undefined;
 
         const isOn = this.isOn(index);
         const color = this.getColor(index, isOn);
 
-        if (icon) {
+        if (iconStr) {
             icon = (
                 <Icon
-                    src={icon}
+                    src={iconStr}
                     style={{
                         ...styles.iconCustom,
                         width: 40,
@@ -1700,11 +1775,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     }}
                 />
             );
-        } else if (obj?.widgetType === 'blinds') {
+        } else if (typeof obj === 'object' && obj?.widgetType === 'blinds') {
             icon = <WindowClosed style={{ color }} />;
-        } else if (obj?.widgetType === 'vacuum') {
+        } else if (typeof obj === 'object' && obj?.widgetType === 'vacuum') {
             icon = <VacuumIcon />;
-        } else if (obj?.widgetType === 'thermostat') {
+        } else if (typeof obj === 'object' && obj?.widgetType === 'thermostat') {
             if (
                 this.state.rxData[`switch${index}`] &&
                 this.state.values[`${this.state.rxData[`switch${index}`]}.val`]
@@ -1718,7 +1793,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             } else {
                 icon = <Thermostat />;
             }
-        } else if (obj?.widgetType === 'lock') {
+        } else if (typeof obj === 'object' && obj?.widgetType === 'lock') {
             if (isOn) {
                 icon = (
                     <LockOpen
@@ -1729,7 +1804,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             } else {
                 icon = <Lock style={{ color }} />;
             }
-        } else if (obj?.widgetType === 'rgb') {
+        } else if (typeof obj === 'object' && obj?.widgetType === 'rgb') {
             // check if rgb has power
             if (this.state.rxData[`switch${index}`]) {
                 if (this.state.values[`${this.state.rxData[`switch${index}`]}.val`]) {
@@ -1775,7 +1850,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         return icon;
     }
 
-    getColor(index, isOn) {
+    getColor(index: number, isOn: boolean): string | undefined {
         const obj = this.state.objects[index];
         if (typeof obj === 'string') {
             return undefined;
@@ -1789,45 +1864,46 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             : this.state.rxData[`color${index}`] || obj?.common?.color;
     }
 
-    changeSwitch = (index): void => {
+    changeSwitch = (index: number): void => {
+        if (!this.state.objects[index] || typeof this.state.objects[index] === 'string') {
+            return;
+        }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+            this.state.objects[index];
+
         if (
-            this.state.objects[index].widgetType === 'rgb' ||
-            this.state.objects[index].widgetType === 'lock' ||
-            this.state.objects[index].widgetType === 'vacuum' ||
-            this.state.objects[index].widgetType === 'thermostat'
+            trueObj.widgetType === 'rgb' ||
+            trueObj.widgetType === 'lock' ||
+            trueObj.widgetType === 'vacuum' ||
+            trueObj.widgetType === 'thermostat'
         ) {
             this.setState({ showControlDialog: index });
         } else if (
-            this.state.objects[index].widgetType === 'slider' ||
-            this.state.objects[index].widgetType === 'input' ||
-            this.state.objects[index].widgetType === 'select' ||
-            this.state.objects[index].widgetType === 'info'
+            trueObj.widgetType === 'slider' ||
+            trueObj.widgetType === 'input' ||
+            trueObj.widgetType === 'select' ||
+            trueObj.widgetType === 'info'
         ) {
-            if (this.state.objects[index].widgetType === 'info') {
-                this.updateDialogChartInterval =
-                    this.updateDialogChartInterval || setInterval(() => this.updateCharts(), 60000);
-
+            if (trueObj.widgetType === 'info') {
+                this.updateDialogChartInterval ||= setInterval(() => this.updateCharts(), 60000);
                 this.updateCharts(index).catch(e => window.alert(`Cannot read history: ${e}`));
             }
 
             this.setState({
                 showControlDialog: index,
-                inputValue: this.state.values[`${this.state.objects[index]._id}.val`],
+                inputValue: this.state.values[`${trueObj._id}.val`],
             });
-        } else if (this.state.objects[index].widgetType === 'button') {
-            if (this.state.objects[index].common.max !== undefined) {
-                this.props.context.setValue(this.state.rxData[`oid${index}`], this.state.objects[index].common.max);
+        } else if (trueObj.widgetType === 'button') {
+            if (trueObj.common.max !== undefined) {
+                this.props.context.setValue(this.state.rxData[`oid${index}`], trueObj.common.max);
             } else {
                 this.props.context.setValue(this.state.rxData[`oid${index}`], true);
             }
         } else {
             const values = JSON.parse(JSON.stringify(this.state.values));
-            const oid = `${this.state.objects[index]._id}.val`;
-            if (this.state.objects[index].common.type === 'number') {
-                values[oid] =
-                    values[oid] === this.state.objects[index].common.max
-                        ? this.state.objects[index].common.min
-                        : this.state.objects[index].common.max;
+            const oid = `${trueObj._id}.val`;
+            if (trueObj.common.type === 'number') {
+                values[oid] = values[oid] === trueObj.common.max ? trueObj.common.min : trueObj.common.max;
             } else {
                 values[oid] = !values[oid];
             }
@@ -1836,21 +1912,38 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
     };
 
-    buttonPressed(index): void {
+    buttonPressed(index: number): void {
         this.props.context.setValue(this.state.rxData[`oid${index}`], true);
     }
 
-    setOnOff(index, isOn): void {
-        const values = JSON.parse(JSON.stringify(this.state.values));
-        const oid = `${this.state.objects[index]._id}.val`;
-        values[oid] = isOn ? this.state.objects[index].common.max : this.state.objects[index].common.min;
+    setOnOff(index: number, isOn: boolean): void {
+        if (!this.state.objects[index] || typeof this.state.objects[index] === 'string') {
+            return;
+        }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+            this.state.objects[index];
+
+        const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
+        const oid: `${string}.val` = `${trueObj._id}.val`;
+        values[oid] = isOn ? trueObj.common.max : trueObj.common.min;
         this.setState({ values });
         this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
     }
 
-    controlSpecificState(index, value): void {
-        const values = JSON.parse(JSON.stringify(this.state.values));
-        const oid = `${this.state.objects[index]._id}.val`;
+    controlSpecificState(index: number, value: number | string | boolean): void {
+        if (!this.state.objects[index] || typeof this.state.objects[index] === 'string') {
+            return;
+        }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+            this.state.objects[index];
+        const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
+        const oid: `${string}.val` = `${trueObj._id}.val`;
+        if (trueObj.common.type === 'number') {
+            value = parseFloat(value as string);
+        } else if (trueObj.common.type === 'boolean') {
+            value = value === 'true' || value === true;
+        }
+
         values[oid] = value;
         this.setState({ values, showControlDialog: null });
         this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
@@ -1859,12 +1952,18 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     renderControlDialog(): React.ReactNode {
         const index = this.state.showControlDialog;
         if (index !== null) {
-            const curValue = this.state.values[`${this.state.objects[index]._id}.val`];
+            if (!this.state.objects[index] || typeof this.state.objects[index] === 'string') {
+                return;
+            }
+            const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+                this.state.objects[index];
+
+            const curValue = this.state.values[`${trueObj._id}.val`];
             let control;
-            if (this.state.objects[index].widgetType === 'select') {
+            if (trueObj.widgetType === 'select') {
                 let buttons;
-                if (this.state.objects[index].common.states) {
-                    buttons = Object.keys(this.state.objects[index].common.states).map((state, i) => (
+                if (trueObj.common.states) {
+                    buttons = Object.keys(trueObj.common.states).map((state, i) => (
                         <Button
                             style={{
                                 ...(curValue !== state ? styles.buttonInactive : undefined),
@@ -1872,23 +1971,20 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             }}
                             variant="contained"
                             key={`${state}_${i}`}
+                            // @ts-expect-error grey is OK
                             color={curValue === state ? 'primary' : 'grey'}
                             onClick={() => this.controlSpecificState(index, state)}
                         >
-                            {this.state.objects[index].common.states[state]}
+                            {(trueObj.common.states as Record<string, string>)[state]}
                         </Button>
                     ));
-                } else if (this.state.objects[index].common.type === 'number') {
+                } else if (trueObj.common.type === 'number') {
                     buttons = [];
-                    const min =
-                        this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
-                    const max =
-                        this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
+                    const min = trueObj.common.min === undefined ? 0 : trueObj.common.min;
+                    const max = trueObj.common.max === undefined ? 100 : trueObj.common.max;
                     const step =
                         parseInt(this.state.rxData[`step${index}`], 10) ||
-                        (this.state.objects[index].common.step === undefined
-                            ? (max - min) / 10
-                            : this.state.objects[index].common.step);
+                        (trueObj.common.step === undefined ? (max - min) / 10 : trueObj.common.step);
                     buttons = [];
                     for (let i = min; i <= max; i += step) {
                         buttons.push(
@@ -1899,10 +1995,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 }}
                                 variant="contained"
                                 key={i}
+                                // @ts-expect-error grey is OK
                                 color={curValue === i ? 'primary' : 'grey'}
                                 onClick={() => this.controlSpecificState(index, i)}
                             >
-                                {i + (this.state.objects[index].common.unit || '')}
+                                {i + (trueObj.common.unit || '')}
                             </Button>,
                         );
                     }
@@ -1922,7 +2019,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         {buttons}
                     </div>
                 );
-            } else if (this.state.objects[index].widgetType === 'slider') {
+            } else if (trueObj.widgetType === 'slider') {
                 control = (
                     <>
                         <div
@@ -1933,12 +2030,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         >
                             <Button
                                 style={{
-                                    ...(curValue === this.state.objects[index].common.min
-                                        ? undefined
-                                        : styles.buttonInactive),
+                                    ...(curValue === trueObj.common.min ? undefined : styles.buttonInactive),
                                     width: '50%',
                                     ...this.customStyle,
                                 }}
+                                // @ts-expect-error grey is OK
                                 color="grey"
                                 onClick={() => {
                                     this.setOnOff(index, false);
@@ -1950,9 +2046,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             </Button>
                             <Button
                                 style={{
-                                    ...(curValue === this.state.objects[index].common.max
-                                        ? undefined
-                                        : styles.buttonInactive),
+                                    ...(curValue === trueObj.common.max ? undefined : styles.buttonInactive),
                                     width: '50%',
                                     ...this.customStyle,
                                 }}
@@ -1972,11 +2066,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 value={curValue}
                                 step={parseFloat(this.state.rxData[`step${index}`]) || undefined}
                                 valueLabelDisplay="auto"
-                                min={this.state.objects[index].common.min}
-                                max={this.state.objects[index].common.max}
+                                min={trueObj.common.min}
+                                max={trueObj.common.max}
                                 onChange={(event, value) => {
                                     const values = JSON.parse(JSON.stringify(this.state.values));
-                                    const oid = `${this.state.objects[index]._id}.val`;
+                                    const oid = `${trueObj._id}.val`;
                                     values[oid] = value;
                                     this.setState({ values });
                                     this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
@@ -1985,15 +2079,15 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         </div>
                     </>
                 );
-            } else if (this.state.objects[index].widgetType === 'rgb') {
+            } else if (trueObj.widgetType === 'rgb') {
                 control = this.rgbRenderDialog(index);
-            } else if (this.state.objects[index].widgetType === 'thermostat') {
+            } else if (trueObj.widgetType === 'thermostat') {
                 control = this.thermostatRenderDialog(index);
-            } else if (this.state.objects[index].widgetType === 'lock') {
+            } else if (trueObj.widgetType === 'lock') {
                 // control = this.lockRenderDialog(index);
-            } else if (this.state.objects[index].widgetType === 'vacuum') {
+            } else if (trueObj.widgetType === 'vacuum') {
                 control = this.vacuumRenderDialog(index);
-            } else if (this.state.objects[index].widgetType === 'info') {
+            } else if (trueObj.widgetType === 'info') {
                 if (this._refs[index]) {
                     // update width and height of chart container
                     setTimeout(() => this.checkChartWidth(), 50);
@@ -2024,9 +2118,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             t={key => Generic.t(key)}
                             lang={Generic.getLanguage()}
                             socket={this.props.context.socket}
-                            obj={this.state.objects[index]}
-                            unit={this.state.objects[index].common.unit}
-                            title={this.state.rxData[`title${index}`] || Generic.getText(this.state.objects[index].common.name)}
+                            obj={trueObj}
+                            unit={trueObj.common.unit}
+                            title={this.state.rxData[`title${index}`] || Generic.getText(trueObj.common.name)}
                             objLineType="line"
                             objColor={this.props.context.theme.palette.primary.main}
                             objBackgroundColor={this.props.context.theme.palette.primary.main}
@@ -2049,31 +2143,31 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         <TextField
                             fullWidth
                             variant="standard"
-                            // label={this.state.rxData[`title${index}`] || (this.state.objects[index]?.common?.name) || ''}
+                            // label={this.state.rxData[`title${index}`] || (trueObj?.common?.name) || ''}
                             value={
                                 this.state.inputValue === undefined || this.state.inputValue === null
                                     ? ''
                                     : this.state.inputValue
                             }
-                            InputProps={{
-                                endAdornment: this.state.objects[index].common.unit ? (
-                                    <InputAdornment position="end">
-                                        {this.state.objects[index].common.unit}
-                                    </InputAdornment>
-                                ) : undefined,
+                            slotProps={{
+                                input: {
+                                    endAdornment: trueObj.common.unit ? (
+                                        <InputAdornment position="end">{trueObj.common.unit}</InputAdornment>
+                                    ) : undefined,
+                                },
                             }}
                             onKeyUp={event => {
-                                if (event.keyCode === 13) {
+                                if (event.key === 'Enter') {
                                     const values = JSON.parse(JSON.stringify(this.state.values));
-                                    const oid = `${this.state.objects[index]._id}.val`;
+                                    const oid = `${trueObj._id}.val`;
                                     values[oid] = this.state.inputValue;
                                     this.setState({ values, showControlDialog: null });
-                                    if (this.state.objects[index].common.type === 'number') {
+                                    if (trueObj.common.type === 'number') {
                                         this.props.context.setValue(
                                             this.state.rxData[`oid${index}`],
                                             parseFloat(values[oid]),
                                         );
-                                    } else if (this.state.objects[index].common.type === 'boolean') {
+                                    } else if (trueObj.common.type === 'boolean') {
                                         this.props.context.setValue(
                                             this.state.rxData[`oid${index}`],
                                             values[oid] === 'true' ||
@@ -2104,15 +2198,15 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             style={this.customStyle}
                             onClick={() => {
                                 const values = JSON.parse(JSON.stringify(this.state.values));
-                                const oid = `${this.state.objects[index]._id}.val`;
+                                const oid = `${trueObj._id}.val`;
                                 values[oid] = this.state.inputValue;
                                 this.setState({ values, showControlDialog: null });
-                                if (this.state.objects[index].common.type === 'number') {
+                                if (trueObj.common.type === 'number') {
                                     this.props.context.setValue(
                                         this.state.rxData[`oid${index}`],
                                         parseFloat(values[oid]),
                                     );
-                                } else if (this.state.objects[index].common.type === 'boolean') {
+                                } else if (trueObj.common.type === 'boolean') {
                                     this.props.context.setValue(
                                         this.state.rxData[`oid${index}`],
                                         values[oid] === 'true' ||
@@ -2147,18 +2241,16 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     sx={{ '& .MuiDialog-paper': styles.rgbDialog }}
                     open={!0}
                     onClose={() => {
-                        this.updateDialogChartInterval && clearInterval(this.updateDialogChartInterval);
-                        this.updateDialogChartInterval = null;
+                        if (this.updateDialogChartInterval) {
+                            clearInterval(this.updateDialogChartInterval);
+                            this.updateDialogChartInterval = null;
+                        }
 
                         this.setState({ showControlDialog: null });
                     }}
                 >
                     <DialogTitle>
-                        {(
-                            this.state.rxData[`title${index}`] ||
-                            Generic.getText(this.state.objects[index].common?.name) ||
-                            ''
-                        ).trim()}
+                        {(this.state.rxData[`title${index}`] || Generic.getText(trueObj.common?.name) || '').trim()}
                         <IconButton
                             style={{ float: 'right' }}
                             onClick={() => this.setState({ showControlDialog: null })}
@@ -2174,15 +2266,19 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         return null;
     }
 
-    renderWidgetInWidget(index, asButton, visibility): React.ReactNode {
-        const wid = this.state.rxData[`widget${index}`];
-        const widget = this.props.context.views[this.props.view]?.widgets?.[wid];
+    renderWidgetInWidget(index: number, asButton: boolean, visibility: boolean): React.ReactNode {
+        const wid: AnyWidgetId = this.state.rxData[`widget${index}`];
+        const widget: GroupWidget | SingleWidget | undefined =
+            this.props.context.views[this.props.view]?.widgets?.[wid];
+
         if (widget && wid !== this.props.id) {
             // come again when the ref is filled
             if (!this.widgetRef[index].current) {
                 setTimeout(() => this.forceUpdate(), 50);
             }
-            const style = asButton ? { justifyContent: 'center' } : { margin: 8, justifyContent: 'right' };
+            const style: React.CSSProperties = asButton
+                ? { justifyContent: 'center' }
+                : { margin: 8, justifyContent: 'right' };
             if (asButton) {
                 if (!this.state.rxData.orientation || this.state.rxData.orientation === 'h') {
                     style.width =
@@ -2237,13 +2333,18 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         return null;
     }
 
-    renderLine(index): React.ReactNode {
+    renderLine(index: number): React.ReactNode {
         if (typeof this.state.objects[index] === 'string') {
             return this.renderWidgetInWidget(index, false, true);
         }
-        let value = this.state.values[`${this.state.objects[index]._id}.val`];
+        if (!this.state.objects[index]) {
+            return null;
+        }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+            this.state.objects[index];
+        let value = this.state.values[`${trueObj._id}.val`];
 
-        if (this.state.objects[index].widgetType === 'rgb') {
+        if (trueObj.widgetType === 'rgb') {
             let switchState = null;
             if (this.state.secondaryObjects[index].switch) {
                 switchState = this.getPropertyValue(`switch${index}`);
@@ -2258,7 +2359,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             }
 
             let icon = this.state.rxData[`iconRgb${index}`];
-            const style = {
+            const style: React.CSSProperties = {
                 color: this.rgbGetColor(index),
             };
             if (switchState === false) {
@@ -2296,15 +2397,15 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             );
         }
 
-        if (this.state.objects[index].widgetType === 'vacuum') {
+        if (trueObj.widgetType === 'vacuum') {
             return this.vacuumRenderButtons(index, true);
         }
 
-        if (this.state.objects[index].widgetType === 'lock') {
+        if (trueObj.widgetType === 'lock') {
             return this.lockRenderLine(index);
         }
 
-        if (this.state.objects[index].widgetType === 'button') {
+        if (trueObj.widgetType === 'button') {
             const text = this.state.rxData[`buttonText${index}`];
             let icon = this.state.rxData[`buttonIcon${index}`] || this.state.rxData[`buttonImage${index}`];
             const iconActive =
@@ -2331,7 +2432,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             );
         }
 
-        if (this.state.objects[index].widgetType === 'switch') {
+        if (trueObj.widgetType === 'switch') {
             return (
                 <Switch
                     checked={this.isOn(index)}
@@ -2340,9 +2441,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             );
         }
 
-        if (this.state.objects[index].widgetType === 'slider') {
-            const min = this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
-            const max = this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
+        if (trueObj.widgetType === 'slider') {
+            const min = trueObj.common.min === undefined ? 0 : trueObj.common.min;
+            const max = trueObj.common.max === undefined ? 100 : trueObj.common.max;
             return [
                 <Slider
                     key="slider"
@@ -2353,7 +2454,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     value={value === undefined || value === null ? min : value}
                     onChange={(event, newValue) => {
                         const values = JSON.parse(JSON.stringify(this.state.values));
-                        const oid = `${this.state.objects[index]._id}.val`;
+                        const oid = `${trueObj._id}.val`;
                         values[oid] = newValue;
                         this.setState({ values }, () => {
                             let timeout = this.state.rxData[`timeout${index}`];
@@ -2362,14 +2463,16 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             }
 
                             if (timeout) {
-                                this.timeouts[index] = this.timeouts[index] || {};
-                                this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
+                                this.timeouts[index] ||= {};
+                                if (this.timeouts[index][oid]) {
+                                    clearTimeout(this.timeouts[index][oid]);
+                                }
                                 this.timeouts[index][oid] = setTimeout(
-                                    _newValue => {
+                                    (_newValue: number): void => {
                                         this.timeouts[index][oid] = null;
                                         this.props.context.setValue(this.state.rxData[`oid${index}`], _newValue);
                                     },
-                                    parseInt(timeout, 10),
+                                    parseInt(timeout as string, 10),
                                     newValue,
                                 );
                             } else {
@@ -2384,14 +2487,14 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     key="value"
                     style={{ width: 45 }}
                 >
-                    {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
+                    {value + (trueObj.common.unit ? ` ${trueObj.common.unit}` : '')}
                 </div>,
             ];
         }
 
-        if (this.state.objects[index].widgetType === 'thermostat') {
-            const min = this.state.objects[index].common.min === undefined ? 12 : this.state.objects[index].common.min;
-            const max = this.state.objects[index].common.max === undefined ? 30 : this.state.objects[index].common.max;
+        if (trueObj.widgetType === 'thermostat') {
+            const min = trueObj.common.min === undefined ? 12 : trueObj.common.min;
+            const max = trueObj.common.max === undefined ? 30 : trueObj.common.max;
             let temp;
             if (this.state.rxData[`actual${index}`]) {
                 temp = this.state.values[`${this.state.rxData[`actual${index}`]}.val`];
@@ -2417,7 +2520,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     value={value === undefined || value === null ? min : value}
                     onChange={(event, newValue) => {
                         const values = JSON.parse(JSON.stringify(this.state.values));
-                        const oid = `${this.state.objects[index]._id}.val`;
+                        const oid = `${trueObj._id}.val`;
                         values[oid] = newValue;
                         this.setState({ values }, () => {
                             let timeout = this.state.rxData[`timeout${index}`];
@@ -2426,14 +2529,16 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             }
 
                             if (timeout) {
-                                this.timeouts[index] = this.timeouts[index] || {};
-                                this.timeouts[index][oid] && clearTimeout(this.timeouts[index][oid]);
+                                this.timeouts[index] ||= {};
+                                if (this.timeouts[index][oid]) {
+                                    clearTimeout(this.timeouts[index][oid]);
+                                }
                                 this.timeouts[index][oid] = setTimeout(
                                     _newValue => {
                                         this.timeouts[index][oid] = null;
                                         this.props.context.setValue(this.state.rxData[`oid${index}`], _newValue);
                                     },
-                                    parseInt(timeout, 10),
+                                    parseInt(timeout as string, 10),
                                     newValue,
                                 );
                             } else {
@@ -2456,22 +2561,18 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     }}
                 >
                     <div style={{ whiteSpace: 'nowrap' }}>
-                        {value +
-                            (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
+                        {value + (trueObj.common.unit ? ` ${trueObj.common.unit}` : '')}
                     </div>
                     {temp ? (
                         <div style={{ fontSize: 'smaller', opacity: 0.7, whiteSpace: 'nowrap' }}>
-                            {temp +
-                                (this.state.objects[index].common.unit
-                                    ? ` ${this.state.objects[index].common.unit}`
-                                    : '')}
+                            {temp + (trueObj.common.unit ? ` ${trueObj.common.unit}` : '')}
                         </div>
                     ) : null}
                 </div>,
             ];
         }
 
-        if (this.state.objects[index].widgetType === 'input') {
+        if (trueObj.widgetType === 'input') {
             return [
                 <TextField
                     key="input"
@@ -2486,12 +2587,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     onKeyUp={e => {
                         if (e.keyCode === 13) {
                             const values = JSON.parse(JSON.stringify(this.state.values));
-                            const oid = `${this.state.objects[index]._id}.val`;
+                            const oid = `${trueObj._id}.val`;
                             values[oid] = this.state.inputValues[index];
                             this.setState({ values });
-                            if (this.state.objects[index].common.type === 'number') {
+                            if (trueObj.common.type === 'number') {
                                 this.props.context.setValue(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
-                            } else if (this.state.objects[index].common.type === 'boolean') {
+                            } else if (trueObj.common.type === 'boolean') {
                                 this.props.context.setValue(
                                     this.state.rxData[`oid${index}`],
                                     values[oid] === 'true' ||
@@ -2521,11 +2622,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         }, 100);
                     }}
                     variant="standard"
-                    label={
-                        this.state.rxData[`title${index}`] ||
-                        Generic.getText(this.state.objects[index]?.common?.name) ||
-                        ''
-                    }
+                    label={this.state.rxData[`title${index}`] || Generic.getText(trueObj?.common?.name) || ''}
                     value={
                         !this.state.showSetButton[index]
                             ? value === null || value === undefined
@@ -2533,10 +2630,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 : value
                             : this.state.inputValues[index]
                     }
-                    InputProps={{
-                        endAdornment: this.state.objects[index].common.unit ? (
-                            <InputAdornment position="end">{this.state.objects[index].common.unit}</InputAdornment>
-                        ) : undefined,
+                    slotProps={{
+                        input: {
+                            endAdornment: trueObj.common.unit ? (
+                                <InputAdornment position="end">{trueObj.common.unit}</InputAdornment>
+                            ) : undefined,
+                        },
                     }}
                     onChange={event => {
                         const inputValues = [];
@@ -2551,14 +2650,14 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         style={this.customStyle}
                         onClick={() => {
                             const values = JSON.parse(JSON.stringify(this.state.values));
-                            const oid = `${this.state.objects[index]._id}.val`;
+                            const oid = `${trueObj._id}.val`;
                             values[oid] = this.state.inputValues[index];
                             const showSetButton = [...this.state.showSetButton];
                             showSetButton[index] = false;
                             this.setState({ values, showSetButton });
-                            if (this.state.objects[index].common.type === 'number') {
+                            if (trueObj.common.type === 'number') {
                                 this.props.context.setValue(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
-                            } else if (this.state.objects[index].common.type === 'boolean') {
+                            } else if (trueObj.common.type === 'boolean') {
                                 this.props.context.setValue(
                                     this.state.rxData[`oid${index}`],
                                     values[oid] === 'true' ||
@@ -2586,33 +2685,29 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             ];
         }
 
-        if (this.state.objects[index].widgetType === 'select') {
+        if (trueObj.widgetType === 'select') {
             let states;
-            if (this.state.objects[index].common.states) {
-                states = Object.keys(this.state.objects[index].common.states).map(state => ({
+            if (trueObj.common.states) {
+                states = Object.keys(trueObj.common.states).map(state => ({
                     label: state,
-                    value: this.state.objects[index].common.states[state],
+                    value: trueObj.common.states[state],
                 }));
-            } else if (this.state.objects[index].common.type === 'boolean') {
+            } else if (trueObj.common.type === 'boolean') {
                 states = [
                     { label: Generic.t('ON'), value: true },
                     { label: Generic.t('OFF'), value: false },
                 ];
-            } else if (this.state.objects[index].common.type === 'number') {
-                const min =
-                    this.state.objects[index].common.min === undefined ? 0 : this.state.objects[index].common.min;
-                const max =
-                    this.state.objects[index].common.max === undefined ? 100 : this.state.objects[index].common.max;
+            } else if (trueObj.common.type === 'number') {
+                const min = trueObj.common.min === undefined ? 0 : trueObj.common.min;
+                const max = trueObj.common.max === undefined ? 100 : trueObj.common.max;
                 const step =
                     parseInt(this.state.rxData[`step${index}`], 10) ||
-                    (this.state.objects[index].common.step === undefined
-                        ? (max - min) / 10
-                        : this.state.objects[index].common.step);
+                    (trueObj.common.step === undefined ? (max - min) / 10 : trueObj.common.step);
                 states = [];
                 for (let i = min; i <= max; i += step) {
-                    states.push({ label: i + (this.state.objects[index].common.unit || ''), value: i });
+                    states.push({ label: i + (trueObj.common.unit || ''), value: i });
                     if (value > i && value < i + step) {
-                        states.push({ label: value + (this.state.objects[index].common.unit || ''), value });
+                        states.push({ label: value + (trueObj.common.unit || ''), value });
                     }
                 }
             } else {
@@ -2622,16 +2717,14 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             return (
                 <FormControl fullWidth>
                     <InputLabel style={states.find(item => item.value === value) ? styles.selectLabel : undefined}>
-                        {this.state.rxData[`title${index}`] ||
-                            Generic.getText(this.state.objects[index]?.common?.name) ||
-                            ''}
+                        {this.state.rxData[`title${index}`] || Generic.getText(trueObj?.common?.name) || ''}
                     </InputLabel>
                     <Select
                         variant="standard"
                         value={value !== undefined ? value : ''}
                         onChange={event => {
                             const values = JSON.parse(JSON.stringify(this.state.values));
-                            const oid = `${this.state.objects[index]._id}.val`;
+                            const oid = `${trueObj._id}.val`;
                             values[oid] = event.target.value;
                             this.setState({ values });
                             this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
@@ -2650,8 +2743,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             );
         }
 
-        if (this.state.objects[index].common.type === 'number') {
-            if (this.state.objects[index].widgetType === 'blinds') {
+        if (trueObj.common.type === 'number') {
+            if (trueObj.widgetType === 'blinds') {
                 const options = this.getMinMaxPosition(1, index);
                 value = parseFloat(value);
                 value = ((value - options.min) / (options.max - options.min)) * 100;
@@ -2660,6 +2753,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 }
             }
 
+            // @ts-expect-error fixed in vis-2-types
             value = this.formatValue(value);
         }
 
@@ -2675,8 +2769,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         let color;
         let val = false;
         if (
-            this.state.objects[index].common.type === 'boolean' ||
-            this.state.objects[index].common.type === 'number' ||
+            trueObj.common.type === 'boolean' ||
+            trueObj.common.type === 'number' ||
             value === 0 ||
             value === 1 ||
             value === '0' ||
@@ -2726,7 +2820,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             }
         }
 
-        if (this.state.objects[index].widgetType === 'blinds') {
+        if (trueObj.widgetType === 'blinds') {
             let height = 40; // take 10° for opened slash
             const width = 40;
             height -= 0.12 * width;
@@ -2757,14 +2851,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             );
         } else {
             staticElem = (
-                <span style={{ color }}>
-                    {value + (this.state.objects[index].common.unit ? ` ${this.state.objects[index].common.unit}` : '')}
-                </span>
+                <span style={{ color }}>{value + (trueObj.common.unit ? ` ${trueObj.common.unit}` : '')}</span>
             );
         }
 
         // todo: history for booleans
-        if (this._refs[index] && this.state.objects[index].common.type === 'number') {
+        if (this._refs[index] && trueObj.common.type === 'number') {
             setTimeout(() => this.checkChartWidth(), 50);
             return (
                 <div
@@ -2786,10 +2878,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     }
 
     checkChartWidth(): void {
-        Object.keys(this._refs).forEach(i => {
-            if (this._refs[i] && this._refs[i].current) {
-                const width = this._refs[i].current.offsetWidth;
-                const height = this._refs[i].current.offsetHeight;
+        for (let i = 0; i < this._refs.length; ++i) {
+            const ref = this._refs[i];
+            if (ref?.current) {
+                const width = ref.current.offsetWidth;
+                const height = ref.current.offsetHeight;
                 if (width !== this.state.chartWidth[i] || height !== this.state.chartHeight[i]) {
                     const chartWidth = { ...this.state.chartWidth };
                     const chartHeight = { ...this.state.chartHeight };
@@ -2798,10 +2891,10 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     this.setState({ chartWidth, chartHeight });
                 }
             }
-        });
+        }
     }
 
-    drawChart(index, style): React.ReactNode {
+    drawChart(index: number, style?: React.CSSProperties): React.ReactNode {
         if (this.state.historyData[index] && this.state.chartWidth[index]) {
             const _style = {
                 height: 37,
@@ -2831,7 +2924,13 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         return null;
     }
 
-    async checkHistory(index, doNotRequestData): Promise<void> {
+    async checkHistory(index: number, doNotRequestData?: boolean): Promise<void> {
+        if (!this.state.objects[index] || typeof this.state.objects[index] === 'string') {
+            return;
+        }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+            this.state.objects[index];
+
         const custom = this.state.objects[index].common.custom;
 
         if (!custom || this.state.rxData[`hideChart${index}`]) {
@@ -2908,12 +3007,17 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
     }
 
-    async updateCharts(index): Promise<void> {
-        let indexesToUpdate;
+    async updateCharts(index?: number): Promise<void> {
+        let indexesToUpdate: number[];
         if (index !== undefined) {
             indexesToUpdate = [index];
         } else {
-            indexesToUpdate = Object.keys(this.history);
+            indexesToUpdate = [];
+            for (let i = 0; i < this.history.length; i++) {
+                if (this.history[i]) {
+                    indexesToUpdate.push(i);
+                }
+            }
         }
 
         for (let i = 0; i < indexesToUpdate.length; i++) {
@@ -3074,11 +3178,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 tooltip,
                             };
 
-                            const newState = { historyData };
+                            const newState: Partial<SwitchesState> = { historyData };
                             if (
-                                this._refs[_index] &&
-                                this._refs[_index].current &&
-                                this._refs[_index].current.offsetWidth &&
+                                this._refs[_index]?.current?.offsetWidth &&
                                 (this.state.chartWidth[_index] !== this._refs[_index].current.offsetWidth ||
                                     this.state.chartHeight[_index] !== this._refs[_index].current.offsetHeight)
                             ) {
@@ -3087,7 +3189,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 newState.chartWidth[_index] = this._refs[_index].current.offsetWidth;
                                 newState.chartHeight[_index] = this._refs[_index].current.offsetHeight;
                             }
-                            this.setState(newState);
+                            this.setState(newState as any as SwitchesState);
                         }
                     });
             })(indexesToUpdate[i]);
@@ -3095,6 +3197,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     }
 
     renderButton(index, icon): Promise<void> {
+        if (!this.state.objects[index] || typeof this.state.objects[index] === 'string') {
+            return;
+        }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+            this.state.objects[index];
+
         const visibility = this.checkLineVisibility(index);
         if (!visibility && !this.props.editMode) {
             return null;
@@ -3213,6 +3321,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             >
                 <Button
                     onClick={() => this.changeSwitch(index)}
+                    // @ts-expect-error grey is OK
                     color={!this.state.objects[index].common?.states && this.isOn(index) ? 'primary' : 'grey'}
                     style={{
                         ...styles.button,
@@ -3299,7 +3408,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                     onClick={() => {
                                         if (button === 'submit') {
                                             if (this.state.lockPinInput === pincode) {
-                                                if (this.state.dialogPin.oid === 'open') {
+                                                if (this.state.dialogPin!.oid === 'open') {
                                                     this.props.context.setValue(
                                                         this.state.rxData[`open${index}`],
                                                         true,
@@ -3324,7 +3433,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                             const lockPinInput = this.state.lockPinInput + button;
                                             this.setState({ lockPinInput });
                                             if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
-                                                if (this.state.dialogPin.oid === 'open') {
+                                                if (this.state.dialogPin!.oid === 'open') {
                                                     this.props.context.setValue(
                                                         this.state.rxData[`open${index}`],
                                                         true,
@@ -3347,7 +3456,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         );
     }
 
-    lockGetPinCode(index) {
+    lockGetPinCode(index: number): string {
         return this.state.rxData[`oid-pincode${index}`]
             ? this.getPropertyValue(`oid-pincode${index}`)
             : this.state.rxData[`pincode${index}`];
@@ -3370,7 +3479,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         color="primary"
                         onClick={() => {
                             this.setState({ lockConfirmDialog: null });
-                            if (this.state.lockConfirmDialog.oid === 'open') {
+                            if (this.state.lockConfirmDialog!.oid === 'open') {
                                 this.props.context.setValue(this.state.rxData[`open${index}`], true);
                             } else {
                                 this.props.context.setValue(this.state.rxData[`oid${index}`], true);
@@ -3384,6 +3493,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     </Button>
                     <Button
                         variant="contained"
+                        // @ts-expect-error grey is OK
                         color="grey"
                         autoFocus
                         onClick={() => this.setState({ lockConfirmDialog: null })}
@@ -3396,10 +3506,16 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         );
     }
 
-    lockRenderLine(index, buttonWidth, buttonHeight): React.ReactNode {
+    lockRenderLine(index: number, buttonWidth?: number, buttonHeight?: number): React.ReactNode {
+        if (!this.state.objects[index] || typeof this.state.objects[index] === 'string') {
+            return;
+        }
+        const trueObj: { common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } =
+            this.state.objects[index];
+
         let size = 30;
         if (buttonWidth) {
-            size = Math.min((buttonWidth - 32) / 2, buttonHeight - 16);
+            size = Math.min((buttonWidth - 32) / 2, buttonHeight! - 16);
         }
 
         const doorOpened = this.state.rxData[`sensor${index}`] && this.getPropertyValue(`sensor${index}`);
@@ -3412,7 +3528,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     <IconButton
                         key="door"
                         disabled={!this.state.rxData[`open${index}`]}
-                        title={this.state.rxData[`open${index}`] ? Generic.t('open_door') : null}
+                        title={this.state.rxData[`open${index}`] ? Generic.t('open_door') : undefined}
                         onClick={() => {
                             if (this.lockGetPinCode(index)) {
                                 this.setState({ dialogPin: { oid: 'open', index }, lockPinInput: '' });
@@ -3505,17 +3621,22 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         );
     }
 
-    thermostatObjectIDs(index, ids): void {
+    thermostatObjectIDs(index: number, ids: string[]): void {
         const _ids = ['oid', 'actual', 'boost', 'party'];
         _ids.forEach(id => {
-            const _id = id + index;
+            const _id: `${'oid' | 'actual' | 'boost' | 'party'}${number}` = `${id}{index}`;
             if (this.state.rxData[_id] && this.state.rxData[_id] !== 'nothing_selected') {
                 ids.push(this.state.rxData[_id]);
             }
         });
     }
 
-    thermostatReadObjects(index, _objects, objects, secondaryObjects): void {
+    thermostatReadObjects(
+        index: number,
+        _objects: Record<string, ioBroker.StateObject>,
+        objects: ({ common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } | null | string)[],
+        secondaryObjects: Partial<Record<SecondaryNames, ioBroker.StateObject>>[],
+    ): void {
         let id = this.state.rxData[`oid${index}`];
 
         if (_objects[id]) {
@@ -3530,6 +3651,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         } else {
             objects[index] = {
                 widgetType: 'thermostat',
+                common: {} as ioBroker.StateCommon,
             };
         }
 
@@ -3610,6 +3732,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 modesButton.push(
                     <Button
                         key="party"
+                        // @ts-expect-error grey is OK
                         color={currentValueStr ? 'primary' : 'grey'}
                         onClick={() => {
                             let _currentValueStr = this.state.values[`${this.state.rxData[`party${index}`]}.val`];
@@ -3642,6 +3765,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 modesButton.push(
                     <Button
                         key="boost"
+                        // @ts-expect-error grey is OK
                         color={currentValueStr ? 'primary' : 'grey'}
                         onClick={() => {
                             let _currentValueStr = this.state.values[`${this.state.rxData[`boost${index}`]}.val`];
@@ -3673,6 +3797,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     slotProps={{ popper: { sx: styles.tooltip } }}
                 >
                     <IconButton
+                        // @ts-expect-error grey is OK
                         color={this.state.values[`${this.state.rxData[`switch${index}`]}.val`] ? 'primary' : 'grey'}
                         onClick={() => {
                             const values = JSON.parse(JSON.stringify(this.state.values));
@@ -3846,11 +3971,17 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         ids.push(this.state.rxData[`oid${index}`]);
     }
 
-    rgbReadObjects(index, _objects, objects, secondaryObjects): void {
-        const _rgbObjects = {};
+    rgbReadObjects(
+        index: number,
+        _objects: Record<string, ioBroker.StateObject>,
+        objects: ({ common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } | null | string)[],
+        secondaryObjects: Partial<Record<SecondaryNames, ioBroker.StateObject>>[],
+    ): void {
+        const _rgbObjects: Partial<Record<SecondaryNames, ioBroker.StateObject>> = {};
 
         RGB_NAMES.forEach(name => {
-            const oid = this.state.rxData[name + index];
+            const attr: `${RGB_NAMES_TYPE}${number}` = `${name}${index}`;
+            const oid: string | undefined = this.state.rxData[attr];
             if (oid) {
                 const object = _objects[oid];
                 if (object) {
@@ -4066,7 +4197,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         );
     }
 
-    rgbRenderBrightness(index): React.ReactNode {
+    rgbRenderBrightness(index: number): React.ReactNode {
         return (
             this.state.secondaryObjects[index].brightness && (
                 <div style={styles.rgbSliderContainer}>
@@ -4294,17 +4425,22 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
     }
 
-    async vacuumReadObjects(index, _objects, objects, secondaryObjects): Promise<void> {
+    async vacuumReadObjects(
+        index: number,
+        _objects: Record<string, ioBroker.StateObject>,
+        objects: ({ common: ioBroker.StateCommon; _id?: string; widgetType?: WidgetType } | null | string)[],
+        secondaryObjects: Partial<Record<SecondaryNames, ioBroker.StateObject>>[],
+    ): Promise<void> {
         secondaryObjects[index] = {};
 
         objects[index] = {
             widgetType: 'vacuum',
             common: {
                 name: Generic.t('vacuum'),
-            },
+            } as ioBroker.StateCommon,
         };
 
-        const keys = Object.keys(VACUUM_ID_ROLES);
+        const keys: VACUUM_ID_ROLES_TYPE[] = Object.keys(VACUUM_ID_ROLES) as VACUUM_ID_ROLES_TYPE[];
         // read all objects at once
         Object.values(_objects).forEach(obj => {
             const oid = keys.find(_oid => this.state.rxData[`vacuum-${_oid}-oid${index}`] === obj._id);
@@ -4313,10 +4449,10 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             }
         });
 
-        secondaryObjects[index].rooms = await this.vacuumLoadRooms();
+        (secondaryObjects[index] as any).rooms = await this.vacuumLoadRooms(index);
     }
 
-    async vacuumLoadRooms(index) {
+    async vacuumLoadRooms(index: number): Promise<null | { value: string; label: string }[]> {
         if (this.state.rxData[`vacuum-use-rooms${index}`]) {
             // try to detect the `rooms` object according to status OID
             // mihome-vacuum.0.info.state => mihome-vacuum.0.rooms
@@ -4326,16 +4462,16 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     parts.pop();
                     parts.pop();
                     parts.push('rooms');
-                    const rooms = await this.props.context.socket.getObjectView(
+                    const rooms = await this.props.context.socket.getObjectViewSystem(
+                        'channel',
                         `${parts.join('.')}.room`,
                         `${parts.join('.')}.room\u9999`,
-                        'channel',
                     );
-                    const result = [];
+                    const result: { value: string; label: string }[] = [];
                     Object.keys(rooms).forEach(id =>
                         result.push({
                             value: `${id}.roomClean`,
-                            label: Generic.getText(rooms[id].common?.name || id.split('.').pop()),
+                            label: Generic.getText(rooms[id].common?.name || id.split('.').pop() || ''),
                         }),
                     );
                     result.sort((a, b) => a.label.localeCompare(b.label));
@@ -4448,12 +4584,13 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     }
 
     vacuumRenderRooms(index): React.ReactNode {
-        if (!this.state.secondaryObjects[index] || !this.state.secondaryObjects[index].rooms?.length) {
+        if (!this.state.secondaryObjects[index]?.rooms?.length) {
             return null;
         }
         return [
             <Button
                 variant="outlined"
+                // @ts-expect-error grey is OK
                 color="grey"
                 key="rooms"
                 onClick={e => this.setState({ showRoomsMenu: e.currentTarget })}
@@ -4485,7 +4622,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         ];
     }
 
-    vacuumRenderSensors(index): React.ReactNode {
+    vacuumRenderSensors(index: number): React.ReactNode {
         const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(
             sensor => this.vacuumGetObj(index, sensor),
         );
@@ -4705,7 +4842,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         );
     }
 
-    checkLineVisibility(index) {
+    checkLineVisibility(index: number): boolean {
         const oid = this.state.rxData[`visibility-oid${index}`];
         if (!oid) {
             return true;
@@ -4718,7 +4855,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             return condition === 'not exist';
         }
 
-        let value = this.state.rxData[`visibility-val${index}`];
+        let value: string | number | boolean = this.state.rxData[`visibility-val${index}`];
 
         if (value === undefined || value === null) {
             return condition === 'not exist';
@@ -4800,32 +4937,32 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
         this.customStyle = {};
-        if (this.state.rxStyle['font-weight']) {
-            this.customStyle.fontWeight = this.state.rxStyle['font-weight'];
-        }
-        if (this.state.rxStyle['font-size']) {
-            this.customStyle.fontSize = this.state.rxStyle['font-size'];
-        }
-        if (this.state.rxStyle['font-family']) {
-            this.customStyle.fontFamily = this.state.rxStyle['font-family'];
-        }
-        if (this.state.rxStyle['font-style']) {
-            this.customStyle.fontStyle = this.state.rxStyle['font-style'];
-        }
-        if (this.state.rxStyle['word-spacing']) {
-            this.customStyle.wordSpacing = this.state.rxStyle['word-spacing'];
-        }
-        if (this.state.rxStyle['letter-spacing']) {
-            this.customStyle.letterSpacing = this.state.rxStyle['letter-spacing'];
+        if (this.state.rxStyle) {
+            if (this.state.rxStyle['font-weight']) {
+                this.customStyle.fontWeight = this.state.rxStyle['font-weight'];
+            }
+            if (this.state.rxStyle['font-size']) {
+                this.customStyle.fontSize = this.state.rxStyle['font-size'];
+            }
+            if (this.state.rxStyle['font-family']) {
+                this.customStyle.fontFamily = this.state.rxStyle['font-family'];
+            }
+            if (this.state.rxStyle['font-style']) {
+                this.customStyle.fontStyle = this.state.rxStyle['font-style'];
+            }
+            if (this.state.rxStyle['word-spacing']) {
+                this.customStyle.wordSpacing = this.state.rxStyle['word-spacing'];
+            }
+            if (this.state.rxStyle['letter-spacing']) {
+                this.customStyle.letterSpacing = this.state.rxStyle['letter-spacing'];
+            }
         }
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout =
-                this.updateTimeout ||
-                setTimeout(async () => {
-                    this.updateTimeout = null;
-                    await this.propertiesUpdate();
-                }, 50);
+            this.updateTimeout ||= setTimeout(async () => {
+                this.updateTimeout = null;
+                await this.propertiesUpdate();
+            }, 50);
         }
         let allSwitchValue = null;
         let intermediate;

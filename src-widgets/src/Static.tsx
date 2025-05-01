@@ -1,18 +1,16 @@
-import React, { type CSSProperties } from 'react';
-
+import React from 'react';
 
 import { Dialog, DialogContent, DialogTitle, IconButton, Switch } from '@mui/material';
 
 import { Close as IconClose } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
 import ObjectChart from './ObjectChart';
-import type { VisRxWidgetState } from './visRxWidget';
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 
-const styles = () => ({
+const styles: Record<string, any> = {
     newValueLight: {
         animation: '$newValueAnimationLight 2s ease-in-out',
     },
@@ -41,7 +39,7 @@ const styles = () => ({
             color: '#ffffff',
         },
     },
-});
+};
 
 interface StaticRxData {
     noCard: boolean;

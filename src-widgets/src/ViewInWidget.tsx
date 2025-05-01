@@ -1,8 +1,7 @@
 import React, { type CSSProperties } from 'react';
 
 import Generic from './Generic';
-import type { VisRxWidgetState } from './visRxWidget';
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState, VisRxWidgetProps } from '@iobroker/types-vis-2';
 
 const styles: Record<string, CSSProperties> = {
     overlay: {
@@ -28,7 +27,7 @@ interface ViewInWidgetState extends VisRxWidgetState {
 }
 
 class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
-    refContainer: React.RefObject<HTMLDivElement | null>;
+    refContainer: React.RefObject<HTMLDivElement>;
     constructor(props: ViewInWidget['props']) {
         super(props);
         (this.state as ViewInWidgetState).width = 0;
@@ -82,7 +81,7 @@ class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
         return ViewInWidget.getWidgetInfo();
     }
 
-    async componentDidMount(): Promise<void> {
+    componentDidMount(): void {
         super.componentDidMount();
         this.recalculateWidth();
     }
@@ -99,12 +98,13 @@ class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
         super.componentWillUnmount();
     }
 
-    componentDidUpdate(): void {
-        super.componentDidUpdate && super.componentDidUpdate();
+    componentDidUpdate(prevProps: VisRxWidgetProps, prevState: typeof this.state): void {
+        super.componentDidUpdate(prevProps, prevState);
         this.recalculateWidth();
     }
 
     onNavigate(): void {
+        // @ts-expect-error fixed in vis-2-types
         window.vis.changeView(this.state.rxData.view, this.state.rxData.view);
     }
 
@@ -166,11 +166,11 @@ class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
                               : 'calc(100% - 32px)',
                     textAlign: 'center',
                     lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-                    fontFamily: this.state.rxStyle!['font-family'],
-                    fontShadow: this.state.rxStyle!['font-shadow'],
-                    fontStyle: this.state.rxStyle!['font-style'],
+                    fontFamily: this.state.rxStyle!['font-family'] as React.CSSProperties['fontFamily'],
+                    textShadow: this.state.rxStyle!['text-shadow'] as React.CSSProperties['textShadow'],
+                    fontStyle: this.state.rxStyle!['font-style'] as React.CSSProperties['fontStyle'],
                     fontWeight: this.state.rxStyle!['font-weight'],
-                    fontVariant: this.state.rxStyle!['font-variant'],
+                    fontVariant: this.state.rxStyle!['font-variant'] as React.CSSProperties['fontVariant'],
                 }}
                 ref={this.refContainer}
             >
@@ -191,12 +191,5 @@ class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
         return this.wrapContent(content, null);
     }
 }
-
-ViewInWidget.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
 
 export default ViewInWidget;

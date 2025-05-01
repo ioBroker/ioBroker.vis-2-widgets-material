@@ -1,8 +1,15 @@
 import React, { type CSSProperties } from 'react';
 
 import Generic from './Generic';
-import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetProps, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
-import type { VisRxWidgetState } from './visRxWidget';
+import type {
+    VisRxWidgetState,
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    VisRxWidgetProps,
+    VisWidgetCommand,
+    WidgetData,
+    SingleWidgetId,
+} from '@iobroker/types-vis-2';
 
 interface HtmlRxData {
     noCard: boolean;
@@ -12,7 +19,7 @@ interface HtmlRxData {
     iframe_oid: string;
     image: string;
     image_oid: string;
-    objectFit: string;
+    objectFit: CSSProperties['objectFit'];
     refreshInterval: string;
     refreshOnWakeUp: boolean;
     refreshOnViewChange: boolean;
@@ -22,7 +29,7 @@ interface HtmlRxData {
     noSandbox: boolean;
     allowUserInteractions: boolean;
     refreshWithNoQuery: boolean;
-    widget: string;
+    widget: SingleWidgetId;
     doNotWantIncludeWidgets: boolean;
 }
 
@@ -30,20 +37,18 @@ interface HtmlState extends VisRxWidgetState {
     q: number;
 }
 
-class Html extends Generic<HtmlRxData, HtmlState> {
-    widgetRef: React.RefObject<HTMLDivElement | null>;
+export default class Html extends Generic<HtmlRxData, HtmlState> {
+    widgetRef: React.RefObject<HTMLDivElement> = React.createRef();
     doNotWantIncludeWidgets: boolean | undefined;
-    uuid: string | undefined;
     wakeUpInstalled: boolean | undefined;
     viewChangeInstalled: boolean | undefined;
     lastRefreshInterval: number | undefined;
     refreshInterval: ReturnType<typeof setInterval> | undefined;
     lastWidget: string | undefined;
 
-    constructor(props: RxWidgetProps) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = { ...this.state, q: Date.now() };
-        this.widgetRef = React.createRef();
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -215,13 +220,12 @@ class Html extends Generic<HtmlRxData, HtmlState> {
         this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
 
         // inform view about, that this widget can include other widgets
-        this.props.askView &&
-            this.props.askView('update', {
-                id: this.props.id,
-                uuid: this.uuid,
-                canHaveWidgets: true,
-                doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
-            });
+        this.props.askView?.('update', {
+            id: this.props.id,
+            uuid: this.uuid,
+            canHaveWidgets: true,
+            doNotWantIncludeWidgets: !!this.state.rxData.doNotWantIncludeWidgets,
+        });
 
         if (this.state.rxData.refreshOnWakeUp && !this.state.rxData.widget) {
             this.wakeUpInstalled = true;
@@ -333,13 +337,16 @@ class Html extends Generic<HtmlRxData, HtmlState> {
 
         Object.keys(this.state.rxStyle!).forEach(key => {
             if (key !== 'position' && key !== 'top' && key !== 'left' && key !== 'width' && key !== 'height') {
-                if (this.state.rxStyle[key] !== undefined && this.state.rxStyle[key] !== null) {
+                if (
+                    (this.state.rxStyle as Record<string, any>)[key] !== undefined &&
+                    (this.state.rxStyle as Record<string, any>)[key] !== null
+                ) {
                     if (key.includes('-')) {
-                        const val = this.state.rxStyle[key];
+                        const val = (this.state.rxStyle as Record<string, any>)[key];
                         key = key.replace(/-./g, x => x[1].toUpperCase());
-                        style[key] = val;
+                        (style as Record<string, any>)[key] = val;
                     } else {
-                        style[key] = this.state.rxStyle[key];
+                        (style as Record<string, any>)[key] = (this.state.rxStyle as Record<string, any>)[key];
                     }
                 }
             }
@@ -350,7 +357,6 @@ class Html extends Generic<HtmlRxData, HtmlState> {
         if (this.state.rxData.html) {
             content = (
                 <div
-                    // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{ __html: this.state.rxData.html }}
                     style={style}
                 />
@@ -384,8 +390,6 @@ class Html extends Generic<HtmlRxData, HtmlState> {
             this.reinitInterval();
 
             if (this.state.rxData.allowUserInteractions) {
-                style.touchCallout = 'none';
-                style.touchSelect = 'none';
                 style.touchAction = 'none';
                 style.userSelect = 'none';
                 style.pointerEvents = 'none';
@@ -439,12 +443,3 @@ class Html extends Generic<HtmlRxData, HtmlState> {
         return this.wrapContent(content);
     }
 }
-
-Html.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
-
-export default Html;

@@ -15,30 +15,35 @@ import {
 
 import { BatteryChargingFull, BatteryFull, Close, Home, Pause, PlayArrow } from '@mui/icons-material';
 
-import type { LegacyConnection } from '@iobroker/adapter-react-v5';
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon, type LegacyConnection } from '@iobroker/adapter-react-v5';
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    RxWidgetInfoAttributesField,
+    VisWidgetCommand,
+    WidgetData,
+    VisRxWidgetState,
+} from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
 import VacuumCleanerIcon from './Components/VacuumIcon';
-import type { CSSProperties } from 'react';
-import React from 'react';
-import type { VisRxWidgetState } from './visRxWidget';
-import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
 
-export const FanIcon = props => (
-    <svg
-        viewBox="0 0 512 512"
-        width={props.width || 20}
-        height={props.height || props.width || 20}
-        xmlns="http://www.w3.org/2000/svg"
-        style={props.style}
-    >
-        <path
-            fill="currentColor"
-            d="M352.57 128c-28.09 0-54.09 4.52-77.06 12.86l12.41-123.11C289 7.31 279.81-1.18 269.33.13 189.63 10.13 128 77.64 128 159.43c0 28.09 4.52 54.09 12.86 77.06L17.75 224.08C7.31 223-1.18 232.19.13 242.67c10 79.7 77.51 141.33 159.3 141.33 28.09 0 54.09-4.52 77.06-12.86l-12.41 123.11c-1.05 10.43 8.11 18.93 18.59 17.62 79.7-10 141.33-77.51 141.33-159.3 0-28.09-4.52-54.09-12.86-77.06l123.11 12.41c10.44 1.05 18.93-8.11 17.62-18.59-10-79.7-77.51-141.33-159.3-141.33zM256 288a32 32 0 1 1 32-32 32 32 0 0 1-32 32z"
-        />
-    </svg>
-);
+export function FanIcon(props: { style?: React.CSSProperties; height?: number; width?: number }): React.JSX.Element {
+    return (
+        <svg
+            viewBox="0 0 512 512"
+            width={props.width || 20}
+            height={props.height || props.width || 20}
+            xmlns="http://www.w3.org/2000/svg"
+            style={props.style}
+        >
+            <path
+                fill="currentColor"
+                d="M352.57 128c-28.09 0-54.09 4.52-77.06 12.86l12.41-123.11C289 7.31 279.81-1.18 269.33.13 189.63 10.13 128 77.64 128 159.43c0 28.09 4.52 54.09 12.86 77.06L17.75 224.08C7.31 223-1.18 232.19.13 242.67c10 79.7 77.51 141.33 159.3 141.33 28.09 0 54.09-4.52 77.06-12.86l-12.41 123.11c-1.05 10.43 8.11 18.93 18.59 17.62 79.7-10 141.33-77.51 141.33-159.3 0-28.09-4.52-54.09-12.86-77.06l123.11 12.41c10.44 1.05 18.93-8.11 17.62-18.59-10-79.7-77.51-141.33-159.3-141.33zM256 288a32 32 0 1 1 32-32 32 32 0 0 1-32 32z"
+            />
+        </svg>
+    );
+}
 
 const styles: Record<string, CSSProperties> = {
     vacuumBattery: {
@@ -92,7 +97,22 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-export const VACUUM_ID_ROLES: Record<string, { role?: string; name?: string }> = {
+export type VACUUM_ID_ROLES_TYPE =
+    | 'status'
+    | 'battery'
+    | 'is-charging'
+    | 'fan-speed'
+    | 'sensors-left'
+    | 'filter-left'
+    | 'main-brush-left'
+    | 'side-brush-left'
+    | 'cleaning-count'
+    | 'start'
+    | 'home'
+    | 'pause'
+    | 'map64';
+
+export const VACUUM_ID_ROLES: Record<VACUUM_ID_ROLES_TYPE, { role?: string; name?: string }> = {
     status: { role: 'value.state' },
     battery: { role: 'value.battery' },
     'is-charging': { name: 'is_charging' },
@@ -133,11 +153,15 @@ const vacuumLoadStates = async (
                 parts.pop();
             }
 
-            const states = await socket.getObjectView(`${parts.join('.')}.`, `${parts.join('.')}.\u9999`, 'state');
+            const states = await socket.getObjectViewSystem(
+                'state',
+                `${parts.join('.')}.`,
+                `${parts.join('.')}.\u9999`,
+            );
             if (states) {
                 let changed = false;
-                Object.keys(VACUUM_ID_ROLES).forEach(name => {
-                    if (!data[`vacuum-${name}-oid`]) {
+                for (const name in VACUUM_ID_ROLES) {
+                    if (!data[`vacuum-${name as VACUUM_ID_ROLES_TYPE}-oid`]) {
                         // try to find state
                         Object.values(states).forEach(state => {
                             const _parts = state._id.split('.');
@@ -150,12 +174,14 @@ const vacuumLoadStates = async (
                             }
 
                             const role = state.common.role;
-                            if (VACUUM_ID_ROLES[name].role && !role?.includes(VACUUM_ID_ROLES[name].role)) {
+                            const vacuumRole = VACUUM_ID_ROLES[name as VACUUM_ID_ROLES_TYPE].role;
+                            if (vacuumRole && !role?.includes(vacuumRole)) {
                                 return;
                             }
-                            if (VACUUM_ID_ROLES[name].name) {
-                                const last = state._id.split('.').pop().toLowerCase();
-                                if (!last.includes(VACUUM_ID_ROLES[name].name)) {
+                            const vacuumName = VACUUM_ID_ROLES[name as VACUUM_ID_ROLES_TYPE].name;
+                            if (vacuumName) {
+                                const last = state._id.split('.').pop()!.toLowerCase();
+                                if (!last.includes(vacuumName)) {
                                     return;
                                 }
                             }
@@ -164,7 +190,7 @@ const vacuumLoadStates = async (
                             data[`vacuum-${name}-oid`] = state._id;
                         });
                     }
-                });
+                }
 
                 changed && changeData(data);
             }
@@ -180,7 +206,7 @@ export const VACUUM_CHARGING_STATES = ['charging', 'charging Erro'];
 
 export const VACUUM_GOING_HOME_STATES = ['back to home', 'docking'];
 
-export const vacuumGetStatusColor = (status: null | undefined | string): string | null => {
+export const vacuumGetStatusColor = (status: string | boolean | null | undefined): string | undefined => {
     if (typeof status === 'boolean') {
         if (status) {
             return 'green';
@@ -203,7 +229,7 @@ export const vacuumGetStatusColor = (status: null | undefined | string): string 
             return 'blue';
         }
     }
-    return null;
+    return undefined;
 };
 
 interface VacuumRxData {
@@ -229,16 +255,21 @@ interface VacuumRxData {
 }
 
 interface VacuumState extends VisRxWidgetState {
-    showSpeedMenu: HTMLAnchorElement | null;
+    showSpeedMenu: (EventTarget & HTMLButtonElement) | null;
     showRoomsMenu: HTMLAnchorElement | null;
     dialog: boolean | null;
+    objects: Partial<Record<VACUUM_ID_ROLES_TYPE, ioBroker.StateObject>>;
+    rooms: null | { value: string; label: string }[];
 }
 
 class Vacuum extends Generic<VacuumRxData, VacuumState> {
     constructor(props: Vacuum['props']) {
         super(props);
-        this.state.objects = {};
-        this.state.rooms = [];
+        this.state = {
+            ...this.state,
+            objects: {},
+            rooms: [],
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -406,22 +437,22 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
     }
 
     async vacuumPropertiesUpdate(): Promise<void> {
-        const objects = {};
-        const oids = [];
-        const keys = Object.keys(VACUUM_ID_ROLES);
+        const objects: Partial<Record<VACUUM_ID_ROLES_TYPE, ioBroker.StateObject>> = {};
+        const oids: string[] = [];
+        const keys: VACUUM_ID_ROLES_TYPE[] = Object.keys(VACUUM_ID_ROLES) as VACUUM_ID_ROLES_TYPE[];
         for (let k = 0; k < keys.length; k++) {
             const oid = this.state.rxData[`vacuum-${keys[k]}-oid`];
             if (oid) {
                 oids.push(oid);
             }
         }
-        const _objects = await this.props.context.socket.getObjects(oids);
+        const _objects = await this.props.context.socket.getObjectsById(oids);
 
         // read all objects at once
         Object.values(_objects).forEach(obj => {
             const oid = keys.find(_oid => this.state.rxData[`vacuum-${_oid}-oid`] === obj._id);
             if (oid) {
-                objects[oid] = obj;
+                objects[oid] = obj as ioBroker.StateObject;
             }
         });
 
@@ -429,7 +460,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         this.setState({ objects, rooms });
     }
 
-    async vacuumLoadRooms() {
+    async vacuumLoadRooms(): Promise<null | { value: string; label: string }[]> {
         if (this.state.rxData['vacuum-use-rooms']) {
             // try to detect the `rooms` object according to status OID
             // mihome-vacuum.0.info.state => mihome-vacuum.0.rooms
@@ -444,11 +475,11 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
                         `${parts.join('.')}.room\u9999`,
                         'channel',
                     );
-                    const result = [];
+                    const result: { value: string; label: string }[] = [];
                     Object.keys(rooms).forEach(id =>
                         result.push({
                             value: `${id}.roomClean`,
-                            label: Generic.getText(rooms[id].common?.name || id.split('.').pop()),
+                            label: Generic.getText(rooms[id].common?.name || id.split('.').pop() || ''),
                         }),
                     );
                     result.sort((a, b) => a.label.localeCompare(b.label));
@@ -460,50 +491,53 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         return null;
     }
 
-    vacuumGetValue(id: string, numberValue?: boolean) {
+    vacuumGetValue(id: VACUUM_ID_ROLES_TYPE, numberValue?: boolean): string | boolean | null | undefined {
         const obj = this.vacuumGetObj(id);
         if (!obj) {
             return null;
         }
-        const value = this.state.values[`${obj._id}.val`];
+        const value: string = this.state.values[`${obj._id}.val`];
         if (!numberValue && obj.common?.states) {
-            if (obj.common.states[value] !== undefined && obj.common.states[value] !== null) {
-                return obj.common.states[value];
+            if (
+                (obj.common.states as Record<string, string>)[value] !== undefined &&
+                (obj.common.states as Record<string, string>)[value] !== null
+            ) {
+                return (obj.common.states as Record<string, string>)[value];
             }
         }
         return value;
     }
 
-    vacuumGetObj(id: string) {
+    vacuumGetObj(id: VACUUM_ID_ROLES_TYPE): undefined | ioBroker.StateObject {
         return this.state.objects[id];
     }
 
-    vacuumRenderBattery(): React.ReactNode {
-        return (
-            this.vacuumGetObj('battery') && (
-                <div style={styles.vacuumBattery}>
-                    {this.vacuumGetObj('is-charging') && this.vacuumGetValue('is-charging') ? (
-                        <BatteryChargingFull />
-                    ) : (
-                        <BatteryFull />
-                    )}
-                    {this.vacuumGetValue('battery') || 0} {this.vacuumGetObj('battery').common?.unit}
-                </div>
-            )
-        );
+    vacuumRenderBattery(): React.JSX.Element | null {
+        const batterObj = this.vacuumGetObj('battery');
+        return batterObj ? (
+            <div style={styles.vacuumBattery}>
+                {this.vacuumGetObj('is-charging') && this.vacuumGetValue('is-charging') ? (
+                    <BatteryChargingFull />
+                ) : (
+                    <BatteryFull />
+                )}
+                {this.vacuumGetValue('battery') || 0} {batterObj.common?.unit}
+            </div>
+        ) : null;
     }
 
-    vacuumRenderSpeed(): React.ReactNode {
+    vacuumRenderSpeed(): (React.JSX.Element | null)[] | null {
         const obj = this.vacuumGetObj('fan-speed');
         if (!obj) {
             return null;
         }
-        let options = null;
-        options = obj.common.states;
-        if (Array.isArray(options)) {
-            const result = {};
-            options.forEach(item => (result[item] = item));
-            options = result;
+        let options: Record<string, string> | null = null;
+
+        if (Array.isArray(obj.common.states)) {
+            options = {};
+            obj.common.states.forEach(item => (options![item] = item));
+        } else {
+            options = obj.common.states as Record<string, string>;
         }
 
         let value = this.vacuumGetValue('fan-speed', true);
@@ -514,7 +548,6 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
 
         return [
             <Button
-                variant="standard"
                 key="speed"
                 style={styles.vacuumSpeedContainer}
                 endIcon={<FanIcon />}
@@ -537,12 +570,10 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
                     {Object.keys(options).map(state => (
                         <MenuItem
                             key={state}
-                            value={state}
                             selected={value === state}
-                            onClick={e => {
-                                const _value = e.target.value;
+                            onClick={() => {
                                 this.setState({ showSpeedMenu: null }, () =>
-                                    this.props.context.setValue(this.state.rxData['vacuum-fan-speed-oid'], _value),
+                                    this.props.context.setValue(this.state.rxData['vacuum-fan-speed-oid'], state),
                                 );
                             }}
                         >
@@ -561,6 +592,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         return [
             <Button
                 variant="outlined"
+                // @ts-expect-error grey is OK
                 color="grey"
                 key="rooms"
                 onClick={e => this.setState({ showRoomsMenu: e.currentTarget })}
@@ -593,15 +625,21 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
     }
 
     vacuumRenderSensors(): React.ReactNode {
-        const sensors = ['filter-left', 'side-brush-left', 'main-brush-left', 'sensors-left', 'cleaning-count'].filter(
-            sensor => this.vacuumGetObj(sensor),
-        );
+        const sensors: VACUUM_ID_ROLES_TYPE[] = (
+            [
+                'filter-left',
+                'side-brush-left',
+                'main-brush-left',
+                'sensors-left',
+                'cleaning-count',
+            ] as VACUUM_ID_ROLES_TYPE[]
+        ).filter(sensor => this.vacuumGetObj(sensor));
 
         return sensors.length ? (
             <div style={styles.vacuumSensorsContainer}>
                 <div style={styles.vacuumSensors}>
                     {sensors.map(sensor => {
-                        const object = this.vacuumGetObj(sensor);
+                        const object = this.vacuumGetObj(sensor)!;
 
                         return (
                             <Card
@@ -630,28 +668,28 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
     }
 
     vacuumRenderButtons(): React.ReactNode {
-        let statusColor;
+        let statusColor: string | undefined;
         const statusObj = this.vacuumGetObj('status');
-        let status;
+        let status = '';
         let smallStatus;
         if (statusObj) {
-            status = this.vacuumGetValue('status');
-            statusColor = vacuumGetStatusColor(status);
-            if (typeof status === 'boolean') {
-                smallStatus = status ? 'cleaning' : 'pause';
-                status = status ? 'Cleaning' : 'Pause';
+            const statusVal = this.vacuumGetValue('status');
+            statusColor = vacuumGetStatusColor(statusVal);
+            if (typeof statusVal === 'boolean') {
+                smallStatus = statusVal ? 'cleaning' : 'pause';
+                status = statusVal ? 'Cleaning' : 'Pause';
             } else {
-                if (status === null || status === undefined) {
+                if (statusVal === null || statusVal === undefined) {
                     status = '';
                 }
-                status = status.toString();
+                status = statusVal!.toString();
                 smallStatus = status.toLowerCase();
             }
         }
 
         return (
             <div style={styles.vacuumButtons}>
-                {this.vacuumGetObj('start') && !VACUUM_CLEANING_STATES.includes(smallStatus) && (
+                {this.vacuumGetObj('start') && (!smallStatus || !VACUUM_CLEANING_STATES.includes(smallStatus)) && (
                     <Tooltip
                         title={Generic.t('Start')}
                         slotProps={{ popper: { sx: styles.tooltip } }}
@@ -664,8 +702,8 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
                     </Tooltip>
                 )}
                 {this.vacuumGetObj('pause') &&
-                    !VACUUM_PAUSE_STATES.includes(smallStatus) &&
-                    !VACUUM_CHARGING_STATES.includes(smallStatus) && (
+                    (!smallStatus || !VACUUM_PAUSE_STATES.includes(smallStatus)) &&
+                    (!smallStatus || !VACUUM_CHARGING_STATES.includes(smallStatus)) && (
                         <Tooltip
                             title={Generic.t('Pause')}
                             slotProps={{ popper: { sx: styles.tooltip } }}
@@ -677,7 +715,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
                             </IconButton>
                         </Tooltip>
                     )}
-                {this.vacuumGetObj('home') && !VACUUM_CHARGING_STATES.includes(smallStatus) && (
+                {this.vacuumGetObj('home') && (!smallStatus || !VACUUM_CHARGING_STATES.includes(smallStatus)) && (
                     <Tooltip
                         title={Generic.t('Home')}
                         slotProps={{ popper: { sx: styles.tooltip } }}
@@ -815,9 +853,5 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         return this.wrapContent(content);
     }
 }
-
-Vacuum.propTypes = {
-    context: PropTypes.object,
-};
 
 export default Vacuum;

@@ -1,10 +1,8 @@
-import React, { type CSSProperties } from 'react';
+import React from 'react';
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Tooltip } from '@mui/material';
-
-// import { FormControl, InputLabel, MenuItem, Select, Tab, Tabs, TextField } from '@mui/material';
 
 import {
     WbSunny as WbSunnyIcon,
@@ -25,27 +23,32 @@ import {
 } from '@mui/icons-material';
 
 import { Icon } from '@iobroker/adapter-react-v5';
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    VisRxWidgetProps,
+    VisRxWidgetState,
+    VisRxWidgetStateValues,
+} from '@iobroker/types-vis-2';
 
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
-import type { VisRxWidgetState } from './visRxWidget';
 
-const BUTTONS = {
-    AUTO: ThermostatAutoIcon,
-    MANUAL: PanToolIcon,
-    VACATION: HouseboatIcon,
-    COOL: AcUnitIcon,
-    COOLING: AcUnitIcon,
-    DRY: DryIcon,
-    ECO: ParkIcon,
-    FAN_ONLY: AirIcon,
-    HEAT: WbSunnyIcon,
-    HEATING: WbSunnyIcon,
-    OFF: PowerSettingsNewIcon,
+const BUTTONS: Record<string, React.JSX.Element> = {
+    AUTO: <ThermostatAutoIcon style={{ width: 24, height: 24 }} />,
+    MANUAL: <PanToolIcon style={{ width: 24, height: 24 }} />,
+    VACATION: <HouseboatIcon style={{ width: 24, height: 24 }} />,
+    COOL: <AcUnitIcon style={{ width: 24, height: 24 }} />,
+    COOLING: <AcUnitIcon style={{ width: 24, height: 24 }} />,
+    DRY: <DryIcon style={{ width: 24, height: 24 }} />,
+    ECO: <ParkIcon style={{ width: 24, height: 24 }} />,
+    FAN_ONLY: <AirIcon style={{ width: 24, height: 24 }} />,
+    HEAT: <WbSunnyIcon style={{ width: 24, height: 24 }} />,
+    HEATING: <WbSunnyIcon style={{ width: 24, height: 24 }} />,
+    OFF: <PowerSettingsNewIcon style={{ width: 24, height: 24 }} />,
 };
 
-const styles = {
+const styles: Record<string, any> = {
     thermostatCircleDiv: {
         width: '100%',
         display: 'flex',
@@ -94,18 +97,21 @@ const styles = {
     },
 };
 
-function getModes(modeObj) {
+function getModes(modeObj: ioBroker.StateObject): { value: string; label: string; icon?: React.JSX.Element }[] | null {
     let modes = modeObj?.common?.states;
     if (Array.isArray(modes)) {
-        const result = {};
+        const result: Record<string, string> = {};
         modes.forEach(m => (result[m] = m));
         modes = result;
     }
-    const result = [];
+    const result: { value: string; label: string; icon?: React.JSX.Element }[] = [];
     if (modes) {
         Object.keys(modes).forEach(m => {
-            const mode = { value: m, label: modes[m] };
-            mode.icon = BUTTONS[(modes[m] || '').toUpperCase()];
+            const mode: { value: string; label: string; icon?: React.JSX.Element } = {
+                value: m,
+                label: (modes as Record<string, string>)[m],
+            };
+            mode.icon = BUTTONS[((modes as Record<string, string>)[m] || '').toUpperCase()];
             result.push(mode);
         });
     }
@@ -126,7 +132,7 @@ interface ThermostatRxData {
     step: string;
     timeout: number;
     externalDialog: boolean;
-    count: number;
+    count: number | string;
     [key: `hide${number}`]: boolean;
     [key: `title${number}`]: string;
     [key: `tooltip${number}`]: string;
@@ -140,18 +146,46 @@ interface ThermostatRxData {
 
 interface ThermostatState extends VisRxWidgetState {
     showDialog: boolean;
+    // external dialog
+    dialog: boolean;
     dialogTab: number;
     size: number;
     horizontal: boolean;
+
+    modeObject: { common: ioBroker.StateCommon; _id: string } | undefined;
+    tempObject: { common: ioBroker.StateCommon; _id: string } | null | undefined;
+    tempStateObject: { common: ioBroker.StateCommon; _id: string } | null | undefined;
+    isChart?: boolean;
+    modes:
+        | {
+              value: string;
+              label: string | null;
+              icon?: React.JSX.Element | true | string;
+              tooltip: string;
+              original: string;
+              color?: string;
+          }[]
+        | undefined
+        | null;
+    min: number | undefined | null;
+    max: number | undefined | null;
+    step: number | undefined | null;
 }
 
-class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
-    constructor(props: Thermostat['props']) {
+export default class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
+    private lastRxData = '';
+    private customStyle: React.CSSProperties = {};
+    private updateTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        this.state.showDialog = false;
-        this.state.dialogTab = 1;
-        this.state.size = 0;
-        this.state.horizontal = false;
+        this.state = {
+            ...this.state,
+            showDialog: false,
+            dialogTab: 0,
+            size: 0,
+            horizontal: false,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -185,16 +219,16 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                                     if (object?.common) {
                                         const id = data[field.name!].split('.');
                                         id.pop();
-                                        const states = await socket.getObjectView(
-                                            `${id.join('.')}.`,
-                                            `${id.join('.')}.\u9999`,
-                                            'state',
-                                        );
+                                        const states: Record<string, ioBroker.StateObject> =
+                                            await socket.getObjectViewSystem(
+                                                'state',
+                                                `${id.join('.')}.`,
+                                                `${id.join('.')}.\u9999`,
+                                            );
                                         if (states) {
                                             let changed = false;
                                             const values = Object.values(states);
-                                            for (let s = 0; s < values.length; s++) {
-                                                const state = values[s];
+                                            for (const state of values) {
                                                 const role = state.common.role;
                                                 if (role && role.includes('value.temperature')) {
                                                     data['oid-temp-actual'] = state._id;
@@ -258,8 +292,10 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                             label: 'mode_oid',
                             onChange: async (field, data, changeData, socket) => {
                                 if (data[field.name!]) {
-                                    const object = await socket.getObject(data[field.name!]);
-                                    const modes = getModes(object);
+                                    const object: ioBroker.StateObject | null | undefined = await socket.getObject(
+                                        data[field.name!],
+                                    );
+                                    const modes = object ? getModes(object) : null;
                                     if (modes) {
                                         let changed = false;
 
@@ -403,7 +439,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
             return;
         }
 
-        const newState = {};
+        const newState: Partial<ThermostatState> = {};
         this.lastRxData = actualRxData;
         const ids = [];
         if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
@@ -415,66 +451,83 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         if (this.state.rxData['oid-temp-actual'] && this.state.rxData['oid-temp-actual'] !== 'nothing_selected') {
             ids.push(this.state.rxData['oid-temp-actual']);
         }
-        const _objects = ids.length ? await this.props.context.socket.getObjectsById(ids) : {};
+        const _objects: Record<string, ioBroker.StateObject> = ids.length
+            ? ((await this.props.context.socket.getObjectsById(ids)) as Record<string, ioBroker.StateObject>)
+            : {};
 
         if (this.state.rxData['oid-mode'] && this.state.rxData['oid-mode'] !== 'nothing_selected') {
             const modeObj = _objects[this.state.rxData['oid-mode']];
-            newState.modeObject = { common: modeObj.common, _id: modeObj._id };
-            // convert the array to the object
-            const modes = getModes(modeObj);
-            newState.modes = [];
-            const max = parseInt(this.state.rxData.count, 10) || 10;
+            if (modeObj) {
+                newState.modeObject = { common: modeObj.common, _id: modeObj._id };
+                // convert the array to the object
+                const modes = getModes(modeObj);
+                newState.modes = [];
+                const max = parseInt(this.state.rxData.count as string, 10) || 10;
 
-            modes?.forEach((m, i) => {
-                if (this.state.rxData[`hide${i + 1}`] || i >= max) {
-                    return;
-                }
-                const mode = m;
-                mode.tooltip = this.state.rxData[`tooltip${i + 1}`] || m.label;
-                mode.icon =
-                    !this.state.rxData[`noIcon${i + 1}`] &&
-                    (this.state.rxData[`icon${i + 1}`] ||
-                        this.state.rxData[`iconSmall${i + 1}`] ||
-                        !!BUTTONS[(m.label || '').toUpperCase()]);
-                mode.original = m.label;
-                mode.label =
-                    mode.icon && this.state.rxData[`noText${i + 1}`]
-                        ? null
-                        : this.state.rxData[`title${i + 1}`] || mode.label;
-                // if icon present, and it is a standard icon and no title provided
-                if (
-                    mode.label &&
-                    !this.state.rxData[`noText${i + 1}`] &&
-                    mode.icon === true &&
-                    !this.state.rxData[`title${i + 1}`]
-                ) {
-                    mode.label = null;
-                }
-                mode.color = this.state.rxData[`color${i + 1}`];
-                mode.value = this.state.rxData[`value${i + 1}`] || m.value;
-                newState.modes.push(mode);
-            });
-            for (let i = newState.modes.length; i < max; i++) {
-                if (this.state.rxData[`hide${i + 1}`]) {
-                    continue;
-                }
-                const icon =
-                    !this.state.rxData[`noIcon${i + 1}`] &&
-                    (this.state.rxData[`icon${i + 1}`] ||
-                        this.state.rxData[`iconSmall${i + 1}`] ||
-                        !!BUTTONS[(this.state.rxData[`title${i + 1}`] || '').toUpperCase()]);
-                newState.modes.push({
-                    tooltip: this.state.rxData[`tooltip${i + 1}`],
-                    icon,
-                    original: this.state.rxData[`title${i + 1}`],
-                    label: icon && this.state.rxData[`noText${i + 1}`] ? null : this.state.rxData[`title${i + 1}`],
-                    value: this.state.rxData[`value${i + 1}`],
-                    color: this.state.rxData[`color${i + 1}`],
+                modes?.forEach((m, i) => {
+                    if (this.state.rxData[`hide${i + 1}`] || i >= max) {
+                        return;
+                    }
+                    const icon: string | true | undefined = !this.state.rxData[`noIcon${i + 1}`]
+                        ? this.state.rxData[`icon${i + 1}`] ||
+                          this.state.rxData[`iconSmall${i + 1}`] ||
+                          !!BUTTONS[(m.label || '').toUpperCase()]
+                        : undefined;
+
+                    const mode: {
+                        value: string;
+                        label: string | null;
+                        icon?: React.JSX.Element | true | string;
+                        tooltip: string;
+                        original: string;
+                        color?: string;
+                    } = {
+                        value: this.state.rxData[`value${i + 1}`] || m.value,
+                        tooltip: this.state.rxData[`tooltip${i + 1}`] || m.label,
+                        icon,
+                        original: m.label,
+                        label:
+                            icon && this.state.rxData[`noText${i + 1}`]
+                                ? null
+                                : this.state.rxData[`title${i + 1}`] || m.label,
+                        color: this.state.rxData[`color${i + 1}`],
+                    };
+
+                    // if icon present, and it is a standard icon and no title provided
+                    if (
+                        mode.label &&
+                        !this.state.rxData[`noText${i + 1}`] &&
+                        mode.icon === true &&
+                        !this.state.rxData[`title${i + 1}`]
+                    ) {
+                        mode.label = null;
+                    }
+                    newState.modes!.push(mode);
                 });
+                for (let i = newState.modes.length; i < max; i++) {
+                    if (this.state.rxData[`hide${i + 1}`]) {
+                        continue;
+                    }
+                    const icon = !this.state.rxData[`noIcon${i + 1}`]
+                        ? this.state.rxData[`icon${i + 1}`] ||
+                          this.state.rxData[`iconSmall${i + 1}`] ||
+                          !!BUTTONS[(this.state.rxData[`title${i + 1}`] || '').toUpperCase()]
+                        : undefined;
+
+                    newState.modes.push({
+                        tooltip: this.state.rxData[`tooltip${i + 1}`],
+                        icon,
+                        original: this.state.rxData[`title${i + 1}`],
+                        label: icon && this.state.rxData[`noText${i + 1}`] ? null : this.state.rxData[`title${i + 1}`],
+                        value: this.state.rxData[`value${i + 1}`],
+                        color: this.state.rxData[`color${i + 1}`],
+                    });
+                }
+            } else {
+                newState.modes = null;
             }
         } else {
             newState.modes = null;
-            newState.mode = null;
         }
 
         if (this.state.rxData['oid-temp-set'] && this.state.rxData['oid-temp-set'] !== 'nothing_selected') {
@@ -484,7 +537,6 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
             newState.tempObject = { common: tempObj.common, _id: tempObj._id };
         } else {
             newState.tempObject = null;
-            newState.temp = null;
             newState.max = null;
             newState.min = null;
         }
@@ -500,8 +552,16 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
             newState.tempObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory] ||
             newState.tempStateObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory];
 
-        Object.keys(newState).find(key => JSON.stringify(this.state[key]) !== JSON.stringify(newState[key])) &&
-            this.setState(newState);
+        // If changed any attribute
+        if (
+            Object.keys(newState).find(
+                key =>
+                    JSON.stringify((this.state as Record<string, any>)[key]) !==
+                    JSON.stringify((newState as Record<string, any>)[key]),
+            )
+        ) {
+            this.setState(newState as any);
+        }
     }
 
     async componentDidMount(): Promise<void> {
@@ -517,7 +577,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         return Thermostat.getWidgetInfo();
     }
 
-    formatValue(value, round) {
+    formatValue(value: null | string | undefined | number | boolean, round?: number): string {
         if (typeof value === 'number') {
             if (round === 0) {
                 value = Math.round(value);
@@ -560,7 +620,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                     {this.state.dialogTab === 1 && (
                         <div style={{ height: '100%' }}>
                             <ObjectChart
-                                t={key => Generic.t(key)}
+                                t={(key: string): string => Generic.t(key)}
                                 lang={Generic.getLanguage()}
                                 socket={this.props.context.socket}
                                 obj={this.state.tempStateObject || this.state.tempObject}
@@ -580,10 +640,9 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         );
     }
 
-    componentDidUpdate(): void {
-        if (super.componentDidUpdate) {
-            super.componentDidUpdate();
-        }
+    componentDidUpdate(prevProps: VisRxWidgetProps, prevState: typeof this.state): void {
+        super.componentDidUpdate(prevProps, prevState);
+
         if (this.refService?.current) {
             let w = this.refService.current.clientWidth;
             let h = this.refService.current.clientHeight;
@@ -626,11 +685,11 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         }
     }
 
-    thermIsWithPowerButton() {
-        return this.state.rxData['oid-power'] && this.state.rxData['oid-power'] !== 'nothing_selected';
+    thermIsWithPowerButton(): boolean {
+        return !!this.state.rxData['oid-power'] && this.state.rxData['oid-power'] !== 'nothing_selected';
     }
 
-    thermIsWithModeButtons() {
+    thermIsWithModeButtons(): boolean {
         return (
             (this.state.modes?.length || this.state.rxData['oid-party'] || this.state.rxData['oid-boost']) &&
             // if no power button or power is on
@@ -638,7 +697,7 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         );
     }
 
-    onCommand(command) {
+    onCommand(command: 'openDialog' | 'closeDialog'): any {
         const result = super.onCommand(command);
         if (result === false) {
             if (command === 'openDialog') {
@@ -658,23 +717,25 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         super.renderWidgetBody(props);
 
         this.customStyle = {};
-        if (this.state.rxStyle['font-weight']) {
-            this.customStyle.fontWeight = this.state.rxStyle!['font-weight'];
-        }
-        if (this.state.rxStyle['font-size']) {
-            this.customStyle.fontSize = this.state.rxStyle!['font-size'];
-        }
-        if (this.state.rxStyle['font-family']) {
-            this.customStyle.fontFamily = this.state.rxStyle['font-family'];
-        }
-        if (this.state.rxStyle['font-style']) {
-            this.customStyle.fontStyle = this.state.rxStyle['font-style'];
-        }
-        if (this.state.rxStyle['word-spacing']) {
-            this.customStyle.wordSpacing = this.state.rxStyle['word-spacing'];
-        }
-        if (this.state.rxStyle['letter-spacing']) {
-            this.customStyle.letterSpacing = this.state.rxStyle['letter-spacing'];
+        if (this.state.rxStyle) {
+            if (this.state.rxStyle['font-weight']) {
+                this.customStyle.fontWeight = this.state.rxStyle['font-weight'];
+            }
+            if (this.state.rxStyle['font-size']) {
+                this.customStyle.fontSize = this.state.rxStyle['font-size'];
+            }
+            if (this.state.rxStyle['font-family']) {
+                this.customStyle.fontFamily = this.state.rxStyle['font-family'];
+            }
+            if (this.state.rxStyle['font-style']) {
+                this.customStyle.fontStyle = this.state.rxStyle['font-style'];
+            }
+            if (this.state.rxStyle['word-spacing']) {
+                this.customStyle.wordSpacing = this.state.rxStyle['word-spacing'];
+            }
+            if (this.state.rxStyle['letter-spacing']) {
+                this.customStyle.letterSpacing = this.state.rxStyle['letter-spacing'];
+            }
         }
 
         const withCard = !this.state.rxData.noCard && !props.widget.usedInWidget;
@@ -682,25 +743,35 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
 
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout =
-                this.updateTimeout ||
-                setTimeout(async () => {
-                    this.updateTimeout = null;
-                    await this.thermostatReadObjects();
-                }, 50);
+            this.updateTimeout ||= setTimeout(async () => {
+                this.updateTimeout = null;
+                await this.thermostatReadObjects();
+            }, 50);
         }
 
         let tempValue = this.state.values[`${this.state.rxData['oid-temp-set']}.val`];
         if (tempValue === undefined) {
             tempValue = null;
         }
-        if (tempValue !== null && tempValue < this.state.min) {
+        if (
+            tempValue !== null &&
+            (this.state.min === null || this.state.min === undefined || tempValue < this.state.min)
+        ) {
             tempValue = this.state.min;
-        } else if (tempValue !== null && tempValue > this.state.max) {
+        } else if (
+            tempValue !== null &&
+            (this.state.max === null || this.state.max === undefined || tempValue > this.state.max)
+        ) {
             tempValue = this.state.max;
         }
 
-        if (tempValue === null) {
+        if (
+            tempValue === null &&
+            this.state.min !== null &&
+            this.state.min !== undefined &&
+            this.state.max !== null &&
+            this.state.max !== undefined
+        ) {
             tempValue = (this.state.max - this.state.min) / 2 + this.state.min;
         }
 
@@ -740,20 +811,19 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
             this.props.context.theme?.palette.primary.main ||
             '#448aff';
 
-        let modesButton = [];
+        let modesButton: React.JSX.Element[] = [];
         if (thermIsWithModeButtons) {
             if (this.state.modes?.length) {
                 modesButton = this.state.modes.map((mode, i) => {
                     const icon =
-                        mode.icon === true && BUTTONS[(mode.original || '').toUpperCase()] ? (
-                            true
+                        mode.icon === true ? (
+                            BUTTONS[(mode.original || '').toUpperCase()]
                         ) : mode.icon ? (
                             <Icon
                                 src={mode.icon}
                                 style={{ width: 24, height: 24 }}
                             />
                         ) : null;
-                    const MyIcon = icon === true ? BUTTONS[(mode.original || '').toUpperCase()] : null;
                     let currentValueStr = this.state.values[`${this.state.rxData['oid-mode']}.val`];
 
                     if (currentValueStr === null || currentValueStr === undefined) {
@@ -774,19 +844,22 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                                     currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }
                                 }
                                 onClick={() => {
-                                    let value = mode.value;
+                                    let value: string | boolean | number = mode.value;
                                     if (this.state.modeObject?.common?.type === 'number') {
                                         value = parseFloat(value);
                                     } else if (this.state.modeObject?.common?.type === 'boolean') {
+                                        // @ts-expect-error is Ok
                                         value = value === 'true' || value === true || value === '1' || value === 1;
                                     }
-                                    const values = JSON.parse(JSON.stringify(this.state.values));
+                                    const values: VisRxWidgetStateValues = JSON.parse(
+                                        JSON.stringify(this.state.values),
+                                    );
                                     values[`${this.state.rxData['oid-mode']}.val`] = value;
-                                    this.setState(values);
+                                    this.setState({ values });
                                     this.props.context.setValue(this.state.rxData['oid-mode'], value);
                                 }}
                             >
-                                {icon === true ? <MyIcon /> : icon}
+                                {icon}
                             </IconButton>
                         </Tooltip>
                     ) : (
@@ -795,18 +868,19 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                             color={currentValueStr === mode.value ? 'primary' : 'inherit'}
                             // style={currentValueStr === mode.value || !mode.color ? undefined : { color: mode.color }}
                             onClick={() => {
-                                let value = mode.value;
+                                let value: string | boolean | number = mode.value;
                                 if (this.state.modeObject?.common?.type === 'number') {
                                     value = parseFloat(value);
                                 } else if (this.state.modeObject?.common?.type === 'boolean') {
+                                    // @ts-expect-error is OK
                                     value = value === 'true' || value === true || value === '1' || value === 1;
                                 }
-                                const values = JSON.parse(JSON.stringify(this.state.values));
+                                const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
                                 values[`${this.state.rxData['oid-mode']}.val`] = value;
-                                this.setState(values);
+                                this.setState({ values });
                                 this.props.context.setValue(this.state.rxData['oid-mode'], value);
                             }}
-                            startIcon={icon === true ? <MyIcon /> : icon}
+                            startIcon={icon}
                         >
                             {mode.label}
                         </Button>
@@ -835,9 +909,9 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                                     _currentValueStr === 'true' ||
                                     _currentValueStr === true;
                             }
-                            const values = JSON.parse(JSON.stringify(this.state.values));
+                            const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
                             values[`${this.state.rxData['oid-party']}.val`] = !_currentValueStr;
-                            this.setState(values);
+                            this.setState({ values });
                             this.props.context.setValue(this.state.rxData['oid-party'], !_currentValueStr);
                         }}
                         startIcon={<CelebrationIcon />}
@@ -867,9 +941,9 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                                     _currentValueStr === 'true' ||
                                     _currentValueStr === true;
                             }
-                            const values = JSON.parse(JSON.stringify(this.state.values));
+                            const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
                             values[`${this.state.rxData['oid-boost']}.val`] = !_currentValueStr;
-                            this.setState(values);
+                            this.setState({ values });
                             this.props.context.setValue(this.state.rxData['oid-boost'], !_currentValueStr);
                         }}
                         startIcon={<BoostIcon />}
@@ -890,10 +964,10 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                     <IconButton
                         color={this.state.values[`${this.state.rxData['oid-power']}.val`] ? 'primary' : 'inherit'}
                         onClick={() => {
-                            const values = JSON.parse(JSON.stringify(this.state.values));
-                            const id = `${this.state.rxData['oid-power']}.val`;
+                            const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
+                            const id: `${string}.val` = `${this.state.rxData['oid-power']}.val`;
                             values[id] = !values[id];
-                            this.setState(values);
+                            this.setState({ values });
                             this.props.context.setValue(this.state.rxData['oid-power'], values[id]);
                         }}
                     >
@@ -940,19 +1014,19 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                 {withTitle ? null : chartButton}
                 {this.state.size && this.state.tempObject ? (
                     <CircularSliderWithChildren
-                        minValue={this.state.min}
-                        maxValue={this.state.max}
+                        minValue={this.state.min === null || this.state.min === undefined ? 12 : this.state.min}
+                        maxValue={this.state.max === null || this.state.max === undefined ? 30 : this.state.max}
                         size={this.state.size}
                         arcColor={arcColor}
                         arcBackgroundColor={this.props.context.themeType === 'dark' ? '#DDD' : '#222'}
                         startAngle={40}
-                        step={0.5}
+                        // step={0.5}
                         handleSize={handleSize}
                         endAngle={320}
                         handle1={{
                             value: tempValue,
                             onChange: value => {
-                                const values = JSON.parse(JSON.stringify(this.state.values));
+                                const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
                                 if (this.state.rxData.step === '0.5') {
                                     values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value * 2) / 2;
                                 } else {
@@ -1029,17 +1103,18 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
                     <div style={{ width: '100%' }}>
                         <Slider
                             style={{ width: 'calc(100% - 50px)', display: 'inline-block' }}
-                            min={this.state.min}
-                            max={this.state.max}
+                            min={this.state.min === null || this.state.min === undefined ? 12 : this.state.min}
+                            max={this.state.max === null || this.state.max === undefined ? 30 : this.state.max}
                             step={this.state.step || 0.5}
                             value={tempValue}
                             valueLabelDisplay="auto"
-                            onChange={(e, value) => {
-                                const values = JSON.parse(JSON.stringify(this.state.values));
+                            onChange={(_e, value: number | number[]): void => {
+                                const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
                                 if (this.state.rxData.step === '0.5') {
-                                    values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value * 2) / 2;
+                                    values[`${this.state.rxData['oid-temp-set']}.val`] =
+                                        Math.round((value as number) * 2) / 2;
                                 } else {
-                                    values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value);
+                                    values[`${this.state.rxData['oid-temp-set']}.val`] = Math.round(value as number);
                                 }
                                 this.setState({ values });
                             }}
@@ -1124,13 +1199,13 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
             return this.state.dialog ? (
                 <Dialog
                     open={!0}
-                    onClose={() => this.setState({ dialog: null })}
+                    onClose={() => this.setState({ dialog: false })}
                 >
                     <DialogTitle>
                         {this.state.rxData.widgetTitle}
                         <IconButton
                             style={{ float: 'right', zIndex: 2 }}
-                            onClick={() => this.setState({ dialog: null })}
+                            onClick={() => this.setState({ dialog: false })}
                         >
                             <Close />
                         </IconButton>
@@ -1147,12 +1222,3 @@ class Thermostat extends Generic<ThermostatRxData, ThermostatState> {
         return this.wrapContent(content, withTitle ? chartButton : null, { textAlign: 'center' });
     }
 }
-
-Thermostat.propTypes = {
-    context: PropTypes.object,
-    themeType: PropTypes.string,
-    style: PropTypes.object,
-    data: PropTypes.object,
-};
-
-export default Thermostat;

@@ -1,10 +1,20 @@
 import React, { createRef, Component, type SVGProps, type CSSProperties } from 'react';
-import PropTypes from 'prop-types';
 
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 // import { LocalizationProvider, TimePicker, DatePicker } from '@mui/x-date-pickers';
-import type { SxProps, Theme } from '@mui/material';
-import { Paper, LinearProgress, InputLabel, MenuItem, FormControl, Select, Toolbar, Fab, Box } from '@mui/material';
+import {
+    Paper,
+    LinearProgress,
+    InputLabel,
+    MenuItem,
+    FormControl,
+    Select,
+    Toolbar,
+    Fab,
+    Box,
+    type SxProps,
+    type Theme,
+} from '@mui/material';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 
@@ -32,8 +42,7 @@ import brLocale from 'date-fns/locale/pt-BR';
 import deLocale from 'date-fns/locale/de';
 import nlLocale from 'date-fns/locale/nl';
 */
-import type { IobTheme, LegacyConnection } from '@iobroker/adapter-react-v5';
-import { Utils, withWidth } from '@iobroker/adapter-react-v5';
+import { type ThemeType, Utils, withWidth, type IobTheme, type LegacyConnection } from '@iobroker/adapter-react-v5';
 import type { EChartsOption, SeriesOption } from 'echarts';
 import type { YAXisOption } from 'echarts/types/dist/shared';
 
@@ -50,7 +59,7 @@ echarts.use([
     SVGRenderer,
 ]);
 
-const SplitLineIcon = (props: SVGProps<SVGSVGElement>) => (
+const SplitLineIcon = (props: SVGProps<SVGSVGElement>): React.JSX.Element => (
     <svg
         viewBox="0 0 512 512"
         width={props.width || 20}
@@ -109,7 +118,7 @@ const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
         overflow: 'hidden',
     },
     chartWithToolbar: theme => ({
-        height: `calc(100% - ${(theme?.mixins?.toolbar.minHeight || 48) + 8}px)`,
+        height: `calc(100% - ${parseFloat((theme?.mixins?.toolbar.minHeight as string) || '48') + 8}px)`,
     }),
     chartWithoutToolbar: {
         height: '100%',
@@ -187,7 +196,7 @@ interface ObjectChartProps {
     historyInstances?: Array<{ id: string; alive: boolean }>;
     defaultHistory?: string;
     lang: string;
-    themeType: 'light' | 'dark';
+    themeType: ThemeType;
     noToolbar?: boolean;
     customsStyles?: Record<string, CSSProperties | SxProps<IobTheme>>;
     customsClasses?: Record<string, CSSProperties | SxProps<IobTheme>>;
@@ -235,12 +244,12 @@ interface ChartData {
 }
 
 class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
-    readTimeout: ReturnType<typeof setTimeout> | null;
-    timeTimer: ReturnType<typeof setTimeout> | null;
+    readTimeout: ReturnType<typeof setTimeout> | null = null;
+    timeTimer: ReturnType<typeof setTimeout> | null = null;
     start: number;
     end: number;
     echartsReact: ReactEchartsCore | null = null;
-    rangeRef: React.RefObject<HTMLElement | null>;
+    rangeRef: React.RefObject<HTMLElement> = createRef();
     maxYLenTimeout: ReturnType<typeof setTimeout> | null = null;
     maxYLenTimeout2: ReturnType<typeof setTimeout> | null = null;
     timerResize: ReturnType<typeof setTimeout> | null = null;
@@ -253,6 +262,8 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
     maxY!: Record<string, number | null>;
     minX!: Record<string, number | null>;
     maxX!: Record<string, number | null>;
+    chartValues: Record<string, { val: number; ts: number; i?: boolean }[]> | null = null;
+    rangeValues: ioBroker.GetHistoryResult | null = null;
 
     constructor(props: ObjectChart['props']) {
         super(props);
@@ -296,8 +307,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             maxYLen2: 0,
         };
 
-        this.rangeRef = createRef();
-        this.readTimeout = null;
         this.chartValues = null;
         this.rangeValues = null;
 
@@ -329,10 +338,17 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             ids.push(this.props.obj2._id);
         }
 
-        ids.length && this.props.socket.subscribeState(ids, this.onChange);
+        if (ids.length) {
+            void this.props.socket.subscribeState(ids, this.onChange);
+        }
         window.addEventListener('resize', this.onResize);
-        this.prepareData()
-            .then(() => !this.props.noToolbar && this.readHistoryRange())
+
+        void this.prepareData()
+            .then(() => {
+                if (!this.props.noToolbar) {
+                    return this.readHistoryRange();
+                }
+            })
             .then(() => this.setRelativeInterval(this.state.relativeRange, true, () => this.forceUpdate()));
     }
 
@@ -378,20 +394,20 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             (!this.rangeValues.length || this.rangeValues[this.rangeValues.length - 1].ts < state.ts)
         ) {
             if (!this.state.max || state.ts - this.state.max < 120000) {
-                this.chartValues && this.chartValues[id] && this.chartValues[id].push({ val: state.val, ts: state.ts });
+                this.chartValues?.[id]?.push({ val: state.val as number, ts: state.ts });
                 if (id === this.props.obj._id) {
-                    this.rangeValues.push({ val: state.val, ts: state.ts });
+                    this.rangeValues.push({ val: state.val as number, ts: state.ts });
                 }
 
                 // update only if the end is near to now
-                if (state.ts >= this.chart.min && state.ts <= this.chart.max + 300000) {
+                if (state.ts >= this.chart.min! && state.ts <= this.chart.max! + 300000) {
                     this.updateChart();
                 }
             }
         }
     };
 
-    prepareData() {
+    prepareData(): Promise<void> {
         let list: { id: string; alive: boolean }[];
 
         if (this.props.noToolbar) {
@@ -399,8 +415,8 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 this.setState(
                     {
                         // dateFormat: this.props.dateFormat.replace(/D/g, 'd').replace(/Y/g, 'y'),
-                        defaultHistory: this.props.defaultHistory,
-                        historyInstance: this.props.defaultHistory,
+                        defaultHistory: this.props.defaultHistory!,
+                        historyInstance: this.props.defaultHistory!,
                     },
                     () => resolve(),
                 );
@@ -416,7 +432,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                     : this.props.socket.getSystemConfig();
             })
             .then(config => {
-                const defaultHistory = config && config.common && config.common.defaultHistory;
+                const defaultHistory = config?.common?.defaultHistory;
 
                 // find current history
                 // first read from localstorage
@@ -426,10 +442,10 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                     historyInstance = defaultHistory;
                 }
                 if (!historyInstance || !list.find(it => it.id === historyInstance && it.alive)) {
-                    // find first alive history
-                    historyInstance = list.find(it => it.alive);
-                    if (historyInstance) {
-                        historyInstance = historyInstance.id;
+                    // find the first alive history
+                    const hInstance = list.find(it => it.alive);
+                    if (hInstance) {
+                        historyInstance = hInstance.id;
                     }
                 }
                 // get first entry
@@ -479,7 +495,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 const alive = await this.props.socket.getState(ids[i]);
                 const item = list.find(it => ids[i].endsWith(`${it.id}.alive`));
                 if (item) {
-                    item.alive = (alive as boolean) && (alive!.val as boolean);
+                    item.alive = alive?.val as boolean;
                 }
             }
         }
@@ -501,9 +517,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 from: false,
                 ack: false,
                 q: false,
-                addID: false,
-                comment: false,
-                user: false,
+                addId: false,
                 aggregate: 'none',
             })
             .then(values => {
@@ -515,7 +529,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             });
     }
 
-    readHistory(start: number, end: number, id?: string) {
+    readHistory(start: number, end: number, id?: string): Promise<{ val: number; ts: number; i?: boolean }[]> {
         /* interface GetHistoryOptions {
             instance?: string;
             start?: number;
@@ -531,16 +545,14 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             sessionId?: any;
             aggregate?: 'minmax' | 'min' | 'max' | 'average' | 'total' | 'count' | 'none';
         } */
-        const options = {
+        const options: ioBroker.GetHistoryOptions = {
             instance: this.state.historyInstance,
             start,
             end,
             from: false,
             ack: false,
             q: false,
-            addID: false,
-            comment: false,
-            user: false,
+            addId: false,
             aggregate: 'none',
             returnNewestEntries: true,
         };
@@ -560,7 +572,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
 
         return this.props.socket.getHistory(id || this.props.obj._id, options).then(values => {
             // merge range and chart
-            const chart = [];
+            const chart: { val: number; ts: number; i?: boolean }[] = [];
             let r = 0;
             const range = this.rangeValues;
             let minY = null;
@@ -569,15 +581,14 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             for (let t = 0; t < values.length; t++) {
                 if (!id && range) {
                     while (r < range.length && range[r].ts < values[t].ts) {
-                        chart.push(range[r]);
+                        chart.push(range[r] as { val: number; ts: number; i?: boolean });
                         // console.log(`add ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
                         r++;
                     }
                 }
                 // if range and details are not equal
                 if (!chart.length || chart[chart.length - 1].ts < values[t].ts) {
-                    chart.push(values[t]);
-                    // console.log(`add value ${new Date(values[t].ts).toISOString()}: ${values[t].val}`)
+                    chart.push(values[t] as { val: number; ts: number; i?: boolean });
                 } else if (
                     chart[chart.length - 1].ts === values[t].ts &&
                     chart[chart.length - 1].val !== values[t].ts
@@ -594,7 +605,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
 
             if (id && range) {
                 while (r < range.length) {
-                    chart.push(range[r]);
+                    chart.push(range[r] as { val: number; ts: number; i?: boolean });
                     console.log(`add range ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
                     r++;
                 }
@@ -603,12 +614,12 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             // sort
             chart.sort((a, b) => (a.ts > b.ts ? 1 : a.ts < b.ts ? -1 : 0));
 
-            id = id || this.props.obj._id;
+            id ||= this.props.obj._id;
             this.chartValues = this.chartValues || {};
-            this.minY = this.minY || {};
-            this.maxY = this.maxY || {};
-            this.minX = this.minX || {};
-            this.maxX = this.maxX || {};
+            this.minY ||= {};
+            this.maxY ||= {};
+            this.minX ||= {};
+            this.maxX ||= {};
 
             this.chartValues[id] = chart;
             this.minY[id] = minY as number;
@@ -631,14 +642,18 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         });
     }
 
-    convertData(values, id) {
-        values = values || this.chartValues[id];
-        const data = [];
-        if (!values || !values.length) {
+    convertData(
+        values: { val: number; ts: number; i?: boolean }[] | null,
+        id: string,
+    ): { value: [ts: number, val: number]; exact?: boolean }[] {
+        values ||= this.chartValues![id];
+        const data: { value: [ts: number, val: number]; exact?: boolean }[] = [];
+        if (!values?.length) {
             return data;
         }
+
         for (let i = 0; i < values.length; i++) {
-            const dp = { value: [values[i].ts, values[i].val] };
+            const dp: { value: [ts: number, val: number]; exact?: boolean } = { value: [values[i].ts, values[i].val] };
             if (values[i].i) {
                 dp.exact = false;
             }
@@ -672,21 +687,21 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             }
         }
 
-        let widthAxis2;
+        let widthAxis2: number | undefined;
         if (this.props.obj2) {
             if (this.minY[this.props.obj2._id] !== null && this.minY[this.props.obj2._id] !== undefined) {
                 widthAxis2 = (this.minY[this.props.obj2._id]!.toString() + this.unit2).length * 9 + 12;
             }
             if (this.maxY[this.props.obj2._id] !== null && this.maxY[this.props.obj2._id] !== undefined) {
                 const w = (this.maxY[this.props.obj2._id]!.toString() + this.unit2).length * 9 + 12;
-                if (w > (widthAxis2 as number)) {
+                if (w > widthAxis2!) {
                     widthAxis2 = w;
                 }
             }
 
             if (this.state.maxYLen2) {
                 const w = this.state.maxYLen2 * 9 + 12;
-                if (w > widthAxis2) {
+                if (w > widthAxis2!) {
                     widthAxis2 = w;
                 }
             }
@@ -1500,33 +1515,5 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         );
     }
 }
-
-ObjectChart.propTypes = {
-    t: PropTypes.func,
-    lang: PropTypes.string,
-    socket: PropTypes.object,
-    obj: PropTypes.object,
-    obj2: PropTypes.object,
-    unit: PropTypes.string,
-    unit2: PropTypes.string,
-    title: PropTypes.string,
-    title2: PropTypes.string,
-    objLineType: PropTypes.string,
-    obj2LineType: PropTypes.string,
-    objColor: PropTypes.string,
-    obj2Color: PropTypes.string,
-    objBackgroundColor: PropTypes.string,
-    obj2BackgroundColor: PropTypes.string,
-    customsInstances: PropTypes.array,
-    themeType: PropTypes.string,
-    objects: PropTypes.object,
-    from: PropTypes.number,
-    end: PropTypes.number,
-    noToolbar: PropTypes.bool,
-    defaultHistory: PropTypes.string,
-    historyInstance: PropTypes.string,
-    isFloatComma: PropTypes.bool,
-    chartTitle: PropTypes.string,
-};
 
 export default withWidth()(ObjectChart);

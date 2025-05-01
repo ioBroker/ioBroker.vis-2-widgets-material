@@ -10,10 +10,15 @@ import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 import { Close as CloseIcon, Fullscreen as OpenInFullIcon } from '@mui/icons-material';
 
 import Generic from './Generic';
-import type { RxRenderWidgetProps, RxWidgetInfo, RxWidgetInfoAttributesField, WidgetData } from '@iobroker/types-vis-2';
-import type { VisRxWidgetState } from './visRxWidget';
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    RxWidgetInfoAttributesField,
+    WidgetData,
+    WidgetStyleState,
+    VisRxWidgetState,
+} from '@iobroker/types-vis-2';
 import type { LegacyConnection } from '@iobroker/adapter-react-v5';
-import { WidgetStyleState } from './visBaseWidget';
 
 // @ts-expect-error ignore
 delete L.Icon.Default.prototype._getIconUrl;
@@ -28,7 +33,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: markerShadow,
 });
 
-const styles: Record<string, CSSProperties> = {
+const styles: Record<'mapContainer' | 'dialogTitle', CSSProperties> = {
     mapContainer: {
         width: '100%',
         height: '100%',
@@ -43,13 +48,16 @@ const styles: Record<string, CSSProperties> = {
 interface MapContentProps {
     rxStyle: WidgetStyleState;
     rxData: MapRxData;
+    widget: Map;
+    markers: { longitude: number; latitude: number }[];
 }
 
-const MapContent = (props: MapContentProps): React.ReactNode => {
+function MapContent(props: MapContentProps): React.JSX.Element | null {
     const map = useMap();
     const [oldRxData, setOldRxData] = React.useState('');
     const [oldRxStyle, setOldRxStyle] = React.useState('');
     const [markers, setOldMarkers] = React.useState('');
+
     if (
         (JSON.stringify(props.rxData) !== oldRxData &&
             props.markers.filter(marker => marker.latitude && marker.longitude).length) ||
@@ -58,23 +66,28 @@ const MapContent = (props: MapContentProps): React.ReactNode => {
     ) {
         let centerLat = 0;
         let centerLng = 0;
+
         props.markers.forEach(marker => {
             centerLat += marker.latitude || 0;
             centerLng += marker.longitude || 0;
         });
+
         centerLat /= props.markers.length;
         centerLng /= props.markers.length;
-        map.setView([centerLat, centerLng], parseInt(props.rxData.defaultZoom) || 18);
+
+        map.setView([centerLat, centerLng], parseInt(props.rxData.defaultZoom as string) || 18);
+
         if (!props.markers.every(marker => map.getBounds().contains([marker.latitude || 0, marker.longitude || 0]))) {
             map.fitBounds(props.markers.map(marker => [marker.latitude || 0, marker.longitude || 0]));
         }
+
         setOldRxData(JSON.stringify(props.rxData));
         setOldRxStyle(JSON.stringify(props.rxStyle));
         setOldMarkers(JSON.stringify(props.markers));
     }
 
     return null;
-};
+}
 
 const mapThemes: Record<
     string,
@@ -118,62 +131,75 @@ const mapThemes: Record<
     },
 };
 
+async function getParentObject(id: string, socket: LegacyConnection): Promise<ioBroker.Object | null> {
+    const parts = id.split('.');
+    parts.pop();
+    const parentOID = parts.join('.');
+    return await socket.getObject(parentOID);
+}
+
+function getText(text: ioBroker.StringOrTranslated): string {
+    if (typeof text === 'object') {
+        return text[Generic.getLanguage()] || text.en;
+    }
+    return text;
+}
+
 async function detectNameAndColor(
-    field: RxWidgetInfoAttributesField,
+    _field: RxWidgetInfoAttributesField,
     data: WidgetData,
     changeData: (newData: WidgetData) => void,
     socket: LegacyConnection,
 ): Promise<void> {
+    // @ts-expect-error fixed in @iobroker/types-vis-2
+    const field: RxWidgetInfoAttributesField & { index: number } = _field;
+
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
         let changed = false;
-        let parentChannel;
-        let parentDevice;
-        if (object && object.common && object.common.color) {
+        let parentChannel: ioBroker.Object | null = null;
+        let parentDevice: ioBroker.Object | null = null;
+
+        if (object?.common?.color) {
             data[`color${field.index}`] = object.common.color;
             changed = true;
         } else if (object) {
             // try to detect parent
-            parentChannel = await this.getParentObject(data[field.name!]);
+            parentChannel = await getParentObject(data[field.name!], socket);
             if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
                 if (parentChannel.common?.color) {
                     data[`name${field.index}`] = parentChannel.common.color;
                     changed = true;
                 } else {
-                    parentDevice = await this.getParentObject(data[field.name!], true);
-                    if (parentDevice.common?.color) {
+                    parentDevice = await getParentObject(data[field.name!], socket);
+                    if (parentDevice?.common?.color) {
                         data[`name${field.index}`] = parentDevice.common.color;
                         changed = true;
                     }
                 }
             }
         }
-        if (object && object.common && object.common.name) {
+
+        if (object?.common?.name) {
             changed = true;
-            data[`name${field.index}`] =
-                typeof object.common.name === 'object' ? object.common.name[Generic.getLanguage()] : object.common.name;
+            data[`name${field.index}`] = getText(object.common.name);
         } else if (object) {
             // try to detect parent
-            parentChannel = parentChannel || (await this.getParentObject(data[field.name!]));
+            parentChannel ||= await getParentObject(data[field.name!], socket);
             if (parentChannel && (parentChannel.type === 'channel' || parentChannel.type === 'device')) {
                 if (parentChannel.common?.name) {
-                    data[`name${field.index}`] =
-                        typeof parentChannel.common.name === 'object'
-                            ? parentChannel.common.name[Generic.getLanguage()]
-                            : parentChannel.common.name;
+                    data[`name${field.index}`] = getText(parentChannel.common.name);
                     changed = true;
                 } else {
-                    parentDevice = parentDevice || (await this.getParentObject(data[field.name!], true));
-                    if (parentDevice.common?.name) {
-                        data[`name${field.index}`] =
-                            typeof parentDevice.common.name === 'object'
-                                ? parentDevice.common.name[Generic.getLanguage()]
-                                : parentDevice.common.name;
+                    parentDevice ||= await getParentObject(data[field.name!], socket);
+                    if (parentDevice?.common?.name) {
+                        data[`name${field.index}`] = getText(parentDevice.common.name);
                         changed = true;
                     }
                 }
             }
         }
+
         changed && changeData(data);
     }
 }
@@ -185,7 +211,7 @@ interface MapRxData {
     theme: string;
     themeUrl: string;
     themeAttribution: string;
-    defaultZoom: number;
+    defaultZoom: number | string;
     noUserInteractions: boolean;
     hideZoomButtons: boolean;
     hideFullScreenButton: boolean;
@@ -202,7 +228,7 @@ interface MapRxData {
 
 interface MapState extends VisRxWidgetState {
     dialog: boolean;
-    history: Record<string, ioBroker.GetHistoryResult>;
+    history: { val: string; ts: number }[][];
     objects: Record<string, ioBroker.Object>;
     forceShowMap: boolean;
 }
@@ -211,7 +237,7 @@ export default class Map extends Generic<MapRxData, MapState> {
     fillDataTimer: ReturnType<typeof setTimeout> | null = null;
     constructor(props: Map['props']) {
         super(props);
-        this.state = { ...this.state, dialog: false, history: {}, objects: {} };
+        this.state = { ...this.state, dialog: false, history: [], objects: {} };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -368,7 +394,7 @@ export default class Map extends Generic<MapRxData, MapState> {
             count: 100,
         };
 
-        const newHistory: Map['state']['history'] = {};
+        const newHistory: { val: string; ts: number }[][] = [];
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
             if (
@@ -377,14 +403,20 @@ export default class Map extends Generic<MapRxData, MapState> {
                 this.state.objects[i]?.common?.custom &&
                 this.state.objects[i]?.common?.custom?.[options.instance]
             ) {
-                const history = await this.props.context.socket.getHistory(this.state.rxData[`position${i}`], options);
-                newHistory[i] = history.filter(position => position.val).sort((a, b) => (a.ts > b.ts ? 1 : -1));
+                const history: ioBroker.GetHistoryResult = await this.props.context.socket.getHistory(
+                    this.state.rxData[`position${i}`],
+                    options,
+                );
+                newHistory[i] = history
+                    .filter(entry => entry.val)
+                    .sort((a, b) => (a.ts > b.ts ? 1 : -1))
+                    .map(entry => ({ val: entry.val as string, ts: entry.ts }));
             }
         }
 
         this.setState({ history: newHistory });
 
-        const objects: Map['state']['objects'] = {};
+        const objects: Record<string, ioBroker.StateObject> = {};
 
         const ids = [];
         for (let index = 1; index <= this.state.rxData.markersCount; index++) {
@@ -400,14 +432,11 @@ export default class Map extends Generic<MapRxData, MapState> {
                 // read object itself
                 const object = _objects[this.state.rxData[`position${index}`]];
                 if (!object) {
-                    objects[index] = { common: {}, _id: this.state.rxData[`position${index}`] } as ioBroker.Object;
+                    objects[index] = { common: {}, _id: this.state.rxData[`position${index}`] } as ioBroker.StateObject;
                     continue;
                 }
-                object.common = object.common || {};
-                object.isChart = !!(
-                    object.common.custom &&
-                    object.common.custom[this.props.context.systemConfig?.common?.defaultHistory]
-                );
+                object.common ||= {} as ioBroker.StateCommon;
+
                 if (
                     !this.state.rxData[`icon${index}`] &&
                     !object.common.icon &&
@@ -434,7 +463,7 @@ export default class Map extends Generic<MapRxData, MapState> {
                         }
                     }
                 }
-                objects[index] = { common: object.common, _id: object._id } as ioBroker.Object;
+                objects[index] = { common: object.common, _id: object._id } as ioBroker.StateObject;
             }
         }
 
@@ -474,7 +503,7 @@ export default class Map extends Generic<MapRxData, MapState> {
             const position = this.getPropertyValue(`position${i}`);
             let radius;
 
-            if (window.isFinite(this.state.rxData[`radius${i}`])) {
+            if (window.isFinite(this.state.rxData[`radius${i}`] as any as number)) {
                 radius = parseFloat(this.state.rxData[`radius${i}`]);
             } else {
                 radius = parseFloat(this.getPropertyValue(`radius${i}`)) || 0;
@@ -498,10 +527,10 @@ export default class Map extends Generic<MapRxData, MapState> {
                 color: this.state.rxData[`color${i}`],
                 icon: this.state.rxData[`icon${i}`] || this.state.objects[i]?.common?.icon,
             };
-            if (mrk.icon && mrk.icon.startsWith('_PRJ_NAME')) {
+            if (mrk.icon?.startsWith('_PRJ_NAME')) {
                 mrk.icon = mrk.icon.replace(
                     '_PRJ_NAME',
-                    `${this.props.adapterName}.${this.props.instance}/${this.props.projectName}/`,
+                    `${this.props.context.adapterName}.${this.props.context.instance}/${this.props.context.projectName}/`,
                 );
             }
             if (mrk.longitude || mrk.latitude) {
@@ -538,8 +567,8 @@ export default class Map extends Generic<MapRxData, MapState> {
                   doubleClickZoom: false,
                   closePopupOnClick: false,
                   dragging: false,
-                  zoomSnap: false,
-                  zoomDelta: false,
+                  zoomSnap: 1,
+                  zoomDelta: 1,
                   trackResize: false,
                   touchZoom: false,
                   scrollWheelZoom: false,
@@ -560,7 +589,7 @@ export default class Map extends Generic<MapRxData, MapState> {
                     style={styles.mapContainer}
                     scrollWheelZoom
                     key={`${tilesUrl}_${!!this.state.rxData.noUserInteractions}`}
-                    zoom={this.state.rxData.defaultZoom || 18}
+                    zoom={parseFloat(this.state.rxData.defaultZoom as string) || 18}
                     center={[0, 0]}
                     zoomControl={false}
                     {...noInteractions}
@@ -575,9 +604,10 @@ export default class Map extends Generic<MapRxData, MapState> {
                     {markers.map((marker, index) => {
                         const history =
                             this.state.history[marker.i]?.map(position => {
-                                const parts = position.val!.split(';');
-                                return [parseFloat(parts[1] || 0), parseFloat(parts[0] || 0)];
+                                const parts = position.val.split(';');
+                                return [parseFloat(parts[1] || '0'), parseFloat(parts[0] || '0')];
                             }) || [];
+
                         history.push([marker.latitude, marker.longitude]);
 
                         const markerIcon = marker.icon
@@ -620,6 +650,7 @@ export default class Map extends Generic<MapRxData, MapState> {
                                                           color: marker.color || 'blue',
                                                           opacity: historyIndex + 1 / history.length,
                                                       }}
+                                                      // @ts-expect-error fix later
                                                       positions={[position, history[historyIndex + 1]]}
                                                   />
                                               ),

@@ -1,8 +1,6 @@
 // ------------------- deprecated, use Switches.jsx instead -------------------
-import React, { type CSSProperties } from 'react';
+import React from 'react';
 
-
-import type { SxProps } from '@mui/material';
 import { Button, Dialog, DialogContent, DialogTitle, Slider, IconButton, Box } from '@mui/material';
 
 import {
@@ -11,15 +9,15 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import type { IobTheme } from '@iobroker/adapter-react-v5';
-import { Icon } from '@iobroker/adapter-react-v5';
-
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
-import Generic from './Generic';
-import type { VisRxWidgetState } from './visRxWidget';
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
 
-const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
+import { Icon, type IobTheme } from '@iobroker/adapter-react-v5';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState } from '@iobroker/types-vis-2';
+
+import Generic from './Generic';
+
+//const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
+const styles: Record<string, any> = {
     intermediate: {
         opacity: 0.2,
     },
@@ -55,7 +53,7 @@ const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
         textAlign: 'center',
         justifyContent: 'center',
     },
-    rightButton: theme => ({
+    rightButton: (theme: IobTheme): any => ({
         width: '50%',
         textAlign: 'right',
         position: 'relative',
