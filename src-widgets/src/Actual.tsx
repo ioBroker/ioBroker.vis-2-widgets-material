@@ -19,12 +19,11 @@ import { SVGRenderer } from 'echarts/renderers';
 import type { EChartsOption, LineSeriesOption } from 'echarts';
 import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
 
-import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 import { Icon } from '@iobroker/adapter-react-v5';
 
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
-import type { VisRxWidgetState } from './visRxWidget';
 
 echarts.use([
     TimelineComponent,
@@ -125,7 +124,10 @@ type RxData = {
 interface ActualState extends VisRxWidgetState {
     showDialog: boolean;
     dialogTab: number;
-    objects: Record<string, ioBroker.Object>;
+    objects: {
+        main?: { common: ioBroker.StateCommon; _id: string };
+        secondary?: { common: ioBroker.StateCommon; _id: string };
+    };
     isChart: boolean;
     containerHeight: number;
     chartData: {
@@ -137,21 +139,22 @@ interface ActualState extends VisRxWidgetState {
     };
 }
 
-class Actual extends Generic<RxData, ActualState> {
-    refContainer: React.RefObject<HTMLDivElement>;
-
+export default class Actual extends Generic<RxData, ActualState> {
+    refContainer: React.RefObject<HTMLDivElement> = React.createRef();
     mainTimer: ReturnType<typeof setInterval> | undefined;
-
     updateTimeout: ReturnType<typeof setTimeout> | undefined;
-
     lastRxData: string | undefined;
 
-    constructor(props: Actual['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        (this.state as ActualState).showDialog = false;
-        (this.state as ActualState).dialogTab = 0;
-        this.onStateChanged = this.onStateChanged.bind(this);
-        this.refContainer = React.createRef();
+        this.state = {
+            ...this.state,
+            showDialog: false,
+            dialogTab: 0,
+            isChart: false,
+            containerHeight: 0,
+            chartData: {},
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -354,12 +357,6 @@ class Actual extends Generic<RxData, ActualState> {
         return Actual.getWidgetInfo();
     }
 
-    async setStateAsync(newState: Actual['state']): Promise<void> {
-        return new Promise<void>(resolve => {
-            this.setState(newState, resolve);
-        });
-    }
-
     async getIcon(id: string, object: ioBroker.Object): Promise<void> {
         if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
             const idArray = id.split('.');
@@ -396,7 +393,10 @@ class Actual extends Generic<RxData, ActualState> {
 
         this.lastRxData = actualRxData;
 
-        const objects: Record<string, ioBroker.Object> = {};
+        const objects: {
+            main?: { common: ioBroker.StateCommon; _id: string };
+            secondary?: { common: ioBroker.StateCommon; _id: string };
+        } = {};
         const ids: string[] = [];
         if (this.state.rxData['oid-main'] && this.state.rxData['oid-main'] !== 'nothing_selected') {
             ids.push(this.state.rxData['oid-main']);
@@ -412,11 +412,11 @@ class Actual extends Generic<RxData, ActualState> {
             // read object itself
             const object = _objects[this.state.rxData['oid-main']];
             if (!object) {
-                objects.main = { common: {} } as ioBroker.Object;
+                objects.main = { common: {} as ioBroker.StateCommon, _id: '' };
             } else {
-                object.common = object.common || {};
+                object.common ||= {} as ioBroker.StateCommon;
                 await this.getIcon(this.state.rxData['oid-main'], object);
-                objects.main = { common: object.common, _id: object._id } as ioBroker.Object;
+                objects.main = { common: object.common as ioBroker.StateCommon, _id: object._id };
             }
         }
 
@@ -424,11 +424,11 @@ class Actual extends Generic<RxData, ActualState> {
             // read object itself
             const object = _objects[this.state.rxData['oid-secondary']];
             if (!object) {
-                objects.secondary = { common: {} } as ioBroker.Object;
+                objects.secondary = { common: {} as ioBroker.StateCommon, _id: '' };
             } else {
                 object.common = object.common || {};
                 await this.getIcon(this.state.rxData['oid-secondary'], object);
-                objects.secondary = { common: object.common, _id: object._id } as ioBroker.Object;
+                objects.secondary = { common: object.common as ioBroker.StateCommon, _id: object._id };
             }
         }
 
@@ -444,44 +444,37 @@ class Actual extends Generic<RxData, ActualState> {
 
         const newState: Partial<ActualState> = { objects, isChart };
 
-        this.mainTimer && clearInterval(this.mainTimer);
-        this.mainTimer = undefined;
+        if (this.mainTimer) {
+            clearInterval(this.mainTimer);
+            this.mainTimer = undefined;
+        }
         let changed = false;
 
-        if (!this.state.rxData.noChart && objects.main?.common?.custom && objects.main.common.custom[defaultHistory]) {
+        if (!this.state.rxData.noChart && objects.main?.common?.custom?.[defaultHistory]) {
             await this.readHistory(objects.main._id);
-            this.mainTimer =
-                this.mainTimer ||
-                setInterval(
-                    async () => {
-                        await this.readHistory(this.state.objects.main._id);
-                        if (
-                            !this.state.rxData['noChart-secondary'] &&
-                            this.state.objects?.secondary?.common?.custom &&
-                            this.state.objects.secondary.common.custom[defaultHistory]
-                        ) {
-                            await this.readHistory(this.state.objects.secondary._id);
-                        }
-                    },
-                    parseInt(this.state.rxData.updateInterval, 10) * 1000 || 60000,
-                ); // every minute by default
+            this.mainTimer ||= setInterval(
+                async () => {
+                    await this.readHistory(this.state.objects.main!._id);
+                    if (
+                        !this.state.rxData['noChart-secondary'] &&
+                        this.state.objects.secondary?.common?.custom?.[defaultHistory]
+                    ) {
+                        await this.readHistory(this.state.objects.secondary._id);
+                    }
+                },
+                parseInt(this.state.rxData.updateInterval, 10) * 1000 || 60000,
+            ); // every minute by default
         } else if (this.state.chartData[this.state.rxData['oid-main']]) {
             // delete chart data
             this.state.chartData[this.state.rxData['oid-main']] = null;
             changed = true;
         }
-        if (
-            !this.state.rxData['noChart-secondary'] &&
-            objects.secondary?.common?.custom &&
-            objects.secondary.common.custom[defaultHistory]
-        ) {
+        if (!this.state.rxData['noChart-secondary'] && objects.secondary?.common?.custom?.[defaultHistory]) {
             await this.readHistory(objects.secondary._id);
-            this.mainTimer =
-                this.mainTimer ||
-                setInterval(
-                    () => this.readHistory(this.state.objects.secondary?._id),
-                    parseInt(this.state.rxData.updateInterval, 10) * 60 || 60000,
-                ); // every minute by default
+            this.mainTimer ||= setInterval(
+                () => this.readHistory(this.state.objects.secondary!._id),
+                parseInt(this.state.rxData.updateInterval, 10) * 60 || 60000,
+            ); // every minute by default
         } else if (this.state.chartData[this.state.rxData['oid-secondary']]) {
             // delete chart data
             this.state.chartData[this.state.rxData['oid-secondary']] = null;
@@ -558,15 +551,14 @@ class Actual extends Generic<RxData, ActualState> {
             })
             .then(state => {
                 // sort
-                if (chart && chart[0] && chart[0].ts !== start) {
+                if (chart?.[0] && chart[0].ts !== start) {
                     chart.unshift({ ts: start, val: null } as ioBroker.State);
                 }
                 if (chart) {
                     chart.sort((a, b) => (a.ts > b.ts ? 1 : a.ts < b.ts ? -1 : 0)).filter(e => e.val !== null);
-                    state &&
-                        state.val !== null &&
-                        state.val !== undefined &&
+                    if (state && state.val !== null && state.val !== undefined) {
                         chart.push({ ts: Date.now(), val: state.val } as ioBroker.State);
+                    }
 
                     const _chart: { min?: number; max?: number } = {};
                     const data = Actual.convertData(chart, _chart);
@@ -618,7 +610,7 @@ class Actual extends Generic<RxData, ActualState> {
     getOptions(): EChartsOption {
         const series: LineSeriesOption[] = [];
         if (this.state.chartData[this.state.rxData['oid-main']] && !this.state.rxData.noChart) {
-            let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || '';
+            let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name || '');
             if (!name) {
                 if (this.state.objects?.secondary?.common?.role?.includes('temperature')) {
                     name = Generic.t('temperature').replace('vis_2_widgets_material_', '');
@@ -646,8 +638,7 @@ class Actual extends Generic<RxData, ActualState> {
         if (this.state.chartData[this.state.rxData['oid-secondary']] && !this.state.rxData['noData-secondary']) {
             let name =
                 this.state.rxData['title-secondary'] ||
-                Generic.getText(this.state.objects?.secondary?.common?.name) ||
-                '';
+                Generic.getText(this.state.objects?.secondary?.common?.name || '');
             if (!name) {
                 if (this.state.objects?.secondary?.common?.role?.includes('humidity')) {
                     name = Generic.t('humidity').replace('vis_2_widgets_material_', '');
@@ -666,7 +657,6 @@ class Actual extends Generic<RxData, ActualState> {
                 type: 'line',
                 smooth: true,
                 showSymbol: false,
-                // itemStyle: { normal: { areaStyle: { type: 'default' } } },
                 data: this.state.chartData[this.state.rxData['oid-secondary']]!.data,
                 name,
             });
@@ -710,6 +700,11 @@ class Actual extends Generic<RxData, ActualState> {
         if (!this.state.showDialog) {
             return null;
         }
+        const mainColor = Actual.getColor(this.state.rxData['color-main'] || '#F3B11F', 0.65);
+        const mainBackgroundColor = Actual.getColor(this.state.rxData['color-main'] || '#F3B11F', 0.14);
+        const secondaryColor = Actual.getColor(this.state.rxData['color-secondary'] || '#F3B11F', 0.65);
+        const secondaryBackgroundColor = Actual.getColor(this.state.rxData['color-secondary'] || '#F3B11F', 0.14);
+
         return (
             <Dialog
                 sx={{ '& .MuiDialog-paper': { height: '100%' } }}
@@ -747,20 +742,18 @@ class Actual extends Generic<RxData, ActualState> {
                                 ? this.state.rxData['title-main'] ||
                                   Generic.getText(this.state.objects.main.common?.name)
                                 : this.state.rxData['title-secondary'] ||
-                                  Generic.getText(this.state.objects?.secondary?.common?.name)
+                                  Generic.getText(this.state.objects?.secondary?.common?.name || '')
                         }
                         title2={
                             this.state.rxData['title-secondary'] ||
-                            Generic.getText(this.state.objects?.secondary?.common?.name)
+                            Generic.getText(this.state.objects?.secondary?.common?.name || '')
                         }
                         objLineType="line"
                         obj2LineType="line"
-                        objColor={this.state.objects?.main ? 'rgba(243,177,31,0.65)' : 'rgba(77,134,255,0.44)'}
-                        obj2Color="rgba(77,134,255,0.44)"
-                        objBackgroundColor={
-                            this.state.objects?.main ? 'rgba(243,177,31,0.14)' : 'rgba(77,134,255,0.14)'
-                        }
-                        obj2BackgroundColor="rgba(77,134,255,0.14)"
+                        objColor={mainColor}
+                        obj2Color={secondaryColor}
+                        objBackgroundColor={mainBackgroundColor}
+                        obj2BackgroundColor={secondaryBackgroundColor}
                         themeType={this.props.context.themeType}
                         defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
                         noToolbar={false}
@@ -778,12 +771,10 @@ class Actual extends Generic<RxData, ActualState> {
 
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout =
-                this.updateTimeout ||
-                setTimeout(async () => {
-                    this.updateTimeout = undefined;
-                    await this.propertiesUpdate();
-                }, 50);
+            this.updateTimeout ||= setTimeout(async () => {
+                this.updateTimeout = undefined;
+                await this.propertiesUpdate();
+            }, 50);
         }
 
         const onCardClick =
@@ -819,7 +810,7 @@ class Actual extends Generic<RxData, ActualState> {
             mainIcon = (
                 <Icon
                     src={mainIcon as string}
-                    style={{ ...styles.mainIcon, width: 24 }}
+                    style={{ ...styles.mainIcon, width: 24, color: this.state.rxData['color-main'] }}
                 />
             );
         } else if (
@@ -837,7 +828,7 @@ class Actual extends Generic<RxData, ActualState> {
             secondaryIcon = (
                 <Icon
                     src={secondaryIcon as string}
-                    style={{ ...styles.secondaryIcon, width: 20 }}
+                    style={{ ...styles.secondaryIcon, width: 20, color: this.state.rxData['color-secondary'] }}
                 />
             );
         } else if (this.state.objects?.secondary?.common?.role?.includes('humidity')) {
@@ -889,7 +880,7 @@ class Actual extends Generic<RxData, ActualState> {
                     <Tooltip
                         title={
                             this.state.rxData['title-main'] ||
-                            Generic.getText(this.state.objects?.main?.common?.name) ||
+                            Generic.getText(this.state.objects?.main?.common?.name || '') ||
                             null
                         }
                         slotProps={{ popper: { sx: styles.tooltip } }}
@@ -925,7 +916,7 @@ class Actual extends Generic<RxData, ActualState> {
                     <Tooltip
                         title={
                             this.state.rxData['title-secondary'] ||
-                            Generic.getText(this.state.objects?.secondary?.common?.name) ||
+                            Generic.getText(this.state.objects?.secondary?.common?.name || '') ||
                             null
                         }
                         slotProps={{ popper: { sx: styles.tooltip } }}
@@ -996,5 +987,3 @@ class Actual extends Generic<RxData, ActualState> {
         );
     }
 }
-
-export default Actual;
