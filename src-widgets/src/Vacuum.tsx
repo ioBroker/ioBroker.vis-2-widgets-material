@@ -74,7 +74,7 @@ const styles: Record<string, CSSProperties> = {
     vacuumMapContainer: { flex: 1 },
     vacuumTopPanel: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
     vacuumBottomPanel: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    vacuumSensorCard: { boxShadow: 'none' },
+    vacuumSensorCard: { boxShadow: 'none', backgroundColor: 'transparent' },
     vacuumSensorCardContent: {
         display: 'flex',
         flexDirection: 'column',
@@ -682,7 +682,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
                 if (statusVal === null || statusVal === undefined) {
                     status = '';
                 }
-                status = statusVal!.toString();
+                status = (statusVal || '').toString();
                 smallStatus = status.toLowerCase();
             }
         }
@@ -743,7 +743,7 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
 
     vacuumRenderMap(): React.ReactNode {
         const obj = this.vacuumGetObj('map64');
-        if (!obj) {
+        if (!obj || !this.state.values[`${obj._id}.val`]) {
             if (this.state.rxData['vacuum-use-default-picture']) {
                 return <VacuumCleanerIcon style={styles.vacuumImage} />;
             }
@@ -816,7 +816,9 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
                     </div>
                 ) : null}
                 {map ? (
-                    <div style={{ ...styles.vacuumMapContainer, height: `calc(100% - ${height}px)`, width: '100%' }}>
+                    <div
+                        style={{ ...styles.vacuumMapContainer, height: `calc(100% - ${height + 5}px)`, width: '100%' }}
+                    >
                         {map}
                     </div>
                 ) : null}
