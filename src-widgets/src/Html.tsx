@@ -386,14 +386,14 @@ class Html extends Generic<HtmlRxData, HtmlState> {
             this.reinitInterval();
 
             if (this.state.rxData.allowUserInteractions) {
-                style.touchCallout = 'none';
-                style.touchSelect = 'none';
+                style.WebkitTouchCallout = 'none';
+                style.msTouchSelect = 'none';
                 style.touchAction = 'none';
                 style.userSelect = 'none';
                 style.pointerEvents = 'none';
             }
 
-            style.objectFit = this.state.rxData.objectFit;
+            style.objectFit = this.state.rxData.objectFit as CSSProperties['objectFit'];
 
             content = (
                 <img

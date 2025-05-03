@@ -502,7 +502,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 from: false,
                 ack: false,
                 q: false,
-                addID: false,
+                addId: false,
                 comment: false,
                 user: false,
                 aggregate: 'none',
@@ -632,7 +632,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         });
     }
 
-    convertData(values, id) {
+    convertData(values, id: string) {
         values = values || this.chartValues[id];
         const data = [];
         if (!values || !values.length) {
@@ -796,7 +796,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         if (this.props.obj?.common?.type === 'boolean') {
             serie.step = 'end';
             yAxis[0].axisLabel!.showMaxLabel = false;
-            yAxis[0].axisLabel!.formatter = value => (value === 1 ? 'TRUE' : 'FALSE');
+            yAxis[0].axisLabel!.formatter = (value: number) => (value === 1 ? 'TRUE' : 'FALSE');
             yAxis[0].max = 1.5;
             yAxis[0].interval = 1;
             widthAxis = 50;
@@ -1386,7 +1386,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                     >
                         <MenuItem
                             value="absolute"
-                            sx={styles.customRange}
+                            sx={styles.customRange as SxProps<Theme>}
                         >
                             {this.props.t('custom_range')}
                         </MenuItem>

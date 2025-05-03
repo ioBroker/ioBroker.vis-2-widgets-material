@@ -280,7 +280,9 @@ interface WasherDryerRxData {
     'dry-oid': string;
 }
 
-interface WasherDryerState extends VisRxWidgetState {}
+interface WasherDryerState extends VisRxWidgetState {
+    object: ioBroker.Object;
+}
 
 class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
     refDiv: React.RefObject<HTMLDivElement | null>;
@@ -381,16 +383,16 @@ class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
 
         this.statusOID = this.state.rxData['status-oid'];
         if (!this.statusOID || this.statusOID === 'nothing_selected') {
-            this.setState({ object: { common: {} } });
+            this.setState({ object: { common: {} } as ioBroker.Object });
             return;
         }
         // read object itself
         let object = await this.props.context.socket.getObject(this.statusOID);
-        object = { common: object?.common || {}, _id: object?._id };
+        object = { common: object?.common || {}, _id: object?._id } as ioBroker.Object;
 
         if (object.common.states && Array.isArray(object.common.states)) {
             // convert to {'state1': 'state1', 'state2': 'state2', ...}
-            const states = {};
+            const states: Record<string, string> = {};
             object.common.states.forEach(state => (states[state] = state));
             object.common.states = states;
         }

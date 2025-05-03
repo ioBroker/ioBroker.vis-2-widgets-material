@@ -12,7 +12,7 @@ const styles: Record<string, CSSProperties> = {
         verticalAlign: 'middle',
         animationName: 'vis-2-widgets-material-uClockFadeIn',
         animationDuration: '500ms',
-        animationEasing: 'ease-in-out',
+        transition: 'ease-in-out',
         animationFillMode: 'both',
         backgroundColor: '#fff',
         borderRadius: '50%',
@@ -618,11 +618,11 @@ class Clock extends Generic<ClockRxData, ClockState> {
         const style: CSSProperties = {
             textAlign: 'center',
             lineHeight: this.state.height ? `${this.state.height}px` : undefined,
-            fontFamily: this.state.rxStyle!['font-family'],
-            fontShadow: this.state.rxStyle!['font-shadow'],
-            fontStyle: this.state.rxStyle!['font-style'],
+            fontFamily: this.state.rxStyle!['font-family'] as CSSProperties['fontFamily'],
+            textShadow: this.state.rxStyle!['text-shadow'] as CSSProperties['textShadow'],
+            fontStyle: this.state.rxStyle!['font-style'] as CSSProperties['fontStyle'],
             fontWeight: this.state.rxStyle!['font-weight'],
-            fontVariant: this.state.rxStyle!['font-variant'],
+            fontVariant: this.state.rxStyle!['font-variant'] as CSSProperties['fontVariant'],
         };
 
         style.width = 'calc(100% - 4px)';

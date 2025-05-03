@@ -24,6 +24,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import ObjectChart from './ObjectChart';
 import Generic from './Generic';
 import type { VisRxWidgetState } from './visRxWidget';
+import { EChartsOption } from 'echarts';
 
 echarts.use([
     TimelineComponent,
@@ -523,7 +524,7 @@ class Actual extends Generic<RxData, ActualState> {
         const end = Date.now();
         const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
-        const options = {
+        const options: ioBroker.GetHistoryOptions = {
             instance: defaultHistory || 'history.0',
             start,
             end,
@@ -531,7 +532,7 @@ class Actual extends Generic<RxData, ActualState> {
             from: false,
             ack: false,
             q: false,
-            addID: false,
+            addId: false,
             aggregate: 'minmax',
         };
 
@@ -599,7 +600,7 @@ class Actual extends Generic<RxData, ActualState> {
         return `rgba(${r!},${g!},${b!},${opacity})`;
     }
 
-    getOptions() {
+    getOptions(): EChartsOption {
         const series = [];
         if (this.state[`chart-data-${this.state.rxData['oid-main']}`] && !this.state.rxData.noChart) {
             let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name) || '';
@@ -761,7 +762,7 @@ class Actual extends Generic<RxData, ActualState> {
 
         const onCardClick =
             !this.state.showDialog && this.state.isChart
-                ? (e: Event) => {
+                ? (e: React.MouseEvent<HTMLDivElement>) => {
                       e.preventDefault();
                       e.stopPropagation();
                       this.setState({ showDialog: true });

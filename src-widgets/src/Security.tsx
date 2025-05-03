@@ -11,6 +11,7 @@ import {
 } from '@mui/icons-material';
 import Generic from './Generic';
 import type { RxRenderWidgetProps, RxWidgetInfo } from '@iobroker/types-vis-2';
+import type { VisRxWidgetState } from './visRxWidget';
 
 const styles: Record<string, CSSProperties> = {
     pinGrid: {
@@ -86,13 +87,14 @@ interface SecurityRxData {
     [key: `timerSeconds-oid${number}`]: string;
 }
 
-interface SecurityState {
+interface SecurityState extends VisRxWidgetState {
     message: string | null;
     dialog: boolean;
     pinInput: string;
     timerDialog: boolean;
     invalidPin: boolean;
     timerSeconds: number;
+    objects: Record<number, ioBroker.Object>;
 }
 
 class Security extends Generic<SecurityRxData, SecurityState> {
@@ -262,7 +264,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
 
         this.lastRxData = actualRxData;
 
-        const objects = {};
+        const objects: Record<number, ioBroker.Object> = {};
         const ids = [];
         for (let index = 1; index <= this.state.rxData.count; index++) {
             if (this.state.rxData[`oid${index}`] && this.state.rxData[`oid${index}`] !== 'nothing_selected') {
@@ -276,7 +278,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
             const object = _objects[this.state.rxData[`oid${index}`]];
             // read object itself
             if (!object) {
-                objects[index] = { common: {}, _id: this.state.rxData[`oid${index}`] };
+                objects[index] = { common: {}, _id: this.state.rxData[`oid${index}`] } as ioBroker.Object;
                 continue;
             }
             object.common = object.common || {};
@@ -392,7 +394,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                                     onClick={() => {
                                         if (button === 'submit') {
                                             if (this.state.pinInput === pincode) {
-                                                this.props.context.setValue(lockedId, false);
+                                                this.props.context.setValue(lockedId as string, false);
                                                 this.setState({ dialog: false });
                                             } else {
                                                 this.setState({ pinInput: '', invalidPin: true });
@@ -440,7 +442,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                 onClose={onClose}
                 style={styles.timerDialog}
             >
-                <DialogTitle>{Generic.t('lock_after', this.state.timerSeconds)}</DialogTitle>
+                <DialogTitle>{Generic.t('lock_after', this.state.timerSeconds.toString())}</DialogTitle>
                 <DialogContent>
                     <div style={styles.timerSeconds}>{this.state.timerSeconds}</div>
                     <div>
