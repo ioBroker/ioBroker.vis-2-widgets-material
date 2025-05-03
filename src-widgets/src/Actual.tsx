@@ -139,6 +139,8 @@ interface ActualState extends VisRxWidgetState {
     };
 }
 
+const HISTORY_ADAPTER_NAMES = ['history', 'sql', 'influxdb'];
+
 export default class Actual extends Generic<RxData, ActualState> {
     refContainer: React.RefObject<HTMLDivElement> = React.createRef();
     mainTimer: ReturnType<typeof setInterval> | undefined;
@@ -385,6 +387,23 @@ export default class Actual extends Generic<RxData, ActualState> {
         }
     }
 
+    static getHistoryInstance(
+        obj: ioBroker.StateObject | undefined | null | { common: ioBroker.StateCommon; _id: string },
+        defaultHistory: string,
+    ): string | null {
+        if (obj?.common?.custom) {
+            if (obj.common.custom[defaultHistory]) {
+                return defaultHistory;
+            }
+            for (const instance in obj.common.custom) {
+                if (HISTORY_ADAPTER_NAMES.includes(instance.split('.')[0])) {
+                    return instance;
+                }
+            }
+        }
+        return null;
+    }
+
     async propertiesUpdate(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
@@ -433,14 +452,12 @@ export default class Actual extends Generic<RxData, ActualState> {
         }
 
         const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
+        const mainHistoryInstance = Actual.getHistoryInstance(objects.main, defaultHistory);
+        const secondaryHistoryInstance = Actual.getHistoryInstance(objects.secondary, defaultHistory);
 
         const isChart =
-            (!this.state.rxData.noChart &&
-                objects.main?.common?.custom &&
-                objects.main.common.custom[defaultHistory]) ||
-            (!this.state.rxData['noChart-secondary'] &&
-                objects.secondary?.common?.custom &&
-                objects.secondary.common.custom[defaultHistory]);
+            (!this.state.rxData.noChart && !!mainHistoryInstance) ||
+            (!this.state.rxData['noChart-secondary'] && !!secondaryHistoryInstance);
 
         const newState: Partial<ActualState> = { objects, isChart };
 
@@ -450,16 +467,17 @@ export default class Actual extends Generic<RxData, ActualState> {
         }
         let changed = false;
 
-        if (!this.state.rxData.noChart && objects.main?.common?.custom?.[defaultHistory]) {
-            await this.readHistory(objects.main._id);
+        if (!this.state.rxData.noChart && mainHistoryInstance && objects.main?.common?.custom?.[mainHistoryInstance]) {
+            await this.readHistory(objects.main._id, mainHistoryInstance);
             this.mainTimer ||= setInterval(
                 async () => {
-                    await this.readHistory(this.state.objects.main!._id);
+                    await this.readHistory(this.state.objects.main!._id, mainHistoryInstance);
                     if (
                         !this.state.rxData['noChart-secondary'] &&
-                        this.state.objects.secondary?.common?.custom?.[defaultHistory]
+                        secondaryHistoryInstance &&
+                        this.state.objects.secondary?.common?.custom?.[secondaryHistoryInstance]
                     ) {
-                        await this.readHistory(this.state.objects.secondary._id);
+                        await this.readHistory(this.state.objects.secondary._id, secondaryHistoryInstance);
                     }
                 },
                 parseInt(this.state.rxData.updateInterval, 10) * 1000 || 60000,
@@ -469,10 +487,14 @@ export default class Actual extends Generic<RxData, ActualState> {
             this.state.chartData[this.state.rxData['oid-main']] = null;
             changed = true;
         }
-        if (!this.state.rxData['noChart-secondary'] && objects.secondary?.common?.custom?.[defaultHistory]) {
-            await this.readHistory(objects.secondary._id);
+        if (
+            !this.state.rxData['noChart-secondary'] &&
+            secondaryHistoryInstance &&
+            objects.secondary?.common?.custom?.[secondaryHistoryInstance]
+        ) {
+            await this.readHistory(objects.secondary._id, secondaryHistoryInstance);
             this.mainTimer ||= setInterval(
-                () => this.readHistory(this.state.objects.secondary!._id),
+                () => this.readHistory(this.state.objects.secondary!._id, secondaryHistoryInstance),
                 parseInt(this.state.rxData.updateInterval, 10) * 60 || 60000,
             ); // every minute by default
         } else if (this.state.chartData[this.state.rxData['oid-secondary']]) {
@@ -519,7 +541,7 @@ export default class Actual extends Generic<RxData, ActualState> {
         return data;
     }
 
-    readHistory = async (id: string): Promise<void> => {
+    readHistory = async (id: string, historyInstance: string): Promise<void> => {
         const timeInterval = this.state.rxData.timeInterval || 12;
         const now = new Date();
         now.setHours(now.getHours() - timeInterval);
@@ -528,10 +550,9 @@ export default class Actual extends Generic<RxData, ActualState> {
         now.setMilliseconds(0);
         const start = now.getTime();
         const end = Date.now();
-        const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
 
         const options: ioBroker.GetHistoryOptions = {
-            instance: defaultHistory || 'history.0',
+            instance: historyInstance,
             start,
             end,
             step: 1800000, // 30 minutes
