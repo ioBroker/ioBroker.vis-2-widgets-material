@@ -514,6 +514,7 @@ const styles: Record<string, any> = {
         bottom: 0,
         userSelect: 'none',
         pointerEvents: 'none',
+        zIndex: 100,
     },
 
     ...STYLES,
@@ -2377,7 +2378,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 <div
                     key={index}
                     ref={this.widgetRef[index]}
-                    style={{ ...styles.widgetContainer, ...style }}
+                    style={{
+                        ...styles.widgetContainer,
+                        ...style,
+                        ...(visibility === 'disabled' ? { pointerEvents: 'none' } : undefined),
+                    }}
                 >
                     {this.widgetRef[index].current
                         ? this.getWidgetInWidget(this.props.view, wid, { refParent: this.widgetRef[index] })
@@ -3404,7 +3409,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     height: buttonHeight || undefined,
                     border: this.state.selectedOne ? '1px dashed gray' : 'none',
                     boxSizing: 'border-box',
-                    opacity: visibility ? undefined : 0.3,
+                    opacity: visibility && visibility !== 'disabled' ? undefined : 0.3,
+                    ...(visibility === 'disabled' ? { pointerEvents: 'none' } : undefined),
                 }}
             >
                 <Button
@@ -5198,7 +5204,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
                         return (
                             <div
-                                style={{ ...styles.cardsHolder, ...style }}
+                                style={{
+                                    ...styles.cardsHolder,
+                                    ...style,
+                                    ...(visible === 'disabled' ? { pointerEvents: 'none' } : undefined),
+                                }}
                                 key={index}
                             >
                                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>

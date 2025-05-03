@@ -110,12 +110,15 @@ export interface BlindsBaseRxData {
     sashCount: number;
     ratio: number | string;
     borderWidth: number | string;
+    timeout: number | string;
 }
+
 export type HelperObject = {
     common: ioBroker.StateCommon;
-    _id?: string;
+    _id: string;
     widgetType?: WidgetType;
 };
+
 export interface BlindsBaseState extends VisRxWidgetState {
     showBlindsDialog: number | boolean | null;
     showBlindsDialogIndexOfButton?: number;
@@ -309,7 +312,6 @@ class BlindsBase<
             return (
                 <DialogBlinds
                     onClose={() => {
-                        // @ts-expect-error fixed in vis-2-types
                         this.lastClick = Date.now();
                         this.setState({ showBlindsDialog: null });
                     }}
@@ -318,7 +320,8 @@ class BlindsBase<
                             ? () => this.props.context.setValue(data.stopOid, true)
                             : undefined
                     }
-                    onValueChange={value => {
+                    controlTimeout={parseInt(this.state.rxData.timeout as string, 10) || 0}
+                    onValueChange={(value, isCommitment) => {
                         // calculate real value
                         if (data.invert) {
                             value = 100 - value;
@@ -326,7 +329,9 @@ class BlindsBase<
 
                         value = ((data.max - data.min) / 100) * value + data.min;
 
-                        this.props.context.setValue(data.positionOid, value);
+                        if (isCommitment) {
+                            this.props.context.setValue(data.positionOid, value);
+                        }
                     }}
                     startValue={data.shutterPos}
                     type={DialogBlinds.types.blinds}
@@ -480,7 +485,6 @@ class BlindsBase<
                             ? e => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  // @ts-expect-error fixed in vis-2-widgets
                                   this.lastClick = Date.now();
                                   this.setState({
                                       showBlindsDialog: index,
@@ -526,38 +530,6 @@ class BlindsBase<
         },
         indexOfButton?: number,
     ): React.JSX.Element {
-        /*
-        $div.find('.hq-blind-blind2').each(function (id) {
-            id++;
-            if (data['oid-slide-sensor-lowbat' + id]) {
-                data['oid-slide-sensor-lowbat'][id] = vis.states[data['oid-slide-sensor-lowbat' + id] + '.val'];
-                $(this).batteryIndicator({
-                    show:    data['oid-slide-sensor-lowbat'][id] || false,
-                    title:   _('Low battery on sash sensor'),
-                    classes: 'slide-low-battery'
-                });
-            }
-        });
-        $div.find('.hq-blind-blind3').each(function (id) {
-            id++;
-            if (data['oid-slide-handle-lowbat' + id]) {
-                data['oid-slide-handle-lowbat'][id] = vis.states[data['oid-slide-handle-lowbat' + id] + '.val'];
-                $(this).batteryIndicator({
-                    show:    data['oid-slide-handle-lowbat'][id] || false,
-                    color:   '#FF55FA',
-                    title:   _('Low battery on handle sensor'),
-                    classes: 'handle-low-battery'
-                });
-                $(this).find('.handle-low-battery').css({top: 8});
-            }
-        });
-
-        var width = $div.width();
-        var offset = width - 20;
-        if (offset < width / 2) offset = width / 2;
-        $div.find('.vis-hq-leftinfo').css({right: offset + 'px'});
-        $div.find('.vis-hq-rightinfo').css({'padding-left': (5 + (width / 2) + (parseInt(data.infoRightPaddingLeft, 10) || 0)) + 'px'});
-        */
         let width: number;
         let height: number;
         const ratio = parseFloat(this.state.rxData.ratio as string) || 1;

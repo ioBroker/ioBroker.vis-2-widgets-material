@@ -102,7 +102,6 @@ export default class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwi
     }
 
     setViewTheme(themeName: ThemeName): void {
-        // @ts-expect-error fixed in vis-2-widgets
         this.props.context?.toggleTheme?.(themeName || this.state.rxData.themeName);
     }
 

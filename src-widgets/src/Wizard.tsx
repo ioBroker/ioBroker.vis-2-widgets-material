@@ -459,7 +459,6 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                     variant="contained"
                     onClick={() => props.onClose()}
                     startIcon={<Close />}
-                    // @ts-expect-error grey could be
                     color="grey"
                 >
                     {Generic.t('Cancel')}

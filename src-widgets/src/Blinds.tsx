@@ -2,7 +2,7 @@ import React, { type CSSProperties } from 'react';
 
 import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
 
-import BlindsBase, { type BlindsBaseRxData, type BlindsBaseState } from './Components/BlindsBase';
+import BlindsBase, { type BlindsBaseRxData, type BlindsBaseState, type HelperObject } from './Components/BlindsBase';
 
 const styles: Record<string, CSSProperties> = {
     cardContent: {
@@ -35,7 +35,7 @@ interface BlindsRxData extends BlindsBaseRxData {
     [key: `slideHandle_oid${number}`]: string;
 }
 
-class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
+export default class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
     refCardContent: React.RefObject<HTMLDivElement> = React.createRef();
     lastRxData: string | undefined;
     updateTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -99,16 +99,16 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
                             onChange: async (field, data, changeData, socket) => {
                                 if (data[field.name!]) {
                                     const object = await socket.getObject(data[field.name!]);
-                                    if (object && object.common) {
+                                    if (object?.common) {
                                         let changed = false;
 
                                         // try to find stop button
                                         const id = object._id.split('.');
                                         id.pop();
-                                        const states = await socket.getObjectView(
+                                        const states = await socket.getObjectViewSystem(
+                                            'state',
                                             `${id.join('.')}.`,
                                             `${id.join('.')}.\u9999`,
-                                            'state',
                                         );
                                         if (states) {
                                             Object.values(states).forEach(state => {
@@ -163,6 +163,13 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
                             type: 'checkbox',
                             tooltip: 'use_as_dialog_tooltip',
                         },
+                        /*{
+                            name: 'timeout',
+                            type: 'slider',
+                            label: 'controlTimeout',
+                            min: 0,
+                            max: 2000,
+                        },*/
                     ],
                 },
                 {
@@ -216,15 +223,15 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
                                 if (data[field.name!]) {
                                     const object = await socket.getObject(data[field.name!]);
                                     const index = field.name!.match(/(\d+)$/)![1];
-                                    if (object && object.common) {
+                                    if (object?.common) {
                                         let changed = false;
                                         // try to find stop button
                                         const id = object._id.split('.');
                                         id.pop();
-                                        const states = await socket.getObjectView(
+                                        const states = await socket.getObjectViewSystem(
+                                            'state',
                                             `${id.join('.')}.`,
                                             `${id.join('.')}.\u9999`,
-                                            'state',
                                         );
                                         if (states) {
                                             Object.values(states).forEach(state => {
@@ -288,8 +295,8 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
         }
 
         this.lastRxData = actualRxData;
-        const objects: ioBroker.StateCommon[] = [];
-        const ids = [];
+        const objects: (HelperObject | null | string)[] = [];
+        const ids: string[] = [];
         for (let index = 1; index <= this.state.rxData.sashCount; index++) {
             if (
                 this.state.rxData[`slidePos_oid${index}`] &&
@@ -315,7 +322,11 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
             ) {
                 // read object itself
                 const object = _objects[this.state.rxData[`slidePos_oid${index}`]];
-                objects[index] = object?.common || ({} as ioBroker.StateCommon);
+                objects[index] = {
+                    common: object?.common || ({} as ioBroker.StateCommon),
+                    _id: this.state.rxData[`slidePos_oid${index}`],
+                    widgetType: 'blinds',
+                };
             }
         }
 
@@ -357,12 +368,10 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
 
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData !== actualRxData) {
-            this.updateTimeout =
-                this.updateTimeout ||
-                setTimeout(async () => {
-                    this.updateTimeout = undefined;
-                    await this.propertiesUpdate();
-                }, 50);
+            this.updateTimeout ||= setTimeout(async () => {
+                this.updateTimeout = undefined;
+                await this.propertiesUpdate();
+            }, 50);
         }
 
         let height: number;
@@ -427,5 +436,3 @@ class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
         );
     }
 }
-
-export default Blinds;

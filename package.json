@@ -38,7 +38,7 @@
     ],
     "scripts": {
         "prepublishOnly": "gulp",
-        "lint": "eslint -c eslint.config.mjs --debug",
+        "lint": "eslint -c eslint.config.mjs",
         "build": "node tasks",
         "copy-files": "node tasks --copy-files",
         "release": "release-script",

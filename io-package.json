@@ -95,12 +95,31 @@
         "zh-cn": "在显示地图前等待数据\n在实际值部件中( 有图表) 现在可以进行一轮值 "
       }
     },
-    "title": "Vis 2 Widgets Material",
     "titleLang": {
-      "en": "Vis 2 Widgets Material"
+      "en": "Vis 2 Widgets Material",
+      "de": "Vis 2 Widgets Material",
+      "ru": "Vis 2 Widgets Material",
+      "it": "Vis 2 Widgets Material",
+      "es": "Vis 2 Widgets Material",
+      "fr": "Vis 2 Widgets Material",
+      "nl": "Vis 2 Widgets Material",
+      "pt": "Vis 2 Widgets Material",
+      "pl": "Vis 2 Widgets Material",
+      "uk": "Vis 2 Widgets Material",
+      "zh-cn": "Vis 2 Widgets Material"
     },
     "desc": {
-      "en": "Vis 2 Widgets Material"
+      "en": "Different nice-looking widgets in material style for vis-2",
+      "de": "Verschiedene schön aussehende Widgets im Materialstil für vis-2",
+      "ru": "Разные виджеты в стиле material для vis-2",
+      "it": "Diversi widget dall'aspetto gradevole in stile materiale per vis-2",
+      "es": "Diferentes widgets de aspecto agradable en estilo material para vis-2",
+      "fr": "Différents widgets au design agréable en style matériel pour vis-2",
+      "nl": "Verschillende mooi uitziende widgets in materiaalstijl voor vis-2",
+      "pt": "Diferentes widgets com boa aparência em estilo material para vis-2",
+      "pl": "Różne ładnie wyglądające widgety w stylu materiałów dla vis-2",
+      "uk": "Різні привабливі віджети в матеріальному стилі для vis-2",
+      "zh-cn": "vis-2 中不同好看的小部件"
     },
     "authors": [
       "bluefox <dogafox@gmail.com>"
@@ -134,6 +153,7 @@
         "i18n": "component",
         "name": "vis2materialWidgets",
         "url": "vis-2-widgets-material/customWidgets.js",
+        "bundlerType": "module",
         "components": [
           "Thermostat",
           "Actual",
@@ -156,6 +176,11 @@
         ]
       }
     },
+    "dependencies": [
+      {
+        "vis-2": ">=2.12.8"
+      }
+    ],
     "restartAdapters": [
       "vis-2"
     ],

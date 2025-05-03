@@ -230,7 +230,7 @@ class Static extends Generic<StaticRxData, StaticState> {
 
     componentDidMount(): void {
         super.componentDidMount();
-        this.propertiesUpdate().then(() => {});
+        void this.propertiesUpdate().catch(e => console.error(e));
     }
 
     async onRxDataChanged(): Promise<void> {
@@ -311,7 +311,6 @@ class Static extends Generic<StaticRxData, StaticState> {
         if (object?.common?.type === 'number') {
             val = `${state}${object.common.unit || ''}`;
         } else {
-            // @ts-expect-error fixed in vis-2-types
             val = this.formatValue(state);
         }
         return (
@@ -361,7 +360,10 @@ class Static extends Generic<StaticRxData, StaticState> {
                         }
                         title=""
                         themeType={this.props.context.themeType}
-                        defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
+                        historyInstance={Generic.getHistoryInstance(
+                            this.state.objects[index],
+                            this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
+                        )}
                         noToolbar={false}
                         systemConfig={this.props.context.systemConfig}
                         dateFormat={this.props.context.systemConfig.common.dateFormat}

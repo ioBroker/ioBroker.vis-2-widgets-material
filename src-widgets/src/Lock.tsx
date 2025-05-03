@@ -127,10 +127,10 @@ export default class Lock extends Generic<LockRxData, LockState> {
                                     if (object && object.common && object.common.role === 'switch.lock') {
                                         const id = data[field.name!].split('.');
                                         id.pop();
-                                        const states = await socket.getObjectView(
+                                        const states = await socket.getObjectViewSystem(
+                                            'state',
                                             `${id.join('.')}.`,
                                             `${id.join('.')}.\u9999`,
-                                            'state',
                                         );
                                         if (states) {
                                             Object.values(states).forEach(state => {
@@ -384,7 +384,6 @@ export default class Lock extends Generic<LockRxData, LockState> {
                     </Button>
                     <Button
                         variant="contained"
-                        // @ts-expect-error grey is a valid color
                         color="grey"
                         autoFocus
                         onClick={() => this.setState({ confirmDialog: false })}

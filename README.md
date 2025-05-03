@@ -152,6 +152,9 @@ The only difference is that Xiaomi supports the room cleaning.
 ### **WORK IN PROGRESS**
 
 -   (bluefox) Corrected thermostat slider
+-   (bluefox) Rewritten with TypeScript and vite
+-   (bluefox) Corrected blinds control
+-   (bluefox) Added disabled mode additionally to hidden mode in 'switches and buttons' widget
 
 ### 1.4.10 (2024-08-09)
 

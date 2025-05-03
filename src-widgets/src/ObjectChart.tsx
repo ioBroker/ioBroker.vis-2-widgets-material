@@ -1,7 +1,5 @@
-import React, { createRef, Component, type SVGProps, type CSSProperties } from 'react';
+import React, { createRef, Component, type CSSProperties } from 'react';
 
-// import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-// import { LocalizationProvider, TimePicker, DatePicker } from '@mui/x-date-pickers';
 import {
     Paper,
     LinearProgress,
@@ -29,26 +27,10 @@ import {
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
 
-/*
-import frLocale from 'date-fns/locale/fr';
-import ruLocale from 'date-fns/locale/ru';
-import enLocale from 'date-fns/locale/en-US';
-import esLocale from 'date-fns/locale/es';
-import plLocale from 'date-fns/locale/pl';
-import ptLocale from 'date-fns/locale/pt';
-import itLocale from 'date-fns/locale/it';
-import cnLocale from 'date-fns/locale/zh-CN';
-import brLocale from 'date-fns/locale/pt-BR';
-import deLocale from 'date-fns/locale/de';
-import nlLocale from 'date-fns/locale/nl';
-*/
 import { type ThemeType, Utils, withWidth, type IobTheme, type LegacyConnection } from '@iobroker/adapter-react-v5';
 import type { EChartsOption, LineSeriesOption } from 'echarts';
 import type { YAXisOption } from 'echarts/types/dist/shared';
 import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
-
-// icons
-// import EchartsIcon from '../../assets/echarts.png';
 
 echarts.use([
     TimelineComponent,
@@ -60,128 +42,78 @@ echarts.use([
     SVGRenderer,
 ]);
 
-const SplitLineIcon = (props: SVGProps<SVGSVGElement>): React.JSX.Element => (
-    <svg
-        viewBox="0 0 512 512"
-        width={props.width || 20}
-        height={props.height || props.width || 20}
-        xmlns="http://www.w3.org/2000/svg"
-        style={props.style}
-    >
-        <path
-            fill="currentColor"
-            d="M496 384H64V80c0-8.84-7.16-16-16-16H16C7.16 64 0 71.16 0 80v336c0 17.67 14.33 32 32 32h464c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16zM464 96H345.94c-21.38 0-32.09 25.85-16.97 40.97l32.4 32.4L288 242.75l-73.37-73.37c-12.5-12.5-32.76-12.5-45.25 0l-68.69 68.69c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L192 237.25l73.37 73.37c12.5 12.5 32.76 12.5 45.25 0l96-96 32.4 32.4c15.12 15.12 40.97 4.41 40.97-16.97V112c.01-8.84-7.15-16-15.99-16z"
-        />
-    </svg>
-);
+export type FormatterParam = {
+    componentType: 'series';
+    componentSubType: 'line';
+    componentIndex: number;
+    seriesType: 'line';
+    // Index of series
+    seriesIndex: number;
+    // "\u0000series\u00000\u00000"
+    seriesId: string;
+    seriesName: string;
+    name: string;
+    /** Index in an array */
+    dataIndex: number;
+    data: {
+        value: [ts: number, val: number];
+        exact?: boolean;
+    };
+    value: [ts: number, val: number];
+    exact?: boolean;
+    // "rgba(243,177,31,0.65)"
+    color: string;
+    dimensionNames: ['x', 'y'];
+    encode: {
+        x: [0];
+        y: [1];
+    };
+    $vars: ['seriesName', 'name', 'value'];
+    axisDim: 'x';
+    /** Index of X axis */
+    axisIndex: number;
+    axisType: 'xAxis.time';
+    // "\u0000series\u00000\u00000"
+    axisId: string;
+    /** Time */
+    axisValue: number;
+    // Like "2025-05-02 14:01:52"
+    axisValueLabel: string;
+    // "<span style=\"display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:rgba(243,177,31,0.65);\"></span>"
+    marker: string;
+};
 
-/* const localeMap = {
-    en: enLocale,
-    fr: frLocale,
-    ru: ruLocale,
-    de: deLocale,
-    es: esLocale,
-    br: brLocale,
-    nl: nlLocale,
-    it: itLocale,
-    pt: ptLocale,
-    pl: plLocale,
-    'zh-cn': cnLocale,
-}; */
-
-function padding3(ms: number): number | string {
-    if (ms < 10) {
-        return `00${ms}`;
-    }
-    if (ms < 100) {
-        return `0${ms}`;
-    }
-    return ms;
-}
-
-function padding2(num: number): number | string {
-    if (num < 10) {
-        return `0${num}`;
-    }
-    return num;
+function SplitLineIcon(props: {
+    style?: React.CSSProperties;
+    width?: number | string;
+    height?: number | string;
+}): React.JSX.Element {
+    return (
+        <svg
+            viewBox="0 0 512 512"
+            width={props.width || 20}
+            height={props.height || props.width || 20}
+            xmlns="http://www.w3.org/2000/svg"
+            style={props.style}
+        >
+            <path
+                fill="currentColor"
+                d="M496 384H64V80c0-8.84-7.16-16-16-16H16C7.16 64 0 71.16 0 80v336c0 17.67 14.33 32 32 32h464c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16zM464 96H345.94c-21.38 0-32.09 25.85-16.97 40.97l32.4 32.4L288 242.75l-73.37-73.37c-12.5-12.5-32.76-12.5-45.25 0l-68.69 68.69c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L192 237.25l73.37 73.37c12.5 12.5 32.76 12.5 45.25 0l96-96 32.4 32.4c15.12 15.12 40.97 4.41 40.97-16.97V112c.01-8.84-7.15-16-15.99-16z"
+            />
+        </svg>
+    );
 }
 
 const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
-    paper: {
-        height: '100%',
-        maxHeight: '100%',
-        maxWidth: '100%',
-        overflow: 'hidden',
-        width: '100%',
-    },
-    chart: {
-        width: '100%',
-        overflow: 'hidden',
-    },
     chartWithToolbar: theme => ({
         height: `calc(100% - ${parseFloat((theme?.mixins?.toolbar.minHeight as string) || '48') + 8}px)`,
     }),
     chartWithoutToolbar: {
         height: '100%',
     },
-    selectHistoryControl: {
-        width: 130,
-    },
-    selectRelativeTime: {
-        marginLeft: 10,
-        width: 200,
-    },
-    notAliveInstance: {
-        opacity: 0.5,
-    },
-    customRange: (theme: IobTheme): React.CSSProperties => ({
+    customRange: (theme: IobTheme): { color: string } => ({
         color: theme?.palette?.primary.main || '#00bcd4',
     }),
-    splitLineButtonIcon: {
-        marginRight: 8,
-    },
-    splitLineButton: {
-        float: 'right',
-    },
-    grow: {
-        flexGrow: 1,
-    },
-
-    toolbarTime: {
-        width: 100,
-        marginTop: 9,
-        marginLeft: 8,
-    },
-    toolbarDate: {
-        width: 160,
-        marginTop: 9,
-    },
-    toolbarTimeGrid: {
-        marginLeft: 8,
-        paddingLeft: 8,
-        paddingRight: 8,
-        paddingTop: 4,
-        paddingBottom: 4,
-        border: '1px dotted #AAAAAA',
-        borderRadius: 8,
-        display: 'flex',
-    },
-    buttonIcon: {
-        width: 24,
-        height: 24,
-    },
-    echartsButton: {
-        marginRight: 8,
-        height: 34,
-        width: 34,
-    },
-    dateInput: {
-        width: 140,
-        marginRight: 8,
-    },
-    timeInput: {
-        width: 80,
-    },
 };
 
 const GRID_PADDING_LEFT = 80;
@@ -192,10 +124,9 @@ interface ObjectChartProps {
     objects: Record<string, ioBroker.Object>;
     customsInstances: string[];
     obj: ioBroker.Object;
-    obj2: ioBroker.Object;
-    historyInstance?: string;
-    historyInstances?: Array<{ id: string; alive: boolean }>;
-    defaultHistory?: string;
+    obj2?: ioBroker.Object;
+    historyInstance: string;
+    historyInstance2?: string;
     lang: string;
     themeType: ThemeType;
     noToolbar?: boolean;
@@ -222,9 +153,6 @@ interface ObjectChartProps {
 }
 
 interface ObjectChartState {
-    historyInstance: string;
-    historyInstances: Array<{ id: string; alive: boolean }> | null;
-    defaultHistory: string;
     chartHeight: number;
     chartWidth: number;
     relativeRange: string;
@@ -266,7 +194,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
     chartValues: Record<string, { val: number; ts: number; i?: boolean }[]> | null = null;
     rangeValues: ioBroker.GetHistoryResult | null = null;
 
-    constructor(props: ObjectChart['props']) {
+    constructor(props: ObjectChartProps) {
         super(props);
         if (!this.props.from) {
             const from = new Date();
@@ -293,10 +221,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         }
 
         this.state = {
-            // loaded: false,
-            historyInstance: this.props.historyInstance || '',
-            historyInstances: null,
-            defaultHistory: '',
             chartHeight: 300,
             chartWidth: 500,
             relativeRange,
@@ -316,6 +240,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             : this.props.obj?.common?.unit
               ? ` ${this.props.obj.common.unit}`
               : '';
+
         this.unit2 = this.props.unit2
             ? ` ${this.props.unit2}`
             : this.props.obj2?.common?.unit
@@ -325,13 +250,10 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         this.divRef = createRef();
 
         this.chart = {};
-
-        this.onChange = this.onChange.bind(this);
-        this.onResize = this.onResize.bind(this);
     }
 
-    componentDidMount(): void {
-        const ids = [];
+    async componentDidMount(): Promise<void> {
+        const ids: string[] = [];
         if (this.props.obj._id && this.props.obj._id !== 'nothing_selected') {
             ids.push(this.props.obj._id);
         }
@@ -344,18 +266,17 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         }
         window.addEventListener('resize', this.onResize);
 
-        void this.prepareData()
-            .then(() => {
-                if (!this.props.noToolbar) {
-                    return this.readHistoryRange();
-                }
-            })
-            .then(() => this.setRelativeInterval(this.state.relativeRange, true, () => this.forceUpdate()));
+        if (!this.props.noToolbar) {
+            await this.readHistoryRange();
+        }
+        this.setRelativeInterval(this.state.relativeRange, true, () => this.forceUpdate());
     }
 
     componentWillUnmount(): void {
-        this.readTimeout && clearTimeout(this.readTimeout);
-        this.readTimeout = null;
+        if (this.readTimeout) {
+            clearTimeout(this.readTimeout);
+            this.readTimeout = null;
+        }
 
         this.timeTimer && clearTimeout(this.timeTimer);
         this.timeTimer = null;
@@ -374,7 +295,9 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             ids.push(this.props.obj2._id);
         }
 
-        ids.length && this.props.socket.unsubscribeState(ids, this.onChange);
+        if (ids.length) {
+            this.props.socket.unsubscribeState(ids, this.onChange);
+        }
 
         window.removeEventListener('resize', this.onResize);
     }
@@ -389,7 +312,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
 
     onChange = (id: string, state: ioBroker.State | null | undefined): void => {
         if (
-            (id === this.props.obj._id || id === this.props.obj2._id) &&
+            (id === this.props.obj._id || id === this.props.obj2?._id) &&
             state &&
             this.rangeValues &&
             (!this.rangeValues.length || this.rangeValues[this.rangeValues.length - 1].ts < state.ts)
@@ -408,146 +331,33 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         }
     };
 
-    prepareData(): Promise<void> {
-        let list: { id: string; alive: boolean }[];
-
-        if (this.props.noToolbar) {
-            return new Promise(resolve => {
-                this.setState(
-                    {
-                        // dateFormat: this.props.dateFormat.replace(/D/g, 'd').replace(/Y/g, 'y'),
-                        defaultHistory: this.props.defaultHistory!,
-                        historyInstance: this.props.defaultHistory!,
-                    },
-                    () => resolve(),
-                );
-            });
-        }
-
-        return this.getHistoryInstances()
-            .then(_list => {
-                list = _list;
-                // read default history
-                return this.props.systemConfig
-                    ? Promise.resolve(this.props.systemConfig)
-                    : this.props.socket.getSystemConfig();
-            })
-            .then(config => {
-                const defaultHistory = config?.common?.defaultHistory;
-
-                // find current history
-                // first read from localstorage
-                let historyInstance = window.localStorage.getItem('App.historyInstance') || '';
-                if (!historyInstance || !list.find(it => it.id === historyInstance && it.alive)) {
-                    // try default history
-                    historyInstance = defaultHistory;
-                }
-                if (!historyInstance || !list.find(it => it.id === historyInstance && it.alive)) {
-                    // find the first alive history
-                    const hInstance = list.find(it => it.alive);
-                    if (hInstance) {
-                        historyInstance = hInstance.id;
-                    }
-                }
-                // get first entry
-                if (!historyInstance && list.length) {
-                    historyInstance = defaultHistory;
-                }
-
-                this.setState({
-                    // dateFormat: (config.common.dateFormat || 'dd.MM.yyyy').replace(/D/g, 'd').replace(/Y/g, 'y'),
-                    historyInstances: list,
-                    defaultHistory,
-                    historyInstance,
-                });
-            });
-    }
-
-    async getHistoryInstances(): Promise<{ id: string; alive: boolean }[]> {
-        const list: { id: string; alive: boolean }[] = [];
-        const ids: string[] = [];
-
-        if (this.props.historyInstance) {
-            return list;
-        }
-        let customsInstances = this.props.customsInstances;
-        const objects = this.props.objects || {};
-        if (!customsInstances) {
-            const instances = await this.props.socket.getAdapterInstances();
-            customsInstances = instances
-                .filter(it => {
-                    objects[it._id] = it;
-                    return it.common?.getHistory;
-                })
-                .map(obj => obj._id.replace('system.adapter.', ''));
-        }
-
-        customsInstances.forEach(instance => {
-            const instObj = objects[`system.adapter.${instance}`];
-            if (instObj?.common?.getHistory) {
-                const listObj = { id: instance, alive: false };
-                list.push(listObj);
-                ids.push(`system.adapter.${instance}.alive`);
-            }
-        });
-
-        if (ids.length) {
-            for (let i = 0; i < ids.length; i++) {
-                const alive = await this.props.socket.getState(ids[i]);
-                const item = list.find(it => ids[i].endsWith(`${it.id}.alive`));
-                if (item) {
-                    item.alive = alive?.val as boolean;
-                }
-            }
-        }
-
-        return list;
-    }
-
-    readHistoryRange(): Promise<void> {
+    async readHistoryRange(): Promise<void> {
         const now = new Date();
         const oldest = new Date(2000, 0, 1);
 
-        return this.props.socket
-            .getHistory(this.props.obj._id, {
-                instance: this.state.historyInstance,
-                start: oldest.getTime(),
-                end: now.getTime(),
-                // step:      3600000, // hourly
-                limit: 1,
-                from: false,
-                ack: false,
-                q: false,
-                addId: false,
-                aggregate: 'none',
-            })
-            .then(values => {
-                // remove interpolated first value
-                if (values && values[0]?.val === null) {
-                    values.shift();
-                }
-                this.rangeValues = values;
-            });
+        const values = await this.props.socket.getHistory(this.props.obj._id, {
+            instance: this.props.historyInstance,
+            start: oldest.getTime(),
+            end: now.getTime(),
+            // step:      3600000, // hourly
+            limit: 1,
+            from: false,
+            ack: false,
+            q: false,
+            addId: false,
+            aggregate: 'none',
+        });
+
+        // remove interpolated first value
+        if (values?.[0]?.val === null) {
+            values.shift();
+        }
+        this.rangeValues = values;
     }
 
-    readHistory(start: number, end: number, id?: string): Promise<{ val: number; ts: number; i?: boolean }[]> {
-        /* interface GetHistoryOptions {
-            instance?: string;
-            start?: number;
-            end?: number;
-            step?: number;
-            count?: number;
-            from?: boolean;
-            ack?: boolean;
-            q?: boolean;
-            addID?: boolean;
-            limit?: number;
-            ignoreNull?: boolean;
-            sessionId?: any;
-            aggregate?: 'minmax' | 'min' | 'max' | 'average' | 'total' | 'count' | 'none';
-        } */
+    async readHistory(start: number, end: number, id: string): Promise<{ val: number; ts: number; i?: boolean }[]> {
         const options: ioBroker.GetHistoryOptions = {
-            instance: this.state.historyInstance,
+            instance: id === this.props.obj2?._id ? this.props.historyInstance2 : this.props.historyInstance,
             start,
             end,
             from: false,
@@ -571,76 +381,67 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             // options.step = 60000;
         }
 
-        return this.props.socket.getHistory(id || this.props.obj._id, options).then(values => {
-            // merge range and chart
-            const chart: { val: number; ts: number; i?: boolean }[] = [];
-            let r = 0;
-            const range = this.rangeValues;
-            let minY = null;
-            let maxY = null;
+        const values = await this.props.socket.getHistory(id, options);
+        // merge range and chart
+        const chart: { val: number; ts: number; i?: boolean }[] = [];
+        let r = 0;
+        const range = this.rangeValues;
+        let minY = null;
+        let maxY = null;
 
-            for (let t = 0; t < values.length; t++) {
-                if (!id && range) {
-                    while (r < range.length && range[r].ts < values[t].ts) {
-                        chart.push(range[r] as { val: number; ts: number; i?: boolean });
-                        // console.log(`add ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
-                        r++;
-                    }
-                }
-                // if range and details are not equal
-                if (!chart.length || chart[chart.length - 1].ts < values[t].ts) {
-                    chart.push(values[t] as { val: number; ts: number; i?: boolean });
-                } else if (
-                    chart[chart.length - 1].ts === values[t].ts &&
-                    chart[chart.length - 1].val !== values[t].ts
-                ) {
-                    console.error('Strange data!');
-                }
-                if (minY === null || values[t].val! < minY) {
-                    minY = values[t].val;
-                }
-                if (maxY === null || values[t].val! > maxY) {
-                    maxY = values[t].val;
-                }
-            }
-
-            if (id && range) {
-                while (r < range.length) {
+        for (let t = 0; t < values.length; t++) {
+            if (!id && range) {
+                while (r < range.length && range[r].ts < values[t].ts) {
                     chart.push(range[r] as { val: number; ts: number; i?: boolean });
-                    console.log(`add range ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
+                    // console.log(`add ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
                     r++;
                 }
             }
-
-            // sort
-            chart.sort((a, b) => (a.ts > b.ts ? 1 : a.ts < b.ts ? -1 : 0));
-
-            id ||= this.props.obj._id;
-            this.chartValues = this.chartValues || {};
-            this.minY ||= {};
-            this.maxY ||= {};
-            this.minX ||= {};
-            this.maxX ||= {};
-
-            this.chartValues[id] = chart;
-            this.minY[id] = minY as number;
-            this.maxY[id] = maxY as number;
-
-            this.minX[id] = minY as number;
-            this.maxX[id] = maxY as number;
-
-            if (this.minY[id]! < 10) {
-                this.minY[id] = Math.round(this.minY[id]! * 10) / 10;
-            } else {
-                this.minY[id] = Math.ceil(this.minY[id]!);
+            // if range and details are not equal
+            if (!chart.length || chart[chart.length - 1].ts < values[t].ts) {
+                chart.push(values[t] as { val: number; ts: number; i?: boolean });
+            } else if (chart[chart.length - 1].ts === values[t].ts && chart[chart.length - 1].val !== values[t].ts) {
+                console.error('Strange data!');
             }
-            if (this.maxY[id]! < 10) {
-                this.maxY[id] = Math.round(this.maxY[id]! * 10) / 10;
-            } else {
-                this.maxY[id] = Math.ceil(this.maxY[id]!);
+            if (minY === null || values[t].val! < minY) {
+                minY = values[t].val;
             }
-            return chart;
-        });
+            if (maxY === null || values[t].val! > maxY) {
+                maxY = values[t].val;
+            }
+        }
+
+        if (id && range) {
+            while (r < range.length) {
+                chart.push(range[r] as { val: number; ts: number; i?: boolean });
+                console.log(`add range ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
+                r++;
+            }
+        }
+        // sort
+        chart.sort((a, b) => (a.ts > b.ts ? 1 : a.ts < b.ts ? -1 : 0));
+        id ||= this.props.obj._id;
+        this.chartValues = this.chartValues || {};
+        this.minY ||= {};
+        this.maxY ||= {};
+        this.minX ||= {};
+        this.maxX ||= {};
+        this.chartValues[id] = chart;
+        this.minY[id] = minY as number;
+        this.maxY[id] = maxY as number;
+        this.minX[id] = minY as number;
+        this.maxX[id] = maxY as number;
+        if (this.minY[id]! < 10) {
+            this.minY[id] = Math.round(this.minY[id]! * 10) / 10;
+        } else {
+            this.minY[id] = Math.ceil(this.minY[id]!);
+        }
+        if (this.maxY[id]! < 10) {
+            this.maxY[id] = Math.round(this.maxY[id]! * 10) / 10;
+        } else {
+            this.maxY[id] = Math.ceil(this.maxY[id]!);
+        }
+        return chart;
     }
 
     convertData(
@@ -667,6 +468,28 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         }
 
         return data;
+    }
+
+    static getColor(color: string, opacity: number): string {
+        let r: number;
+        let g: number;
+        let b: number;
+        if (color.startsWith('#')) {
+            r = parseInt(color.substring(1, 3), 16);
+            g = parseInt(color.substring(3, 5), 16);
+            b = parseInt(color.substring(5, 7), 16);
+        } else if (color.startsWith('rgb(')) {
+            const parts = color.replace('rgb(', '').replace(')', '').split(',');
+            r = parseInt(parts[0], 10);
+            g = parseInt(parts[1], 10);
+            b = parseInt(parts[2], 10);
+        } else if (color.startsWith('rgba(')) {
+            const parts = color.replace('rgba(', '').replace(')', '').split(',');
+            r = parseInt(parts[0], 10);
+            g = parseInt(parts[1], 10);
+            b = parseInt(parts[2], 10);
+        }
+        return `rgba(${r!},${g!},${b!},${opacity})`;
     }
 
     getOption(): EChartsOption {
@@ -717,9 +540,12 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             hoverAnimation: true,
             animation: false,
             data: this.convertData(null, this.props.obj._id),
-            backgroundColor: this.props.objBackgroundColor || 'rgba(243,177,31,0.14)',
-            color: this.props.objColor || '#f5ba4d',
-            areaStyle: {},
+            areaStyle: {
+                color: this.props.objBackgroundColor || 'rgba(243,177,31,0.14)',
+            },
+            lineStyle: {
+                color: this.props.objColor || '#f5ba4d',
+            },
         };
 
         const yAxis: YAXisOption[] = [
@@ -731,6 +557,9 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 },
                 splitNumber: Math.round(this.state.chartHeight / 50),
                 name: this.props.title || undefined,
+                nameTextStyle: {
+                    align: 'left',
+                },
                 axisLabel: {
                     formatter: value => {
                         let text;
@@ -769,15 +598,21 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 hoverAnimation: true,
                 animation: false,
                 data: this.convertData(null, this.props.obj2._id),
-                backgroundColor: this.props.obj2BackgroundColor || 'rgba(141,243,31,0.14)',
-                color: this.props.obj2Color || '#21b400',
-                areaStyle: {},
+                areaStyle: {
+                    color: this.props.obj2BackgroundColor || 'rgba(141,243,31,0.14)',
+                },
+                lineStyle: {
+                    color: this.props.obj2Color || '#21b400',
+                },
             };
             yAxis.push({
                 type: 'value',
                 alignTicks: true,
                 boundaryGap: [0, '100%'],
                 name: this.props.title2 || undefined,
+                nameTextStyle: {
+                    align: 'right',
+                },
                 splitLine: {
                     show: this.props.noToolbar || !!this.state.splitLine,
                 },
@@ -793,9 +628,11 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                         }
 
                         if (this.state.maxYLen2 < text.length) {
-                            this.maxYLenTimeout2 && clearTimeout(this.maxYLenTimeout2);
+                            if (this.maxYLenTimeout2) {
+                                clearTimeout(this.maxYLenTimeout2);
+                            }
                             this.maxYLenTimeout2 = setTimeout(
-                                maxYLen2 => this.setState({ maxYLen2 }),
+                                (maxYLen2: number): void => this.setState({ maxYLen2 }),
                                 200,
                                 text.length,
                             );
@@ -859,7 +696,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             serie.step = 'end';
             yAxis[1].axisLabel!.showMaxLabel = false;
             (yAxis[1] as TimeAxisBaseOption).axisLabel!.formatter = value =>
-                this.props.obj2.common.states[value] !== undefined ? this.props.obj2.common.states[value] : value;
+                this.props.obj2!.common.states[value] !== undefined ? this.props.obj2!.common.states[value] : value;
             const keys = Object.keys(this.props.obj2.common.states);
             keys.sort();
             yAxis[1].max = parseFloat(keys[keys.length - 1]) + 0.5;
@@ -911,18 +748,34 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             },
             tooltip: {
                 trigger: 'axis',
-                formatter: params => {
-                    params = params[0];
-                    const date = new Date(params.value[0]);
-                    let value = params.value[1];
-                    if (value !== null && value !== undefined) {
-                        value = Math.round(value * 1000) / 1000;
+                formatter: (params: any): string | HTMLElement => {
+                    const lines: string[] = [];
+                    const date = new Date((params as FormatterParam[])[0].value[0]);
+                    let first = true;
+                    for (const param of params as FormatterParam[]) {
+                        const [, val] = param.value;
+                        let value: number | string = val;
+                        if (value !== null && value !== undefined) {
+                            value = Math.round(value * 1000) / 1000;
+                        }
+
+                        if (value !== null && this.props.isFloatComma) {
+                            value = value.toString().replace('.', ',');
+                        }
+                        lines.push(
+                            `<div style="display: flex; gap: 4px; align-items: center">
+<div style="border-radius: 15px;width: 15px;height: 15px;background-color: ${first ? this.props.objColor || '#f5ba4d' : this.props.obj2Color || '#21b400'};"></div>
+<div>${first ? this.props.title : this.props.title2} -</div>
+<div style="flex-grow: 1"></div>
+<div>${param.exact === false ? 'i' : ''}${value}${this.unit}</div>
+</div>`,
+                        );
+                        first = false;
                     }
 
-                    if (value !== null && this.props.isFloatComma) {
-                        value = value.toString().replace('.', ',');
-                    }
-                    return `${params.exact === false ? 'i' : ''}${date.toLocaleString()}.${padding3(date.getMilliseconds())}: ${value}${this.unit}`;
+                    const div = document.createElement('div');
+                    div.innerHTML = `<div>${date.toLocaleString()}.${date.getMilliseconds().toString().padStart(3, '0')}</div>${lines.join('\n')}`;
+                    return div;
                 },
                 axisPointer: {
                     animation: true,
@@ -936,17 +789,18 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 splitNumber,
                 min: this.chart.min,
                 max: this.chart.max,
+                // @ts-expect-error fix later
                 axisTick: { alignWithLabel: true },
                 axisLabel: {
                     formatter: (value: number) => {
                         const date = new Date(value);
                         if (this.chart.withSeconds) {
-                            return `${padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}`;
+                            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
                         }
                         if (this.chart.withTime) {
-                            return `${padding2(date.getHours())}:${padding2(date.getMinutes())}\n${padding2(date.getDate())}.${padding2(date.getMonth() + 1)}`;
+                            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}\n${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
                         }
-                        return `${padding2(date.getDate())}.${padding2(date.getMonth() + 1)}\n${date.getFullYear()}`;
+                        return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}\n${date.getFullYear()}`;
                     },
                 },
             },
@@ -969,9 +823,11 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         start = start || this.start;
         end = end || this.end;
 
-        this.readTimeout && clearTimeout(this.readTimeout);
+        if (this.readTimeout) {
+            clearTimeout(this.readTimeout);
+        }
 
-        this.readTimeout = setTimeout(() => {
+        this.readTimeout = setTimeout(async () => {
             this.readTimeout = null;
 
             const diff = this.chart.max! - this.chart.min!;
@@ -982,26 +838,25 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             }
 
             if (withReadData) {
-                this.readHistory(start, end).then(async values => {
-                    let values2: { val: number; ts: number; i?: boolean }[] | undefined;
-                    if (this.props.obj2) {
-                        values2 = await this.readHistory(start, end, this.props.obj2._id);
-                    }
+                const values = await this.readHistory(start, end, this.props.obj._id);
+                let values2: { val: number; ts: number; i?: boolean }[] | undefined;
+                if (this.props.obj2) {
+                    values2 = await this.readHistory(start, end, this.props.obj2._id);
+                }
 
-                    if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
-                        this.echartsReact.getEchartsInstance().setOption({
-                            series: [
-                                { data: this.convertData(values, this.props.obj._id) },
-                                this.props.obj2 ? { data: this.convertData(values2!, this.props.obj2._id) } : undefined,
-                            ],
-                            xAxis: {
-                                min: this.chart.min,
-                                max: this.chart.max,
-                            },
-                        });
-                    }
-                    cb?.();
-                });
+                if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                    this.echartsReact.getEchartsInstance().setOption({
+                        series: [
+                            { data: this.convertData(values, this.props.obj._id) },
+                            this.props.obj2 ? { data: this.convertData(values2!, this.props.obj2._id) } : undefined,
+                        ],
+                        xAxis: {
+                            min: this.chart.min,
+                            max: this.chart.max,
+                        },
+                    });
+                }
+                cb?.();
             } else if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                 this.echartsReact.getEchartsInstance().setOption({
                     series: [
@@ -1391,10 +1246,10 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         const showTimeSettings = window.document.body.clientWidth > 600;
 
         return (
-            <Toolbar>
+            <Toolbar style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <FormControl
                     variant="standard"
-                    style={styles.selectRelativeTime as CSSProperties}
+                    style={{ minWidth: 200 }}
                 >
                     <InputLabel>{this.props.t('relative')}</InputLabel>
                     <Select
@@ -1405,7 +1260,9 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                     >
                         <MenuItem
                             value="absolute"
-                            sx={styles.customRange}
+                            sx={{
+                                color: 'primary.main',
+                            }}
                         >
                             {this.props.t('custom_range')}
                         </MenuItem>
@@ -1424,75 +1281,22 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                         <MenuItem value="12months">{this.props.t('last 12 months')}</MenuItem>
                     </Select>
                 </FormControl>
-                {/* showTimeSettings ? null
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={localeMap[this.props.lang]}>
-                    <div style={styles.toolbarTimeGrid}>
-                        <DatePicker
-                            style={styles.toolbarDate}
-                            disabled={this.state.relativeRange !== 'absolute'}
-                            disableToolbar
-                            variant="inline"
-                            margin="normal"
-                            inputFormat={this.state.dateFormat}
-                            // format="fullDate"
-                            label={this.props.t('Start date')}
-                            value={new Date(this.state.min)}
-                            onChange={date => this.setStartDate(date)}
-                            renderInput={params => <TextField style={styles.dateInput} variant="standard" {...params} />}
-                        />
-                        <TimePicker
-                            disabled={this.state.relativeRange !== 'absolute'}
-                            style={styles.toolbarTime}
-                            margin="normal"
-                            // format="fullTime24h"
-                            ampm={false}
-                            label={this.props.t('Start time')}
-                            value={new Date(this.state.min)}
-                            onChange={date => this.setStartDate(date)}
-                            renderInput={params => <TextField style={styles.timeInput} variant="standard" {...params} />}
-                        />
-                    </div>
-                    <div style={styles.toolbarTimeGrid}>
-                        <DatePicker
-                            disabled={this.state.relativeRange !== 'absolute'}
-                            style={styles.toolbarDate}
-                            disableToolbar
-                            inputFormat={this.state.dateFormat}
-                            variant="inline"
-                            // format="fullDate"
-                            margin="normal"
-                            label={this.props.t('End date')}
-                            value={new Date(this.state.max)}
-                            onChange={date => this.setEndDate(date)}
-                            renderInput={params => <TextField style={styles.dateInput} variant="standard" {...params} />}
-                        />
-                        <TimePicker
-                            disabled={this.state.relativeRange !== 'absolute'}
-                            style={styles.toolbarTime}
-                            margin="normal"
-                            // format="fullTime24h"
-                            ampm={false}
-                            label={this.props.t('End time')}
-                            value={new Date(this.state.max)}
-                            onChange={date => this.setEndDate(date)}
-                            renderInput={params => <TextField style={styles.timeInput} variant="standard" {...params} />}
-                        />
-                    </div>
-                </LocalizationProvider>
-                : null */}
                 {showTimeSettings ? (
                     <Fab
                         variant="extended"
                         size="small"
-                        color={this.state.splitLine ? 'primary' : 'inherit'}
+                        color={this.state.splitLine ? 'primary' : undefined}
                         aria-label="show lines"
                         onClick={() => {
                             window.localStorage.setItem('App.splitLine', this.state.splitLine ? 'false' : 'true');
                             this.setState({ splitLine: !this.state.splitLine });
                         }}
-                        style={styles.splitLineButton as CSSProperties}
                     >
-                        <SplitLineIcon style={styles.splitLineButtonIcon as CSSProperties} />
+                        <SplitLineIcon
+                            style={{
+                                marginRight: 8,
+                            }}
+                        />
                         {this.props.t('Show lines')}
                     </Fab>
                 ) : null}
@@ -1501,17 +1305,24 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
     }
 
     render(): React.ReactNode {
-        if (!this.state.historyInstances && !this.state.defaultHistory) {
-            return <LinearProgress />;
-        }
-
         return (
-            <Paper style={styles.paper as CSSProperties}>
+            <Paper
+                style={{
+                    height: '100%',
+                    maxHeight: '100%',
+                    maxWidth: '100%',
+                    overflow: 'hidden',
+                    width: '100%',
+                }}
+            >
                 {this.renderToolbar()}
                 <Box
                     component="div"
                     ref={this.divRef}
-                    style={styles.chart as CSSProperties}
+                    style={{
+                        width: '100%',
+                        overflow: 'hidden',
+                    }}
                     sx={(this.props.noToolbar ? styles.chartWithoutToolbar : styles.chartWithToolbar) as SxProps<Theme>}
                 >
                     {this.renderChart()}

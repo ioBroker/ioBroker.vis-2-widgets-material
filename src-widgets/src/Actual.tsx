@@ -108,7 +108,7 @@ type RxData = {
     'color-main': string;
     'font-size-main': string;
     'font-style-main': string;
-    digits_after_comma_main: number;
+    digits_after_comma_main?: 0 | 1;
     'oid-secondary': string;
     'title-secondary': string;
     'icon-secondary': string;
@@ -118,7 +118,7 @@ type RxData = {
     'font-size-secondary': string;
     'font-style-secondary': string;
     'noData-secondary': boolean;
-    digits_after_comma_secondary: number;
+    digits_after_comma_secondary?: 0 | 1;
 };
 
 interface ActualState extends VisRxWidgetState {
@@ -138,8 +138,6 @@ interface ActualState extends VisRxWidgetState {
         } | null;
     };
 }
-
-const HISTORY_ADAPTER_NAMES = ['history', 'sql', 'influxdb'];
 
 export default class Actual extends Generic<RxData, ActualState> {
     refContainer: React.RefObject<HTMLDivElement> = React.createRef();
@@ -387,23 +385,6 @@ export default class Actual extends Generic<RxData, ActualState> {
         }
     }
 
-    static getHistoryInstance(
-        obj: ioBroker.StateObject | undefined | null | { common: ioBroker.StateCommon; _id: string },
-        defaultHistory: string,
-    ): string | null {
-        if (obj?.common?.custom) {
-            if (obj.common.custom[defaultHistory]) {
-                return defaultHistory;
-            }
-            for (const instance in obj.common.custom) {
-                if (HISTORY_ADAPTER_NAMES.includes(instance.split('.')[0])) {
-                    return instance;
-                }
-            }
-        }
-        return null;
-    }
-
     async propertiesUpdate(): Promise<void> {
         const actualRxData = JSON.stringify(this.state.rxData);
         if (this.lastRxData === actualRxData) {
@@ -452,8 +433,8 @@ export default class Actual extends Generic<RxData, ActualState> {
         }
 
         const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
-        const mainHistoryInstance = Actual.getHistoryInstance(objects.main, defaultHistory);
-        const secondaryHistoryInstance = Actual.getHistoryInstance(objects.secondary, defaultHistory);
+        const mainHistoryInstance = Generic.getHistoryInstance(objects.main, defaultHistory);
+        const secondaryHistoryInstance = Generic.getHistoryInstance(objects.secondary, defaultHistory);
 
         const isChart =
             (!this.state.rxData.noChart && !!mainHistoryInstance) ||
@@ -776,7 +757,14 @@ export default class Actual extends Generic<RxData, ActualState> {
                         objBackgroundColor={mainBackgroundColor}
                         obj2BackgroundColor={secondaryBackgroundColor}
                         themeType={this.props.context.themeType}
-                        defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
+                        historyInstance={Generic.getHistoryInstance(
+                            this.state.objects.main || this.state.objects.secondary,
+                            this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
+                        )}
+                        historyInstance2={Generic.getHistoryInstance(
+                            this.state.objects.secondary,
+                            this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
+                        )}
                         noToolbar={false}
                         systemConfig={this.props.context.systemConfig}
                         dateFormat={this.props.context.systemConfig.common.dateFormat}

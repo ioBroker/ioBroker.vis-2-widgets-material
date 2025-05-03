@@ -248,7 +248,7 @@ export default class Html extends Generic<HtmlRxData, HtmlState> {
                 const project = JSON.parse(JSON.stringify(this.props.context.views));
                 const widget = project[this.props.view].widgets[this.props.id];
                 widget.data.widget = options;
-                this.props.context.changeProject(project);
+                void this.props.context.changeProject(project);
                 return true;
             }
         }
@@ -277,7 +277,7 @@ export default class Html extends Generic<HtmlRxData, HtmlState> {
         if (this.wakeUpInstalled) {
             this.wakeUpInstalled = false;
             // remove the wake-up handler
-            window.vis.onWakeUp(this.props.id);
+            window.vis.onWakeUp(null, this.props.id);
         }
         if (this.viewChangeInstalled) {
             this.viewChangeInstalled = false;

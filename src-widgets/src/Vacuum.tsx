@@ -256,7 +256,7 @@ interface VacuumRxData {
 
 interface VacuumState extends VisRxWidgetState {
     showSpeedMenu: (EventTarget & HTMLButtonElement) | null;
-    showRoomsMenu: HTMLAnchorElement | null;
+    showRoomsMenu: HTMLButtonElement | null;
     dialog: boolean | null;
     objects: Partial<Record<VACUUM_ID_ROLES_TYPE, ioBroker.StateObject>>;
     rooms: null | { value: string; label: string }[];
@@ -470,10 +470,10 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
                     parts.pop();
                     parts.pop();
                     parts.push('rooms');
-                    const rooms = await this.props.context.socket.getObjectView(
+                    const rooms = await this.props.context.socket.getObjectViewSystem(
+                        'channel',
                         `${parts.join('.')}.room`,
                         `${parts.join('.')}.room\u9999`,
-                        'channel',
                     );
                     const result: { value: string; label: string }[] = [];
                     Object.keys(rooms).forEach(id =>
@@ -592,7 +592,6 @@ class Vacuum extends Generic<VacuumRxData, VacuumState> {
         return [
             <Button
                 variant="outlined"
-                // @ts-expect-error grey is OK
                 color="grey"
                 key="rooms"
                 onClick={e => this.setState({ showRoomsMenu: e.currentTarget })}

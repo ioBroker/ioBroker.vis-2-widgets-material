@@ -30,6 +30,8 @@ import type {
     VisWidgetCommand,
     WidgetData,
     VisRxWidgetState,
+    VisRxWidgetStateValues,
+    VisRxWidgetProps,
 } from '@iobroker/types-vis-2';
 
 /**
@@ -101,6 +103,7 @@ const styles: Record<string, CSSProperties> = {
         pointerEvents: 'none',
     },
 };
+
 export type RGB_NAMES_TYPE =
     | 'switch'
     | 'brightness'
@@ -273,13 +276,14 @@ interface RGBLightState extends VisRxWidgetState {
     rgbObjects: Record<string, ioBroker.Object>;
     colorTemperatures: Array<{ red: number; green: number; blue: number }>;
     sketch: boolean;
+    controlValue: { id: RGB_NAMES_TYPE | ''; value: number | string | boolean; changed: boolean } | null;
 }
 
-class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
+export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
     contentRef: React.RefObject<HTMLDivElement> = React.createRef();
     timeouts: Record<string, ReturnType<typeof setTimeout> | null> = {};
     _pressTimeout: ReturnType<typeof setTimeout> | null = null;
-    constructor(props: RGBLight['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {
             ...this.state,
@@ -287,6 +291,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
             rgbObjects: {},
             colorTemperatures: [],
             sketch: false,
+            controlValue: null,
         };
     }
 
@@ -562,16 +567,15 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
             if (id === 'switch' || id === 'white_mode') {
                 this.props.context.setValue(this.state.rxData[id], value);
             } else {
-                const values = { ...this.state.values, [`${this.state.rxData[id]}.val`]: value };
-                this.setState({ values });
-
-                this.timeouts[id] = setTimeout(
-                    () => {
-                        this.timeouts[id] = null;
-                        this.props.context.setValue(this.state.rxData[id], value);
-                    },
-                    parseInt(this.state.rxData.timeout as string, 10) || 200,
-                );
+                this.setState({ controlValue: { id, value, changed: !!this.state.controlValue?.changed } }, () => {
+                    this.timeouts[id] = setTimeout(
+                        () => {
+                            this.timeouts[id] = null;
+                            this.props.context.setValue(this.state.rxData[id], value);
+                        },
+                        parseInt(this.state.rxData.timeout as string, 10) || 200,
+                    );
+                });
             }
         }
     };
@@ -579,8 +583,7 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
     async rgbReadObjects(): Promise<void> {
         const rgbObjects: Record<string, ioBroker.StateObject> = {};
         const idToRead: string[] = [];
-        for (const k in RGB_NAMES) {
-            const id = RGB_NAMES[k];
+        for (const id of RGB_NAMES) {
             if (this.state.rxData[id] && this.state.rxData[id] !== 'nothing_selected') {
                 idToRead.push(this.state.rxData[id]);
             }
@@ -739,6 +742,20 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return 0;
     };
 
+    rgbGetWhiteId = (): RGB_NAMES_TYPE | '' => {
+        if (this.state.rxData.rgbType === 'r/g/b/w') {
+            return 'white';
+        }
+        if (this.state.rxData.rgbType === 'rgbw') {
+            if (this.state.rgbObjects.white) {
+                return 'white';
+            }
+
+            return 'rgb';
+        }
+        return '';
+    };
+
     rgbSetWhite = (color: number): void => {
         if (this.state.rxData.rgbType === 'r/g/b/w') {
             this.rgbSetId('white', color);
@@ -807,6 +824,27 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         );
     }
 
+    onStateUpdated(id: string): void {
+        if (this.state.controlValue?.id && this.state.rxData[this.state.controlValue.id] === id) {
+            this.setState({
+                controlValue: { id: this.state.controlValue.id, value: this.state.controlValue.value, changed: true },
+            });
+        }
+    }
+
+    finishChanging(): void {
+        if (this.state.controlValue) {
+            const newState: Partial<RGBLightState> = { controlValue: null };
+            // If the value was not yet updated, write a new value into "values"
+            if (!this.state.controlValue.changed && this.state.controlValue.id) {
+                const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
+                values[`${this.state.rxData[this.state.controlValue.id]}.val`] = this.state.controlValue.value;
+                newState.values = values;
+            }
+            this.setState(newState as any);
+        }
+    }
+
     rgbRenderBrightness(): React.ReactNode {
         return (
             this.state.rgbObjects.brightness && (
@@ -821,8 +859,13 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         min={this.rgbGetIdMin('brightness') || 0}
                         max={this.rgbGetIdMax('brightness') || 100}
                         valueLabelDisplay="auto"
-                        value={this.getPropertyValue('brightness') || 0}
+                        value={
+                            this.state.controlValue?.id === 'brightness'
+                                ? this.state.controlValue.value
+                                : this.getPropertyValue('brightness') || 0
+                        }
                         onChange={(e, value) => this.rgbSetId('brightness', value)}
+                        onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
             )
@@ -938,8 +981,13 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                     min={min}
                     max={max}
                     valueLabelDisplay="auto"
-                    value={this.rgbGetWhite() || 0}
+                    value={
+                        this.state.controlValue?.id === this.rgbGetWhiteId()
+                            ? (this.state.controlValue.value as number)
+                            : this.rgbGetWhite() || 0
+                    }
                     onChange={(e, value) => this.rgbSetWhite(value)}
+                    onChangeCommitted={() => this.finishChanging()}
                 />
             </div>
         );
@@ -969,8 +1017,13 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         valueLabelDisplay="auto"
                         min={this.rgbGetIdMin('color_temperature') || 2700}
                         max={this.rgbGetIdMax('color_temperature') || 6000}
-                        value={this.getPropertyValue('color_temperature') || 0}
+                        value={
+                            this.state.controlValue?.id === 'color_temperature'
+                                ? this.state.controlValue.value
+                                : this.getPropertyValue('color_temperature') || 0
+                        }
                         onChange={(e, value) => this.rgbSetId('color_temperature', value)}
+                        onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
             </div>
@@ -1363,5 +1416,3 @@ class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
         return this.wrapContent(rgbContent || <div />, null);
     }
 }
-
-export default RGBLight;

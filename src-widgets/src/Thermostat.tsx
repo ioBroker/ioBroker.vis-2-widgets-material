@@ -547,10 +547,11 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
         } else {
             newState.tempStateObject = null;
         }
+        const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory;
+        const mainHistoryInstance = Generic.getHistoryInstance(newState.tempObject, defaultHistory);
+        const secondaryHistoryInstance = Generic.getHistoryInstance(newState.tempStateObject, defaultHistory);
 
-        newState.isChart =
-            newState.tempObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory] ||
-            newState.tempStateObject?.common?.custom?.[this.props.context.systemConfig.common.defaultHistory];
+        newState.isChart = !!mainHistoryInstance || !!secondaryHistoryInstance;
 
         // If changed any attribute
         if (
@@ -628,7 +629,14 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
                                 objLineType={this.state.tempStateObject ? 'line' : 'step'}
                                 obj2LineType="step"
                                 themeType={this.props.context.themeType}
-                                defaultHistory={this.props.context.systemConfig?.common?.defaultHistory || 'history.0'}
+                                historyInstance={Generic.getHistoryInstance(
+                                    this.state.tempStateObject || this.state.tempObject,
+                                    this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
+                                )}
+                                historyInstance2={Generic.getHistoryInstance(
+                                    this.state.tempStateObject,
+                                    this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
+                                )}
                                 noToolbar={false}
                                 systemConfig={this.props.context.systemConfig}
                                 dateFormat={this.props.context.systemConfig.common.dateFormat}

@@ -146,14 +146,11 @@ function getText(text: ioBroker.StringOrTranslated): string {
 }
 
 async function detectNameAndColor(
-    _field: RxWidgetInfoAttributesField,
+    field: RxWidgetInfoAttributesField,
     data: WidgetData,
     changeData: (newData: WidgetData) => void,
     socket: LegacyConnection,
 ): Promise<void> {
-    // @ts-expect-error fixed in @iobroker/types-vis-2
-    const field: RxWidgetInfoAttributesField & { index: number } = _field;
-
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
         let changed = false;
@@ -229,7 +226,7 @@ interface MapRxData {
 interface MapState extends VisRxWidgetState {
     dialog: boolean;
     history: { val: string; ts: number }[][];
-    objects: Record<string, ioBroker.Object>;
+    objects: { common: ioBroker.StateCommon; _id: string }[];
     forceShowMap: boolean;
 }
 
@@ -237,7 +234,7 @@ export default class Map extends Generic<MapRxData, MapState> {
     fillDataTimer: ReturnType<typeof setTimeout> | null = null;
     constructor(props: Map['props']) {
         super(props);
-        this.state = { ...this.state, dialog: false, history: [], objects: {} };
+        this.state = { ...this.state, dialog: false, history: [], objects: [] };
     }
 
     static getWidgetInfo(): RxWidgetInfo {
@@ -384,6 +381,7 @@ export default class Map extends Generic<MapRxData, MapState> {
     }
 
     async propertiesUpdate(): Promise<void> {
+        const defaultHistory = this.props.context.systemConfig?.common?.defaultHistory || 'history.0';
         const options = {
             instance: this.props.context.systemConfig?.common?.defaultHistory || 'history.0',
             from: false,
@@ -393,16 +391,14 @@ export default class Map extends Generic<MapRxData, MapState> {
             end: new Date().getTime(),
             count: 100,
         };
-
         const newHistory: { val: string; ts: number }[][] = [];
 
         for (let i = 1; i <= this.state.rxData.markersCount; i++) {
-            if (
-                this.state.rxData[`position${i}`] &&
-                this.state.rxData[`useHistory${i}`] &&
-                this.state.objects[i]?.common?.custom &&
-                this.state.objects[i]?.common?.custom?.[options.instance]
-            ) {
+            const historyInstance = Generic.getHistoryInstance(this.state.objects[i], defaultHistory);
+
+            if (this.state.rxData[`position${i}`] && this.state.rxData[`useHistory${i}`] && historyInstance) {
+                options.instance = historyInstance;
+
                 const history: ioBroker.GetHistoryResult = await this.props.context.socket.getHistory(
                     this.state.rxData[`position${i}`],
                     options,
@@ -416,7 +412,7 @@ export default class Map extends Generic<MapRxData, MapState> {
 
         this.setState({ history: newHistory });
 
-        const objects: Record<string, ioBroker.StateObject> = {};
+        const objects: { common: ioBroker.StateCommon; _id: string }[] = [];
 
         const ids = [];
         for (let index = 1; index <= this.state.rxData.markersCount; index++) {
@@ -432,7 +428,7 @@ export default class Map extends Generic<MapRxData, MapState> {
                 // read object itself
                 const object = _objects[this.state.rxData[`position${index}`]];
                 if (!object) {
-                    objects[index] = { common: {}, _id: this.state.rxData[`position${index}`] } as ioBroker.StateObject;
+                    objects[index] = { common: {} as ioBroker.StateCommon, _id: this.state.rxData[`position${index}`] };
                     continue;
                 }
                 object.common ||= {} as ioBroker.StateCommon;
@@ -463,7 +459,7 @@ export default class Map extends Generic<MapRxData, MapState> {
                         }
                     }
                 }
-                objects[index] = { common: object.common, _id: object._id } as ioBroker.StateObject;
+                objects[index] = { common: object.common as ioBroker.StateCommon, _id: object._id };
             }
         }
 

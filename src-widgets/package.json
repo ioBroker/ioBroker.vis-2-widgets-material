@@ -7,7 +7,7 @@
         "@adobe/react-spectrum": "^3.41.0",
         "@iobroker/adapter-react-v5": "^7.6.15",
         "@iobroker/type-detector": "^4.5.0",
-        "@iobroker/types-vis-2": "^2.12.6",
+        "@iobroker/types-vis-2": "^2.12.8",
         "@module-federation/runtime": "^0.13.1",
         "@module-federation/vite": "^1.2.7",
         "@mui/icons-material": "^7.0.2",
@@ -43,9 +43,7 @@
     "scripts": {
         "start": "vite --port 4173",
         "build": "tsc && vite build",
-        "preview": "vite preview",
-        "lint": "eslint -c eslint.config.mjs",
-        "i18n": "node node_modules/@iobroker/vis-2-widgets-react-dev/searchI18n vis_2_widgets_material"
+        "preview": "vite preview"
     },
     "eslintConfig": {
         "extends": "react-app"

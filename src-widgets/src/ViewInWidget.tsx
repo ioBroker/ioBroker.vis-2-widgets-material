@@ -104,7 +104,6 @@ class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
     }
 
     onNavigate(): void {
-        // @ts-expect-error fixed in vis-2-types
         window.vis.changeView(this.state.rxData.view, this.state.rxData.view);
     }
 

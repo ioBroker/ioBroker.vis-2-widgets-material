@@ -166,18 +166,14 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                                     if (object?.common) {
                                         if (
                                             object.common.color &&
-                                            // @ts-expect-error fixed in @types/iobroker
                                             data[`color${field.index}`] !== object.common.color
                                         ) {
-                                            // @ts-expect-error fixed in @types/iobroker
                                             data[`color${field.index}`] = object.common.color;
                                             changed = true;
                                         }
                                         if (object.common.name) {
                                             const name = object.common.name ? Generic.getText(object.common.name) : '';
-                                            // @ts-expect-error fixed in @types/iobroker
                                             if (data[`name${field.index}`] !== name) {
-                                                // @ts-expect-error fixed in @types/iobroker
                                                 data[`name${field.index}`] = name;
                                                 changed = true;
                                             }
@@ -212,7 +208,6 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                             name: 'pincode',
                             label: 'pincode',
                             onChange: (field, data, changeData /* , socket */): Promise<void> => {
-                                // @ts-expect-error fixed in @types/iobroker
                                 data[`pincode${field.index}`] = (data[`pincode${field.index}`] || '').replace(
                                     /[^0-9]/g,
                                     '',

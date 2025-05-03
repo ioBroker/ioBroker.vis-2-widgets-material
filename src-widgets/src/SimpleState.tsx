@@ -14,7 +14,8 @@ import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 import { Icon, type IobTheme } from '@iobroker/adapter-react-v5';
 import type {
     RxRenderWidgetProps,
-    RxWidgetInfo, VisRxWidgetProps,
+    RxWidgetInfo,
+    VisRxWidgetProps,
     VisRxWidgetState,
     VisRxWidgetStateValues,
 } from '@iobroker/types-vis-2';
@@ -131,6 +132,7 @@ interface SimpleStateRxData {
     circleSize: number;
     readOnly: boolean;
     unit: string;
+    timeout: number | string;
     [key: `value${number}`]: string;
     [key: `icon${number}`]: string;
     [key: `iconSmall${number}`]: string;
@@ -142,6 +144,7 @@ interface SimpleStateRxData {
 interface SimpleStateState extends VisRxWidgetState {
     showDimmerDialog: boolean | null;
     object: { common: ioBroker.StateCommon; _id: string; type: ioBroker.ObjectType | '' };
+    controlValue: { value: number; changed: boolean } | null;
 }
 
 class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
@@ -149,12 +152,15 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
     updateTimeout: ReturnType<typeof setTimeout> | null = null;
     updateTimer1: ReturnType<typeof setTimeout> | null = null;
     lastRxData: string | null = null;
+    controlTimer: ReturnType<typeof setTimeout> | null = null;
+
     constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {
             ...this.state,
             showDimmerDialog: null,
             object: { common: {} as ioBroker.StateCommon, _id: '', type: '' },
+            controlValue: null,
         };
     }
 
@@ -284,6 +290,14 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                         {
                             name: 'unit',
                             label: 'unit',
+                        },
+                        {
+                            name: 'timeout',
+                            label: 'controlTimeout',
+                            tooltip: 'In milliseconds',
+                            type: 'number',
+                            min: 0,
+                            max: 2000,
                         },
                     ],
                 },
@@ -454,9 +468,9 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
             }
         }
 
-        icon = icon || this.state.rxData.icon || this.state.rxData.iconSmall;
-        icon = icon || this.state.object.common.icon;
-        isOn = isOn ?? this.isOn();
+        icon ||= this.state.rxData.icon || this.state.rxData.iconSmall;
+        icon ||= this.state.object.common.icon;
+        isOn ??= this.isOn();
         const color = this.getColor(isOn);
 
         if (icon) {
@@ -536,6 +550,25 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         this.props.context.setValue(this.state.rxData.oid, values[oid]);
     }
 
+    onStateUpdated(id: string): void {
+        if (this.state.controlValue && this.state.rxData.oid === id) {
+            this.setState({ controlValue: { value: this.state.controlValue.value, changed: true } });
+        }
+    }
+
+    finishChanging(): void {
+        if (this.state.controlValue) {
+            const newState: Partial<SimpleStateState> = { controlValue: null };
+            // If the value was not yet updated, write a new value into "values"
+            if (!this.state.controlValue.changed) {
+                const values: VisRxWidgetStateValues = JSON.parse(JSON.stringify(this.state.values));
+                values[`${this.state.rxData.oid}.val`] = this.state.controlValue.value;
+                newState.values = values;
+            }
+            this.setState(newState as any);
+        }
+    }
+
     renderDimmerDialog(): React.ReactNode {
         if (this.state.showDimmerDialog) {
             const isLamp =
@@ -569,7 +602,6 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                                 ? styles.buttonInactive
                                                 : undefined
                                         }
-                                        // @ts-expect-error grey is OK
                                         color={
                                             this.state.values[`${this.state.object._id}.val`] === state
                                                 ? 'primary'
@@ -592,7 +624,6 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                                 : styles.buttonInactive),
                                             width: '50%',
                                         }}
-                                        // @ts-expect-error grey is OK
                                         color="grey"
                                         onClick={() => this.setOnOff(false)}
                                         startIcon={isLamp ? <LightbulbIconOff /> : null}
@@ -623,16 +654,45 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                 <div style={{ width: '100%' }}>
                                     <Slider
                                         size="small"
-                                        value={this.state.values[`${this.state.object._id}.val`]}
+                                        value={
+                                            this.state.controlValue
+                                                ? this.state.controlValue.value
+                                                : this.state.values[`${this.state.object._id}.val`]
+                                        }
                                         valueLabelDisplay="auto"
                                         min={this.state.object.common.min}
                                         max={this.state.object.common.max}
+                                        onChangeCommitted={() => this.finishChanging()}
                                         onChange={(event, value) => {
-                                            const values = JSON.parse(JSON.stringify(this.state.values));
-                                            const oid = `${this.state.object._id}.val`;
-                                            values[oid] = value;
-                                            this.setState({ values });
-                                            this.props.context.setValue(this.state.rxData.oid, values[oid]);
+                                            this.setState(
+                                                {
+                                                    controlValue: {
+                                                        value,
+                                                        changed: !!this.state.controlValue?.changed,
+                                                    },
+                                                },
+                                                () => {
+                                                    if (this.controlTimer) {
+                                                        clearTimeout(this.controlTimer);
+                                                        this.controlTimer = null;
+                                                    }
+                                                    if (this.state.rxData.timeout) {
+                                                        this.controlTimer = setTimeout(
+                                                            (newValue: number) => {
+                                                                this.controlTimer = null;
+                                                                this.props.context.setValue(
+                                                                    this.state.rxData.oid,
+                                                                    newValue,
+                                                                );
+                                                            },
+                                                            parseInt(this.state.rxData.timeout as string, 10) || 0,
+                                                            value,
+                                                        );
+                                                    } else {
+                                                        this.props.context.setValue(this.state.rxData.oid, value);
+                                                    }
+                                                },
+                                            );
                                         }}
                                     />
                                 </div>
@@ -726,7 +786,6 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
             ) {
                 value = (this.state.object.common.states as Record<string, string>)[value];
             } else {
-                // @ts-expect-error fixed in @iobroker/types-vis-2
                 value = this.formatValue(value);
             }
         }
@@ -788,7 +847,6 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                         <Button
                             onClick={() => this.changeSwitch()}
                             disabled={this.state.rxData.readOnly}
-                            // @ts-expect-error grey is OK
                             color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
                             style={{
                                 ...styles.button,

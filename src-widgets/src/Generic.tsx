@@ -1,6 +1,8 @@
 import type { VisRxWidgetState } from '@iobroker/types-vis-2';
 import type VisRxWidget from '@iobroker/types-vis-2/visRxWidget';
 
+export const HISTORY_ADAPTER_NAMES = ['history', 'sql', 'influxdb'];
+
 export default class Generic<
     RxData extends Record<string, any>,
     State extends Partial<VisRxWidgetState> = VisRxWidgetState,
@@ -9,6 +11,23 @@ export default class Generic<
 
     static getI18nPrefix(): string {
         return 'vis_2_widgets_material_';
+    }
+
+    static getHistoryInstance(
+        obj: ioBroker.StateObject | undefined | null | { common: ioBroker.StateCommon; _id: string },
+        defaultHistory: string,
+    ): string | null {
+        if (obj?.common?.custom) {
+            if (obj.common.custom[defaultHistory]) {
+                return defaultHistory;
+            }
+            for (const instance in obj.common.custom) {
+                if (HISTORY_ADAPTER_NAMES.includes(instance.split('.')[0])) {
+                    return instance;
+                }
+            }
+        }
+        return null;
     }
 
     async getParentObject(id: string): Promise<ioBroker.Object | null> {

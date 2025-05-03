@@ -67,12 +67,13 @@ interface DialogBlindsProps {
     onClose: () => void;
     onStop?: () => void;
     onToggle?: () => void;
-    onValueChange: (value: number) => void;
+    onValueChange: (value: number, isCommitment?: boolean) => void;
     startValue: number;
     startToggleValue?: boolean;
     type: number;
     unit?: string;
     background?: string;
+    controlTimeout?: number;
 }
 
 interface DialogBlindsState {
@@ -81,30 +82,29 @@ interface DialogBlindsState {
     lastControl: number;
 }
 
-class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
-    // expected:
+export default class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
     static types = {
         value: 0,
         dimmer: 1,
         blinds: 2,
     };
-
     static mouseDown = false;
-
-    button: {
+    private button: {
         name: string;
         time: number;
         timer: ReturnType<typeof setTimeout> | null;
         timeUp: number;
+    } = {
+        time: 0,
+        name: '',
+        timer: null,
+        timeUp: 0,
     };
-
-    refSlider: React.RefObject<HTMLDivElement>;
-
-    type: number;
-
-    top: number | undefined = undefined;
-
-    height: number | undefined = undefined;
+    private readonly refSlider: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly type: number;
+    private top: number | undefined = undefined;
+    private height: number | undefined = undefined;
+    private controlTimer: ReturnType<typeof setTimeout> | null = null;
 
     constructor(props: DialogBlindsProps) {
         super(props);
@@ -113,17 +113,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
             toggleValue: this.props.startToggleValue || false,
             lastControl: 0,
         };
-
-        this.refSlider = React.createRef();
-
         this.type = this.props.type || DialogBlinds.types.dimmer;
-        // this.step = this.props.step || 20;
-        this.button = {
-            time: 0,
-            name: '',
-            timer: null,
-            timeUp: 0,
-        };
     }
 
     static getDerivedStateFromProps(
@@ -145,7 +135,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
     eventToValue(e: MouseEvent & TouchEvent): void {
         const pageY = e.touches ? e.touches[e.touches.length - 1].clientY : e.clientY;
 
-        let value = 100 - Math.round(((pageY - this.top!) / this.height!) * 100) + 9;
+        let value = 100 - Math.round(((pageY - this.top!) / this.height!) * 100);
 
         if (value > 100) {
             value = 100;
@@ -155,10 +145,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         this.setState({ value });
 
         if (Date.now() - this.state.lastControl > 200 && this.type !== DialogBlinds.types.blinds) {
-            this.setState(
-                { lastControl: Date.now() },
-                () => this.props.onValueChange && this.props.onValueChange(value),
-            );
+            this.setState({ lastControl: Date.now() }, () => this.onValueChanged(value));
         }
     }
 
@@ -177,7 +164,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         if (!this.height) {
             if (this.refSlider.current) {
                 this.height = this.refSlider.current.offsetHeight;
-                this.top = this.refSlider.current.offsetTop;
+                this.top = this.refSlider.current.getBoundingClientRect().top;
             } else {
                 return;
             }
@@ -185,6 +172,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
 
         DialogBlinds.mouseDown = true;
         this.eventToValue(e);
+
         window.document.addEventListener('mousemove', this.onMouseMove as EventListener, {
             passive: false,
             capture: true,
@@ -200,10 +188,23 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         });
     };
 
+    onValueChanged(value: number): void {
+        if (this.props.controlTimeout) {
+            if (this.controlTimer) {
+                clearTimeout(this.controlTimer);
+                this.controlTimer = null;
+            }
+            this.controlTimer = setTimeout(() => {
+                this.props.onValueChange?.(value);
+            }, this.props.controlTimeout);
+        } else {
+            this.props.onValueChange?.(value);
+        }
+    }
+
     onMouseUp = (e: MouseEvent & TouchEvent): void => {
         e.preventDefault();
         e.stopPropagation();
-        console.log('Stopped');
         if (DialogBlinds.mouseDown) {
             DialogBlinds.mouseDown = false;
             window.document.removeEventListener(
@@ -229,8 +230,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         }
 
         this.setState({ lastControl: Date.now() }, () => {
-            console.log(this.state.value);
-            this.props?.onValueChange && this.props.onValueChange(this.state.value);
+            this.props.onValueChange?.(this.state.value, true);
         });
     };
 
@@ -288,7 +288,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
     }
 
     onButtonDown(e: React.MouseEvent, buttonName: string): void {
-        e && e.stopPropagation();
+        e?.stopPropagation();
         if (Date.now() - this.button.time < 50) {
             return;
         }
@@ -308,61 +308,16 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
                 case 'bottom':
                     value = 0;
                     break;
+
                 default:
                     break;
             }
             if (value !== undefined) {
-                this.setState({ value }, () => this.props.onValueChange && this.props.onValueChange(value));
+                this.setState({ value }, () => this.props.onValueChange?.(value, true));
             }
         }, 400);
     }
 
-    /*
-    onButtonUp = e => {
-        e && e.stopPropagation();
-        if (Date.now() - this.button.timeUp < 100) {
-            if (this.button.timer) {
-                clearTimeout(this.button.timer);
-                this.button.timer = null;
-            }
-        } else {
-            console.log(`on Button UP: ${Date.now() - this.button.timeUp}`);
-            this.button.timeUp = Date.now();
-
-            if (this.button.timer) {
-                clearTimeout(this.button.timer);
-                this.button.timer = null;
-                let value = this.state.value;
-                switch (this.button.name) {
-                    case 'top':
-                        if (value % this.step === 0) {
-                            value += this.step;
-                        } else {
-                            value += this.step - (value % this.step);
-                        }
-                        break;
-
-                    case 'bottom':
-                        if (value % this.step === 0) {
-                            value -= this.step;
-                        } else {
-                            value -= value % this.step;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                if (value > 100) {
-                    value = 100;
-                } else if (value < 0) {
-                    value = 0;
-                }
-                this.setState({ value });
-                this.props.onValueChange && this.props.onValueChange(this.localValue2externalValue(value));
-            }
-        }
-    };
-    */
     getSliderColor(): string | undefined {
         if (this.props.type === DialogBlinds.types.blinds) {
             return undefined;
@@ -425,7 +380,7 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
             height: `${this.props.type === DialogBlinds.types.blinds ? 100 - this.state.value : this.state.value}%`,
             background: this.props.background || this.getSliderColor(),
             transitionProperty: 'height',
-            transitionDuration: '0.3s',
+            transitionDuration: '0.1s',
         };
 
         const handlerStyle: CSSProperties = {
@@ -515,5 +470,3 @@ class DialogBlinds extends Component<DialogBlindsProps, DialogBlindsState> {
         );
     }
 }
-
-export default DialogBlinds;
