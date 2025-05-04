@@ -133,14 +133,14 @@ interface ThermostatRxData {
     timeout: number;
     externalDialog: boolean;
     count: number | string;
-    [key: `hide${number}`]: boolean;
+    [key: `hide${number}`]: boolean | 'true';
     [key: `title${number}`]: string;
     [key: `tooltip${number}`]: string;
     [key: `icon${number}`]: string;
     [key: `iconSmall${number}`]: string;
     [key: `color${number}`]: string;
-    [key: `noText${number}`]: boolean;
-    [key: `noIcon${number}`]: boolean;
+    [key: `noText${number}`]: boolean | 'true';
+    [key: `noIcon${number}`]: boolean | 'true';
     [key: `value${number}`]: string;
 }
 
@@ -374,52 +374,56 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
                             name: 'hide',
                             type: 'checkbox',
                             label: 'hide',
+                            // explicitly allow
+                            noBinding: false,
                         },
                         {
                             name: 'title',
                             label: 'title',
-                            hidden: '!!data["hide" + index]',
+                            hidden: 'data["hide" + index] === true',
                         },
                         {
                             name: 'tooltip',
                             label: 'tooltip',
-                            hidden: '!!data["hide" + index] || !!data["title" + index]',
+                            hidden: 'data["hide" + index] === true || !!data["title" + index]',
                         },
                         {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
-                            hidden: '!!data["hide" + index] || !!data["iconSmall" + index]',
+                            hidden: 'data["hide" + index] === true || !!data["iconSmall" + index]',
                         },
                         {
                             name: 'iconSmall',
                             type: 'icon64',
                             label: 'small_icon',
-                            hidden: '!!data["hide" + index] || !!data["icon" + index]',
+                            hidden: 'data["hide" + index] === true || !!data["icon" + index]',
                         },
                         {
                             name: 'color',
                             type: 'color',
                             label: 'color',
-                            hidden: '!!data["hide" + index]',
+                            hidden: 'data["hide" + index] === true',
                         },
                         {
                             name: 'noText',
                             type: 'checkbox',
                             label: 'no_text',
-                            hidden: '!!data["hide" + index] || !!data["noIcon" + index]',
+                            noBinding: false,
+                            hidden: 'data["hide" + index] === true || data["noIcon" + index] === true',
                         },
                         {
                             name: 'noIcon',
                             type: 'checkbox',
                             label: 'no_icon',
-                            hidden: '!!data["hide" + index] || !!data["noText" + index] || !data["title" + index]',
+                            noBinding: false,
+                            hidden: 'data["hide" + index] === true || data["noText" + index] === true || !data["title" + index]',
                         },
                         {
                             name: 'value',
                             type: 'text',
                             label: 'value',
-                            hidden: '!!data["hide" + index]',
+                            hidden: 'data["hide" + index] === true',
                         },
                     ],
                 },
@@ -465,14 +469,19 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
                 const max = parseInt(this.state.rxData.count as string, 10) || 10;
 
                 modes?.forEach((m, i) => {
-                    if (this.state.rxData[`hide${i + 1}`] || i >= max) {
+                    if (
+                        this.state.rxData[`hide${i + 1}`] === true ||
+                        this.state.rxData[`hide${i + 1}`] === 'true' ||
+                        i >= max
+                    ) {
                         return;
                     }
-                    const icon: string | true | undefined = !this.state.rxData[`noIcon${i + 1}`]
-                        ? this.state.rxData[`icon${i + 1}`] ||
-                          this.state.rxData[`iconSmall${i + 1}`] ||
-                          !!BUTTONS[(m.label || '').toUpperCase()]
-                        : undefined;
+                    const icon: string | true | undefined =
+                        this.state.rxData[`noIcon${i + 1}`] !== true && this.state.rxData[`noIcon${i + 1}`] !== 'true'
+                            ? this.state.rxData[`icon${i + 1}`] ||
+                              this.state.rxData[`iconSmall${i + 1}`] ||
+                              !!BUTTONS[(m.label || '').toUpperCase()]
+                            : undefined;
 
                     const mode: {
                         value: string;
@@ -487,7 +496,9 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
                         icon,
                         original: m.label,
                         label:
-                            icon && this.state.rxData[`noText${i + 1}`]
+                            icon &&
+                            (this.state.rxData[`noText${i + 1}`] === true ||
+                                this.state.rxData[`noText${i + 1}`] === 'true')
                                 ? null
                                 : this.state.rxData[`title${i + 1}`] || m.label,
                         color: this.state.rxData[`color${i + 1}`],
@@ -496,7 +507,10 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
                     // if icon present, and it is a standard icon and no title provided
                     if (
                         mode.label &&
-                        !this.state.rxData[`noText${i + 1}`] &&
+                        !(
+                            this.state.rxData[`noText${i + 1}`] === true ||
+                            this.state.rxData[`noText${i + 1}`] === 'true'
+                        ) &&
                         mode.icon === true &&
                         !this.state.rxData[`title${i + 1}`]
                     ) {
@@ -504,21 +518,28 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
                     }
                     newState.modes!.push(mode);
                 });
-                for (let i = newState.modes.length; i < max; i++) {
-                    if (this.state.rxData[`hide${i + 1}`]) {
+
+                for (let i = modes?.length || 0; i < max; i++) {
+                    if (this.state.rxData[`hide${i + 1}`] === true || this.state.rxData[`hide${i + 1}`] === 'true') {
                         continue;
                     }
-                    const icon = !this.state.rxData[`noIcon${i + 1}`]
-                        ? this.state.rxData[`icon${i + 1}`] ||
-                          this.state.rxData[`iconSmall${i + 1}`] ||
-                          !!BUTTONS[(this.state.rxData[`title${i + 1}`] || '').toUpperCase()]
-                        : undefined;
+                    const icon =
+                        this.state.rxData[`noIcon${i + 1}`] !== true && this.state.rxData[`noIcon${i + 1}`] !== 'true'
+                            ? this.state.rxData[`icon${i + 1}`] ||
+                              this.state.rxData[`iconSmall${i + 1}`] ||
+                              !!BUTTONS[(this.state.rxData[`title${i + 1}`] || '').toUpperCase()]
+                            : undefined;
 
                     newState.modes.push({
                         tooltip: this.state.rxData[`tooltip${i + 1}`],
                         icon,
                         original: this.state.rxData[`title${i + 1}`],
-                        label: icon && this.state.rxData[`noText${i + 1}`] ? null : this.state.rxData[`title${i + 1}`],
+                        label:
+                            icon &&
+                            (this.state.rxData[`noText${i + 1}`] === true ||
+                                this.state.rxData[`noText${i + 1}`] === 'true')
+                                ? null
+                                : this.state.rxData[`title${i + 1}`],
                         value: this.state.rxData[`value${i + 1}`],
                         color: this.state.rxData[`color${i + 1}`],
                     });

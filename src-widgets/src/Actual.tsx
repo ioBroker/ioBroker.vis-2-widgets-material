@@ -96,7 +96,7 @@ const styles: Record<string, CSSProperties> = {
 };
 
 type RxData = {
-    noCard: boolean;
+    noCard: boolean | 'true';
     widgetTitle: string;
     timeInterval: number;
     updateInterval: string;
@@ -104,7 +104,7 @@ type RxData = {
     'title-main': string;
     'icon-main': string;
     'unit-main': string;
-    noChart: boolean;
+    noChart: boolean | 'true';
     'color-main': string;
     'font-size-main': string;
     'font-style-main': string;
@@ -113,11 +113,11 @@ type RxData = {
     'title-secondary': string;
     'icon-secondary': string;
     'unit-secondary': string;
-    'noChart-secondary': boolean;
+    'noChart-secondary': boolean | 'true';
     'color-secondary': string;
     'font-size-secondary': string;
     'font-style-secondary': string;
-    'noData-secondary': boolean;
+    'noData-secondary': boolean | 'true';
     digits_after_comma_secondary?: 0 | 1;
 };
 
@@ -175,11 +175,12 @@ export default class Actual extends Generic<RxData, ActualState> {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            noBinding: false,
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard',
+                            hidden: 'data.noCard === true',
                         },
                         {
                             name: 'timeInterval',
@@ -235,6 +236,7 @@ export default class Actual extends Generic<RxData, ActualState> {
                         {
                             label: 'hide_chart',
                             name: 'noChart',
+                            noBinding: false,
                             type: 'checkbox',
                             hidden: '!data["oid-main"] || data["oid-main"] === "nothing_selected"',
                         },
@@ -305,6 +307,7 @@ export default class Actual extends Generic<RxData, ActualState> {
                         {
                             label: 'hide_chart',
                             name: 'noChart-secondary',
+                            noBinding: false,
                             type: 'checkbox',
                             hidden: '!data["oid-secondary"] || data["oid-secondary"] === "nothing_selected"',
                         },
@@ -437,8 +440,10 @@ export default class Actual extends Generic<RxData, ActualState> {
         const secondaryHistoryInstance = Generic.getHistoryInstance(objects.secondary, defaultHistory);
 
         const isChart =
-            (!this.state.rxData.noChart && !!mainHistoryInstance) ||
-            (!this.state.rxData['noChart-secondary'] && !!secondaryHistoryInstance);
+            (this.state.rxData.noChart !== true && this.state.rxData.noChart !== 'true' && !!mainHistoryInstance) ||
+            (this.state.rxData['noChart-secondary'] !== true &&
+                this.state.rxData['noChart-secondary'] !== 'true' &&
+                !!secondaryHistoryInstance);
 
         const newState: Partial<ActualState> = { objects, isChart };
 
@@ -448,13 +453,19 @@ export default class Actual extends Generic<RxData, ActualState> {
         }
         let changed = false;
 
-        if (!this.state.rxData.noChart && mainHistoryInstance && objects.main?.common?.custom?.[mainHistoryInstance]) {
+        if (
+            this.state.rxData.noChart !== true &&
+            this.state.rxData.noChart !== 'true' &&
+            mainHistoryInstance &&
+            objects.main?.common?.custom?.[mainHistoryInstance]
+        ) {
             await this.readHistory(objects.main._id, mainHistoryInstance);
             this.mainTimer ||= setInterval(
                 async () => {
                     await this.readHistory(this.state.objects.main!._id, mainHistoryInstance);
                     if (
-                        !this.state.rxData['noChart-secondary'] &&
+                        this.state.rxData['noChart-secondary'] !== true &&
+                        this.state.rxData['noChart-secondary'] !== 'true' &&
                         secondaryHistoryInstance &&
                         this.state.objects.secondary?.common?.custom?.[secondaryHistoryInstance]
                     ) {
@@ -469,7 +480,8 @@ export default class Actual extends Generic<RxData, ActualState> {
             changed = true;
         }
         if (
-            !this.state.rxData['noChart-secondary'] &&
+            this.state.rxData['noChart-secondary'] !== true &&
+            this.state.rxData['noChart-secondary'] !== 'true' &&
             secondaryHistoryInstance &&
             objects.secondary?.common?.custom?.[secondaryHistoryInstance]
         ) {
@@ -611,7 +623,11 @@ export default class Actual extends Generic<RxData, ActualState> {
 
     getOptions(): EChartsOption {
         const series: LineSeriesOption[] = [];
-        if (this.state.chartData[this.state.rxData['oid-main']] && !this.state.rxData.noChart) {
+        if (
+            this.state.chartData[this.state.rxData['oid-main']] &&
+            this.state.rxData.noChart !== true &&
+            this.state.rxData.noChart !== 'true'
+        ) {
             let name = this.state.rxData['title-main'] || Generic.getText(this.state.objects?.main?.common?.name || '');
             if (!name) {
                 if (this.state.objects?.secondary?.common?.role?.includes('temperature')) {
@@ -637,7 +653,11 @@ export default class Actual extends Generic<RxData, ActualState> {
                 name,
             });
         }
-        if (this.state.chartData[this.state.rxData['oid-secondary']] && !this.state.rxData['noData-secondary']) {
+        if (
+            this.state.chartData[this.state.rxData['oid-secondary']] &&
+            this.state.rxData['noData-secondary'] !== true &&
+            this.state.rxData['noData-secondary'] !== 'true'
+        ) {
             let name =
                 this.state.rxData['title-secondary'] ||
                 Generic.getText(this.state.objects?.secondary?.common?.name || '');
@@ -853,7 +873,10 @@ export default class Actual extends Generic<RxData, ActualState> {
                 style={{
                     width: '100%',
                     height:
-                        !this.state.rxData.noCard && !props.widget.usedInWidget && this.state.rxData.widgetTitle
+                        this.state.rxData.noCard !== true &&
+                        this.state.rxData.noCard !== 'true' &&
+                        !props.widget.usedInWidget &&
+                        this.state.rxData.widgetTitle
                             ? 'calc(100% - 32px)'
                             : '100%',
                 }}
@@ -978,7 +1001,7 @@ export default class Actual extends Generic<RxData, ActualState> {
             </div>
         );
 
-        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+        if (this.state.rxData.noCard === true || this.state.rxData.noCard === 'true' || props.widget.usedInWidget) {
             return content;
         }
 

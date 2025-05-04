@@ -135,7 +135,6 @@
     "loglevel": "info",
     "mode": "none",
     "singleton": true,
-    "noConfig": true,
     "adminUI": {
       "config": "none"
     },
