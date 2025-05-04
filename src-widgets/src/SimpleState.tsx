@@ -22,7 +22,6 @@ import type {
 
 import Generic from './Generic';
 
-//const styles: Record<string, CSSProperties | SxProps<IobTheme>> = {
 const styles: Record<string, any> = {
     intermediate: {
         opacity: 0.2,
@@ -116,11 +115,11 @@ const styles: Record<string, any> = {
 };
 
 interface SimpleStateRxData {
-    noCard: boolean;
+    noCard: boolean | 'true';
     widgetTitle: string;
     values_count: number;
     oid: string;
-    noIcon: boolean;
+    noIcon: boolean | 'true';
     icon: string;
     iconSmall: string;
     iconEnabled: string;
@@ -130,9 +129,10 @@ interface SimpleStateRxData {
     colorEnabled: string;
     title: string;
     circleSize: number;
-    readOnly: boolean;
+    readOnly: boolean | 'true';
     unit: string;
     timeout: number | string;
+    step: number | string;
     [key: `value${number}`]: string;
     [key: `icon${number}`]: string;
     [key: `iconSmall${number}`]: string;
@@ -147,12 +147,12 @@ interface SimpleStateState extends VisRxWidgetState {
     controlValue: { value: number; changed: boolean } | null;
 }
 
-class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
-    refDiv: React.RefObject<HTMLDivElement> = React.createRef();
-    updateTimeout: ReturnType<typeof setTimeout> | null = null;
-    updateTimer1: ReturnType<typeof setTimeout> | null = null;
-    lastRxData: string | null = null;
-    controlTimer: ReturnType<typeof setTimeout> | null = null;
+export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
+    private readonly refDiv: React.RefObject<HTMLDivElement> = React.createRef();
+    private updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    private updateTimer1: ReturnType<typeof setTimeout> | null = null;
+    private lastRxData: string | null = null;
+    private controlTimer: ReturnType<typeof setTimeout> | null = null;
 
     constructor(props: VisRxWidgetProps) {
         super(props);
@@ -178,11 +178,12 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            noBinding: false,
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard',
+                            hidden: 'data.noCard === true',
                         },
                         {
                             name: 'values_count',
@@ -225,22 +226,23 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                             name: 'noIcon',
                             type: 'checkbox',
                             label: 'no_icon',
+                            noBinding: false,
                         },
                         {
                             name: 'icon',
                             type: 'image',
-                            hidden: '!!data.noIcon || !!data.iconSmall',
+                            hidden: 'data.noIcon === true || !!data.iconSmall',
                             label: 'icon',
                         },
                         {
                             name: 'iconSmall',
                             type: 'icon64',
                             label: 'small_icon',
-                            hidden: '!!data.noIcon || !!data.icon',
+                            hidden: 'data.noIcon === true || !!data.icon',
                         },
                         {
                             name: 'iconEnabled',
-                            hidden: '!!data.noIcon || !!data.iconEnabledSmall',
+                            hidden: 'data.noIcon === true || !!data.iconEnabledSmall',
                             type: 'image',
                             label: 'icon_active',
                         },
@@ -248,7 +250,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                             name: 'iconEnabledSmall',
                             type: 'icon64',
                             label: 'small_icon_active',
-                            hidden: '!!data.noIcon || !!data.iconEnabled',
+                            hidden: 'data.noIcon === true || !!data.iconEnabled',
                         },
                         {
                             name: 'iconSize',
@@ -257,7 +259,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                             tooltip: 'icon_size_tooltip',
                             min: 0,
                             max: 300,
-                            hidden: '!!data.noIcon || (!data.icon && !data.iconSmall && !data.iconEnabled && !data.iconEnabledSmall)',
+                            hidden: 'data.noIcon === true || (!data.icon && !data.iconSmall && !data.iconEnabled && !data.iconEnabledSmall)',
                         },
                         {
                             name: 'color',
@@ -286,6 +288,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                             name: 'readOnly',
                             type: 'checkbox',
                             label: 'read_only',
+                            noBinding: false,
                         },
                         {
                             name: 'unit',
@@ -298,6 +301,14 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                             type: 'number',
                             min: 0,
                             max: 2000,
+                            hidden: 'data.readOnly === true',
+                        },
+                        {
+                            name: 'step',
+                            label: 'step',
+                            type: 'number',
+                            tooltip: 'only_for_slider',
+                            hidden: 'data.readOnly === true',
                         },
                     ],
                 },
@@ -659,6 +670,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                                                 ? this.state.controlValue.value
                                                 : this.state.values[`${this.state.object._id}.val`]
                                         }
+                                        step={parseFloat(this.state.rxData.step as string) || 1}
                                         valueLabelDisplay="auto"
                                         min={this.state.object.common.min}
                                         max={this.state.object.common.max}
@@ -791,7 +803,10 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
         }
 
         const height =
-            !this.state.rxData.noCard && !props.widget.usedInWidget && this.state.rxData.widgetTitle
+            this.state.rxData.noCard !== true &&
+            this.state.rxData.noCard !== 'true' &&
+            !props.widget.usedInWidget &&
+            this.state.rxData.widgetTitle
                 ? 'calc(100% - 36px)'
                 : '100%';
 
@@ -846,7 +861,7 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
                     >
                         <Button
                             onClick={() => this.changeSwitch()}
-                            disabled={this.state.rxData.readOnly}
+                            disabled={this.state.rxData.readOnly === true || this.state.rxData.readOnly === 'true'}
                             color={!this.state.object.common.states && this.isOn() ? 'primary' : 'grey'}
                             style={{
                                 ...styles.button,
@@ -903,12 +918,10 @@ class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
             </>
         );
 
-        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+        if (this.state.rxData.noCard === true || this.state.rxData.noCard === 'true' || props.widget.usedInWidget) {
             return content;
         }
 
         return this.wrapContent(content, null);
     }
 }
-
-export default SimpleState;
