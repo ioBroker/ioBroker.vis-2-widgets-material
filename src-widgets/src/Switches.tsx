@@ -165,7 +165,7 @@ async function loadStates(
 ): Promise<void> {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
-        if (object && object.common) {
+        if (object?.common) {
             const id = data[field.name!].split('.');
             id.pop();
             const states = await socket.getObjectViewSystem('state', `${id.join('.')}.`, `${id.join('.')}.\u9999`);
@@ -195,7 +195,9 @@ async function loadStates(
                         }
                     }
                 });
-                changed && changeData(data);
+                if (changed) {
+                    changeData(data);
+                }
             }
         }
     }
@@ -210,7 +212,7 @@ const vacuumLoadStates = async (
 ): Promise<void> => {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
-        if (object && object.common) {
+        if (object?.common) {
             let parts = object._id.split('.');
             parts.pop();
             // try to find a device object
@@ -272,7 +274,9 @@ const vacuumLoadStates = async (
                     }
                 });
 
-                changed && changeData(data);
+                if (changed) {
+                    changeData(data);
+                }
             }
         }
     }
@@ -808,16 +812,16 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                             if (object.common.role.includes('level.temperature')) {
                                                 Object.values(states).forEach(state => {
                                                     const role = state.common.role;
-                                                    if (role && role.includes('value.temperature')) {
+                                                    if (role?.includes('value.temperature')) {
                                                         data[`actual${index}`] = state._id;
                                                         changed = true;
-                                                    } else if (role && role.includes('power')) {
+                                                    } else if (role?.includes('power')) {
                                                         data[`switch${index}`] = state._id;
                                                         changed = true;
-                                                    } else if (role && role.includes('boost')) {
+                                                    } else if (role?.includes('boost')) {
                                                         data[`boost${index}`] = state._id;
                                                         changed = true;
-                                                    } else if (role && role.includes('party')) {
+                                                    } else if (role?.includes('party')) {
                                                         data[`party${index}`] = state._id;
                                                         changed = true;
                                                     }
@@ -853,17 +857,19 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                             } else if (object.common.role.includes('lock')) {
                                                 Object.values(states).forEach(state => {
                                                     const role = state.common.role;
-                                                    if (role && role.includes('button')) {
+                                                    if (role?.includes('button')) {
                                                         data[`open${index}`] = state._id;
                                                         changed = true;
-                                                    } else if (role && role.includes('working')) {
+                                                    } else if (role?.includes('working')) {
                                                         data[`working${index}`] = state._id;
                                                         changed = true;
                                                     }
                                                 });
                                             }
 
-                                            changed && changeData(data);
+                                            if (changed) {
+                                                changeData(data);
+                                            }
                                         }
                                     }
                                 }
@@ -1630,7 +1636,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     object.common.max ??= 100;
                     object.common.min ??= 0;
                 }
-                if (object.common.states && Array.isArray(object.common.states)) {
+                if (Array.isArray(object.common.states)) {
                     // convert to {'state1': 'state1', 'state2': 'state2', ...}
                     const states: Record<string, string> = {};
                     object.common.states.forEach(state => (states[state] = state));
@@ -1951,8 +1957,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
     };
 
-    buttonPressed(index: number): void {
-        this.props.context.setValue(this.state.rxData[`oid${index}`], true);
+    buttonPressed(index: number, pressed: boolean): void {
+        this.props.context.setValue(this.state.rxData[`oid${index}`], pressed);
     }
 
     setOnOff(index: number, isOn: boolean): void {
@@ -2477,7 +2483,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
             return (
                 <Button
-                    onClick={() => this.buttonPressed(index)}
+                    onKeyDown={() => this.buttonPressed(index, true)}
+                    onKeyUp={() => this.buttonPressed(index, false)}
                     style={this.customStyle}
                 >
                     {text ||
@@ -2743,7 +2750,10 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             showSetButton[index] = false;
                             this.setState({ values, showSetButton });
                             if (trueObj.common.type === 'number') {
-                                this.props.context.setValue(this.state.rxData[`oid${index}`], parseFloat(values[oid]));
+                                this.props.context.setValue(
+                                    this.state.rxData[`oid${index}`],
+                                    parseFloat(values[oid].replace(',', '.')),
+                                );
                             } else if (trueObj.common.type === 'boolean') {
                                 this.props.context.setValue(
                                     this.state.rxData[`oid${index}`],
