@@ -155,6 +155,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -   (bluefox) Rewritten with TypeScript and vite
 -   (bluefox) Corrected blinds control
 -   (bluefox) Added disabled mode additionally to hidden mode in 'switches and buttons' widget
+-   (bluefox) Added `_ts=Date.now()` to camera URL to disable the browser cache
 
 ### 1.4.10 (2024-08-09)
 
