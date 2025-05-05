@@ -1,7 +1,8 @@
 import React, { type CSSProperties } from 'react';
 
-import Generic from './Generic';
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState, VisRxWidgetProps } from '@iobroker/types-vis-2';
+
+import Generic from './Generic';
 
 const styles: Record<string, CSSProperties> = {
     overlay: {
@@ -27,11 +28,13 @@ interface ViewInWidgetState extends VisRxWidgetState {
 }
 
 class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
-    refContainer: React.RefObject<HTMLDivElement>;
-    constructor(props: ViewInWidget['props']) {
+    private readonly refContainer: React.RefObject<HTMLDivElement> = React.createRef();
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        (this.state as ViewInWidgetState).width = 0;
-        this.refContainer = React.createRef();
+        this.state = {
+            ...this.state,
+            width: 0,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {

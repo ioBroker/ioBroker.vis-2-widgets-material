@@ -280,9 +280,10 @@ interface RGBLightState extends VisRxWidgetState {
 }
 
 export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
-    contentRef: React.RefObject<HTMLDivElement> = React.createRef();
-    timeouts: Record<string, ReturnType<typeof setTimeout> | null> = {};
-    _pressTimeout: ReturnType<typeof setTimeout> | null = null;
+    private readonly contentRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private timeouts: Record<string, ReturnType<typeof setTimeout> | null> = {};
+    private _pressTimeout: ReturnType<typeof setTimeout> | null = null;
+
     constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {

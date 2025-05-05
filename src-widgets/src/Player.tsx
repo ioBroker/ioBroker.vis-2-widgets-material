@@ -25,6 +25,7 @@ import type {
     RxWidgetInfoAttributesField,
     WidgetData,
     VisRxWidgetState,
+    VisRxWidgetProps,
 } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
@@ -144,13 +145,12 @@ interface PlayerState extends VisRxWidgetState {
 }
 
 class Player extends Generic<PlayerRxData, PlayerState> {
-    coverRef: React.RefObject<HTMLImageElement>;
+    private readonly coverRef: React.RefObject<HTMLImageElement> = React.createRef();
 
-    setVolumeTimer: ReturnType<typeof setTimeout> | null = null;
+    private setVolumeTimer: ReturnType<typeof setTimeout> | null = null;
 
-    constructor(props: Player['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        this.coverRef = React.createRef();
         this.state = {
             ...this.state,
             volume: 0,

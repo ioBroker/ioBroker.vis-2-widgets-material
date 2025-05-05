@@ -670,6 +670,12 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                                 ? this.state.controlValue.value
                                                 : this.state.values[`${this.state.object._id}.val`]
                                         }
+                                        valueLabelFormat={value => {
+                                            if (this.props.context.systemConfig?.common?.isFloatComma) {
+                                                return value.toString().replace('.', ',');
+                                            }
+                                            return value.toString();
+                                        }}
                                         step={parseFloat(this.state.rxData.step as string) || 1}
                                         valueLabelDisplay="auto"
                                         min={this.state.object.common.min}

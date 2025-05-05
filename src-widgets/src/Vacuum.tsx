@@ -23,6 +23,7 @@ import type {
     VisWidgetCommand,
     WidgetData,
     VisRxWidgetState,
+    VisRxWidgetProps,
 } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
@@ -263,7 +264,7 @@ interface VacuumState extends VisRxWidgetState {
 }
 
 class Vacuum extends Generic<VacuumRxData, VacuumState> {
-    constructor(props: Vacuum['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {
             ...this.state,

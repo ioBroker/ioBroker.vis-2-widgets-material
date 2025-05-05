@@ -27,6 +27,7 @@ import type {
     VisWidgetCommand,
     WidgetData,
     VisRxWidgetState,
+    VisRxWidgetProps,
 } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
@@ -88,12 +89,15 @@ interface LockState extends VisRxWidgetState {
 }
 
 export default class Lock extends Generic<LockRxData, LockState> {
-    constructor(props: Lock['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        (this.state as LockState).dialogPin = false;
-        (this.state as LockState).lockPinInput = '';
-        (this.state as LockState).invalidPin = false;
-        (this.state as LockState).confirmDialog = false;
+        this.state = {
+            ...this.state,
+            dialogPin: false,
+            lockPinInput: '',
+            invalidPin: false,
+            confirmDialog: false,
+        };
     }
 
     static getWidgetInfo(): RxWidgetInfo {

@@ -17,6 +17,7 @@ import type {
     WidgetData,
     WidgetStyleState,
     VisRxWidgetState,
+    VisRxWidgetProps,
 } from '@iobroker/types-vis-2';
 import type { LegacyConnection } from '@iobroker/adapter-react-v5';
 
@@ -232,7 +233,8 @@ interface MapState extends VisRxWidgetState {
 
 export default class Map extends Generic<MapRxData, MapState> {
     fillDataTimer: ReturnType<typeof setTimeout> | null = null;
-    constructor(props: Map['props']) {
+
+    constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = { ...this.state, dialog: false, history: [], objects: [] };
     }

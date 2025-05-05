@@ -140,10 +140,10 @@ interface ActualState extends VisRxWidgetState {
 }
 
 export default class Actual extends Generic<RxData, ActualState> {
-    refContainer: React.RefObject<HTMLDivElement> = React.createRef();
-    mainTimer: ReturnType<typeof setInterval> | undefined;
-    updateTimeout: ReturnType<typeof setTimeout> | undefined;
-    lastRxData: string | undefined;
+    private readonly refContainer: React.RefObject<HTMLDivElement> = React.createRef();
+    private mainTimer: ReturnType<typeof setInterval> | undefined;
+    private updateTimeout: ReturnType<typeof setTimeout> | undefined;
+    private lastRxData: string | undefined;
 
     constructor(props: VisRxWidgetProps) {
         super(props);

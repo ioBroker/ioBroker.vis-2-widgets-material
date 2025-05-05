@@ -12,7 +12,7 @@ import 'moment/locale/ru';
 import 'moment/locale/uk';
 import 'moment/locale/zh-cn';
 
-import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetState } from '@iobroker/types-vis-2';
+import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
 
@@ -292,12 +292,12 @@ interface WasherDryerState extends VisRxWidgetState {
 }
 
 export default class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
-    refDiv: React.RefObject<HTMLDivElement>;
-    statusOID?: string;
-    _updateInterval: ReturnType<typeof setInterval> | null = null;
-    constructor(props: WasherDryer['props']) {
+    private refDiv: React.RefObject<HTMLDivElement> = React.createRef();
+    private statusOID?: string;
+    private _updateInterval: ReturnType<typeof setInterval> | null = null;
+
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        this.refDiv = React.createRef();
         this.state = {
             ...this.state,
             object: { common: {} } as ioBroker.StateObject,

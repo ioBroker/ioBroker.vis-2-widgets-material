@@ -2,7 +2,7 @@ import React, { type CSSProperties } from 'react';
 
 import Generic from '../Generic';
 import DialogBlinds from './DialogBlinds';
-import type { VisRxWidgetState } from '@iobroker/types-vis-2';
+import type { VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 import type { WidgetType } from '../deviceWidget';
 
 const styles: Record<string, CSSProperties> = {
@@ -143,9 +143,12 @@ class BlindsBase<
 
     // state.showBlindsDialog
 
-    constructor(props: BlindsBase['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
-        (this.state as BlindsBaseState).showBlindsDialog = null;
+        this.state = {
+            ...this.state,
+            showBlindsDialog: null,
+        };
     }
 
     getMinMaxPosition(

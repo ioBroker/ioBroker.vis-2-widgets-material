@@ -61,8 +61,8 @@ interface StaticState extends VisRxWidgetState {
 }
 
 class Static extends Generic<StaticRxData, StaticState> {
-    lastRxData?: string;
-    updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    private lastRxData?: string;
+    private updateTimeout: ReturnType<typeof setTimeout> | null = null;
     constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {

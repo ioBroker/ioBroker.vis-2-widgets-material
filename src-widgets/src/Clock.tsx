@@ -25,32 +25,9 @@ const styles: Record<string, CSSProperties> = {
     },
 };
 
-let getTextWidthCanvas: HTMLCanvasElement | null = null;
-
-function getTextWidth(text: string, font: string): number {
-    // re-use a canvas object for better performance
-    const canvas = getTextWidthCanvas || (getTextWidthCanvas = document.createElement('canvas'));
-    const context = canvas.getContext('2d');
-    context!.font = font;
-    const metrics = context!.measureText(text);
-    return metrics.width;
-}
-
-function getCssStyle(element: Element, prop: string): string {
-    return window.getComputedStyle(element, null).getPropertyValue(prop);
-}
-
-function getCanvasFont(el = document.body): { fontWeight: string; fontSize: string; fontFamily: string } {
-    const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
-    const fontSize = getCssStyle(el, 'font-size') || '16px';
-    const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman';
-
-    return { fontWeight, fontSize, fontFamily };
-}
-
 interface ClockRxData {
     noCard: boolean;
-    type: string;
+    type: 'analog' | 'analog2' | 'digital' | 'digital2';
     backgroundColor: string;
     ticksColor: string;
     handsColor: string;
@@ -58,27 +35,31 @@ interface ClockRxData {
     withSeconds: boolean;
     showNumbers: boolean;
     blinkDelimiter: boolean;
-    hoursFormat: string;
+    hoursFormat: '24' | '12';
 }
 
 interface ClockState extends VisRxWidgetState {
     time: Date;
     width: number;
     height: number;
-    fontSize?: number;
+    fontSizeSvg: number;
+    textWidthSvg: number;
     timeFormat?: string;
 }
 
 export default class Clock extends Generic<ClockRxData, ClockState> {
-    refContainer: React.RefObject<HTMLDivElement> = React.createRef();
-    rotations?: [number, number, number];
-    timeInterval?: ReturnType<typeof setTimeout>;
+    private readonly refContainer: React.RefObject<HTMLDivElement> = React.createRef();
+    private rotations?: [number, number, number];
+    private timeInterval?: ReturnType<typeof setTimeout>;
+
     constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {
             ...this.state,
             time: new Date(),
             width: 0,
+            fontSizeSvg: 0,
+            textWidthSvg: 0,
         };
     }
 
@@ -194,7 +175,7 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
         const data = this.state.rxData || {};
         const time = new Date();
         let timeout;
-        if (data.withSeconds || ((data.type === ' ' || data.type === 'digital2') && data.blinkDelimiter)) {
+        if (data.withSeconds || (data.type === 'digital2' && data.blinkDelimiter)) {
             timeout = 1000 - time.getMilliseconds();
         } else {
             timeout = 1000 - time.getMilliseconds() + 1000 * (60 - time.getSeconds());
@@ -242,25 +223,31 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
                 this.state.height !== this.refContainer.current.clientHeight ||
                 this.state.timeFormat !== timeFormat
             ) {
-                let fontSize = this.refContainer.current.clientHeight;
-                if (fontSize && this.state.rxData.type === 'digital' && !this.state.rxStyle!['font-size']) {
-                    const font = getCanvasFont(this.refContainer.current);
-                    let textWidth;
-                    do {
-                        fontSize -= 2;
-                        textWidth = getTextWidth(timeFormat, `${font.fontWeight} ${fontSize}px ${font.fontFamily}`);
-                    } while (
-                        fontSize > 6 &&
-                        (textWidth > this.refContainer.current.clientWidth ||
-                            fontSize > this.refContainer.current.clientHeight)
+                let textWidthSvg = 0;
+                let fontSizeSvg = 0;
+
+                if (this.state.rxData.type === 'digital' || this.state.rxData.type === 'digital2') {
+                    const time = this.getDigitalClockText(true);
+
+                    let text = `${time.digits[0]}${time.hideDelimiter ? ' ' : ':'}${time.digits[1]}${time.digits[2] ? `:${time.digits[2]}` : ''}`;
+                    if (this.state.rxData.type === 'digital' && this.state.rxData.hoursFormat === '12') {
+                        text += ' mm';
+                    }
+                    fontSizeSvg = Clock.calculateFontSize(
+                        text,
+                        this.refContainer.current.clientWidth,
+                        this.refContainer.current.clientHeight,
                     );
+
+                    textWidthSvg = Clock.getTextWidth(text, `normal ${fontSizeSvg}px Arial`);
                 }
 
                 this.setState({
                     width: size,
                     height: this.refContainer.current.clientHeight,
-                    fontSize,
                     timeFormat,
+                    fontSizeSvg,
+                    textWidthSvg,
                 });
             }
         }
@@ -416,19 +403,8 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
                               y="18"
                               transform={`rotate(${30 * (idx + 1)})`}
                               fontSize={6}
-                              /* style={{
-                            color: this.props.ticksColor,
-                            transform: `rotate(${30 * idx}deg) translateX(${this.props.size * 0.4}px)`,
-                        }} */
                           >
                               {idx + 1}
-                              {/* <text
-                            style={styles.hourLabelSpan}
-                            style={{
-                                transform: `rotate(${-1 * 30 * index}deg)`,
-                                fontSize: labelSize,
-                            }}
-                        >{index + 1}</text> */}
                           </text>
                       ))
                     : null}
@@ -532,7 +508,7 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
                 style={{
                     display: 'inline-block',
                     margin: '0 auto',
-                    fontSize: this.state.rxStyle!['font-size'] || this.state.fontSize,
+                    fontSize: this.state.rxStyle!['font-size'] || this.state.fontSizeSvg,
                 }}
             >
                 {timeDiv}
@@ -540,20 +516,43 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
         );
     }
 
+    static getTextWidth(text: string, font: string): number {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d')!;
+        context.font = font;
+        return context.measureText(text).width;
+    }
+
+    static calculateFontSize(
+        text: string,
+        maxWidth: number,
+        maxHeight: number,
+        fontFamily = 'Arial',
+        fontWeight = 'normal',
+    ): number {
+        let fontSize = maxHeight;
+        let width = Clock.getTextWidth(text, `${fontWeight} ${fontSize}px ${fontFamily}`);
+        while ((width > maxWidth || fontSize > maxHeight) && fontSize > 6) {
+            fontSize -= 1;
+            width = Clock.getTextWidth(text, `${fontWeight} ${fontSize}px ${fontFamily}`);
+        }
+        return fontSize;
+    }
+
     renderDigitalClock2(): React.JSX.Element {
         const data = this.state.rxData || {};
         const time = this.getDigitalClockText();
-
-        const svgHeight = (this.state.height / this.state.width) * 100;
-        let fontSize = data.withSeconds ? 28 : data.blinkDelimiter ? 36 : 42;
-        if (svgHeight < 100) {
-            fontSize = data.withSeconds ? svgHeight * 0.8 : svgHeight * 0.9;
-        }
-
+        const text = `${time.digits[0]}${time.hideDelimiter ? ' ' : ':'}${time.digits[1]}${time.digits[2] ? `:${time.digits[2]}` : ''}`;
+        const amFontSize = data.withSeconds
+            ? this.state.fontSizeSvg / 3
+            : data.blinkDelimiter
+              ? this.state.fontSizeSvg / 4
+              : this.state.fontSizeSvg / 3;
+        const amWidth = Clock.getTextWidth('mm', `normal ${amFontSize}px Arial`);
         return (
             <svg
-                viewBox={`0 0 100 ${svgHeight}`}
-                color={data.ticksColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
+                viewBox={`0 0 ${this.state.width} ${this.state.height}`}
+                color={this.state.rxStyle?.color || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
                 fill="currentColor"
                 width={this.state.width}
                 height={this.state.height}
@@ -561,19 +560,19 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
                 <text
                     x="50%"
                     y="50%"
-                    fontSize={fontSize}
+                    fontSize={this.state.fontSizeSvg}
                     dominantBaseline="middle"
                     textAnchor="middle"
                     fontFamily={data.withSeconds || !data.blinkDelimiter ? undefined : 'monospace'}
                 >
-                    {`${time.digits[0]}${time.hideDelimiter ? ' ' : ':'}${time.digits[1]}${time.digits[2] ? `:${time.digits[2]}` : ''}`}
+                    {text}
                 </text>
                 {time.ampm ? (
                     <text
                         x="50%"
                         y="50%"
-                        transform={`translate(${data.withSeconds ? 28 : data.blinkDelimiter ? 30 : 20}, 17)`}
-                        fontSize={data.withSeconds ? fontSize / 3 : data.blinkDelimiter ? fontSize / 4 : fontSize / 3}
+                        transform={`translate(${this.state.textWidthSvg / 2 - amWidth}, ${this.state.fontSizeSvg * 0.55})`}
+                        fontSize={amFontSize}
                     >
                         {time.ampm === 'pm' ? 'PM' : 'AM'}
                     </text>

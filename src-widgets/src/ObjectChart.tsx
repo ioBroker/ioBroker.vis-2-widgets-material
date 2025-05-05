@@ -173,26 +173,26 @@ interface ChartData {
 }
 
 class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
-    readTimeout: ReturnType<typeof setTimeout> | null = null;
-    timeTimer: ReturnType<typeof setTimeout> | null = null;
-    start: number;
-    end: number;
-    echartsReact: ReactEchartsCore | null = null;
-    rangeRef: React.RefObject<HTMLElement> = createRef();
-    maxYLenTimeout: ReturnType<typeof setTimeout> | null = null;
-    maxYLenTimeout2: ReturnType<typeof setTimeout> | null = null;
-    timerResize: ReturnType<typeof setTimeout> | null = null;
-    mouseDown: boolean = false;
-    chart: ChartData;
-    divRef: React.RefObject<HTMLDivElement | null>;
-    unit: string;
-    unit2: string;
-    minY!: Record<string, number | null>;
-    maxY!: Record<string, number | null>;
-    minX!: Record<string, number | null>;
-    maxX!: Record<string, number | null>;
-    chartValues: Record<string, { val: number; ts: number; i?: boolean }[]> | null = null;
-    rangeValues: ioBroker.GetHistoryResult | null = null;
+    private readTimeout: ReturnType<typeof setTimeout> | null = null;
+    private timeTimer: ReturnType<typeof setTimeout> | null = null;
+    private start: number;
+    private end: number;
+    private echartsReact: ReactEchartsCore | null = null;
+    private rangeRef: React.RefObject<HTMLElement> = createRef();
+    private maxYLenTimeout: ReturnType<typeof setTimeout> | null = null;
+    private maxYLenTimeout2: ReturnType<typeof setTimeout> | null = null;
+    private timerResize: ReturnType<typeof setTimeout> | null = null;
+    private mouseDown: boolean = false;
+    private chart: ChartData = {};
+    private readonly divRef: React.RefObject<HTMLDivElement> = createRef();
+    private readonly unit: string;
+    private readonly unit2: string;
+    private minY!: Record<string, number | null>;
+    private maxY!: Record<string, number | null>;
+    private minX!: Record<string, number | null>;
+    private maxX!: Record<string, number | null>;
+    private chartValues: Record<string, { val: number; ts: number; i?: boolean }[]> | null = null;
+    private rangeValues: ioBroker.GetHistoryResult | null = null;
 
     constructor(props: ObjectChartProps) {
         super(props);
@@ -232,9 +232,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             maxYLen2: 0,
         };
 
-        this.chartValues = null;
-        this.rangeValues = null;
-
         this.unit = this.props.unit
             ? ` ${this.props.unit}`
             : this.props.obj?.common?.unit
@@ -246,10 +243,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             : this.props.obj2?.common?.unit
               ? ` ${this.props.obj2.common.unit}`
               : '';
-
-        this.divRef = createRef();
-
-        this.chart = {};
     }
 
     async componentDidMount(): Promise<void> {

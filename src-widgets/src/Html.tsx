@@ -38,13 +38,13 @@ interface HtmlState extends VisRxWidgetState {
 }
 
 export default class Html extends Generic<HtmlRxData, HtmlState> {
-    widgetRef: React.RefObject<HTMLDivElement> = React.createRef();
-    doNotWantIncludeWidgets: boolean | undefined;
-    wakeUpInstalled: boolean | undefined;
-    viewChangeInstalled: boolean | undefined;
-    lastRefreshInterval: number | undefined;
-    refreshInterval: ReturnType<typeof setInterval> | undefined;
-    lastWidget: string | undefined;
+    private readonly widgetRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private doNotWantIncludeWidgets: boolean | undefined;
+    private wakeUpInstalled: boolean | undefined;
+    private viewChangeInstalled: boolean | undefined;
+    private lastRefreshInterval: number | undefined;
+    private refreshInterval: ReturnType<typeof setInterval> | undefined;
+    private lastWidget: string | undefined;
 
     constructor(props: VisRxWidgetProps) {
         super(props);

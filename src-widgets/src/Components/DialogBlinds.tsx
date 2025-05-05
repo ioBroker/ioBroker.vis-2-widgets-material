@@ -122,11 +122,11 @@ export default class DialogBlinds extends Component<DialogBlindsProps, DialogBli
     ): Partial<DialogBlindsState> | null {
         let newState: Partial<DialogBlindsState> | null = null;
         if (nextProps.startValue !== state.value && !DialogBlinds.mouseDown && Date.now() - state.lastControl > 1000) {
-            newState = newState || {};
+            newState = {};
             newState.value = nextProps.startValue;
         }
         if (nextProps.startToggleValue !== undefined && nextProps.startToggleValue !== state.toggleValue) {
-            newState = newState || {};
+            newState ||= {};
             newState.toggleValue = nextProps.startToggleValue;
         }
         return newState || null;

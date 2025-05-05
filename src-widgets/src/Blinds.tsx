@@ -1,6 +1,12 @@
 import React, { type CSSProperties } from 'react';
 
-import type { RxRenderWidgetProps, RxWidgetInfo, VisWidgetCommand, WidgetData } from '@iobroker/types-vis-2';
+import type {
+    RxRenderWidgetProps,
+    RxWidgetInfo,
+    VisRxWidgetProps,
+    VisWidgetCommand,
+    WidgetData,
+} from '@iobroker/types-vis-2';
 
 import BlindsBase, { type BlindsBaseRxData, type BlindsBaseState, type HelperObject } from './Components/BlindsBase';
 
@@ -36,11 +42,11 @@ interface BlindsRxData extends BlindsBaseRxData {
 }
 
 export default class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
-    refCardContent: React.RefObject<HTMLDivElement> = React.createRef();
-    lastRxData: string | undefined;
-    updateTimeout: ReturnType<typeof setTimeout> | undefined;
+    private readonly refCardContent: React.RefObject<HTMLDivElement> = React.createRef();
+    private lastRxData: string | undefined;
+    private updateTimeout: ReturnType<typeof setTimeout> | undefined;
 
-    constructor(props: Blinds['props']) {
+    constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = { ...this.state, objects: [] };
     }
