@@ -21,6 +21,21 @@ export default [
         rules: {
             'jsdoc/require-jsdoc': 'off',
             'jsdoc/require-param': 'off',
+            'prettier/prettier': [
+                'error',
+                {
+                    endOfLine: 'auto',
+                },
+            ],
         },
+    },
+    {
+        ignores: [
+            'src-widgets/.__mf__temp/**/*',
+            'src-widgets/build/**/*',
+            'src-widgets/node_modules/**/*',
+            'widgets/**/*',
+            'test/**/*',
+        ],
     },
 ];
