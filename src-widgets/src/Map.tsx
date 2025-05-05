@@ -665,7 +665,7 @@ export default class Map extends Generic<MapRxData, MapState> {
                         );
                     })}
                     <MapContent
-                        widget={this}
+                        // widget={this}
                         markers={markers}
                         rxData={this.state.rxData}
                         rxStyle={this.state.rxStyle!}
