@@ -31,7 +31,7 @@ import type {
     VisRxWidgetStateValues,
 } from '@iobroker/types-vis-2';
 
-import ObjectChart from './ObjectChart';
+import ObjectChart from './Components/ObjectChart';
 import Generic from './Generic';
 
 const BUTTONS: Record<string, React.JSX.Element> = {

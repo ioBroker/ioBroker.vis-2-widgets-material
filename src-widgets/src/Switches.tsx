@@ -95,7 +95,6 @@ import BlindsBase, {
 } from './Components/BlindsBase';
 import WindowClosed from './Components/WindowClosed';
 import DoorAnimation from './Components/DoorAnimation';
-import LockAnimation from './Components/LockAnimation';
 import { colorTemperatureToRGB, RGB_NAMES, type RGB_NAMES_TYPE, RGB_ROLES } from './RGBLight';
 import {
     FanIcon,
@@ -111,6 +110,7 @@ import type { WidgetType } from './deviceWidget';
 import type { TooltipOption, YAXisOption } from 'echarts/types/dist/shared';
 import type { EChartsOption, SeriesOption } from 'echarts';
 import type { FormatterParam } from './ObjectChart';
+import LockIcon from './Components/LockIcon';
 
 type HelperObject = {
     common: ioBroker.StateCommon;
@@ -525,11 +525,11 @@ const styles: Record<string, any> = {
 };
 
 interface SwitchesRxData extends BlindsBaseRxData {
-    noCard: boolean;
+    noCard: boolean | 'true';
     widgetTitle: string;
     count: number;
     type: 'lines' | 'buttons';
-    allSwitch: boolean;
+    allSwitch: boolean | 'true';
     orientation: 'h' | 'v' | 'f';
     buttonsWidth: number;
     // TODO: Check if it really used
@@ -537,18 +537,18 @@ interface SwitchesRxData extends BlindsBaseRxData {
     doNotWantIncludeWidgets: boolean;
     [key: `oid${number}`]: string;
     [key: `type${number}`]: WidgetType;
-    [key: `noIcon${number}`]: boolean;
+    [key: `noIcon${number}`]: boolean | 'true';
     [key: `icon${number}`]: string;
     [key: `iconSmall${number}`]: string;
     [key: `iconEnabled${number}`]: string;
     [key: `iconEnabledSmall${number}`]: string;
     [key: `color${number}`]: string;
     [key: `colorEnabled${number}`]: string;
-    [key: `slideInvert${number}`]: boolean;
+    [key: `slideInvert${number}`]: boolean | 'true';
     [key: `title${number}`]: string;
     [key: `unit${number}`]: string;
     [key: `step${number}`]: string;
-    [key: `hideChart${number}`]: boolean;
+    [key: `hideChart${number}`]: boolean | 'true';
     [key: `chartPeriod${number}`]: string;
     [key: `buttonText${number}`]: string;
     [key: `buttonIcon${number}`]: string;
@@ -566,31 +566,32 @@ interface SwitchesRxData extends BlindsBaseRxData {
     [key: `widget${number}`]: AnyWidgetId;
     [key: `height${number}`]: number;
     [key: `position${number}`]: number;
-    [key: `hide${number}`]: boolean;
+    [key: `hide${number}`]: boolean | 'true';
     [key: `actual${number}`]: string;
     [key: `boost${number}`]: string;
     [key: `party${number}`]: string;
     [key: `rgbType${number}`]: 'rgb' | 'rgbw' | 'r/g/b' | 'r/g/b/w' | 'hue/sat/lum' | 'ct';
     [key: `ct_min${number}`]: number | string;
     [key: `ct_max${number}`]: number | string;
-    [key: `hideBrightness${number}`]: boolean;
+    [key: `hideBrightness${number}`]: boolean | 'true';
     [key: `whiteMode${number}`]: boolean;
     [key: `noRgbPalette${number}`]: boolean;
     [key: `open${number}`]: string;
     [key: `working${number}`]: string;
     [key: `sensor${number}`]: string;
 
+    [key: `lockColor${number}`]: string;
+    [key: `lockSize${number}`]: string;
     [key: `pincode${number}`]: string;
     [key: `oid-pincode${number}`]: string;
-    [key: `doNotConfirm${number}`]: boolean;
-    [key: `noLockAnimation${number}`]: boolean;
-    [key: `lockColor${number}`]: string;
+    [key: `doNotConfirm${number}`]: boolean | 'true';
+    [key: `noLockAnimation${number}`]: boolean | 'true';
     [key: `pincodeReturnButton${number}`]: 'submit' | 'backspace';
     [key: `timeout${number}`]: number | string;
 
     [key: `vacuum-${VACUUM_ID_ROLES_TYPE}-oid${number}`]: string;
-    [key: `vacuum-use-rooms${number}`]: boolean;
-    [key: `vacuum-use-default-picture${number}`]: boolean;
+    [key: `vacuum-use-rooms${number}`]: boolean | 'true';
+    [key: `vacuum-use-default-picture${number}`]: boolean | 'true';
     [key: `vacuum-own-image${number}`]: string;
 
     [key: `start${number}`]: string;
@@ -609,7 +610,7 @@ interface SwitchesRxData extends BlindsBaseRxData {
         | 'exist'
         | 'not exist';
     [key: `visibility-val${number}`]: string;
-    [key: `visibility-no-hide${number}`]: string;
+    [key: `visibility-no-hide${number}`]: boolean | 'true';
     [key: `${RGB_NAMES_TYPE}${number}`]: string;
     // TODO: Check if it really used
     [key: `width${number}`]: string;
@@ -693,11 +694,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
+                            noBinding: false,
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard',
+                            hidden: 'data.noCard === true',
                         },
                         {
                             name: 'count',
@@ -727,6 +729,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             default: true,
                             label: 'show_all_switch',
                             hidden: 'data.type !== "lines"',
+                            noBinding: false,
                         },
                         {
                             name: 'orientation',
@@ -937,30 +940,31 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             type: 'checkbox',
                             label: 'no_icon',
                             hidden: 'data.type === "buttons" && !!data["widget" + index]',
+                            noBinding: false,
                         },
                         {
                             name: 'icon',
                             type: 'image',
                             label: 'icon',
-                            hidden: '!!data["iconSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
+                            hidden: '!!data["iconSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index] === true || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'iconSmall',
                             type: 'icon64',
                             label: 'small_icon',
-                            hidden: '!!data["icon" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
+                            hidden: '!!data["icon" + index] || data["type" + index] === "blinds" || data["noIcon" + index] === true || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'iconEnabled',
                             type: 'image',
                             label: 'icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
+                            hidden: '!data["oid" + index] || !!data["iconEnabledSmall" + index] || data["type" + index] === "blinds" || data["noIcon" + index] === true || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'iconEnabledSmall',
                             type: 'icon64',
                             label: 'small_icon_active',
-                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index] || data["type" + index] === "blinds" || data["noIcon" + index] || (data.type === "buttons" && !!data["widget" + index])',
+                            hidden: '!data["oid" + index] || !!data["iconEnabled" + index] || data["type" + index] === "blinds" || data["noIcon" + index] === true || (data.type === "buttons" && !!data["widget" + index])',
                         },
                         {
                             name: 'color',
@@ -979,6 +983,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             type: 'checkbox',
                             hidden: '!data["oid" + index] || data["type" + index] !== "blinds"',
                             name: 'slideInvert',
+                            noBinding: false,
                         },
                         {
                             name: 'title',
@@ -1002,6 +1007,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             name: 'hideChart',
                             type: 'checkbox',
                             label: 'hide_chart',
+                            noBinding: false,
                             hidden: '!data["oid" + index] || data["type" + index] !== "info"',
                         },
                         {
@@ -1021,7 +1027,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             ],
                             default: '60',
                             label: 'chart_period',
-                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || !!data["hideChart" + index]',
+                            hidden: '!data["oid" + index] || data["type" + index] !== "info" || data["hideChart" + index] === true',
                         },
                         {
                             name: 'buttonText',
@@ -1133,6 +1139,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             type: 'checkbox',
                             label: 'hide',
                             tooltip: 'hide_tooltip',
+                            noBinding: false,
                         },
                         {
                             name: 'actual',
@@ -1181,6 +1188,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             label: 'red',
                             hidden: (data, index) =>
                                 !!data[`widget${index}`] ||
+                                data[`type${index}`] !== 'rgb' ||
                                 (data[`rgbType${index}`] !== 'r/g/b' && data[`rgbType${index}`] !== 'r/g/b/w'),
                             onChange: loadStates,
                         },
@@ -1290,6 +1298,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                     data[`rgbType${index}`] !== 'r/g/b' &&
                                     data[`rgbType${index}`] !== 'r/g/b/w'),
                             onChange: loadStates,
+                            noBinding: false,
                         },
                         {
                             name: 'whiteMode',
@@ -1544,6 +1553,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             name: 'visibility-no-hide',
                             type: 'checkbox',
                             hidden: '!data["visibility-oid" + index]',
+                            noBinding: false,
                         },
                     ],
                 },
@@ -1645,7 +1655,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
                 object.common.unit ||= this.state.rxData[`unit${index}`];
 
-                if (this.state.rxData[`noIcon${index}`]) {
+                if (this.state.rxData[`noIcon${index}`] === true || this.state.rxData[`noIcon${index}`] === 'true') {
                     object.common.icon = undefined;
                 } else if (
                     !this.state.rxData[`icon${index}`] &&
@@ -1796,7 +1806,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         const obj = this.state.objects[index];
         let iconStr: string | undefined;
         let icon: React.JSX.Element | undefined;
-        if (this.state.rxData[`noIcon${index}`]) {
+        if (this.state.rxData[`noIcon${index}`] === true || this.state.rxData[`noIcon${index}`] === 'true') {
             return undefined;
         }
         if (this.isOn(index)) {
@@ -3028,7 +3038,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
         const custom = trueObj.common.custom;
 
-        if (!custom || this.state.rxData[`hideChart${index}`]) {
+        if (
+            !custom ||
+            this.state.rxData[`hideChart${index}`] === true ||
+            this.state.rxData[`hideChart${index}`] === 'true'
+        ) {
             trueObj.common.history = false;
 
             if (this._refs[index]) {
@@ -3433,7 +3447,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     }}
                     disabled={
                         trueObj.widgetType === 'info' &&
-                        (!this.history[index] || this.state.rxData[`hideChart${index}`])
+                        (!this.history[index] ||
+                            this.state.rxData[`hideChart${index}`] === true ||
+                            this.state.rxData[`hideChart${index}`] === 'true')
                     }
                 >
                     {icon ? <div style={styles.iconButton}>{icon}</div> : null}
@@ -3668,6 +3684,20 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 size={size}
                             />
                         ) : null}
+                        <style>
+                            {`
+.iob-lock {
+    transition: transform 0.5s ease;
+    transform-origin: 15px 60px;
+}
+.iob-lock-opened {
+    transform: rotate(-30deg);
+}
+.iob-lock-closed {
+    transform: rotate(0deg);
+}
+`}
+                        </style>
                         {this.state.rxData[`noLockAnimation${index}`] ? (
                             lockOpened ? (
                                 <LockOpenedIcon
@@ -3678,13 +3708,14 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 <LockClosedIcon style={{ ...styles.lockSvgIcon, width: size, height: size }} />
                             )
                         ) : (
-                            <LockAnimation
+                            <LockIcon
+                                className={lockOpened ? 'iob-lock iob-lock-opened' : 'iob-lock iob-lock-closed'}
+                                opened={lockOpened}
                                 style={{
-                                    marginTop: -4,
+                                    color: this.state.rxData[`lockColor${index}`],
+                                    height: size,
+                                    width: 'auto',
                                 }}
-                                open={lockOpened}
-                                size={size}
-                                color={this.state.rxData[`lockColor${index}`]}
                             />
                         )}
                     </IconButton>
@@ -4234,7 +4265,10 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             }
         }
 
-        if (this.state.rxData[`hideBrightness${index}`]) {
+        if (
+            this.state.rxData[`hideBrightness${index}`] === true ||
+            this.state.rxData[`hideBrightness${index}`] === 'true'
+        ) {
             result.v = 100;
         }
         return result;
@@ -4461,7 +4495,13 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     }
 
     rgbRenderBrightnessSlider(index: number, isWheelVisible: boolean, whiteMode: boolean): React.ReactNode {
-        if (!isWheelVisible || this.state.sketch[index] || whiteMode || this.state.rxData[`hideBrightness${index}`]) {
+        if (
+            !isWheelVisible ||
+            this.state.sketch[index] ||
+            whiteMode ||
+            this.state.rxData[`hideBrightness${index}`] === true ||
+            this.state.rxData[`hideBrightness${index}`] === 'true'
+        ) {
             return null;
         }
         return (
@@ -5052,7 +5092,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
         let value: string | number | boolean = this.state.rxData[`visibility-val${index}`];
 
-        const isHide: boolean | 'disabled' = this.state.rxData[`visibility-no-hide${index}`] ? 'disabled' : false;
+        const isHide: boolean | 'disabled' =
+            this.state.rxData[`visibility-no-hide${index}`] === true ||
+            this.state.rxData[`visibility-no-hide${index}`] === 'true'
+                ? 'disabled'
+                : false;
 
         if (value === undefined || value === null) {
             return condition === 'not exist';
@@ -5167,7 +5211,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         let intermediate: boolean | undefined;
         const items: number[] = [];
         for (let idx = 0; idx < this.state.objects.length; idx++) {
-            if (this.state.objects[idx] && !this.state.rxData[`hide${idx}`]) {
+            if (
+                this.state.objects[idx] &&
+                this.state.rxData[`hide${idx}`] !== true &&
+                this.state.rxData[`hide${idx}`] !== 'true'
+            ) {
                 items.push(idx);
             }
         }
@@ -5260,7 +5308,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         );
 
         let addToHeader =
-            this.state.rxData.allSwitch && items.length > 1 && allSwitchValue !== null ? (
+            (this.state.rxData.allSwitch === true || this.state.rxData.allSwitch === 'true') &&
+            items.length > 1 &&
+            allSwitchValue !== null ? (
                 <Switch
                     checked={allSwitchValue}
                     style={intermediate ? styles.intermediate : undefined}
@@ -5294,7 +5344,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 />
             ) : null;
 
-        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+        if (this.state.rxData.noCard === true || this.state.rxData.noCard === 'true' || props.widget.usedInWidget) {
             return content;
         }
 

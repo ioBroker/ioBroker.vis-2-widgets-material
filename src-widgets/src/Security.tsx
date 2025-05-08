@@ -1,27 +1,15 @@
 import React, { type CSSProperties } from 'react';
 
-import { Button, Chip, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material';
-import {
-    Backspace,
-    Check,
-    RemoveModerator as RemoveModeratorIcon,
-    Security as SecurityIcon,
-} from '@mui/icons-material';
+import { Button, Chip, Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon } from '@mui/icons-material';
 
 import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
+import PinCodeDialog from './Components/PinCodeDialog';
 
 const styles: Record<string, CSSProperties> = {
-    pinGrid: {
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gridGap: '10px',
-    },
-    pinInput: {
-        padding: '10px 0px',
-    },
     timerDialog: {
         textAlign: 'center',
     },
@@ -82,7 +70,7 @@ interface SecurityRxData {
     [key: `iconSmall${number}`]: string;
     [key: `pincode${number}`]: string;
     [key: `pincode-oid${number}`]: string;
-    [key: `pincodeReturnButton${number}`]: string;
+    [key: `pincodeReturnButton${number}`]: 'submit' | 'backspace';
     [key: `timerSeconds${number}`]: number;
     [key: `timerSeconds-oid${number}`]: string;
 }
@@ -337,99 +325,34 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         super.componentWillUnmount();
     }
 
-    renderUnlockDialog(): React.ReactNode {
+    renderUnlockDialog(): React.JSX.Element | null {
         let lockedId: string | null = null;
-        let pincode = null;
-        let pincodeReturnButton = null;
+        let pinCode = '';
+        let pinCodeReturnButton: 'backspace' | 'submit' = 'submit';
         for (let i = 1; i <= this.state.rxData.buttonsCount; i++) {
             if (this.getPropertyValue(`oid${i}`)) {
                 lockedId = this.state.rxData[`oid${i}`];
-                pincode = this.getPincode(i);
-                pincodeReturnButton =
+                pinCode = this.getPinCode(i);
+                pinCodeReturnButton =
                     this.state.rxData[`pincodeReturnButton${i}`] === 'backspace' ? 'backspace' : 'submit';
                 break;
             }
         }
+        if (!this.state.dialog) {
+            return null;
+        }
 
         return (
-            <Dialog
-                open={!!this.state.dialog}
-                onClose={() => this.setState({ dialog: false })}
-            >
-                <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
-                <DialogContent>
-                    <div style={styles.pinInput}>
-                        <TextField
-                            variant="outlined"
-                            fullWidth
-                            type={this.state.invalidPin ? 'text' : 'password'}
-                            slotProps={{
-                                input: {
-                                    readOnly: true,
-                                    style: {
-                                        textAlign: 'center',
-                                        color: this.state.invalidPin ? '#ff3e3e' : 'inherit',
-                                    },
-                                },
-                            }}
-                            value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.pinInput}
-                        />
-                    </div>
-                    <div style={styles.pinGrid}>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0, pincodeReturnButton].map(button => {
-                            let buttonTitle: string | number | null | React.JSX.Element = button;
-                            if (button === 'backspace') {
-                                buttonTitle = <Backspace />;
-                            } else if (button === 'submit') {
-                                buttonTitle = <Check />;
-                            }
-                            return (
-                                <Button
-                                    variant="outlined"
-                                    key={button}
-                                    title={
-                                        button === 'R'
-                                            ? this.state.pinInput
-                                                ? Generic.t('reset')
-                                                : Generic.t('close')
-                                            : button === pincodeReturnButton
-                                              ? 'enter'
-                                              : ''
-                                    }
-                                    onClick={() => {
-                                        if (button === 'submit') {
-                                            if (this.state.pinInput === pincode) {
-                                                lockedId && this.props.context.setValue(lockedId, false);
-                                                this.setState({ dialog: false });
-                                            } else {
-                                                this.setState({ pinInput: '', invalidPin: true });
-                                                setTimeout(() => this.setState({ invalidPin: false }), 500);
-                                            }
-                                        } else if (button === 'backspace') {
-                                            this.setState({ pinInput: this.state.pinInput.slice(0, -1) });
-                                        } else if (button === 'R') {
-                                            if (!this.state.pinInput) {
-                                                this.setState({ dialog: false });
-                                            } else {
-                                                this.setState({ pinInput: '' });
-                                            }
-                                        } else {
-                                            const pinInput = this.state.pinInput + button;
-                                            this.setState({ pinInput });
-                                            if (pincodeReturnButton === 'backspace' && pinInput === pincode) {
-                                                lockedId && this.props.context.setValue(lockedId, false);
-                                                this.setState({ dialog: false });
-                                            }
-                                        }
-                                    }}
-                                >
-                                    {buttonTitle === 'R' ? (this.state.pinInput ? 'R' : 'x') : buttonTitle}
-                                </Button>
-                            );
-                        })}
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <PinCodeDialog
+                pinCode={pinCode}
+                pinCodeReturnButton={pinCodeReturnButton}
+                onClose={(result?: boolean) => {
+                    if (result) {
+                        lockedId && this.props.context.setValue(lockedId, false);
+                    }
+                    this.setState({ dialog: false });
+                }}
+            />
         );
     }
 
@@ -496,7 +419,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
         }, 1000);
     }
 
-    getPincode(i: number): string {
+    getPinCode(i: number): string {
         return this.state.rxData[`pincode-oid${i}`]
             ? this.getPropertyValue(`pincode-oid${i}`)
             : this.state.rxData[`pincode${i}`];
@@ -556,7 +479,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                         <Button
                             variant="contained"
                             onClick={() => {
-                                if (this.getPincode(lockedButton.i)) {
+                                if (this.getPinCode(lockedButton.i)) {
                                     this.setState({ dialog: true, pinInput: '' });
                                 } else {
                                     this.props.context.setValue(lockedButton.oid, false);

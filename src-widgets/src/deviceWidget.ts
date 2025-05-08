@@ -14,6 +14,7 @@ export type WidgetType =
     | 'thermostat'
     | 'rgb'
     | 'lock'
+    | 'link'
     | 'vacuum';
 
 const ICONS: Record<string, string> = {

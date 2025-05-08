@@ -95,7 +95,7 @@ export const STYLES = styles;
 export interface BlindsBaseRxData {
     [key: `slideStop_oid${number}`]: string;
     [key: `slidePos_oid${number}`]: string;
-    [key: `slideInvert${number}`]: boolean;
+    [key: `slideInvert${number}`]: boolean | 'true';
     [key: `slideMin${number}`]: string;
     [key: `slideMax${number}`]: string;
     [key: `slideSensor_oid${number}`]: string;
@@ -104,7 +104,7 @@ export interface BlindsBaseRxData {
     [key: `slideRatio${number}`]: number;
     oid: string;
     oid_stop: string;
-    invert: boolean;
+    invert: boolean | 'true';
     min: string;
     max: string;
     sashCount: number;
@@ -168,19 +168,24 @@ class BlindsBase<
         let positionOid: string =
             index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
         let invert: boolean =
-            index && !this.state.rxData.oid ? this.state.rxData[`slideInvert${index}`] : this.state.rxData.invert;
+            index && !this.state.rxData.oid
+                ? this.state.rxData[`slideInvert${index}`] === true ||
+                  this.state.rxData[`slideInvert${index}`] === 'true'
+                : this.state.rxData.invert === true || this.state.rxData.invert === 'true';
 
         if (indexOfButton !== undefined) {
             positionOid =
                 this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected'
                     ? this.state.rxData[`slidePos_oid${index}`]
                     : '';
-            invert = this.state.rxData[`slideInvert${indexOfButton}`];
+            invert =
+                this.state.rxData[`slideInvert${indexOfButton}`] === true ||
+                this.state.rxData[`slideInvert${indexOfButton}`] === 'true';
         }
 
         if (index && (positionOid === 'nothing_selected' || !positionOid)) {
             positionOid = this.state.rxData.oid;
-            invert = this.state.rxData.invert;
+            invert = this.state.rxData.invert === true || this.state.rxData.invert === 'true';
         }
 
         let min: number;

@@ -1,19 +1,8 @@
 import React, { type CSSProperties } from 'react';
 
-import {
-    Button,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    TextField,
-} from '@mui/material';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from '@mui/material';
 
 import {
-    Backspace,
-    Check,
     MeetingRoom as DoorOpenedIcon,
     LockOpen as LockOpenedIcon,
     Lock as LockClosedIcon,
@@ -32,7 +21,8 @@ import type {
 
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
-import LockAnimation from './Components/LockAnimation';
+import PinCodeDialog from './Components/PinCodeDialog';
+import LockIcon from "./Components/LockIcon";
 
 const styles: Record<string, CSSProperties> = {
     content: {
@@ -42,14 +32,6 @@ const styles: Record<string, CSSProperties> = {
         alignItems: 'center',
         justifyContent: 'center',
         flexWrap: 'wrap',
-    },
-    lockPinGrid: {
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gridGap: '10px',
-    },
-    lockPinInput: {
-        padding: '10px 0px',
     },
     lockWorkingIcon: {
         position: 'absolute',
@@ -63,7 +45,7 @@ const styles: Record<string, CSSProperties> = {
 };
 
 interface LockRxData {
-    noCard: boolean;
+    noCard: boolean | 'true';
     widgetTitle: string;
     'lock-oid': string;
     'doorOpen-oid': string;
@@ -71,13 +53,13 @@ interface LockRxData {
     'doorSensor-oid': string;
     pincode: string;
     'pincode-oid': string;
-    doNotConfirm: boolean;
-    pincodeReturnButton: string;
+    doNotConfirm: boolean | 'true';
+    pincodeReturnButton: 'submit' | 'backspace';
     doorSize: number;
     lockSize: number;
-    noLockAnimation: boolean;
+    noLockAnimation: boolean | 'true';
     lockColor: string;
-    externalDialog: boolean;
+    externalDialog: boolean | 'true';
 }
 
 interface LockState extends VisRxWidgetState {
@@ -114,12 +96,13 @@ export default class Lock extends Generic<LockRxData, LockState> {
                             name: 'noCard',
                             label: 'without_card',
                             type: 'checkbox',
-                            hidden: '!!data.externalDialog',
+                            hidden: 'data.externalDialog === true',
+                            noBinding: false,
                         },
                         {
                             name: 'widgetTitle',
                             label: 'name',
-                            hidden: '!!data.noCard || !!data.externalDialog',
+                            hidden: 'data.noCard === true || data.externalDialog === true',
                         },
                         {
                             name: 'lock-oid',
@@ -190,6 +173,7 @@ export default class Lock extends Generic<LockRxData, LockState> {
                             type: 'checkbox',
                             label: 'doNotConfirm',
                             hidden: (data: WidgetData) => !!data.pincode || !!data['pincode-oid'],
+                            noBinding: false,
                         },
                         {
                             name: 'pincodeReturnButton',
@@ -222,18 +206,21 @@ export default class Lock extends Generic<LockRxData, LockState> {
                             label: 'noLockAnimation',
                             type: 'checkbox',
                             hidden: (data: WidgetData) => !data['lock-oid'],
+                            noBinding: false,
                         },
                         {
                             name: 'lockColor',
                             label: 'Lock color',
                             type: 'color',
-                            hidden: (data: WidgetData) => !data['lock-oid'] || !!data.noLockAnimation,
+                            hidden: (data: WidgetData) =>
+                                !data['lock-oid'] || data.noLockAnimation === true || data.noLockAnimation === 'true',
                         },
                         {
                             name: 'externalDialog',
                             label: 'use_as_dialog',
                             type: 'checkbox',
                             tooltip: 'use_as_dialog_tooltip',
+                            noBinding: false,
                         },
                     ],
                 },
@@ -255,102 +242,22 @@ export default class Lock extends Generic<LockRxData, LockState> {
         if (!this.state.dialogPin) {
             return null;
         }
-        const pincode = this.lockGetPinCode();
-        const pincodeReturnButton = this.state.rxData.pincodeReturnButton === 'backspace' ? 'backspace' : 'submit';
 
         return (
-            <Dialog
-                open={!0}
-                onClose={() => this.setState({ dialogPin: false })}
-            >
-                <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
-                <DialogContent>
-                    <div style={styles.lockPinInput}>
-                        <TextField
-                            variant="outlined"
-                            fullWidth
-                            type={this.state.invalidPin ? 'text' : 'password'}
-                            slotProps={{
-                                input: {
-                                    readOnly: true,
-                                    style: {
-                                        textAlign: 'center',
-                                        color: this.state.invalidPin ? '#ff3e3e' : 'inherit',
-                                    },
-                                },
-                            }}
-                            value={this.state.invalidPin ? Generic.t('invalid_pin') : this.state.lockPinInput}
-                        />
-                    </div>
-                    <div style={styles.lockPinGrid}>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'R', 0, pincodeReturnButton].map(button => {
-                            let buttonTitle: React.ReactNode = button;
-                            if (button === 'backspace') {
-                                buttonTitle = <Backspace />;
-                            } else if (button === 'submit') {
-                                buttonTitle = <Check />;
-                            }
-                            return (
-                                <Button
-                                    variant="outlined"
-                                    key={button}
-                                    title={
-                                        button === 'R'
-                                            ? this.state.lockPinInput
-                                                ? Generic.t('reset')
-                                                : Generic.t('close')
-                                            : button === pincodeReturnButton
-                                              ? 'enter'
-                                              : ''
-                                    }
-                                    onClick={() => {
-                                        if (button === 'submit') {
-                                            if (this.state.lockPinInput === pincode) {
-                                                if (this.state.dialogPin === 'doorOpen-oid') {
-                                                    this.props.context.setValue(
-                                                        this.state.rxData['doorOpen-oid'],
-                                                        true,
-                                                    );
-                                                } else {
-                                                    this.props.context.setValue(this.state.rxData['lock-oid'], true);
-                                                }
-                                                this.setState({ dialogPin: false });
-                                            } else {
-                                                this.setState({ lockPinInput: '', invalidPin: true });
-                                                setTimeout(() => this.setState({ invalidPin: false }), 500);
-                                            }
-                                        } else if (button === 'backspace') {
-                                            this.setState({ lockPinInput: this.state.lockPinInput.slice(0, -1) });
-                                        } else if (button === 'R') {
-                                            if (!this.state.lockPinInput) {
-                                                this.setState({ dialogPin: false });
-                                            } else {
-                                                this.setState({ lockPinInput: '' });
-                                            }
-                                        } else {
-                                            const lockPinInput = this.state.lockPinInput + button;
-                                            this.setState({ lockPinInput });
-                                            if (pincodeReturnButton === 'backspace' && lockPinInput === pincode) {
-                                                if (this.state.dialogPin === 'doorOpen-oid') {
-                                                    this.props.context.setValue(
-                                                        this.state.rxData['doorOpen-oid'],
-                                                        true,
-                                                    );
-                                                } else {
-                                                    this.props.context.setValue(this.state.rxData['lock-oid'], true);
-                                                }
-                                                this.setState({ dialogPin: false });
-                                            }
-                                        }
-                                    }}
-                                >
-                                    {buttonTitle === 'R' ? (this.state.lockPinInput ? 'R' : 'x') : buttonTitle}
-                                </Button>
-                            );
-                        })}
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <PinCodeDialog
+                pinCode={this.lockGetPinCode()}
+                pinCodeReturnButton={this.state.rxData.pincodeReturnButton === 'backspace' ? 'backspace' : 'submit'}
+                onClose={(result?: boolean) => {
+                    if (result) {
+                        if (this.state.dialogPin === 'doorOpen-oid') {
+                            this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
+                        } else {
+                            this.props.context.setValue(this.state.rxData['lock-oid'], true);
+                        }
+                    }
+                    this.setState({ dialogPin: false });
+                }}
+            />
         );
     }
 
@@ -422,6 +329,10 @@ export default class Lock extends Generic<LockRxData, LockState> {
         const lockOpened = this.getPropertyValue('lock-oid');
         const working = this.state.rxData['lockWorking-oid'] && this.getPropertyValue('lockWorking-oid');
 
+        console.log(
+            `Lock opened: ${lockOpened}, oid: ${this.state.rxData['lock-oid']}, value: ${this.state.values[`${this.state.rxData['lock-oid']}.val`]}`,
+        );
+
         const content = (
             <div>
                 {this.lockRenderUnlockDialog()}
@@ -433,7 +344,10 @@ export default class Lock extends Generic<LockRxData, LockState> {
                         onClick={() => {
                             if (this.lockGetPinCode()) {
                                 this.setState({ dialogPin: 'doorOpen-oid', lockPinInput: '' });
-                            } else if (this.state.rxData.doNotConfirm) {
+                            } else if (
+                                this.state.rxData.doNotConfirm === true ||
+                                this.state.rxData.doNotConfirm === 'true'
+                            ) {
                                 this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
                             } else {
                                 this.setState({ confirmDialog: 'doorOpen-oid' });
@@ -452,7 +366,11 @@ export default class Lock extends Generic<LockRxData, LockState> {
                         onClick={() => {
                             if (!lockOpened && this.lockGetPinCode()) {
                                 this.setState({ dialogPin: 'lock-oid', lockPinInput: '' });
-                            } else if (lockOpened || this.state.rxData.doNotConfirm) {
+                            } else if (
+                                lockOpened ||
+                                this.state.rxData.doNotConfirm === true ||
+                                this.state.rxData.doNotConfirm === 'true'
+                            ) {
                                 this.props.context.setValue(
                                     this.state.rxData['lock-oid'],
                                     !this.getPropertyValue('lock-oid'),
@@ -462,13 +380,27 @@ export default class Lock extends Generic<LockRxData, LockState> {
                             }
                         }}
                     >
+                        <style>
+                            {`
+.iob-lock {
+    transition: transform 0.5s ease;
+    transform-origin: 15px 60px;
+}
+.iob-lock-opened {
+    transform: rotate(-30deg);
+}
+.iob-lock-closed {
+    transform: rotate(0deg);
+}
+`}
+                        </style>
                         {working && working !== 3 /* 3 = UNDEFINED */ ? (
                             <CircularProgress
                                 style={styles.lockWorkingIcon}
                                 size={this.state.rxData.lockSize || 40}
                             />
                         ) : null}
-                        {this.state.rxData.noLockAnimation ? (
+                        {this.state.rxData.noLockAnimation === true || this.state.rxData.noLockAnimation === 'true' ? (
                             lockOpened ? (
                                 <LockOpenedIcon
                                     style={{
@@ -488,10 +420,14 @@ export default class Lock extends Generic<LockRxData, LockState> {
                                 />
                             )
                         ) : (
-                            <LockAnimation
-                                open={lockOpened}
-                                size={this.state.rxData.lockSize}
-                                color={this.state.rxData.lockColor}
+                            <LockIcon
+                                className={lockOpened ? 'iob-lock iob-lock-opened' : 'iob-lock iob-lock-closed'}
+                                opened={lockOpened}
+                                style={{
+                                    color: this.state.rxData.lockColor,
+                                    height: this.state.rxData.lockSize,
+                                    width: 'auto',
+                                }}
                             />
                         )}
                     </IconButton>
@@ -499,7 +435,10 @@ export default class Lock extends Generic<LockRxData, LockState> {
             </div>
         );
 
-        if (this.state.rxData.externalDialog && !this.props.editMode) {
+        if (
+            (this.state.rxData.externalDialog === true || this.state.rxData.externalDialog === 'true') &&
+            !this.props.editMode
+        ) {
             return this.state.dialog ? (
                 <Dialog
                     open={!0}
@@ -519,7 +458,7 @@ export default class Lock extends Generic<LockRxData, LockState> {
             ) : null;
         }
 
-        if (this.state.rxData.noCard || props.widget.usedInWidget) {
+        if (this.state.rxData.noCard === true || this.state.rxData.noCard === 'true' || props.widget.usedInWidget) {
             return content;
         }
 

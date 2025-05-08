@@ -192,7 +192,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
     private minX!: Record<string, number | null>;
     private maxX!: Record<string, number | null>;
     private chartValues: Record<string, { val: number; ts: number; i?: boolean }[]> | null = null;
-    private rangeValues: ioBroker.GetHistoryResult | null = null;
 
     constructor(props: ObjectChartProps) {
         super(props);
@@ -245,7 +244,7 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
               : '';
     }
 
-    async componentDidMount(): Promise<void> {
+    componentDidMount(): void {
         const ids: string[] = [];
         if (this.props.obj._id && this.props.obj._id !== 'nothing_selected') {
             ids.push(this.props.obj._id);
@@ -259,9 +258,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         }
         window.addEventListener('resize', this.onResize);
 
-        if (!this.props.noToolbar) {
-            await this.readHistoryRange();
-        }
         this.setRelativeInterval(this.state.relativeRange, true, () => this.forceUpdate());
     }
 
@@ -304,17 +300,9 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
     };
 
     onChange = (id: string, state: ioBroker.State | null | undefined): void => {
-        if (
-            (id === this.props.obj._id || id === this.props.obj2?._id) &&
-            state &&
-            this.rangeValues &&
-            (!this.rangeValues.length || this.rangeValues[this.rangeValues.length - 1].ts < state.ts)
-        ) {
+        if ((id === this.props.obj._id || id === this.props.obj2?._id) && state) {
             if (!this.state.max || state.ts - this.state.max < 120000) {
                 this.chartValues?.[id]?.push({ val: state.val as number, ts: state.ts });
-                if (id === this.props.obj._id) {
-                    this.rangeValues.push({ val: state.val as number, ts: state.ts } as ioBroker.State);
-                }
 
                 // update only if the end is near to now
                 if (state.ts >= this.chart.min! && state.ts <= this.chart.max! + 300000) {
@@ -323,30 +311,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             }
         }
     };
-
-    async readHistoryRange(): Promise<void> {
-        const now = new Date();
-        const oldest = new Date(2000, 0, 1);
-
-        const values = await this.props.socket.getHistory(this.props.obj._id, {
-            instance: this.props.historyInstance,
-            start: oldest.getTime(),
-            end: now.getTime(),
-            // step:      3600000, // hourly
-            limit: 1,
-            from: false,
-            ack: false,
-            q: false,
-            addId: false,
-            aggregate: 'none',
-        });
-
-        // remove interpolated first value
-        if (values?.[0]?.val === null) {
-            values.shift();
-        }
-        this.rangeValues = values;
-    }
 
     async readHistory(start: number, end: number, id: string): Promise<{ val: number; ts: number; i?: boolean }[]> {
         const options: ioBroker.GetHistoryOptions = {
@@ -375,22 +339,11 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         }
 
         const values = await this.props.socket.getHistory(id, options);
-        // merge range and chart
         const chart: { val: number; ts: number; i?: boolean }[] = [];
-        let r = 0;
-        const range = this.rangeValues;
         let minY = null;
         let maxY = null;
 
         for (let t = 0; t < values.length; t++) {
-            if (!id && range) {
-                while (r < range.length && range[r].ts < values[t].ts) {
-                    chart.push(range[r] as { val: number; ts: number; i?: boolean });
-                    // console.log(`add ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
-                    r++;
-                }
-            }
-            // if range and details are not equal
             if (!chart.length || chart[chart.length - 1].ts < values[t].ts) {
                 chart.push(values[t] as { val: number; ts: number; i?: boolean });
             } else if (chart[chart.length - 1].ts === values[t].ts && chart[chart.length - 1].val !== values[t].ts) {
@@ -403,18 +356,10 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 maxY = values[t].val;
             }
         }
-
-        if (id && range) {
-            while (r < range.length) {
-                chart.push(range[r] as { val: number; ts: number; i?: boolean });
-                console.log(`add range ${new Date(range[r].ts).toISOString()}: ${range[r].val}`);
-                r++;
-            }
-        }
         // sort
         chart.sort((a, b) => (a.ts > b.ts ? 1 : a.ts < b.ts ? -1 : 0));
         id ||= this.props.obj._id;
-        this.chartValues = this.chartValues || {};
+        this.chartValues ||= {};
         this.minY ||= {};
         this.maxY ||= {};
         this.minX ||= {};
@@ -813,57 +758,60 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
         if (end) {
             this.end = end;
         }
-        start = start || this.start;
-        end = end || this.end;
+        start ||= this.start;
+        end ||= this.end;
 
         if (this.readTimeout) {
             clearTimeout(this.readTimeout);
         }
 
-        this.readTimeout = setTimeout(async () => {
-            this.readTimeout = null;
+        this.readTimeout = setTimeout(
+            async () => {
+                this.readTimeout = null;
 
-            const diff = this.chart.max! - this.chart.min!;
-            if (diff !== this.chart.diff) {
-                this.chart.diff = diff;
-                this.chart.withTime = this.chart.diff < 3600000 * 24 * 7;
-                this.chart.withSeconds = this.chart.diff < 60000 * 30;
-            }
-
-            if (withReadData) {
-                const values = await this.readHistory(start, end, this.props.obj._id);
-                let values2: { val: number; ts: number; i?: boolean }[] | undefined;
-                if (this.props.obj2) {
-                    values2 = await this.readHistory(start, end, this.props.obj2._id);
+                const diff = this.chart.max! - this.chart.min!;
+                if (diff !== this.chart.diff) {
+                    this.chart.diff = diff;
+                    this.chart.withTime = this.chart.diff < 3600000 * 24 * 7;
+                    this.chart.withSeconds = this.chart.diff < 60000 * 30;
                 }
 
-                if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                if (withReadData || !this.chartValues) {
+                    const values = await this.readHistory(start, end, this.props.obj._id);
+                    let values2: { val: number; ts: number; i?: boolean }[] | undefined;
+                    if (this.props.obj2) {
+                        values2 = await this.readHistory(start, end, this.props.obj2._id);
+                    }
+
+                    if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                        this.echartsReact.getEchartsInstance().setOption({
+                            series: [
+                                { data: this.convertData(values, this.props.obj._id) },
+                                this.props.obj2 ? { data: this.convertData(values2!, this.props.obj2._id) } : undefined,
+                            ],
+                            xAxis: {
+                                min: this.chart.min,
+                                max: this.chart.max,
+                            },
+                        });
+                    }
+                    cb?.();
+                } else if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                     this.echartsReact.getEchartsInstance().setOption({
                         series: [
-                            { data: this.convertData(values, this.props.obj._id) },
-                            this.props.obj2 ? { data: this.convertData(values2!, this.props.obj2._id) } : undefined,
+                            { data: this.convertData(null, this.props.obj._id) },
+                            this.props.obj2 ? { data: this.convertData(null, this.props.obj2._id) } : undefined,
                         ],
                         xAxis: {
                             min: this.chart.min,
                             max: this.chart.max,
                         },
                     });
+                    cb?.();
                 }
-                cb?.();
-            } else if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
-                this.echartsReact.getEchartsInstance().setOption({
-                    series: [
-                        { data: this.convertData(null, this.props.obj._id) },
-                        this.props.obj2 ? { data: this.convertData(null, this.props.obj2._id) } : undefined,
-                    ],
-                    xAxis: {
-                        min: this.chart.min,
-                        max: this.chart.max,
-                    },
-                });
-                cb?.();
-            }
-        }, 400);
+            },
+            this.chartValues ? 400 : 0,
+        ); // For the first time, don't wait 400 ms and read immediately
     }
 
     setNewRange(readData?: boolean): void {
@@ -890,7 +838,9 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
                 },
             });
 
-            readData && this.updateChart(this.chart.min, this.chart.max, true);
+            if (readData) {
+                this.updateChart(this.chart.min, this.chart.max, true);
+            }
         }
     }
 
@@ -1199,37 +1149,6 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             }
         }
     }
-    /*
-    setStartDate(min) {
-        min = min.getTime();
-        if (this.timeTimer) {
-            clearTimeout(this.timeTimer);
-            this.timeTimer = null;
-        }
-        window.localStorage.setItem('App.relativeRange', 'absolute');
-        window.localStorage.setItem('App.absoluteStart', min);
-        window.localStorage.setItem('App.absoluteEnd', this.state.max);
-
-        this.chart.min = min;
-
-        this.setState({ min, relativeRange: 'absolute' }, () =>
-            this.updateChart(this.chart.min, this.chart.max, true));
-    }
-
-    setEndDate(max) {
-        max = max.getTime();
-        window.localStorage.setItem('App.relativeRange', 'absolute');
-        window.localStorage.setItem('App.absoluteStart', this.state.min);
-        window.localStorage.setItem('App.absoluteEnd', max);
-        if (this.timeTimer) {
-            clearTimeout(this.timeTimer);
-            this.timeTimer = null;
-        }
-        this.chart.max = max;
-        this.setState({ max, relativeRange: 'absolute'  }, () =>
-            this.updateChart(this.chart.min, this.chart.max, true));
-    }
-   */
 
     renderToolbar(): React.ReactNode {
         if (this.props.noToolbar) {

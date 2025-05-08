@@ -22,7 +22,7 @@ import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 import { Icon } from '@iobroker/adapter-react-v5';
 
-import ObjectChart from './ObjectChart';
+import ObjectChart from './Components/ObjectChart';
 import Generic from './Generic';
 
 echarts.use([
@@ -107,7 +107,7 @@ type RxData = {
     noChart: boolean | 'true';
     'color-main': string;
     'font-size-main': string;
-    'font-style-main': string;
+    'font-style-main': 'normal' | 'italic';
     digits_after_comma_main?: 0 | 1;
     'oid-secondary': string;
     'title-secondary': string;
@@ -116,7 +116,7 @@ type RxData = {
     'noChart-secondary': boolean | 'true';
     'color-secondary': string;
     'font-size-secondary': string;
-    'font-style-secondary': string;
+    'font-style-secondary': 'normal' | 'italic';
     'noData-secondary': boolean | 'true';
     digits_after_comma_secondary?: 0 | 1;
 };
@@ -590,8 +590,10 @@ export default class Actual extends Generic<RxData, ActualState> {
     }
 
     componentWillUnmount(): void {
-        clearInterval(this.mainTimer);
-        this.mainTimer = undefined;
+        if (this.mainTimer) {
+            clearInterval(this.mainTimer);
+            this.mainTimer = undefined;
+        }
         super.componentWillUnmount();
     }
 

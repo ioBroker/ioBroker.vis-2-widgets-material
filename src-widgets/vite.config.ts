@@ -31,6 +31,7 @@ const config = {
                 './RGBLight': './src/RGBLight',
                 './Lock': './src/Lock',
                 './Vacuum': './src/Vacuum',
+                './Navigate': './src/Navigate',
                 './translations': './src/translations.js',
             },
             remotes: {},

@@ -58,14 +58,11 @@ const LockAnimation = (props: LockAnimationProps): React.ReactNode => {
             if (props.open) {
                 ref.current.goToAndStop(100, true);
                 ref.current.playSegments([100, 160], true);
-                // ref.current.play();
             } else {
-                ref.current.goToAndStop(0, true);
+                ref.current.goToAndStop(240, true);
                 ref.current.playSegments([240, 300], true);
-                // ref.current.play();
             }
         }
-        // ref.current?.stop();
     }, [props.open]);
 
     return (
@@ -75,7 +72,6 @@ const LockAnimation = (props: LockAnimationProps): React.ReactNode => {
             lottieRef={ref}
             autoPlay={false}
             loop={false}
-            // start={200}
             style={{ height: props.size || 40, ...props.style }}
         />
     );

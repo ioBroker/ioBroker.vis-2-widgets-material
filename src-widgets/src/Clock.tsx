@@ -15,11 +15,6 @@ const styles: Record<string, CSSProperties> = {
     uClockHand: {
         transition: 'transform 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275)',
     },
-    uClockHourLabel: {
-        position: 'absolute',
-        display: 'flex',
-        transformOrigin: 'center',
-    },
     hourLabelSpan: {
         // fontWeight: 500,
     },
@@ -395,17 +390,22 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
                 ) : null}
                 {data.showNumbers
                     ? [...Array(12)].map((_, idx) => (
-                          <text
+                          <g
                               key={idx.toString()}
-                              style={styles.uClockHourLabel}
-                              stroke="currentColor"
-                              x={idx + 1 > 9 ? 46 : 48}
-                              y="18"
-                              transform={`rotate(${30 * (idx + 1)})`}
-                              fontSize={6}
+                              style={{
+                                  transformOrigin: 'center center',
+                                  transform: `rotate(${30 * (idx + 1)}deg)`,
+                              }}
                           >
-                              {idx + 1}
-                          </text>
+                              <text
+                                  x={idx + 1 > 9 ? 46 : 48}
+                                  y="18"
+                                  stroke="currentColor"
+                                  fontSize={6}
+                              >
+                                  {idx + 1}
+                              </text>
+                          </g>
                       ))
                     : null}
             </svg>

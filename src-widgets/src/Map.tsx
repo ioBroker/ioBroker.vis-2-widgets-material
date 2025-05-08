@@ -49,7 +49,7 @@ const styles: Record<'mapContainer' | 'dialogTitle', CSSProperties> = {
 interface MapContentProps {
     rxStyle: WidgetStyleState;
     rxData: MapRxData;
-    widget: Map;
+    // widget: Map;
     markers: { longitude: number; latitude: number }[];
 }
 
@@ -206,7 +206,7 @@ interface MapRxData {
     noCard: boolean;
     widgetTitle: string;
     markersCount: number;
-    theme: string;
+    theme: 'default' | 'stadiaosmbright' | 'darkmatter' | 'esriworldimagery';
     themeUrl: string;
     themeAttribution: string;
     defaultZoom: number | string;
