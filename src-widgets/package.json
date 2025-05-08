@@ -18,7 +18,7 @@
         "@types/react": "^18.3.20",
         "@types/react-beautiful-dnd": "^13.1.8",
         "@types/react-dom": "^18.3.6",
-        "@uiw/react-color": "^2.5.2",
+        "@uiw/react-color": "^2.5.4",
         "@vitejs/plugin-react": "^4.4.1",
         "color": "^5.0.0",
         "colorthief": "^2.6.0",
