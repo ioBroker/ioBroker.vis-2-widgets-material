@@ -26,7 +26,7 @@
         "@iobroker/eslint-config": "^2.0.1",
         "@iobroker/vis-2-widgets-testing": "^1.0.6",
         "@types/mocha": "^10.0.10",
-        "@types/node": "^22.15.3"
+        "@types/node": "^22.15.19"
     },
     "files": [
         "admin/",
@@ -45,7 +45,7 @@
         "release-minor": "release-script minor --yes",
         "release-major": "release-script major --yes",
         "test": "mocha ./test/*.test.js",
-        "update-packages": "ncu --upgrade && cd src-widgets && ncu --upgrade && cd ..",
+        "update-packages": "npx -y npm-check-updates --upgrade && cd src-widgets && npx -y npm-check-updates --upgrade",
         "npm": "npm i && cd src-widgets && npm i -f"
     },
     "bugs": {
