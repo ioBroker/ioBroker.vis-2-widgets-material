@@ -1,55 +1,55 @@
 {
-    "name": "iobroker.vis-2-widgets-material",
-    "version": "1.4.10",
-    "description": "ioBroker vis2 material widgets",
-    "author": "bluefox <dogafox@gmail.com>",
-    "contributors": [
-        "bluefox <dogafox@gmail.com>"
-    ],
-    "homepage": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material"
-    },
-    "keywords": [
-        "ioBroker",
-        "weather",
-        "home automation",
-        "vis-2-widgets-material"
-    ],
-    "devDependencies": {
-        "@alcalzone/release-script": "^3.8.0",
-        "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
-        "@alcalzone/release-script-plugin-license": "^3.7.0",
-        "@iobroker/build-tools": "^2.0.15",
-        "@iobroker/eslint-config": "^2.0.1",
-        "@iobroker/vis-2-widgets-testing": "^1.0.6",
-        "@types/mocha": "^10.0.10",
-        "@types/node": "^22.15.19"
-    },
-    "files": [
-        "admin/",
-        "img/",
-        "io-package.json",
-        "LICENSE",
-        "widgets/"
-    ],
-    "scripts": {
-        "prepublishOnly": "gulp",
-        "lint": "eslint -c eslint.config.mjs",
-        "build": "node tasks",
-        "copy-files": "node tasks --copy-files",
-        "release": "release-script",
-        "release-patch": "release-script patch --yes",
-        "release-minor": "release-script minor --yes",
-        "release-major": "release-script major --yes",
-        "test": "mocha ./test/*.test.js",
-        "update-packages": "npx -y npm-check-updates --upgrade && cd src-widgets && npx -y npm-check-updates --upgrade",
-        "npm": "npm i && cd src-widgets && npm i -f"
-    },
-    "bugs": {
-        "url": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/issues"
-    },
-    "readmeFilename": "README.md"
+  "name": "iobroker.vis-2-widgets-material",
+  "version": "1.5.0",
+  "description": "ioBroker vis2 material widgets",
+  "author": "bluefox <dogafox@gmail.com>",
+  "contributors": [
+    "bluefox <dogafox@gmail.com>"
+  ],
+  "homepage": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material"
+  },
+  "keywords": [
+    "ioBroker",
+    "weather",
+    "home automation",
+    "vis-2-widgets-material"
+  ],
+  "devDependencies": {
+    "@alcalzone/release-script": "^3.8.0",
+    "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
+    "@alcalzone/release-script-plugin-license": "^3.7.0",
+    "@iobroker/build-tools": "^2.0.15",
+    "@iobroker/eslint-config": "^2.0.1",
+    "@iobroker/vis-2-widgets-testing": "^1.0.6",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.19"
+  },
+  "files": [
+    "admin/",
+    "img/",
+    "io-package.json",
+    "LICENSE",
+    "widgets/"
+  ],
+  "scripts": {
+    "prepublishOnly": "gulp",
+    "lint": "eslint -c eslint.config.mjs",
+    "build": "node tasks",
+    "copy-files": "node tasks --copy-files",
+    "release": "release-script",
+    "release-patch": "release-script patch --yes",
+    "release-minor": "release-script minor --yes",
+    "release-major": "release-script major --yes",
+    "test": "mocha ./test/*.test.js",
+    "update-packages": "npx -y npm-check-updates --upgrade && cd src-widgets && npx -y npm-check-updates --upgrade",
+    "npm": "npm i && cd src-widgets && npm i -f"
+  },
+  "bugs": {
+    "url": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/issues"
+  },
+  "readmeFilename": "README.md"
 }

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.4.10",
+    "version": "1.5.0",
     "news": {
+      "1.5.0": {
+        "en": "Corrected thermostat slider\nRewritten with TypeScript and vite\nCorrected blinds control\nAdded disabled mode additionally to hidden mode in 'switches and buttons' widget\nAdded `_ts=Date.now()` to camera URL to disable the browser cache\nSimple state has a new option - step\nAdded new navigation widget: jump to view, url or list of views",
+        "de": "Korrigierter Thermostatschieber\nNeu geschrieben mit TypeScript und vite\nKontrolle der Blinds\nZusätzlich zum versteckten Modus in 'Schalter und Tasten' Widget hinzugefügt\n`_ts=Date.now()` zur Kamera-URL hinzugefügt, um den Browser-Cache zu deaktivieren\nEinfacher Zustand hat eine neue Option - Schritt\nHinzugefügt neue Navigation Widget: springen zu sehen, url oder Liste der Ansichten",
+        "ru": "Исправленный ползунок термостата\nПереписано с TypeScript и Vite\nИсправленный контроль слепых\nДобавлен отключенный режим дополнительно к скрытому режиму в виджете «переключатели и кнопки»\nДобавлено '_ts=Date.now()' в URL камеры, чтобы отключить кэш браузера\nПростое состояние имеет новый вариант - шаг\nДобавлен новый виджет навигации: скачок для просмотра, URL или список просмотров",
+        "pt": "Slider de termostato correto\nReescrito com TypeScript e vite\nControle de blinds corrigidos\nAdicionado modo desativado adicionalmente ao modo oculto em 'switches e botões' widget\nAdicionado `_ts=Date.now()` para câmera URL para desativar o cache do navegador\nEstado simples tem uma nova opção - passo\nAdicionado novo widget de navegação: saltar para ver, url ou lista de visualizações",
+        "nl": "Gecorrigeerde thermostaat schuifregelaar\nHerschreven met TypeScript en Vite\nGecorrigeerde blindscontrole\nExtra uitgeschakelde modus toegevoegd aan verborgen modus in widget 'schakelt en knoppen'\nAan camera-URL toegevoegd om de browsercache uit te schakelen\nEenvoudige staat heeft een nieuwe optie - stap\nNieuw navigatie-widget toegevoegd: springen naar weergave, url of lijst met weergaven",
+        "fr": "Slider thermostat corrigé\nRéécrit avec TypeScript et rite\nContrôle des stores corrigés\nAjout du mode désactivé au mode caché dans le widget 'switches and buttons'\nAjouté `_ts=Date.now()` à l'URL de la caméra pour désactiver le cache du navigateur\nL'état simple a une nouvelle option - étape\nAjout d'un nouveau widget de navigation : sauter pour afficher, url ou liste de vues",
+        "it": "Cursore del termostato corretto\nRescritto con TypeScript e vite\nControllo delle tende corretto\nAggiunta modalità disabilitata anche per la modalità nascosta in 'interruttori e pulsanti' widget\nAggiunto `_ts=Date.now()` alla fotocamera URL per disabilitare la cache del browser\nSemplice stato ha una nuova opzione - passo\nAggiunto nuovo widget di navigazione: saltare per visualizzare, url o elenco di visualizzazioni",
+        "es": "Control deslizante termostato corregido\nReescrito con TipoScript y vite\nControl de persianas corregido\nAñadido modo deshabilitado adicionalmente al modo oculto en el widget 'switches and buttons'\nAñadido `_ts=Date.now()` a la URL de la cámara para deshabilitar el caché del navegador\nEstado simple tiene una nueva opción - paso\nAñadido nuevo widget de navegación: saltar a la vista, url o lista de vistas",
+        "pl": "Poprawiony suwak termostatu\nPrzepisane z TypeScript i vite\nPoprawione sterowanie roletami\nDodano tryb wyłączony dodatkowo do trybu ukrytego w widgecie 'przełączniki i przyciski'\nDodano '_ ts = Date.now ()' do URL kamery, aby wyłączyć bufora przeglądarki\nProsty stan ma nową opcję - krok\nDodano nowy widget nawigacyjny: skok do widoku, url lub listę widoków",
+        "uk": "Правильний термостат слайдер\nНаписання з TypeScript і vite\nПравильне управління жалюзі\nДодано режим вимкнення додатково до прихованого режиму в віджеті \"switches і гудзики\"\nДодано `_ts=Date.now()` на URL-адресу камери для вимкнення кешу браузера\nПростий стан має новий варіант - крок\nДодано новий віджет навігації: стрибати для перегляду, URL або списку переглядів",
+        "zh-cn": "修正的自动调温器滑动器\n用类型脚本和 vite 重写\n校正百叶窗控制\n在“ 切换器和按钮” 部件中将禁用模式添加到隐藏模式\n添加 QQts=Date.now()' 到相机 URL 以禁用浏览器缓存\n简单状态有新选项 - step\n添加新导航部件: 跳转到视图、 url 或视图列表"
+      },
       "1.4.10": {
         "en": "Corrected recursive icon search on channel, device, instance and adapter.",
         "de": "Korrigierte rekursive Icon-Suche auf Kanal, Gerät, Instanz und Adapter.",
@@ -80,19 +93,6 @@
         "pl": "usunięty z pakietem Styles\nLepsza wizualizacja termostatu przez wąską wysokość",
         "uk": "пакет \"Стиль\"\nОптимальна термостатна візуалізація вузькій висоті",
         "zh-cn": "用 Styles 软件包删除\n通过窄高度更好的恒温器可视化"
-      },
-      "1.3.33": {
-        "en": "Wait for data before the map is shown\nRound of value is possible now in the actual value widget (with chart)",
-        "de": "Warten Sie auf Daten, bevor die Karte angezeigt wird\nWertrunde ist jetzt im Istwert-Widget (mit Diagramm) möglich",
-        "ru": "Ожидание данных до показа карты\nКруг значений теперь возможен в реальном виджете значения (с диаграммой)",
-        "pt": "Aguarde dados antes que o mapa seja mostrado\nRodada de valor é possível agora no widget de valor real (com gráfico)",
-        "nl": "Wacht op gegevens voordat de kaart wordt getoond\nRonde van waarde is nu mogelijk in de werkelijke waarde widget (met grafiek)",
-        "fr": "Attendez les données avant que la carte ne soit affichée\nUne ronde de valeur est maintenant possible dans le widget de valeur réelle (avec graphique)",
-        "it": "Attendere i dati prima della visualizzazione della mappa\nTondo di valore è possibile ora nel widget di valore effettivo (con grafico)",
-        "es": "Esperar datos antes de que se muestre el mapa\nRonda de valor es posible ahora en el widget de valor real (con gráfico)",
-        "pl": "Poczekaj na dane przed pokazaniem mapy\nRunda wartości jest teraz możliwa w rzeczywistej wartości widget (z wykresem)",
-        "uk": "Очікується дані до карти\nКруглий значення можна зараз в фактичному віджеті значення (з діаграмою)",
-        "zh-cn": "在显示地图前等待数据\n在实际值部件中( 有图表) 现在可以进行一轮值 "
       }
     },
     "titleLang": {
