@@ -8,7 +8,7 @@ import { Icon } from '@iobroker/adapter-react-v5';
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
-import ObjectChart from './ObjectChart';
+import ObjectChart from './Components/ObjectChart';
 
 const styles: Record<string, any> = {
     newValueLight: {

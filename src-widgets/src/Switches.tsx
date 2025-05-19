@@ -109,7 +109,7 @@ import VacuumCleanerIcon from './Components/VacuumIcon';
 import type { WidgetType } from './deviceWidget';
 import type { TooltipOption, YAXisOption } from 'echarts/types/dist/shared';
 import type { EChartsOption, SeriesOption } from 'echarts';
-import type { FormatterParam } from './ObjectChart';
+import type { FormatterParam } from './Components/ObjectChart';
 import LockIcon from './Components/LockIcon';
 
 type HelperObject = {

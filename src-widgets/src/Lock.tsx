@@ -22,7 +22,7 @@ import type {
 import Generic from './Generic';
 import DoorAnimation from './Components/DoorAnimation';
 import PinCodeDialog from './Components/PinCodeDialog';
-import LockIcon from "./Components/LockIcon";
+import LockIcon from './Components/LockIcon';
 
 const styles: Record<string, CSSProperties> = {
     content: {

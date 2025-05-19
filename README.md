@@ -366,7 +366,7 @@ The only difference is that Xiaomi supports the room cleaning.
 
 The MIT License (MIT)
 
-Copyright (c) 2022-2024 Denis Haev <dogafox@gmail.com>
+Copyright (c) 2022-2025 Denis Haev <dogafox@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
