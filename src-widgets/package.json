@@ -10,7 +10,7 @@
         "@iobroker/types-vis-2": "^2.12.9",
         "@module-federation/runtime": "^0.14.0",
         "@module-federation/vite": "^1.4.0",
-        "@mui/icons-material": "^6.4.11",
+        "@mui/icons-material": "^7.1.0",
         "@mui/material": "^6.4.11",
         "@originjs/vite-plugin-federation": "^1.4.1",
         "@react-spectrum/color": "^3.0.6",
