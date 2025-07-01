@@ -5,7 +5,7 @@
     "type": "module",
     "dependencies": {
         "@adobe/react-spectrum": "^3.41.0",
-        "@iobroker/adapter-react-v5": "^7.6.17",
+        "@iobroker/adapter-react-v5": "^7.7.1",
         "@iobroker/type-detector": "^4.5.0",
         "@iobroker/types-vis-2": "^2.12.9",
         "@module-federation/runtime": "^0.14.0",
