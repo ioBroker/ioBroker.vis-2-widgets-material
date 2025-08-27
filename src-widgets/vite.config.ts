@@ -4,6 +4,8 @@ import vitetsConfigPaths from 'vite-tsconfig-paths';
 import { federation } from '@module-federation/vite';
 import { moduleFederationShared } from '@iobroker/types-vis-2/modulefederation.vis.config';
 import { readFileSync } from 'node:fs';
+import topLevelAwait from 'vite-plugin-top-level-await';
+
 const pack = JSON.parse(readFileSync('./package.json').toString());
 
 const config = {
@@ -37,6 +39,12 @@ const config = {
             remotes: {},
             shared: moduleFederationShared(pack),
         }),
+        topLevelAwait({
+            // The export name of top-level await promise for each chunk module
+            promiseExportName: '__tla',
+            // The function to generate import names of top-level await promise in each chunk module
+            promiseImportName: (i: number): string => `__tla_${i}`,
+        }),
         react(),
         vitetsConfigPaths(),
         commonjs(),
@@ -57,7 +65,7 @@ const config = {
     },
     base: './',
     build: {
-        target: 'chrome89',
+        target: 'chrome81',
         outDir: './build',
         rollupOptions: {
             onwarn(warning: { code: string }, warn: (warning: { code: string }) => void): void {
