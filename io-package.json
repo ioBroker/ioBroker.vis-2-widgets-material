@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "news": {
+      "1.5.1": {
+        "en": "Added support for older Android devices",
+        "de": "Unterstützung für ältere Android-Geräte hinzugefügt",
+        "ru": "Добавлена поддержка старых Android-устройств",
+        "pt": "Adicionado suporte para dispositivos Android mais antigos",
+        "nl": "Toegevoegd ondersteuning voor oudere Android-apparaten",
+        "fr": "Ajout du support pour les anciens appareils Android",
+        "it": "Aggiunto il supporto per i dispositivi Android più vecchi",
+        "es": "Añadido soporte para dispositivos Android más antiguos",
+        "pl": "Dodano wsparcie dla starszych urządzeń Android",
+        "uk": "Додано підтримку для старих пристроїв Android",
+        "zh-cn": "对较老的Android设备添加支持"
+      },
       "1.5.0": {
         "en": "Corrected thermostat slider\nRewritten with TypeScript and vite\nCorrected blinds control\nAdded disabled mode additionally to hidden mode in 'switches and buttons' widget\nAdded `_ts=Date.now()` to camera URL to disable the browser cache\nSimple state has a new option - step\nAdded new navigation widget: jump to view, url or list of views",
         "de": "Korrigierter Thermostatschieber\nNeu geschrieben mit TypeScript und vite\nKontrolle der Blinds\nZusätzlich zum versteckten Modus in 'Schalter und Tasten' Widget hinzugefügt\n`_ts=Date.now()` zur Kamera-URL hinzugefügt, um den Browser-Cache zu deaktivieren\nEinfacher Zustand hat eine neue Option - Schritt\nHinzugefügt neue Navigation Widget: springen zu sehen, url oder Liste der Ansichten",
@@ -80,19 +93,6 @@
         "pl": "Lepsze wykrywanie trybów termostatu\nTemperatura okrągła na wykresach",
         "uk": "Краще виявлення режимів термостату\nКруглі температури в діаграмах",
         "zh-cn": "更好地检测自动调温器的模式\n图中的圆形温度"
-      },
-      "1.4.1": {
-        "en": "removed withStyles package\nBetter thermostat visualisation by narrow height",
-        "de": "entfernt mitStyles-Paket\nBessere Thermostat-Visualisierung durch schmale Höhe",
-        "ru": "удалить пакет со Стайлами\nЛучшая визуализация термостата с узкой высотой",
-        "pt": "removido com pacote de Estilos\nMelhor visualização do termostato por altura estreita",
-        "nl": "verwijderd metStyles pakket\nBetere thermostaatvisualisatie door smalle hoogte",
-        "fr": "enlevé avec l'emballageStyles\nMeilleure visualisation thermostat par une hauteur étroite",
-        "it": "rimosso con pacchettoStyles\nMigliore visualizzazione del termostato di altezza stretta",
-        "es": "removido conStyles paquete\nMejor visualización de termostatos por altura estrecha",
-        "pl": "usunięty z pakietem Styles\nLepsza wizualizacja termostatu przez wąską wysokość",
-        "uk": "пакет \"Стиль\"\nОптимальна термостатна візуалізація вузькій висоті",
-        "zh-cn": "用 Styles 软件包删除\n通过窄高度更好的恒温器可视化"
       }
     },
     "titleLang": {
