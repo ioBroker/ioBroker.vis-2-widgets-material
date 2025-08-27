@@ -36,7 +36,7 @@
     "widgets/"
   ],
   "scripts": {
-    "prepublishOnly": "gulp",
+    "prepublishOnly": "npm run build",
     "lint": "eslint -c eslint.config.mjs",
     "build": "node tasks",
     "copy-files": "node tasks --copy-files",
