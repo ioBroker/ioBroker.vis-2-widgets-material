@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "1.5.2",
     "news": {
-      "1.5.2": {
-        "en": "Added support for older Android devices",
-        "de": "Unterstützung für ältere Android-Geräte hinzugefügt",
-        "ru": "Добавлена поддержка старых Android-устройств",
-        "pt": "Adicionado suporte para dispositivos Android mais antigos",
-        "nl": "Toegevoegd ondersteuning voor oudere Android-apparaten",
-        "fr": "Ajout du support pour les anciens appareils Android",
-        "it": "Aggiunto il supporto per i dispositivi Android più vecchi",
-        "es": "Añadido soporte para dispositivos Android más antiguos",
-        "pl": "Dodano wsparcie dla starszych urządzeń Android",
-        "uk": "Додано підтримку для старих пристроїв Android",
-        "zh-cn": "对较老的Android设备添加支持"
-      },
       "1.5.0": {
         "en": "Corrected thermostat slider\nRewritten with TypeScript and vite\nCorrected blinds control\nAdded disabled mode additionally to hidden mode in 'switches and buttons' widget\nAdded `_ts=Date.now()` to camera URL to disable the browser cache\nSimple state has a new option - step\nAdded new navigation widget: jump to view, url or list of views",
         "de": "Korrigierter Thermostatschieber\nNeu geschrieben mit TypeScript und vite\nKontrolle der Blinds\nZusätzlich zum versteckten Modus in 'Schalter und Tasten' Widget hinzugefügt\n`_ts=Date.now()` zur Kamera-URL hinzugefügt, um den Browser-Cache zu deaktivieren\nEinfacher Zustand hat eine neue Option - Schritt\nHinzugefügt neue Navigation Widget: springen zu sehen, url oder Liste der Ansichten",
