@@ -148,7 +148,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.5.2 (2025-08-27)
 -   (@GermanBluefox) Added support for older Android devices
 
 ### 1.5.0 (2025-05-19)
