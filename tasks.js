@@ -6,21 +6,11 @@ function copyAllFiles() {
     copyFiles(
         [
             'src-widgets/build/**/*',
-            '!src-widgets/build/static/js/*node_modules*.*',
-            '!src-widgets/build/static/js/node_modules_*',
+            '!src-widgets/build/index.html',
+            '!src-widgets/build/mf-manifest.json',
+            '!src-widgets/build/.vite/**/*',
         ],
         'widgets/vis-2-widgets-material/',
-    );
-    copyFiles(
-        [
-            `src-widgets/build/static/js/*echarts-for-react_lib_core*.*`,
-            `src-widgets/build/static/js/*spectrum_color_dist_import_mjs*.*`,
-            `src-widgets/build/static/js/*uiw_react-color-shade-slider*.*`,
-            `src-widgets/build/static/js/*lottie-react_build*.*`,
-            `src-widgets/build/static/js/*runtime_js-src_sketch_css*.*`,
-            `src-widgets/build/static/js/*node_modules_babel_runtime_helpers_createForOfItera*.*`,
-        ],
-        'widgets/vis-2-widgets-material/static/js',
     );
 }
 

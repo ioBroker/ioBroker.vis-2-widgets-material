@@ -1,7 +1,37 @@
+import React from 'react';
 import type { VisRxWidgetState } from '@iobroker/types-vis-2';
 import type VisRxWidget from '@iobroker/types-vis-2/visRxWidget';
 
+// import visRxWidget from './test/VisRxWidget';
+
 export const HISTORY_ADAPTER_NAMES = ['history', 'sql', 'influxdb'];
+
+export function TbSquareLetterW(props: { style?: React.CSSProperties }): React.JSX.Element {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            style={props.style}
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                stroke="currentColor"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"
+            />
+            <path
+                stroke="currentColor"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 8l1 8l2 -5l2 5l1 -8"
+            />
+        </svg>
+    );
+}
 
 export default class Generic<
     RxData extends Record<string, any>,

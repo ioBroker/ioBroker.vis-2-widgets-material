@@ -685,7 +685,7 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                             this.setState(
                                                 {
                                                     controlValue: {
-                                                        value,
+                                                        value: value as number,
                                                         changed: !!this.state.controlValue?.changed,
                                                     },
                                                 },
@@ -695,6 +695,7 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                                         this.controlTimer = null;
                                                     }
                                                     if (this.state.rxData.timeout) {
+                                                        // @ts-expect-error idk
                                                         this.controlTimer = setTimeout(
                                                             (newValue: number) => {
                                                                 this.controlTimer = null;
@@ -707,7 +708,10 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                                             value,
                                                         );
                                                     } else {
-                                                        this.props.context.setValue(this.state.rxData.oid, value);
+                                                        this.props.context.setValue(
+                                                            this.state.rxData.oid,
+                                                            value as number,
+                                                        );
                                                     }
                                                 },
                                             );

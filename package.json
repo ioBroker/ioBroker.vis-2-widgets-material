@@ -25,6 +25,7 @@
     "@iobroker/build-tools": "^2.0.15",
     "@iobroker/eslint-config": "^2.0.1",
     "@iobroker/vis-2-widgets-testing": "^1.0.6",
+    "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.15.19"
   },

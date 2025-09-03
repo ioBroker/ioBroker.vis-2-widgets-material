@@ -637,7 +637,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                 value={this.state.volume}
                                 valueLabelDisplay="auto"
                                 onChange={(_e, value) => {
-                                    this.setState({ volume: value }, () => {
+                                    this.setState({ volume: value as number }, () => {
                                         this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
                                         this.setVolumeTimer = setTimeout(() => {
                                             this.setVolumeTimer = null;

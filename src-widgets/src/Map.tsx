@@ -21,7 +21,7 @@ import type {
 } from '@iobroker/types-vis-2';
 import type { LegacyConnection } from '@iobroker/adapter-react-v5';
 
-// @ts-expect-error ignore
+// @ts-expect-error fix later
 delete L.Icon.Default.prototype._getIconUrl;
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';

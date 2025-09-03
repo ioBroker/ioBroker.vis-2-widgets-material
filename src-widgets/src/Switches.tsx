@@ -70,7 +70,6 @@ import {
     Sketch,
     Wheel,
 } from '@uiw/react-color';
-import { TbSquareLetterW } from 'react-icons/tb';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
 import { Icon, type LegacyConnection, Utils } from '@iobroker/adapter-react-v5';
@@ -86,7 +85,7 @@ import type {
     WidgetData,
 } from '@iobroker/types-vis-2';
 
-import Generic from './Generic';
+import Generic, { TbSquareLetterW } from './Generic';
 import BlindsBase, {
     type BlindsBaseRxData,
     type BlindsBaseState,
@@ -2140,11 +2139,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                         {
                                             controlValue: {
                                                 id: trueObj._id,
-                                                value,
+                                                value: value as number,
                                                 changed: !!this.state.controlValue?.changed,
                                             },
                                         },
-                                        () => this.props.context.setValue(trueObj._id, value),
+                                        () => this.props.context.setValue(trueObj._id, value as number),
                                     )
                                 }
                             />
@@ -2541,7 +2540,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             {
                                 controlValue: {
                                     id: trueObj._id,
-                                    value: newValue,
+                                    value: newValue as number,
                                     changed: !!this.state.controlValue?.changed,
                                 },
                             },
@@ -2563,9 +2562,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                         },
                                         parseInt(timeout as string, 10),
                                         newValue,
-                                    );
+                                    ) as unknown as ReturnType<typeof setTimeout>;
                                 } else {
-                                    this.props.context.setValue(trueObj._id, newValue);
+                                    this.props.context.setValue(trueObj._id, newValue as number);
                                 }
                             },
                         );
@@ -2620,7 +2619,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             {
                                 controlValue: {
                                     id: trueObj._id,
-                                    value: newValue,
+                                    value: newValue as number,
                                     changed: !!this.state.controlValue?.changed,
                                 },
                             },
@@ -2642,9 +2641,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                         },
                                         parseInt(timeout as string, 10),
                                         newValue,
-                                    );
+                                    ) as unknown as ReturnType<typeof setTimeout>;
                                 } else {
-                                    this.props.context.setValue(trueObj._id, newValue);
+                                    this.props.context.setValue(trueObj._id, newValue as number);
                                 }
                             },
                         );
@@ -4421,7 +4420,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 ? this.state.controlValue.value
                                 : this.getPropertyValue(`brightness${index}`) || 0
                         }
-                        onChange={(e, value) => this.rgbSetId(index, 'brightness', value, true)}
+                        onChange={(e, value) => this.rgbSetId(index, 'brightness', value as number, true)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
@@ -4560,7 +4559,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             ? this.state.controlValue.value
                             : this.rgbGetWhite(index) || 0
                     }
-                    onChange={(e, value) => this.rgbSetWhite(index, value)}
+                    onChange={(e, value) => this.rgbSetWhite(index, value as number)}
                     onChangeCommitted={() => this.finishChanging()}
                 />
             </div>
@@ -4599,7 +4598,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 ? this.state.controlValue.value
                                 : this.state.values[`${oid}.val`] || 0
                         }
-                        onChange={(e, value) => this.rgbSetId(index, 'color_temperature', value, true)}
+                        onChange={(_e, value) => this.rgbSetId(index, 'color_temperature', value as number, true)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
