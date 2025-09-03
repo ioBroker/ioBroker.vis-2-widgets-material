@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.5.3",
+    "version": "1.6.0",
     "news": {
+      "1.6.0": {
+        "en": "Corrected \"Actual\" widget",
+        "de": "Korrigiert \"Aktuell\" Widget",
+        "ru": "Исправленный «Актуальный» виджет",
+        "pt": "Elemento \"Real\" corrigido",
+        "nl": "Gecorrigeerd \"actual\" widget",
+        "fr": "Widget \"réel\" corrigé",
+        "it": "Corretto widget \"In realtà\"",
+        "es": "Widget \"Actual\" corregido",
+        "pl": "Poprawiony widżet \"Actual\"",
+        "uk": "Виправлено \"Actual\" віджет",
+        "zh-cn": "更正“ 实际” 部件"
+      },
       "1.5.3": {
         "en": "Added support for older Android devices",
         "de": "Unterstützung für ältere Android-Geräte hinzugefügt",
@@ -80,19 +93,6 @@
         "pl": "Poprawiony przycisk wykresu termostatu",
         "uk": "Виправлена кнопка термостату",
         "zh-cn": "校正的恒温图按钮"
-      },
-      "1.4.6": {
-        "en": "Better detection of modes for thermostat\nRound temperature in charts",
-        "de": "Bessere Erkennung von Modi für Thermostat\nRundtemperatur in Diagrammen",
-        "ru": "Лучшее обнаружение режимов для термостата\nКруглая температура в диаграммах",
-        "pt": "Melhor detecção de modos para termostato\nTemperatura redonda em gráficos",
-        "nl": "Betere detectie van modi voor thermostaat\nRonde temperatuur in grafieken",
-        "fr": "Meilleure détection des modes de thermostat\nTempérature ronde dans les cartes",
-        "it": "Migliore rilevazione delle modalità per termostato\nTemperatura rotonda nei grafici",
-        "es": "Mejor detección de modos para termostato\nTemperatura redonda en gráficos",
-        "pl": "Lepsze wykrywanie trybów termostatu\nTemperatura okrągła na wykresach",
-        "uk": "Краще виявлення режимів термостату\nКруглі температури в діаграмах",
-        "zh-cn": "更好地检测自动调温器的模式\n图中的圆形温度"
       }
     },
     "titleLang": {

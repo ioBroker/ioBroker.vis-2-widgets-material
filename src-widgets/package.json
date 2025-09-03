@@ -1,7 +1,7 @@
 {
     "name": "iobroker.vis-2-widgets-material",
     "private": true,
-    "version": "1.5.3",
+    "version": "1.6.0",
     "type": "module",
     "dependencies": {
         "@adobe/react-spectrum": "^3.44.1",
