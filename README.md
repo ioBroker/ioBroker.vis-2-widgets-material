@@ -148,6 +148,10 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Corrected "Actual" widget
+
 ### 1.5.3 (2025-08-27)
 -   (@GermanBluefox) Added support for older Android devices
 

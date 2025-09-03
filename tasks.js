@@ -4,23 +4,35 @@ const { deleteFoldersRecursive, buildReact, npmInstall, copyFiles } = require('@
 
 function copyAllFiles() {
     copyFiles(
-        [
-            'src-widgets/build/**/*',
-            '!src-widgets/build/static/js/*node_modules*.*',
-            '!src-widgets/build/static/js/node_modules_*',
-        ],
+        ['src-widgets/build/**/*', '!src-widgets/build/index.html', '!src-widgets/build/mf-manifest.json'],
         'widgets/vis-2-widgets-material/',
-    );
-    copyFiles(
-        [
-            `src-widgets/build/static/js/*echarts-for-react_lib_core*.*`,
-            `src-widgets/build/static/js/*spectrum_color_dist_import_mjs*.*`,
-            `src-widgets/build/static/js/*uiw_react-color-shade-slider*.*`,
-            `src-widgets/build/static/js/*lottie-react_build*.*`,
-            `src-widgets/build/static/js/*runtime_js-src_sketch_css*.*`,
-            `src-widgets/build/static/js/*node_modules_babel_runtime_helpers_createForOfItera*.*`,
-        ],
-        'widgets/vis-2-widgets-material/static/js',
+        {
+            process: (fileData, fileName) => {
+                if (fileName.includes('installSVGRenderer')) {
+                    // zrender has an error. It uses isFunction before it is defined
+                    // here is a code:
+                    //    bind = protoFunction && isFunction(protoFunction.bind) ? protoFunction.call.bind(protoFunction.bind) : bindPolyfill;
+                    // and later comes the definition of isFunction:
+                    //   isFunction = function(value) {
+                    //     return typeof value === "function";
+                    //   };
+
+                    // Minified code looks like:
+                    //   ut = ra && Y(ra.bind)
+                    // Where Y is isFunction and ra is protoFunction
+                    fileData = fileData.toString();
+                    const match = fileData.match(/\w+\s*=\s*\w+\s*&&\s*(\w)\(\w+.bind\)/);
+                    if (match) {
+                        // place before match[0] the definition of isFunction
+                        fileData = fileData.replace(
+                            match[0],
+                            `${match[1]}=value=>typeof value === "function";${match[0]}`,
+                        ); // prevent error
+                    }
+                    return fileData;
+                }
+            },
+        },
     );
 }
 

@@ -15,7 +15,7 @@ import {
     TimelineComponent,
     LegendComponent,
 } from 'echarts/components';
-import { SVGRenderer } from 'echarts/renderers';
+import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption, LineSeriesOption } from 'echarts';
 import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
 
@@ -33,7 +33,7 @@ echarts.use([
     GridComponent,
     LineChart,
     LegendComponent,
-    SVGRenderer,
+    CanvasRenderer,
 ]);
 
 const styles: Record<string, CSSProperties> = {
@@ -996,7 +996,7 @@ export default class Actual extends Generic<RxData, ActualState> {
                             height: this.state.containerHeight - 26,
                             width: '100%',
                         }}
-                        opts={{ renderer: 'svg' }}
+                        // opts={{ renderer: 'svg' }}
                     />
                 ) : null}
                 {this.renderDialog()}

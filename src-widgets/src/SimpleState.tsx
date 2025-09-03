@@ -685,7 +685,7 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                             this.setState(
                                                 {
                                                     controlValue: {
-                                                        value,
+                                                        value: value as number,
                                                         changed: !!this.state.controlValue?.changed,
                                                     },
                                                 },
@@ -705,9 +705,9 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                                             },
                                                             parseInt(this.state.rxData.timeout as string, 10) || 0,
                                                             value,
-                                                        );
+                                                        ) as any;
                                                     } else {
-                                                        this.props.context.setValue(this.state.rxData.oid, value);
+                                                        this.props.context.setValue(this.state.rxData.oid, value as number);
                                                     }
                                                 },
                                             );

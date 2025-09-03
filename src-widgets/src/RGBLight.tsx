@@ -17,7 +17,7 @@ import {
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch, Tooltip } from '@mui/material';
 
 import { Brightness6, Close, ColorLens, Thermostat, WbAuto } from '@mui/icons-material';
-import { TbSquareLetterW } from 'react-icons/tb';
+import TbSquareLetterW from './Components/TbSquareLetterW';
 
 import { Icon, type LegacyConnection } from '@iobroker/adapter-react-v5';
 
@@ -865,7 +865,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                                 ? this.state.controlValue.value
                                 : this.getPropertyValue('brightness') || 0
                         }
-                        onChange={(e, value) => this.rgbSetId('brightness', value)}
+                        onChange={(e, value) => this.rgbSetId('brightness', value as number)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
@@ -987,7 +987,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                             ? (this.state.controlValue.value as number)
                             : this.rgbGetWhite() || 0
                     }
-                    onChange={(e, value) => this.rgbSetWhite(value)}
+                    onChange={(e, value) => this.rgbSetWhite(value as number)}
                     onChangeCommitted={() => this.finishChanging()}
                 />
             </div>
@@ -1023,7 +1023,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                                 ? this.state.controlValue.value
                                 : this.getPropertyValue('color_temperature') || 0
                         }
-                        onChange={(e, value) => this.rgbSetId('color_temperature', value)}
+                        onChange={(e, value) => this.rgbSetId('color_temperature', value as number)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>

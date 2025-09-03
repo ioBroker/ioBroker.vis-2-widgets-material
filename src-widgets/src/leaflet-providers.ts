@@ -12,7 +12,6 @@
         module.exports = factory(require('leaflet'));
     } else {
         // Assume Leaflet is loaded into global object L already
-
         factory(L);
     }
 })(this, (L: any) => {
