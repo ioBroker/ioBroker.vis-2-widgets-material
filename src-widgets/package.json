@@ -9,7 +9,7 @@
         "@iobroker/type-detector": "^4.5.1",
         "@iobroker/types-vis-2": "^2.13.5",
         "@module-federation/runtime": "^0.18.3",
-        "@module-federation/vite": "^1.7.2",
+        "@module-federation/vite": "^1.9.0",
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
         "@originjs/vite-plugin-federation": "^1.4.1",
