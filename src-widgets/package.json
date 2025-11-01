@@ -20,7 +20,7 @@
         "@types/react-beautiful-dnd": "^13.1.8",
         "@types/react-dom": "^18.3.7",
         "@uiw/react-color": "^2.8.0",
-        "@vitejs/plugin-react": "^5.0.4",
+        "@vitejs/plugin-react": "^5.1.0",
         "color": "^5.0.2",
         "colorthief": "^2.6.0",
         "date-fns": "^4.1.0",
