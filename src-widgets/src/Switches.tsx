@@ -2796,8 +2796,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             let states;
             if (trueObj.common.states) {
                 states = Object.keys(trueObj.common.states).map(state => ({
-                    label: state,
-                    value: (trueObj.common.states as Record<string, string>)[state],
+                    label: (trueObj.common.states as Record<string, string>)[state],
+                    value: state,
                 }));
             } else if (trueObj.common.type === 'boolean') {
                 states = [
