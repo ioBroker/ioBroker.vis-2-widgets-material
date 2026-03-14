@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "news": {
+      "1.6.1": {
+        "en": "Corrected error with select value widget",
+        "de": "Korrigierter Fehler mit ausgewähltem Wert Widget",
+        "ru": "Исправленная ошибка с выбранным виджетом",
+        "pt": "Erro corrigido com widget de valor selecionado",
+        "nl": "Fout gecorrigeerd met geselecteerde waarde-widget",
+        "fr": "Erreur corrigée avec le widget select value",
+        "it": "Errore corretto con widget di valore selezionato",
+        "es": "Error corregido con widget de valor selecto",
+        "pl": "Skorygowany błąd z wybranym widget wartości",
+        "uk": "Виправлена помилка з виберіть віджет значення",
+        "zh-cn": "用选定的值部件校正错误"
+      },
       "1.6.0": {
         "en": "Corrected \"Actual\" widget",
         "de": "Korrigiert \"Aktuell\" Widget",
@@ -80,19 +93,6 @@
         "pl": "Małe zmiany dla SweetHome3D",
         "uk": "Маленькі зміни для SweetHome3D",
         "zh-cn": "SweetHome3D 的小变化"
-      },
-      "1.4.7": {
-        "en": "Corrected thermostat chart button",
-        "de": "Thermostat-Taste korrigiert",
-        "ru": "Исправленная кнопка термостата",
-        "pt": "Botão do gráfico do termostato correto",
-        "nl": "Gecorrigeerde thermostaatkaartknop",
-        "fr": "Bouton de carte thermostat corrigée",
-        "it": "Pulsante grafico termostato corretto",
-        "es": "Botón de la tabla de termostatos corregido",
-        "pl": "Poprawiony przycisk wykresu termostatu",
-        "uk": "Виправлена кнопка термостату",
-        "zh-cn": "校正的恒温图按钮"
       }
     },
     "titleLang": {
