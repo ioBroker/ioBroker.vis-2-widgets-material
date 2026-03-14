@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Color from 'color';
-// @ts-expect-error no types
 import ColorThief from 'colorthief';
 
 import {
@@ -386,6 +385,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                 style={{ maxWidth: 0, maxHeight: 0, position: 'absolute' }}
                                 onLoad={() => {
                                     const img = this.coverRef.current;
+                                    // @ts-expect-error colorthief types point to Node API, but browser bundle exports a class
                                     const colorThief = new ColorThief();
                                     const _coverColor: [r: number, g: number, b: number] = colorThief.getColor(img);
                                     this.setState({ coverColor: _coverColor });

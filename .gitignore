@@ -6,3 +6,4 @@
 /tmp
 *.tgz
 /src-widgets/.__mf__temp
+/.claude/settings.local.json

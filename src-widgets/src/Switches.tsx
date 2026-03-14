@@ -172,7 +172,7 @@ async function loadStates(
             if (states) {
                 let changed = false;
                 Object.values(states).forEach(state => {
-                    const role = state.common.role;
+                    const role = state.common?.role;
                     if (
                         role &&
                         RGB_ROLES[role] &&
@@ -186,11 +186,12 @@ async function loadStates(
                             data[RGB_ROLES[role] + index] = state._id;
                         }
                         if (RGB_ROLES[role] === 'color_temperature') {
-                            if (!data[`ct_min${index}`] && state.common.min) {
-                                data[`ct_min${index}`] = state.common.min;
+                            const common = state.common as ioBroker.StateCommon;
+                            if (!data[`ct_min${index}`] && common.min) {
+                                data[`ct_min${index}`] = common.min;
                             }
-                            if (!data[`ct_max${index}`] && state.common.max) {
-                                data[`ct_max${index}`] = state.common.max;
+                            if (!data[`ct_max${index}`] && common.max) {
+                                data[`ct_max${index}`] = common.max;
                             }
                         }
                     }
@@ -255,7 +256,7 @@ const vacuumLoadStates = async (
                                 return;
                             }
 
-                            const role = state.common.role;
+                            const role = state.common?.role;
                             const vacuumRole = VACUUM_ID_ROLES[name as VACUUM_ID_ROLES_TYPE].role;
                             if (vacuumRole && !role?.includes(vacuumRole)) {
                                 return;
@@ -814,7 +815,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                             }
                                             if (object.common.role.includes('level.temperature')) {
                                                 Object.values(states).forEach(state => {
-                                                    const role = state.common.role;
+                                                    const role = state.common?.role;
                                                     if (role?.includes('value.temperature')) {
                                                         data[`actual${index}`] = state._id;
                                                         changed = true;
@@ -842,7 +843,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                                 }
 
                                                 Object.values(states).forEach(state => {
-                                                    const role = state.common.role;
+                                                    const role = state.common?.role;
                                                     if (
                                                         role &&
                                                         RGB_ROLES[role] &&
@@ -859,7 +860,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                                 });
                                             } else if (object.common.role.includes('lock')) {
                                                 Object.values(states).forEach(state => {
-                                                    const role = state.common.role;
+                                                    const role = state.common?.role;
                                                     if (role?.includes('button')) {
                                                         data[`open${index}`] = state._id;
                                                         changed = true;
