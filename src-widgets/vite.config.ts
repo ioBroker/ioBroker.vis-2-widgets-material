@@ -39,6 +39,7 @@ const config = {
             },
             remotes: {},
             shared: moduleFederationShared(pack),
+            dts: false,
         }),
         topLevelAwait({
             // The export name of top-level await promise for each chunk module
