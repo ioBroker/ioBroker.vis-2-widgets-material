@@ -39,7 +39,7 @@
     "scripts": {
         "prepublishOnly": "npm run build",
         "lint": "eslint -c eslint.config.mjs",
-        "test:integration": "mocha widgets.test --exit",
+        "test:integration": "mocha test/widgets.test --exit",
         "test:package": "mocha test/package.test --exit",
         "build": "node tasks",
         "copy-files": "node tasks --copy-files",
