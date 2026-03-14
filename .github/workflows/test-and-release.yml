@@ -47,7 +47,7 @@ jobs:
       - uses: ioBroker/testing-action-adapter@v1
         with:
           build: true
-          install-command: 'npm install'
+          install-command: 'npm ci && cd src-widgets && npm ci'
           os: 'ubuntu-latest'
           node-version: 22.x
 

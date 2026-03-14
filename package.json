@@ -38,13 +38,15 @@
     "scripts": {
         "prepublishOnly": "npm run build",
         "lint": "eslint -c eslint.config.mjs",
+        "test:integration": "mocha widgets.test --exit",
+        "test:package": "mocha test/package.test --exit",
         "build": "node tasks",
         "copy-files": "node tasks --copy-files",
         "release": "release-script",
         "release-patch": "release-script patch --yes",
         "release-minor": "release-script minor --yes",
         "release-major": "release-script major --yes",
-        "test": "mocha ./test/*.test.js",
+        "test": "npm run test:integration && npm run test:package",
         "update-packages": "npx -y npm-check-updates --upgrade && cd src-widgets && npx -y npm-check-updates --upgrade",
         "npm": "npm i && cd src-widgets && npm i -f"
     },
