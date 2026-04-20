@@ -148,7 +148,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.6.2 (2026-04-20)
 
 -   (@GermanBluefox) Corrected error with button and alarm widget
 

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.6.1",
+    "version": "1.6.2",
     "news": {
+      "1.6.2": {
+        "en": "Corrected error with button and alarm widget",
+        "de": "Fehler behoben mit Knopf und Alarm Widget",
+        "ru": "Исправлена ошибка с помощью виджета кнопки и сигнализации",
+        "pt": "Erro corrigido com botão e elemento de alarme",
+        "nl": "Gecorrigeerde fout met knop en alarm widget",
+        "fr": "Erreur corrigée avec bouton et widget d'alarme",
+        "it": "Errore corretto con pulsante e widget di allarme",
+        "es": "Error corregido con botón y widget de alarma",
+        "pl": "Poprawiony błąd z widżetem przycisku i alarmu",
+        "uk": "Виправлена помилка з кнопками та тривожним віджетом",
+        "zh-cn": "用按钮和提醒部件校正错误"
+      },
       "1.6.1": {
         "en": "Corrected error with select value widget",
         "de": "Korrigierter Fehler mit ausgewähltem Wert Widget",
@@ -80,19 +93,6 @@
         "pl": "Poprawione okno dialogowe rolet\nDodano opcję odwrotną dla rolet",
         "uk": "Виправлені жалюзі діалог\nДодано інвертний варіант для жалюзі",
         "zh-cn": "已校正的盲点对话框\n添加百叶窗的反向选项"
-      },
-      "1.4.8": {
-        "en": "Small changes for SweetHome3D",
-        "de": "Kleine Änderungen für SweetHome3D",
-        "ru": "Небольшие изменения для SweetHome3D",
-        "pt": "Pequenas mudanças para SweetHome3D",
-        "nl": "Kleine wijzigingen voor SweetHome3D",
-        "fr": "Petits changements pour SweetHome3D",
-        "it": "Piccoli cambiamenti per SweetHome3D",
-        "es": "Pequeños cambios para SweetHome3D",
-        "pl": "Małe zmiany dla SweetHome3D",
-        "uk": "Маленькі зміни для SweetHome3D",
-        "zh-cn": "SweetHome3D 的小变化"
       }
     },
     "titleLang": {
