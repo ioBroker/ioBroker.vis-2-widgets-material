@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: ioBroker/testing-action-check@v1
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           install-command: 'npm ci && cd src-widgets && npm ci'
           lint: true
 
@@ -49,7 +49,7 @@ jobs:
           build: true
           install-command: 'npm ci && cd src-widgets && npm ci'
           os: 'ubuntu-latest'
-          node-version: 22.x
+          node-version: 24.x
 
   # Deploys the final package to NPM
   deploy:
@@ -71,7 +71,7 @@ jobs:
     steps:
       - uses: ioBroker/testing-action-deploy@v1
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           build: true
           install-command: 'npm install'
           github-token: ${{ secrets.GITHUB_TOKEN }}

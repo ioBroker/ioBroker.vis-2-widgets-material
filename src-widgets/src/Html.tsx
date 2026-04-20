@@ -219,7 +219,7 @@ export default class Html extends Generic<HtmlRxData, HtmlState> {
         this.reinitInterval();
         this.doNotWantIncludeWidgets = !!this.state.rxData.doNotWantIncludeWidgets;
 
-        // inform view about, that this widget can include other widgets
+        // inform view about that this widget can include other widgets
         this.props.askView?.('update', {
             id: this.props.id,
             uuid: this.uuid,

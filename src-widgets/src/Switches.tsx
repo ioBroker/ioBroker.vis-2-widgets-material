@@ -2496,6 +2496,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 <Button
                     onKeyDown={() => this.buttonPressed(index, true)}
                     onKeyUp={() => this.buttonPressed(index, false)}
+                    onMouseDown={() => this.buttonPressed(index, true)}
+                    onMouseUp={() => this.buttonPressed(index, false)}
                     style={this.customStyle}
                 >
                     {text ||
@@ -5172,8 +5174,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             case 'not exist':
                 return val !== 'null' ? true : isHide;
             default:
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                console.log(`[${this.props.id} / Line ${index}] Unknown visibility condition: ${condition}`);
+                console.log(`[${this.props.id} / Line ${index}] Unknown visibility condition: ${condition as string}`);
                 return false;
         }
     }

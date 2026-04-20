@@ -347,8 +347,8 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                 pinCode={pinCode}
                 pinCodeReturnButton={pinCodeReturnButton}
                 onClose={(result?: boolean) => {
-                    if (result) {
-                        lockedId && this.props.context.setValue(lockedId, false);
+                    if (result && lockedId) {
+                        this.props.context.setValue(lockedId, false);
                     }
                     this.setState({ dialog: false });
                 }}

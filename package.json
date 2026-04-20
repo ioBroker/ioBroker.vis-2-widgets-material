@@ -27,7 +27,7 @@
     "@iobroker/testing": "^5.2.2",
     "@iobroker/vis-2-widgets-testing": "^1.0.6",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.5.0"
+    "@types/node": "^25.6.0"
   },
   "files": [
     "admin/",
@@ -42,6 +42,7 @@
     "test:integration": "mocha test/widgets.test --exit",
     "test:package": "mocha test/package.test --exit",
     "build": "node tasks",
+    "tsc": "cd src-widgets && tsc",
     "copy-files": "node tasks --copy-files",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
