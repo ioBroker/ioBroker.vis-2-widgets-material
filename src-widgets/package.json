@@ -14,7 +14,7 @@
         "@types/leaflet": "^1.9.21",
         "@types/react-beautiful-dnd": "^13.1.8",
         "@uiw/react-color": "^2.8.0",
-        "@vitejs/plugin-react": "^5.0.4",
+        "@vitejs/plugin-react": "^5.1.2",
         "color": "^5.0.2",
         "colorthief": "^2.6.0",
         "date-fns": "^4.1.0",
