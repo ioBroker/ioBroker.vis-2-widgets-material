@@ -1,6 +1,6 @@
 {
   "name": "iobroker.vis-2-widgets-material",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "ioBroker vis2 material widgets",
   "author": "bluefox <dogafox@gmail.com>",
   "contributors": [
@@ -50,7 +50,7 @@
     "release-major": "release-script major --yes",
     "test": "npm run test:integration && npm run test:package",
     "update-packages": "npx -y npm-check-updates --upgrade && cd src-widgets && npx -y npm-check-updates --upgrade",
-    "npm": "npm i && cd src-widgets && npm i -f"
+    "npm": "npm i && cd src-widgets && npm i"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.vis-2-widgets-material/issues"

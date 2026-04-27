@@ -3,11 +3,41 @@ import react from '@vitejs/plugin-react';
 import commonjs from 'vite-plugin-commonjs';
 import vitetsConfigPaths from 'vite-tsconfig-paths';
 import { federation } from '@module-federation/vite';
-import { moduleFederationShared } from '@iobroker/types-vis-2/modulefederation.vis.config';
-import { readFileSync } from 'node:fs';
 import topLevelAwait from 'vite-plugin-top-level-await';
 
-const pack = JSON.parse(readFileSync('./package.json').toString());
+const singleton = (
+    extra: Record<string, unknown> = {},
+): {
+    singleton: true;
+    requiredVersion: '*';
+} & Record<string, unknown> => ({
+    singleton: true,
+    requiredVersion: '*',
+    ...extra,
+});
+
+const sharedModules: Record<string, ReturnType<typeof singleton>> = {
+    react: singleton(),
+    'react-dom': singleton(),
+    'react-dom/client': singleton(),
+    '@mui/material': singleton(),
+    '@mui/icons-material': singleton(),
+    '@mui/styles': singleton(),
+    '@mui/system': singleton(),
+    'prop-types': singleton(),
+    '@iobroker/adapter-react-v5': singleton(),
+    '@iobroker/adapter-react-v5/i18n/de.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/en.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/es.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/ru.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/nl.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/it.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/pl.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/pt.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/fr.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/uk.json': singleton(),
+    '@iobroker/adapter-react-v5/i18n/zh-cn.json': singleton(),
+};
 
 const config = {
     plugins: [
@@ -38,7 +68,7 @@ const config = {
                 './translations': './src/translations.js',
             },
             remotes: {},
-            shared: moduleFederationShared(pack),
+            shared: sharedModules,
             dts: false,
         }),
         topLevelAwait({
@@ -66,6 +96,18 @@ const config = {
         },
     },
     base: './',
+    resolve: {
+        dedupe: [
+            'react',
+            'react-dom',
+            'prop-types',
+            '@mui/material',
+            '@mui/system',
+            '@mui/styles',
+            '@mui/icons-material',
+            '@iobroker/adapter-react-v5',
+        ],
+    },
     build: {
         target: 'chrome81',
         outDir: './build',
