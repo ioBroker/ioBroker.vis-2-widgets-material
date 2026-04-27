@@ -29,6 +29,8 @@
         "uuid": "^11.1.0"
     },
     "devDependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
         "@iobroker/adapter-react-v5": "8.2.2",
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",

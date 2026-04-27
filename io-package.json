@@ -3,19 +3,6 @@
     "name": "vis-2-widgets-material",
     "version": "1.6.4",
     "news": {
-      "1.6.4": {
-        "en": "Corrected error with button and alarm widget",
-        "de": "Fehler behoben mit Knopf und Alarm Widget",
-        "ru": "Исправлена ошибка с помощью виджета кнопки и сигнализации",
-        "pt": "Erro corrigido com botão e elemento de alarme",
-        "nl": "Gecorrigeerde fout met knop en alarm widget",
-        "fr": "Erreur corrigée avec bouton et widget d'alarme",
-        "it": "Errore corretto con pulsante e widget di allarme",
-        "es": "Error corregido con botón y widget de alarma",
-        "pl": "Poprawiony błąd z widżetem przycisku i alarmu",
-        "uk": "Виправлена помилка з кнопками та тривожним віджетом",
-        "zh-cn": "用按钮和提醒部件校正错误"
-      },
       "1.6.1": {
         "en": "Corrected error with select value widget",
         "de": "Korrigierter Fehler mit ausgewähltem Wert Widget",
