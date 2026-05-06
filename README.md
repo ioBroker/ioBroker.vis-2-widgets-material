@@ -376,6 +376,8 @@ The only difference is that Xiaomi supports the room cleaning.
 
 -   (bluefox) initial commit
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 
 The MIT License (MIT)
