@@ -3427,6 +3427,36 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             return this.lockRenderLine(index, buttonWidth, buttonHeight);
         }
 
+        if (trueObj.widgetType === 'button') {
+            const text = this.state.rxData[`buttonText${index}`];
+            let icon = this.state.rxData[`buttonIcon${index}`] || this.state.rxData[`buttonImage${index}`];
+            const iconActive =
+                this.state.rxData[`buttonIconActive${index}`] || this.state.rxData[`buttonImageActive${index}`];
+            if (iconActive && (value === '1' || value === 1 || value === true || value === 'true')) {
+                icon = iconActive;
+            }
+
+            return (
+                <Button
+                    onKeyDown={() => this.buttonPressed(index, true)}
+                    onKeyUp={() => this.buttonPressed(index, false)}
+                    onMouseDown={() => this.buttonPressed(index, true)}
+                    onMouseUp={() => this.buttonPressed(index, false)}
+                    style={this.customStyle}
+                >
+                    {text ||
+                        (icon ? (
+                            <Icon
+                                src={icon}
+                                style={{ width: 24, height: 24 }}
+                            />
+                        ) : (
+                            <RoomService />
+                        ))}
+                </Button>
+            );
+        }
+
         return (
             <div
                 key={index}
