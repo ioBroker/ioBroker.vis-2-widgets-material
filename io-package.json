@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.6.5",
+    "version": "1.6.6",
     "news": {
+      "1.6.6": {
+        "en": "Corrected error with button and alarm widget",
+        "de": "Fehler behoben mit Knopf und Alarm Widget",
+        "ru": "Исправлена ошибка с помощью виджета кнопки и сигнализации",
+        "pt": "Erro corrigido com botão e elemento de alarme",
+        "nl": "Gecorrigeerde fout met knop en alarm widget",
+        "fr": "Erreur corrigée avec bouton et widget d'alarme",
+        "it": "Errore corretto con pulsante e widget di allarme",
+        "es": "Error corregido con botón y widget de alarma",
+        "pl": "Poprawiony błąd z widżetem przycisku i alarmu",
+        "uk": "Виправлена помилка з кнопками та тривожним віджетом",
+        "zh-cn": "用按钮和提醒部件校正错误"
+      },
       "1.6.5": {
         "en": "Corrected error with button and alarm widget",
         "de": "Fehler behoben mit Knopf und Alarm Widget",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono rekursywne wyszukiwanie ikon na kanale, urządzeniu, instancji i adapterze.",
         "uk": "Виправлено пошук рекурсивних іконок на каналі, пристрої, інстанції та адаптері.",
         "zh-cn": "在频道、设备、实例和适配器上修正了递归图标搜索."
-      },
-      "1.4.9": {
-        "en": "Corrected blinds dialog\nAdded the invert option for blinds",
-        "de": "Jalousien-Dialog korrigiert\nHinzufügen der Invert-Option für Blinds",
-        "ru": "Диалог исправленных жалюзи\nДобавить опцию инвертора для жалюзи",
-        "pt": "Corrected blinds diálogo\nAdicionado a opção invert para blinds",
-        "nl": "Gecorrigeerde blinds-dialoog\nDe optie omkeren voor blinden toegevoegd",
-        "fr": "Boîte de dialogue des stores corrigés\nAjout de l'option inverse pour les stores",
-        "it": "Finestra di dialogo delle tende corrette\nAggiunto l'opzione invert per ciechi",
-        "es": "Diálogo de persianas corregidas\nAñadido la opción de invertido para ciegos",
-        "pl": "Poprawione okno dialogowe rolet\nDodano opcję odwrotną dla rolet",
-        "uk": "Виправлені жалюзі діалог\nДодано інвертний варіант для жалюзі",
-        "zh-cn": "已校正的盲点对话框\n添加百叶窗的反向选项"
       }
     },
     "titleLang": {
