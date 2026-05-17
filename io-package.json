@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.6.6",
+    "version": "1.6.7",
     "news": {
+      "1.6.7": {
+        "en": "Corrected error with button and alarm widget",
+        "de": "Fehler behoben mit Knopf und Alarm Widget",
+        "ru": "Исправлена ошибка с помощью виджета кнопки и сигнализации",
+        "pt": "Erro corrigido com botão e elemento de alarme",
+        "nl": "Gecorrigeerde fout met knop en alarm widget",
+        "fr": "Erreur corrigée avec bouton et widget d'alarme",
+        "it": "Errore corretto con pulsante e widget di allarme",
+        "es": "Error corregido con botón y widget de alarma",
+        "pl": "Poprawiony błąd z widżetem przycisku i alarmu",
+        "uk": "Виправлена помилка з кнопками та тривожним віджетом",
+        "zh-cn": "用按钮和提醒部件校正错误"
+      },
       "1.6.6": {
         "en": "Corrected error with button and alarm widget",
         "de": "Fehler behoben mit Knopf und Alarm Widget",
@@ -80,19 +93,6 @@
         "pl": "Poprawiony suwak termostatu\nPrzepisane z TypeScript i vite\nPoprawione sterowanie roletami\nDodano tryb wyłączony dodatkowo do trybu ukrytego w widgecie 'przełączniki i przyciski'\nDodano '_ ts = Date.now ()' do URL kamery, aby wyłączyć bufora przeglądarki\nProsty stan ma nową opcję - krok\nDodano nowy widget nawigacyjny: skok do widoku, url lub listę widoków",
         "uk": "Правильний термостат слайдер\nНаписання з TypeScript і vite\nПравильне управління жалюзі\nДодано режим вимкнення додатково до прихованого режиму в віджеті \"switches і гудзики\"\nДодано `_ts=Date.now()` на URL-адресу камери для вимкнення кешу браузера\nПростий стан має новий варіант - крок\nДодано новий віджет навігації: стрибати для перегляду, URL або списку переглядів",
         "zh-cn": "修正的自动调温器滑动器\n用类型脚本和 vite 重写\n校正百叶窗控制\n在“ 切换器和按钮” 部件中将禁用模式添加到隐藏模式\n添加 QQts=Date.now()' 到相机 URL 以禁用浏览器缓存\n简单状态有新选项 - step\n添加新导航部件: 跳转到视图、 url 或视图列表"
-      },
-      "1.4.10": {
-        "en": "Corrected recursive icon search on channel, device, instance and adapter.",
-        "de": "Korrigierte rekursive Icon-Suche auf Kanal, Gerät, Instanz und Adapter.",
-        "ru": "Исправлен рекурсивный поиск икон на канале, устройстве, примере и адаптере.",
-        "pt": "Pesquisa de ícone recursivo corrigida no canal, dispositivo, instância e adaptador.",
-        "nl": "Gecorrigeerde recursieve pictogram zoeken op kanaal, apparaat, instantie en adapter.",
-        "fr": "Recherche d'icônes récursives corrigée sur canal, périphérique, instance et adaptateur.",
-        "it": "Ricerca dell'icona ricorrente corretta su canale, dispositivo, istanza e adattatore.",
-        "es": "Búsqueda de iconos recursivos corregidos en canal, dispositivo, instancia y adaptador.",
-        "pl": "Naprawiono rekursywne wyszukiwanie ikon na kanale, urządzeniu, instancji i adapterze.",
-        "uk": "Виправлено пошук рекурсивних іконок на каналі, пристрої, інстанції та адаптері.",
-        "zh-cn": "在频道、设备、实例和适配器上修正了递归图标搜索."
       }
     },
     "titleLang": {
