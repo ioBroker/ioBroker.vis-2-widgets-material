@@ -16,7 +16,7 @@
         "@uiw/react-color": "^2.8.0",
         "@vitejs/plugin-react": "^5.0.4",
         "color": "^5.0.2",
-        "colorthief": "^2.6.0",
+        "colorthief": "^3.3.1",
         "date-fns": "^4.1.0",
         "echarts": "^5.6.0",
         "echarts-for-react": "^3.0.2",
