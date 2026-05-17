@@ -3428,11 +3428,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
 
         if (trueObj.widgetType === 'button') {
-            const text = this.state.rxData[`buttonText${index}`];
-            let icon = this.state.rxData[`buttonIcon${index}`] || this.state.rxData[`buttonImage${index}`];
+            const text = this.state.rxData[`title${index}`];
+            let icon = this.state.rxData[`icon${index}`] || this.state.rxData[`iconSmall${index}`];
             const iconActive =
-                this.state.rxData[`buttonIconActive${index}`] || this.state.rxData[`buttonImageActive${index}`];
-            if (iconActive && (value === '1' || value === 1 || value === true || value === 'true')) {
+                this.state.rxData[`iconEnabled${index}`] || this.state.rxData[`iconEnabledSmall${index}`];
+            const isActive = value === '1' || value === 1 || value === true || value === 'true';
+            if (iconActive && isActive) {
                 icon = iconActive;
             }
 
@@ -3442,7 +3443,27 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     onKeyUp={() => this.buttonPressed(index, false)}
                     onMouseDown={() => this.buttonPressed(index, true)}
                     onMouseUp={() => this.buttonPressed(index, false)}
-                    style={this.customStyle}
+                    style={{
+                        ...styles.buttonDiv,
+                        width: buttonWidth || undefined,
+                        height: buttonHeight || undefined,
+                        border: this.state.selectedOne ? '1px dashed gray' : 'none',
+                        boxSizing: 'border-box',
+                        opacity: visibility && visibility !== 'disabled' ? undefined : 0.3,
+                        ...(visibility === 'disabled' ? { pointerEvents: 'none' } : undefined),
+                        ...this.customStyle,
+                        color: isActive
+                            ? this.state.rxData[`colorEnabled${index}`]
+                            : this.state.rxData[`color${index}`],
+                    }}
+                    startIcon={
+                        text && icon ? (
+                            <Icon
+                                src={icon}
+                                style={{ width: 24, height: 24 }}
+                            />
+                        ) : null
+                    }
                 >
                     {text ||
                         (icon ? (
@@ -3460,6 +3481,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         return (
             <div
                 key={index}
+                className="test"
                 style={{
                     ...styles.buttonDiv,
                     width: buttonWidth || undefined,
