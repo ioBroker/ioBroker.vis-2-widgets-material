@@ -93,6 +93,7 @@ const DEVICE_ICONS: Record<Types, string> = {
     [Types.chart]: '',
     [Types.cie]: '',
     [Types.gate]: '',
+    [Types.percentage]: '',
     [Types.illuminance]: '',
     [Types.image]: '',
     [Types.instance]: '',

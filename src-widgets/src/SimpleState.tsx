@@ -707,7 +707,10 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                                             value,
                                                         ) as any;
                                                     } else {
-                                                        this.props.context.setValue(this.state.rxData.oid, value as number);
+                                                        this.props.context.setValue(
+                                                            this.state.rxData.oid,
+                                                            value as number,
+                                                        );
                                                     }
                                                 },
                                             );

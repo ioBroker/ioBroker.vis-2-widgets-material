@@ -200,7 +200,7 @@ const loadStates = async (
             const states = await socket.getObjectViewSystem('state', `${id.join('.')}.`, `${id.join('.')}.\u9999`);
             if (states) {
                 Object.values(states).forEach(state => {
-                    const role = state.common.role;
+                    const role = state.common?.role;
                     if (
                         role &&
                         RGB_ROLES[role] &&
@@ -209,11 +209,12 @@ const loadStates = async (
                     ) {
                         data[RGB_ROLES[role]] = state._id;
                         if (RGB_ROLES[role] === 'color_temperature') {
-                            if (!data.ct_min && state.common.min) {
-                                data.ct_min = state.common.min;
+                            const common = state.common as ioBroker.StateCommon;
+                            if (!data.ct_min && common.min) {
+                                data.ct_min = common.min;
                             }
-                            if (!data.ct_max && state.common.max) {
-                                data.ct_max = state.common.max;
+                            if (!data.ct_max && common.max) {
+                                data.ct_max = common.max;
                             }
                         }
                     }

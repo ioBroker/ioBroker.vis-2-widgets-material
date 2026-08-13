@@ -534,7 +534,7 @@ export default class Actual extends Generic<RxData, ActualState> {
         return data;
     }
 
-    readHistory = async (id: string, historyInstance: string): Promise<void> => {
+    readHistory = (id: string, historyInstance: string): Promise<void> => {
         const timeInterval = this.state.rxData.timeInterval || 12;
         const now = new Date();
         now.setHours(now.getHours() - timeInterval);

@@ -172,7 +172,7 @@ async function loadStates(
             if (states) {
                 let changed = false;
                 Object.values(states).forEach(state => {
-                    const role = state.common.role;
+                    const role = state.common?.role;
                     if (
                         role &&
                         RGB_ROLES[role] &&
@@ -186,11 +186,12 @@ async function loadStates(
                             data[RGB_ROLES[role] + index] = state._id;
                         }
                         if (RGB_ROLES[role] === 'color_temperature') {
-                            if (!data[`ct_min${index}`] && state.common.min) {
-                                data[`ct_min${index}`] = state.common.min;
+                            const common = state.common as ioBroker.StateCommon;
+                            if (!data[`ct_min${index}`] && common.min) {
+                                data[`ct_min${index}`] = common.min;
                             }
-                            if (!data[`ct_max${index}`] && state.common.max) {
-                                data[`ct_max${index}`] = state.common.max;
+                            if (!data[`ct_max${index}`] && common.max) {
+                                data[`ct_max${index}`] = common.max;
                             }
                         }
                     }
@@ -255,7 +256,7 @@ const vacuumLoadStates = async (
                                 return;
                             }
 
-                            const role = state.common.role;
+                            const role = state.common?.role;
                             const vacuumRole = VACUUM_ID_ROLES[name as VACUUM_ID_ROLES_TYPE].role;
                             if (vacuumRole && !role?.includes(vacuumRole)) {
                                 return;
@@ -814,7 +815,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                             }
                                             if (object.common.role.includes('level.temperature')) {
                                                 Object.values(states).forEach(state => {
-                                                    const role = state.common.role;
+                                                    const role = state.common?.role;
                                                     if (role?.includes('value.temperature')) {
                                                         data[`actual${index}`] = state._id;
                                                         changed = true;
@@ -842,7 +843,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                                 }
 
                                                 Object.values(states).forEach(state => {
-                                                    const role = state.common.role;
+                                                    const role = state.common?.role;
                                                     if (
                                                         role &&
                                                         RGB_ROLES[role] &&
@@ -859,7 +860,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                                 });
                                             } else if (object.common.role.includes('lock')) {
                                                 Object.values(states).forEach(state => {
-                                                    const role = state.common.role;
+                                                    const role = state.common?.role;
                                                     if (role?.includes('button')) {
                                                         data[`open${index}`] = state._id;
                                                         changed = true;
@@ -2495,6 +2496,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 <Button
                     onKeyDown={() => this.buttonPressed(index, true)}
                     onKeyUp={() => this.buttonPressed(index, false)}
+                    onMouseDown={() => this.buttonPressed(index, true)}
+                    onMouseUp={() => this.buttonPressed(index, false)}
                     style={this.customStyle}
                 >
                     {text ||
@@ -2796,8 +2799,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             let states;
             if (trueObj.common.states) {
                 states = Object.keys(trueObj.common.states).map(state => ({
-                    label: state,
-                    value: (trueObj.common.states as Record<string, string>)[state],
+                    label: (trueObj.common.states as Record<string, string>)[state],
+                    value: state,
                 }));
             } else if (trueObj.common.type === 'boolean') {
                 states = [
@@ -3424,9 +3427,61 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             return this.lockRenderLine(index, buttonWidth, buttonHeight);
         }
 
+        if (trueObj.widgetType === 'button') {
+            const text = this.state.rxData[`title${index}`];
+            let icon = this.state.rxData[`icon${index}`] || this.state.rxData[`iconSmall${index}`];
+            const iconActive =
+                this.state.rxData[`iconEnabled${index}`] || this.state.rxData[`iconEnabledSmall${index}`];
+            const isActive = value === '1' || value === 1 || value === true || value === 'true';
+            if (iconActive && isActive) {
+                icon = iconActive;
+            }
+
+            return (
+                <Button
+                    onKeyDown={() => this.buttonPressed(index, true)}
+                    onKeyUp={() => this.buttonPressed(index, false)}
+                    onMouseDown={() => this.buttonPressed(index, true)}
+                    onMouseUp={() => this.buttonPressed(index, false)}
+                    style={{
+                        ...styles.buttonDiv,
+                        width: buttonWidth || undefined,
+                        height: buttonHeight || undefined,
+                        border: this.state.selectedOne ? '1px dashed gray' : 'none',
+                        boxSizing: 'border-box',
+                        opacity: visibility && visibility !== 'disabled' ? undefined : 0.3,
+                        ...(visibility === 'disabled' ? { pointerEvents: 'none' } : undefined),
+                        ...this.customStyle,
+                        color: isActive
+                            ? this.state.rxData[`colorEnabled${index}`]
+                            : this.state.rxData[`color${index}`],
+                    }}
+                    startIcon={
+                        text && icon ? (
+                            <Icon
+                                src={icon}
+                                style={{ width: 24, height: 24 }}
+                            />
+                        ) : null
+                    }
+                >
+                    {text ||
+                        (icon ? (
+                            <Icon
+                                src={icon}
+                                style={{ width: 24, height: 24 }}
+                            />
+                        ) : (
+                            <RoomService />
+                        ))}
+                </Button>
+            );
+        }
+
         return (
             <div
                 key={index}
+                className="test"
                 style={{
                     ...styles.buttonDiv,
                     width: buttonWidth || undefined,
@@ -5171,8 +5226,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             case 'not exist':
                 return val !== 'null' ? true : isHide;
             default:
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                console.log(`[${this.props.id} / Line ${index}] Unknown visibility condition: ${condition}`);
+                console.log(`[${this.props.id} / Line ${index}] Unknown visibility condition: ${condition as string}`);
                 return false;
         }
     }

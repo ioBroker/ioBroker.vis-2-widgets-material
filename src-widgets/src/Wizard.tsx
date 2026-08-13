@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
     Accordion,
     AccordionDetails,
@@ -30,18 +30,33 @@ import type {
     SingleWidgetId,
 } from '@iobroker/types-vis-2';
 
-const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }): React.ReactNode => {
-    const [rooms, setRooms] = useState<null | DetectorResult[]>(null);
-    const [devicesChecked, setDevicesChecked] = useState<Record<string, boolean>>({});
-    const [roomsChecked, setRoomsChecked] = useState<Record<string, boolean>>({});
-    const [onePage, setOnePage] = useState(window.localStorage.getItem('AppWizard.onePage') !== 'false');
-    const [standardIcons, setStandardIcons] = useState(
-        window.localStorage.getItem('AppWizard.standardIcons') === 'true',
-    );
+interface WizardDialogProps extends CustomPaletteProperties {
+    onClose: () => void;
+}
 
-    useEffect(() => {
+interface WizardDialogState {
+    rooms: DetectorResult[] | null;
+    devicesChecked: Record<string, boolean>;
+    roomsChecked: Record<string, boolean>;
+    onePage: boolean;
+    standardIcons: boolean;
+}
+
+class WizardDialog extends React.Component<WizardDialogProps, WizardDialogState> {
+    constructor(props: WizardDialogProps) {
+        super(props);
+        this.state = {
+            rooms: null,
+            devicesChecked: {},
+            roomsChecked: {},
+            onePage: window.localStorage.getItem('AppWizard.onePage') !== 'false',
+            standardIcons: window.localStorage.getItem('AppWizard.standardIcons') === 'true',
+        };
+    }
+
+    componentDidMount(): void {
         void (async () => {
-            let _rooms: DetectorResult[] = (await props.helpers?.detectDevices(props.socket)) || [];
+            let _rooms: DetectorResult[] = (await this.props.helpers?.detectDevices(this.props.socket)) || [];
             // ignore buttons
             _rooms.forEach(room => {
                 room.devices = room.devices.filter(device => device.common.role !== 'button');
@@ -61,25 +76,22 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                 });
             });
 
-            setRooms(_rooms);
-            const _checked: Record<string, boolean> = {};
             const _devicesChecked: Record<string, boolean> = {};
             const _roomsChecked: Record<string, boolean> = {};
             _rooms.forEach(room => {
                 _roomsChecked[room._id] = true;
                 room.devices.forEach(device => {
                     _devicesChecked[device._id] = true;
-                    device.states.forEach(state => (_checked[state._id] = true));
                 });
             });
-            setDevicesChecked(_devicesChecked);
-            setRoomsChecked(_roomsChecked);
+            this.setState({ rooms: _rooms, devicesChecked: _devicesChecked, roomsChecked: _roomsChecked });
         })();
-    }, [props.helpers, props.socket]);
+    }
 
-    const handleSubmit = (): void => {
-        const project: Project = JSON.parse(JSON.stringify(props.project));
-        let newKey = props.helpers?.getNewWidgetIdNumber(false, project) || 1000;
+    handleSubmit = (): void => {
+        const { rooms, roomsChecked, devicesChecked, onePage, standardIcons } = this.state;
+        const project: Project = JSON.parse(JSON.stringify(this.props.project));
+        let newKey = this.props.helpers?.getNewWidgetIdNumber(false, project) || 1000;
         let changed = false;
         let firstCreatedRoom = '';
         rooms!.forEach(room => {
@@ -93,7 +105,7 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
             let viewId = Generic.getText(room.common.name);
             let roomWidget: SingleWidget | undefined;
             if (onePage) {
-                roomWidget = Object.values(project[props.selectedView].widgets).find(
+                roomWidget = Object.values(project[this.props.selectedView].widgets).find(
                     _widget => _widget.data.wizardId === room._id,
                 );
 
@@ -116,7 +128,7 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                         position: 'relative',
                     },
                 };
-                viewId = props.selectedView;
+                viewId = this.props.selectedView;
 
                 room.devices.forEach(device => {
                     if (!devicesChecked[device._id]) {
@@ -130,14 +142,14 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
                 });
 
                 // try to find existing widget
-                const projectRoomWidget = Object.keys(project[props.selectedView].widgets).find(
-                    _widget => roomWidget === project[props.selectedView].widgets[_widget as AnyWidgetId],
+                const projectRoomWidget = Object.keys(project[this.props.selectedView].widgets).find(
+                    _widget => roomWidget === project[this.props.selectedView].widgets[_widget as AnyWidgetId],
                 );
 
                 // if not found => add new widget
                 if (!projectRoomWidget) {
                     const roomWidgetId: SingleWidgetId = `w${newKey.toString().padStart(6, '0')}`;
-                    project[props.selectedView].widgets[roomWidgetId] = roomWidget;
+                    project[this.props.selectedView].widgets[roomWidgetId] = roomWidget;
                     newKey++;
                 }
             } else {
@@ -205,268 +217,281 @@ const WizardDialog = (props: CustomPaletteProperties & { onClose: () => void }):
             }
         });
 
-        changed && props.changeProject(project);
+        changed && this.props.changeProject(project);
         if (changed && firstCreatedRoom) {
             setTimeout(() => {
                 // open first created room
-                props.changeView?.(firstCreatedRoom);
+                this.props.changeView?.(firstCreatedRoom);
             }, 100);
         }
-        props.onClose();
+        this.props.onClose();
     };
 
-    const allChecked = rooms?.every(room => roomsChecked[room._id]);
-    const anyChecked = rooms?.some(room => roomsChecked[room._id]);
-    const counters = rooms?.map(room => room.devices.reduce((a, b) => a + (devicesChecked[b._id] ? 1 : 0), 0)) || [];
+    render(): React.ReactNode {
+        const { rooms, roomsChecked, devicesChecked, onePage, standardIcons } = this.state;
+        const allChecked = rooms?.every(room => roomsChecked[room._id]);
+        const anyChecked = rooms?.some(room => roomsChecked[room._id]);
+        const counters =
+            rooms?.map(room => room.devices.reduce((a, b) => a + (devicesChecked[b._id] ? 1 : 0), 0)) || [];
 
-    return (
-        <Dialog
-            key="materialWizardDialog"
-            open={!0}
-            onClose={props.onClose}
-            fullWidth
-            sx={{
-                '& .MuiDialog-paper': {
-                    maxHeight: 'calc(100% - 80px)',
-                    height: 'calc(100% - 80px)',
-                },
-            }}
-        >
-            <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
-            <DialogContent style={{ height: '100%', overflowY: 'hidden' }}>
-                {rooms ? (
-                    <div style={{ height: '100%', overflowY: 'hidden' }}>
-                        <div>
-                            {Generic.t('Multiple views')}
-                            <Switch
-                                checked={onePage}
-                                onChange={e => {
-                                    window.localStorage.setItem(
-                                        'AppWizard.onePage',
-                                        e.target.checked ? 'true' : 'false',
-                                    );
-                                    setOnePage(e.target.checked);
-                                }}
-                            />
-                            {Generic.t('One view')}
-                        </div>
-                        <div>
-                            {Generic.t('Custom icons')}
-                            <img
-                                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAyCAMAAAAUcxnlAAADAFBMVEUCAgKGhoY/Pz/X19cfHx9jY2OoqKju7u4QEBDh4eF0dHQxMTG/v78ICAienp5JSUnf399ra2u3t7cXFxfp6el8fHw5OTkDAwNBQUHZ2dkpKSmurq7+/v4SEhLn5+d6eno3NzfBwcEKCgqmpqZycnJycnIeHh4AAACurq4cHBxOTk5FRUUAAAANDQ0cHBwAAABJSUlISEgUFBQAAAAyMjKCgoJGRkYhISGWlpY4ODhGRkYhISHV1dXCwsKpqamYmJhHR0eFhYVMTEwhISFCQkJeXl5UVFQhISElJSUqKioYGBgAAAAeHh4iIiIwMDACAgJMTExwcHB/f39FRUWDg4NTU1MeHh4AAABkZGRycnJoaGhFRUXj4+PKysqpqamYmJgdHR1fX19vb28AAAArKyvOzs5YWFhFRUUWFhZTU1Ofn59HR0cICAgNDQ0EBAQAAAC1tbWYmJhTU1NFRUUUFBQAAAAAAAAAAABYWFhwcHAlJSULCwsuLi6EhIQ/Pz8hISEnJydmZmYaGhoAAAAuLi7IyMg1NTUhISEiIiIoKChAQEAhISGVlZXLy8tXV1dJSUk4ODhUVFRRUVEhISG9vb3b29syMjIhISEaGhqlpaVgYGBFRUVbW1tRUVFjY2NUVFSnp6e/v7+0tLSnp6c7Ozuenp53d3djY2O8vLzAwMCGhoZ7e3sICAgXFxeFhYULCwsQEBAWFhZ3d3cAAAAAAAArKytBQUELCwsLCws1NTUqKiohISFra2uAgIBTU1MhISEAAAAfHx+YmJgiIiIaGhq4uLgPDw8AAAAlJSUlJSVcXFwlJSUkJCQuLi5lZWUXFxc2NjY/Pz8rKysAAAA8PDwzMzM4ODg5OTlcXFxaWlo7Ozs/Pz9ISEhNTU1LS0tFRUU4ODhDQ0NNTU1GRkZ9fX2ZmZl7e3t/f38+Pj5fX19AQEA5OTlJSUlCQkJAQEA6OjpOTk5HR0c1NTUlJSUpKSk7OzsnJyckJCQ7OzsxMTEfHx8kJCRKSkpJSUkLCwtFRUVwJku+AAAACXBIWXMAAFxGAABcRgEUlENBAAAAvklEQVR42u2Vyw6CMBBFrxDDiBmVRylCA4j+/zfKqqBOKS5M1HCn6erkJF3MLcxbwc/jpzjxjFKpxZss9OWCwOIa/qSFxVHUh9lcFaJuxGPfE3fI9yN+8+Hhgz3x4ecXO4jFECLJTi7zMZLsbIi0Zg2e3j1MkEt2LftLUzaynSW8c9od+Gpf7audXcvnslcEzU+Hh9UW7e7iEO1MQ1MI00Psmc91ZLugsCf2ahO3c6O2yGqLZ0s+mz/5tb8EvwNPZ9YpjSwIDgAAAABJRU5ErkJggg=="
-                                style={{ width: 24, height: 24, marginLeft: 8 }}
-                                alt="icon"
-                            />
-                            <Switch
-                                checked={standardIcons}
-                                onChange={e => {
-                                    window.localStorage.setItem(
-                                        'AppWizard.standardIcons',
-                                        e.target.checked ? 'true' : 'false',
-                                    );
-                                    setStandardIcons(e.target.checked);
-                                }}
-                            />
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                height="24px"
-                                viewBox="0 0 24 24"
-                                width="24px"
-                                style={{ marginRight: 8 }}
-                            >
-                                <path
-                                    fill="currentColor"
-                                    d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"
+        return (
+            <Dialog
+                key="materialWizardDialog"
+                open={!0}
+                onClose={this.props.onClose}
+                fullWidth
+                sx={{
+                    '& .MuiDialog-paper': {
+                        maxHeight: 'calc(100% - 80px)',
+                        height: 'calc(100% - 80px)',
+                    },
+                }}
+            >
+                <DialogTitle>{Generic.t('Wizard')}</DialogTitle>
+                <DialogContent style={{ height: '100%', overflowY: 'hidden' }}>
+                    {rooms ? (
+                        <div style={{ height: '100%', overflowY: 'hidden' }}>
+                            <div>
+                                {Generic.t('Multiple views')}
+                                <Switch
+                                    checked={onePage}
+                                    onChange={e => {
+                                        window.localStorage.setItem(
+                                            'AppWizard.onePage',
+                                            e.target.checked ? 'true' : 'false',
+                                        );
+                                        this.setState({ onePage: e.target.checked });
+                                    }}
                                 />
-                            </svg>
-                            {Generic.t('Standrad icons')}
-                        </div>
-                        <div style={{ marginLeft: 26 }}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        indeterminate={!allChecked && anyChecked}
-                                        checked={allChecked}
-                                        onChange={() => {
-                                            const _roomsChecked = JSON.parse(JSON.stringify(roomsChecked));
-                                            rooms.forEach(room => (_roomsChecked[room._id] = !allChecked));
-                                            setRoomsChecked(_roomsChecked);
-                                        }}
+                                {Generic.t('One view')}
+                            </div>
+                            <div>
+                                {Generic.t('Custom icons')}
+                                <img
+                                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAyCAMAAAAUcxnlAAADAFBMVEUCAgKGhoY/Pz/X19cfHx9jY2OoqKju7u4QEBDh4eF0dHQxMTG/v78ICAienp5JSUnf399ra2u3t7cXFxfp6el8fHw5OTkDAwNBQUHZ2dkpKSmurq7+/v4SEhLn5+d6eno3NzfBwcEKCgqmpqZycnJycnIeHh4AAACurq4cHBxOTk5FRUUAAAANDQ0cHBwAAABJSUlISEgUFBQAAAAyMjKCgoJGRkYhISGWlpY4ODhGRkYhISHV1dXCwsKpqamYmJhHR0eFhYVMTEwhISFCQkJeXl5UVFQhISElJSUqKioYGBgAAAAeHh4iIiIwMDACAgJMTExwcHB/f39FRUWDg4NTU1MeHh4AAABkZGRycnJoaGhFRUXj4+PKysqpqamYmJgdHR1fX19vb28AAAArKyvOzs5YWFhFRUUWFhZTU1Ofn59HR0cICAgNDQ0EBAQAAAC1tbWYmJhTU1NFRUUUFBQAAAAAAAAAAABYWFhwcHAlJSULCwsuLi6EhIQ/Pz8hISEnJydmZmYaGhoAAAAuLi7IyMg1NTUhISEiIiIoKChAQEAhISGVlZXLy8tXV1dJSUk4ODhUVFRRUVEhISG9vb3b29syMjIhISEaGhqlpaVgYGBFRUVbW1tRUVFjY2NUVFSnp6e/v7+0tLSnp6c7Ozuenp53d3djY2O8vLzAwMCGhoZ7e3sICAgXFxeFhYULCwsQEBAWFhZ3d3cAAAAAAAArKytBQUELCwsLCws1NTUqKiohISFra2uAgIBTU1MhISEAAAAfHx+YmJgiIiIaGhq4uLgPDw8AAAAlJSUlJSVcXFwlJSUkJCQuLi5lZWUXFxc2NjY/Pz8rKysAAAA8PDwzMzM4ODg5OTlcXFxaWlo7Ozs/Pz9ISEhNTU1LS0tFRUU4ODhDQ0NNTU1GRkZ9fX2ZmZl7e3t/f38+Pj5fX19AQEA5OTlJSUlCQkJAQEA6OjpOTk5HR0c1NTUlJSUpKSk7OzsnJyckJCQ7OzsxMTEfHx8kJCRKSkpJSUkLCwtFRUVwJku+AAAACXBIWXMAAFxGAABcRgEUlENBAAAAvklEQVR42u2Vyw6CMBBFrxDDiBmVRylCA4j+/zfKqqBOKS5M1HCn6erkJF3MLcxbwc/jpzjxjFKpxZss9OWCwOIa/qSFxVHUh9lcFaJuxGPfE3fI9yN+8+Hhgz3x4ecXO4jFECLJTi7zMZLsbIi0Zg2e3j1MkEt2LftLUzaynSW8c9od+Gpf7audXcvnslcEzU+Hh9UW7e7iEO1MQ1MI00Psmc91ZLugsCf2ahO3c6O2yGqLZ0s+mz/5tb8EvwNPZ9YpjSwIDgAAAABJRU5ErkJggg=="
+                                    style={{ width: 24, height: 24, marginLeft: 8 }}
+                                    alt="icon"
+                                />
+                                <Switch
+                                    checked={standardIcons}
+                                    onChange={e => {
+                                        window.localStorage.setItem(
+                                            'AppWizard.standardIcons',
+                                            e.target.checked ? 'true' : 'false',
+                                        );
+                                        this.setState({ standardIcons: e.target.checked });
+                                    }}
+                                />
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    height="24px"
+                                    viewBox="0 0 24 24"
+                                    width="24px"
+                                    style={{ marginRight: 8 }}
+                                >
+                                    <path
+                                        fill="currentColor"
+                                        d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"
                                     />
-                                }
-                                label={allChecked ? Generic.t('Unselect all rooms') : Generic.t('Select all rooms')}
-                            />
-                        </div>
-                        <div style={{ height: 'calc(100% - 120px)', overflowY: 'auto' }}>
-                            {!rooms.length ? <div>{Generic.t('Nothing detected')}</div> : null}
-                            {rooms.map((room, roomId) => (
-                                <div key={room._id}>
-                                    <Accordion>
-                                        <AccordionSummary expandIcon={<ExpandMore />}>
-                                            <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                                                <Checkbox
-                                                    checked={roomsChecked[room._id]}
-                                                    onChange={e => {
-                                                        const _roomsChecked = JSON.parse(JSON.stringify(roomsChecked));
-                                                        _roomsChecked[room._id] = e.target.checked;
-                                                        setRoomsChecked(_roomsChecked);
-                                                    }}
-                                                    onClick={e => e.stopPropagation()}
-                                                />
+                                </svg>
+                                {Generic.t('Standard icons')}
+                            </div>
+                            <div style={{ marginLeft: 26 }}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            indeterminate={!allChecked && anyChecked}
+                                            checked={allChecked}
+                                            onChange={() => {
+                                                const _roomsChecked = JSON.parse(JSON.stringify(roomsChecked));
+                                                rooms.forEach(room => (_roomsChecked[room._id] = !allChecked));
+                                                this.setState({ roomsChecked: _roomsChecked });
+                                            }}
+                                        />
+                                    }
+                                    label={allChecked ? Generic.t('Unselect all rooms') : Generic.t('Select all rooms')}
+                                />
+                            </div>
+                            <div style={{ height: 'calc(100% - 120px)', overflowY: 'auto' }}>
+                                {!rooms.length ? <div>{Generic.t('Nothing detected')}</div> : null}
+                                {rooms.map((room, roomId) => (
+                                    <div key={room._id}>
+                                        <Accordion>
+                                            <AccordionSummary expandIcon={<ExpandMore />}>
+                                                <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                    <Checkbox
+                                                        checked={roomsChecked[room._id]}
+                                                        onChange={e => {
+                                                            const _roomsChecked = JSON.parse(
+                                                                JSON.stringify(roomsChecked),
+                                                            );
+                                                            _roomsChecked[room._id] = e.target.checked;
+                                                            this.setState({ roomsChecked: _roomsChecked });
+                                                        }}
+                                                        onClick={e => e.stopPropagation()}
+                                                    />
 
-                                                {room.common.icon ? (
-                                                    room.common.icon === '?' ? (
-                                                        <QuestionMark
-                                                            style={{ width: 24, height: 24, marginRight: 8 }}
-                                                        />
-                                                    ) : (
-                                                        <Icon
-                                                            src={room.common.icon}
-                                                            style={{ width: 24, height: 24, marginRight: 8 }}
-                                                            alt=""
-                                                        />
-                                                    )
-                                                ) : null}
+                                                    {room.common.icon ? (
+                                                        room.common.icon === '?' ? (
+                                                            <QuestionMark
+                                                                style={{ width: 24, height: 24, marginRight: 8 }}
+                                                            />
+                                                        ) : (
+                                                            <Icon
+                                                                src={room.common.icon}
+                                                                style={{ width: 24, height: 24, marginRight: 8 }}
+                                                                alt=""
+                                                            />
+                                                        )
+                                                    ) : null}
 
-                                                <div style={{ flexGrow: 1 }}>{Generic.getText(room.common.name)}</div>
+                                                    <div style={{ flexGrow: 1 }}>
+                                                        {Generic.getText(room.common.name)}
+                                                    </div>
 
-                                                <Checkbox
-                                                    title={Generic.t('Select/Unselect all devices in room')}
-                                                    indeterminate={
-                                                        counters[roomId] !== room.devices.length && !!counters[roomId]
-                                                    }
-                                                    checked={counters[roomId] === room.devices.length}
-                                                    disabled={!roomsChecked[room._id]}
-                                                    onClick={e => {
-                                                        e.stopPropagation();
-                                                        e.preventDefault();
-                                                        const _devicesChecked = JSON.parse(
-                                                            JSON.stringify(devicesChecked),
-                                                        );
-                                                        if (counters[roomId] === room.devices.length) {
-                                                            room.devices.forEach(device => {
-                                                                _devicesChecked[device._id] = false;
-                                                            });
-                                                        } else {
-                                                            room.devices.forEach(device => {
-                                                                _devicesChecked[device._id] = true;
-                                                            });
+                                                    <Checkbox
+                                                        title={Generic.t('Select/Unselect all devices in room')}
+                                                        indeterminate={
+                                                            counters[roomId] !== room.devices.length &&
+                                                            !!counters[roomId]
                                                         }
-                                                        setDevicesChecked(_devicesChecked);
-                                                    }}
-                                                />
-                                                <div
-                                                    style={{
-                                                        fontSize: 12,
-                                                        opacity: 0.7,
-                                                        marginLeft: 20,
-                                                        minWidth: 200,
-                                                    }}
-                                                >
-                                                    {Generic.t(
-                                                        '%s of %s devices selected',
-                                                        counters[roomId]?.toString() || '0',
-                                                        room.devices.length.toString(),
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </AccordionSummary>
-                                        <AccordionDetails
-                                            style={{ backgroundColor: props.themeType === 'dark' ? '#111' : '#eee' }}
-                                        >
-                                            {room.devices.map((device, deviceId) => (
-                                                <div
-                                                    key={device._id}
-                                                    style={{ backgroundColor: 'transparent' }}
-                                                >
+                                                        checked={counters[roomId] === room.devices.length}
+                                                        disabled={!roomsChecked[room._id]}
+                                                        onClick={e => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            const _devicesChecked = JSON.parse(
+                                                                JSON.stringify(devicesChecked),
+                                                            );
+                                                            if (counters[roomId] === room.devices.length) {
+                                                                room.devices.forEach(device => {
+                                                                    _devicesChecked[device._id] = false;
+                                                                });
+                                                            } else {
+                                                                room.devices.forEach(device => {
+                                                                    _devicesChecked[device._id] = true;
+                                                                });
+                                                            }
+                                                            this.setState({ devicesChecked: _devicesChecked });
+                                                        }}
+                                                    />
                                                     <div
                                                         style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
+                                                            fontSize: 12,
+                                                            opacity: 0.7,
                                                             marginLeft: 20,
-                                                            marginBottom: 20,
-                                                            opacity: roomsChecked[room._id] ? 1 : 0.5,
+                                                            minWidth: 200,
                                                         }}
                                                     >
-                                                        <Checkbox
-                                                            checked={devicesChecked[device._id]}
-                                                            onChange={e => {
-                                                                const _devicesChecked = JSON.parse(
-                                                                    JSON.stringify(devicesChecked),
-                                                                );
-                                                                _devicesChecked[device._id] = e.target.checked;
-                                                                setDevicesChecked(_devicesChecked);
-                                                            }}
-                                                            onClick={e => e.stopPropagation()}
-                                                        />
-                                                        <span style={{ marginRight: 8 }}>
-                                                            {!standardIcons && device.common.icon ? (
-                                                                device.common.icon === '?' ? (
-                                                                    <QuestionMark style={{ width: 24, height: 24 }} />
-                                                                ) : (
-                                                                    <Icon
-                                                                        src={device.common.icon}
-                                                                        style={{ width: 24, height: 24 }}
-                                                                        alt=""
-                                                                    />
-                                                                )
-                                                            ) : (
-                                                                props.helpers?.deviceIcons[device.deviceType] || (
-                                                                    <Lightbulb />
-                                                                )
-                                                            )}
-                                                        </span>
-                                                        <TextField
-                                                            variant="standard"
-                                                            fullWidth
-                                                            label={device._id}
-                                                            helperText={
-                                                                <span style={{ fontStyle: 'italic' }}>
-                                                                    {`${Generic.t('Device type')}: ${Generic.t(device.deviceType).replace('vis_2_widgets_material_', '')}`}
-                                                                </span>
-                                                            }
-                                                            value={device.common.name}
-                                                            onChange={e => {
-                                                                const _rooms = JSON.parse(JSON.stringify(rooms));
-                                                                _rooms[roomId].devices[deviceId].common.name =
-                                                                    e.target.value;
-                                                                setRooms(_rooms);
-                                                            }}
-                                                        />
+                                                        {Generic.t(
+                                                            '%s of %s devices selected',
+                                                            counters[roomId]?.toString() || '0',
+                                                            room.devices.length.toString(),
+                                                        )}
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </AccordionDetails>
-                                    </Accordion>
-                                </div>
-                            ))}
+                                            </AccordionSummary>
+                                            <AccordionDetails
+                                                style={{
+                                                    backgroundColor: this.props.themeType === 'dark' ? '#111' : '#eee',
+                                                }}
+                                            >
+                                                {room.devices.map((device, deviceId) => (
+                                                    <div
+                                                        key={device._id}
+                                                        style={{ backgroundColor: 'transparent' }}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                marginLeft: 20,
+                                                                marginBottom: 20,
+                                                                opacity: roomsChecked[room._id] ? 1 : 0.5,
+                                                            }}
+                                                        >
+                                                            <Checkbox
+                                                                checked={devicesChecked[device._id]}
+                                                                onChange={e => {
+                                                                    const _devicesChecked = JSON.parse(
+                                                                        JSON.stringify(devicesChecked),
+                                                                    );
+                                                                    _devicesChecked[device._id] = e.target.checked;
+                                                                    this.setState({ devicesChecked: _devicesChecked });
+                                                                }}
+                                                                onClick={e => e.stopPropagation()}
+                                                            />
+                                                            <span style={{ marginRight: 8 }}>
+                                                                {!standardIcons && device.common.icon ? (
+                                                                    device.common.icon === '?' ? (
+                                                                        <QuestionMark
+                                                                            style={{ width: 24, height: 24 }}
+                                                                        />
+                                                                    ) : (
+                                                                        <Icon
+                                                                            src={device.common.icon}
+                                                                            style={{ width: 24, height: 24 }}
+                                                                            alt=""
+                                                                        />
+                                                                    )
+                                                                ) : (
+                                                                    this.props.helpers?.deviceIcons[
+                                                                        device.deviceType
+                                                                    ] || <Lightbulb />
+                                                                )}
+                                                            </span>
+                                                            <TextField
+                                                                variant="standard"
+                                                                fullWidth
+                                                                label={device._id}
+                                                                helperText={
+                                                                    <span style={{ fontStyle: 'italic' }}>
+                                                                        {`${Generic.t('Device type')}: ${Generic.t(device.deviceType).replace('vis_2_widgets_material_', '')}`}
+                                                                    </span>
+                                                                }
+                                                                value={device.common.name}
+                                                                onChange={e => {
+                                                                    const _rooms = JSON.parse(JSON.stringify(rooms));
+                                                                    _rooms[roomId].devices[deviceId].common.name =
+                                                                        e.target.value;
+                                                                    this.setState({ rooms: _rooms });
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </AccordionDetails>
+                                        </Accordion>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <LinearProgress />
-                )}
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    variant="contained"
-                    disabled={!rooms?.length || !Object.values(roomsChecked).find(val => val)}
-                    onClick={handleSubmit}
-                    startIcon={<Add />}
-                >
-                    {Generic.t('Add widgets')}
-                </Button>
-                <Button
-                    variant="contained"
-                    onClick={() => props.onClose()}
-                    startIcon={<Close />}
-                    color="grey"
-                >
-                    {Generic.t('Cancel')}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
-};
+                    ) : (
+                        <LinearProgress />
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        variant="contained"
+                        disabled={!rooms?.length || !Object.values(roomsChecked).find(val => val)}
+                        onClick={this.handleSubmit}
+                        startIcon={<Add />}
+                    >
+                        {Generic.t('Add widgets')}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => this.props.onClose()}
+                        startIcon={<Close />}
+                        color="grey"
+                    >
+                        {Generic.t('Cancel')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        );
+    }
+}
 
 const WizardIcon = (): React.JSX.Element => (
     <svg
@@ -487,27 +512,37 @@ const WizardIcon = (): React.JSX.Element => (
     </svg>
 );
 
-const WizardButton = (props: CustomPaletteProperties): React.ReactNode => {
-    const [open, setOpen] = useState(false);
+interface WizardButtonState {
+    open?: boolean;
+}
 
-    return [
-        <Button
-            key="materialWizardButton"
-            onClick={() => setOpen(true)}
-            variant="contained"
-            startIcon={<WizardIcon />}
-        >
-            {Generic.t('Wizard')}
-        </Button>,
-        open ? (
-            <WizardDialog
-                key="materialWizardDialog"
-                onClose={() => setOpen(false)}
-                {...props}
-            />
-        ) : null,
-    ];
-};
+class WizardButton extends React.Component<CustomPaletteProperties, WizardButtonState> {
+    constructor(props: CustomPaletteProperties) {
+        super(props);
+        this.state = {
+            open: false,
+        };
+    }
+    render(): (React.JSX.Element | null)[] {
+        return [
+            <Button
+                key="materialWizardButton"
+                onClick={() => this.setState({ open: true })}
+                variant="contained"
+                startIcon={<WizardIcon />}
+            >
+                {Generic.t('Wizard')}
+            </Button>,
+            this.state.open ? (
+                <WizardDialog
+                    key="materialWizardDialog"
+                    onClose={() => this.setState({ open: false })}
+                    {...this.props}
+                />
+            ) : null,
+        ];
+    }
+}
 
 export default class Wizard extends window.visRxWidget<Record<string, any>, VisRxWidgetState> {
     static getWidgetInfo(): RxWidgetInfo {

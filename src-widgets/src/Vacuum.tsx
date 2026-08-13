@@ -174,7 +174,7 @@ const vacuumLoadStates = async (
                                 return;
                             }
 
-                            const role = state.common.role;
+                            const role = state.common?.role;
                             const vacuumRole = VACUUM_ID_ROLES[name as VACUUM_ID_ROLES_TYPE].role;
                             if (vacuumRole && !role?.includes(vacuumRole)) {
                                 return;

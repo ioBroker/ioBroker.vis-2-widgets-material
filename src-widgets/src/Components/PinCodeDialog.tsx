@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material';
-import Generic from 'src/Generic';
+import Generic from '../Generic';
 import { Backspace, Check } from '@mui/icons-material';
 
 export default function PinCodeDialog(props: {
@@ -16,7 +16,7 @@ export default function PinCodeDialog(props: {
             open={!0}
             onClose={() => props.onClose()}
         >
-            1<DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
+            <DialogTitle>{Generic.t('enter_pin')}</DialogTitle>
             <DialogContent>
                 <div
                     style={{
@@ -68,7 +68,7 @@ export default function PinCodeDialog(props: {
                                 }
                                 onClick={() => {
                                     if (button === 'submit') {
-                                        if (pinCode === pinCode) {
+                                        if (pinCode === props.pinCode) {
                                             props.onClose(true);
                                         } else {
                                             setInvalidPin(true);

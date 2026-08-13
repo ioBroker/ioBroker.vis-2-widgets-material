@@ -121,10 +121,10 @@ export default class Lock extends Generic<LockRxData, LockState> {
                                         );
                                         if (states) {
                                             Object.values(states).forEach(state => {
-                                                const role = state.common.role;
-                                                if (role!.startsWith('button')) {
+                                                const role = state.common?.role;
+                                                if (role?.startsWith('button')) {
                                                     data['doorOpen-oid'] = state._id;
-                                                } else if (role!.includes('direction') || role!.includes('working')) {
+                                                } else if (role?.includes('direction') || role?.includes('working')) {
                                                     data['lockWorking-oid'] = state._id;
                                                 }
                                             });
