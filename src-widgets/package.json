@@ -13,7 +13,7 @@
         "@types/color": "^4.2.0",
         "@types/leaflet": "^1.9.21",
         "@types/react-beautiful-dnd": "^13.1.8",
-        "@uiw/react-color": "^2.8.0",
+        "@uiw/react-color": "^2.10.3",
         "@vitejs/plugin-react": "^5.0.4",
         "color": "^5.0.2",
         "colorthief": "^2.6.0",
