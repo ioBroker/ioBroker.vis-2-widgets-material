@@ -5,7 +5,7 @@
     "type": "module",
     "dependencies": {
         "@adobe/react-spectrum": "^3.47.3",
-        "@iobroker/types-vis-2": "^2.14.4",
+        "@iobroker/types-vis-2": "^2.15.4",
         "@module-federation/runtime": "^0.18.3",
         "@module-federation/vite": "^1.7.2",
         "@originjs/vite-plugin-federation": "^1.4.1",
