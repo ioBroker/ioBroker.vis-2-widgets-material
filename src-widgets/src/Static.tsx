@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle, IconButton, Switch } from '@mui/mat
 
 import { Close as IconClose } from '@mui/icons-material';
 
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/gui-components';
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
@@ -179,9 +179,8 @@ class Static extends Generic<StaticRxData, StaticState> {
         for (let i = 1; i <= this.state.rxData.count; i++) {
             if (this.state.rxData[`oid${i}`]) {
                 // read object itself
-                const object: ioBroker.StateObject | null | undefined = await this.props.context.socket.getObject(
-                    this.state.rxData[`oid${i}`],
-                );
+                const object = (await this.props.context.socket.getObject(this.state.rxData[`oid${i}`])) as
+                    ioBroker.StateObject | null | undefined;
                 if (!object) {
                     objects[i] = { common: {} as ioBroker.StateCommon, _id: '', isChart: false };
                     continue;
@@ -198,7 +197,7 @@ class Static extends Generic<StaticRxData, StaticState> {
 
                     // read channel
                     const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                    if (!parentObject?.common?.icon) {
                         const grandParentObject = await this.props.context.socket.getObject(
                             idArray.slice(0, -2).join('.'),
                         );

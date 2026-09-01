@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Color from 'color';
-import ColorThief from 'colorthief';
+import { getColorSync } from 'colorthief';
 
 import {
     PauseRounded,
@@ -17,7 +17,7 @@ import {
 
 import { Card, CardContent, IconButton, Slider } from '@mui/material';
 
-import type { IobTheme, LegacyConnection } from '@iobroker/adapter-react-v5';
+import type { IobTheme, Connection } from '@iobroker/gui-components';
 import type {
     RxRenderWidgetProps,
     RxWidgetInfo,
@@ -91,7 +91,7 @@ const loadStates = async (
     field: RxWidgetInfoAttributesField,
     data: WidgetData,
     changeData: (newData: WidgetData) => void,
-    socket: LegacyConnection,
+    socket: Connection,
 ): Promise<void> => {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
@@ -144,7 +144,7 @@ interface PlayerState extends VisRxWidgetState {
 }
 
 class Player extends Generic<PlayerRxData, PlayerState> {
-    private readonly coverRef: React.RefObject<HTMLImageElement> = React.createRef();
+    private readonly coverRef: React.RefObject<HTMLImageElement | null> = React.createRef();
 
     private setVolumeTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -385,10 +385,14 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                 style={{ maxWidth: 0, maxHeight: 0, position: 'absolute' }}
                                 onLoad={() => {
                                     const img = this.coverRef.current;
-                                    // @ts-expect-error colorthief types point to Node API, but browser bundle exports a class
-                                    const colorThief = new ColorThief();
-                                    const _coverColor: [r: number, g: number, b: number] = colorThief.getColor(img);
-                                    this.setState({ coverColor: _coverColor });
+                                    if (!img) {
+                                        return;
+                                    }
+                                    // colorthief 3 reports a Color object instead of the [r, g, b] tuple of v2
+                                    const dominant = getColorSync(img)?.rgb();
+                                    if (dominant) {
+                                        this.setState({ coverColor: [dominant.r, dominant.g, dominant.b] });
+                                    }
                                 }}
                             />
                             <div
@@ -637,7 +641,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                 value={this.state.volume}
                                 valueLabelDisplay="auto"
                                 onChange={(_e, value) => {
-                                    this.setState({ volume: value as number }, () => {
+                                    this.setState({ volume: value }, () => {
                                         this.setVolumeTimer && clearTimeout(this.setVolumeTimer);
                                         this.setVolumeTimer = setTimeout(() => {
                                             this.setVolumeTimer = null;

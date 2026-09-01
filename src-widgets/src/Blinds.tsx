@@ -42,7 +42,7 @@ interface BlindsRxData extends BlindsBaseRxData {
 }
 
 export default class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
-    private readonly refCardContent: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly refCardContent: React.RefObject<HTMLDivElement | null> = React.createRef();
     private lastRxData: string | undefined;
     private updateTimeout: ReturnType<typeof setTimeout> | undefined;
 

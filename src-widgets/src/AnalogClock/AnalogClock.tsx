@@ -25,7 +25,7 @@ SOFTWARE.
 
 import React, { Component } from 'react';
 
-import type { ThemeType } from '@iobroker/adapter-react-v5';
+import type { ThemeType } from '@iobroker/gui-components';
 
 import AnalogClockBase from './AnalogClockBase';
 

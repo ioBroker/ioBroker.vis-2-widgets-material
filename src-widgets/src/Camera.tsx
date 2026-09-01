@@ -85,8 +85,8 @@ interface CameraState extends VisRxWidgetState {
 }
 
 export default class Camera extends Generic<CameraRxData, CameraState> {
-    private readonly imageRef: React.RefObject<HTMLImageElement> = React.createRef();
-    private readonly fullImageRef: React.RefObject<HTMLImageElement> = React.createRef();
+    private readonly imageRef: React.RefObject<HTMLImageElement | null> = React.createRef();
+    private readonly fullImageRef: React.RefObject<HTMLImageElement | null> = React.createRef();
     private imageInterval: ReturnType<typeof setInterval> | null = null;
     private fullImageInterval: ReturnType<typeof setInterval> | null = null;
 

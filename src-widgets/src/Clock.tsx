@@ -43,7 +43,7 @@ interface ClockState extends VisRxWidgetState {
 }
 
 export default class Clock extends Generic<ClockRxData, ClockState> {
-    private readonly refContainer: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly refContainer: React.RefObject<HTMLDivElement | null> = React.createRef();
     private rotations?: [number, number, number];
     private timeInterval?: ReturnType<typeof setTimeout>;
 

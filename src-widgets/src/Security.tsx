@@ -3,7 +3,7 @@ import React, { type CSSProperties } from 'react';
 import { Button, Chip, Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { RemoveModerator as RemoveModeratorIcon, Security as SecurityIcon } from '@mui/icons-material';
 
-import { Icon, Message as DialogMessage } from '@iobroker/adapter-react-v5';
+import { Icon, Message as DialogMessage } from '@iobroker/gui-components';
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
@@ -260,7 +260,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
                 ids.push(this.state.rxData[`oid${index}`]);
             }
         }
-        const _objects = ids.length ? await this.props.context.socket.getObjectsById(ids) : {};
+        const _objects = ids.length ? ((await this.props.context.socket.getObjectsById(ids)) ?? {}) : {};
 
         // try to find icons for all OIDs
         for (let index = 1; index <= this.state.rxData.buttonsCount; index++) {
@@ -287,7 +287,7 @@ class Security extends Generic<SecurityRxData, SecurityState> {
 
                 // read channel
                 const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                if (!parentObject?.common?.icon) {
                     const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                     if (grandParentObject?.common?.icon) {
                         object.common.icon = grandParentObject.common.icon;

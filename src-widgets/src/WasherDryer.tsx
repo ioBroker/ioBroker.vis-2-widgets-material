@@ -292,7 +292,7 @@ interface WasherDryerState extends VisRxWidgetState {
 }
 
 export default class WasherDryer extends Generic<WasherDryerRxData, WasherDryerState> {
-    private refDiv: React.RefObject<HTMLDivElement> = React.createRef();
+    private refDiv: React.RefObject<HTMLDivElement | null> = React.createRef();
     private statusOID?: string;
     private _updateInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -397,10 +397,10 @@ export default class WasherDryer extends Generic<WasherDryerRxData, WasherDryerS
             return;
         }
         // read object itself
-        let object = await this.props.context.socket.getObject(this.statusOID);
-        object = {
-            common: (object?.common as ioBroker.StateCommon) || ({} as ioBroker.StateCommon),
-            _id: object?._id,
+        const readObject = await this.props.context.socket.getObject(this.statusOID);
+        const object: ioBroker.StateObject = {
+            common: (readObject?.common as ioBroker.StateCommon) || ({} as ioBroker.StateCommon),
+            _id: readObject?._id ?? this.statusOID,
             native: {},
             type: 'state',
         };

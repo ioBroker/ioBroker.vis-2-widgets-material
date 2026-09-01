@@ -20,7 +20,7 @@ import type { EChartsOption, LineSeriesOption } from 'echarts';
 import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
 
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/gui-components';
 
 import ObjectChart from './Components/ObjectChart';
 import Generic from './Generic';
@@ -140,7 +140,7 @@ interface ActualState extends VisRxWidgetState {
 }
 
 export default class Actual extends Generic<RxData, ActualState> {
-    private readonly refContainer: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly refContainer: React.RefObject<HTMLDivElement | null> = React.createRef();
     private mainTimer: ReturnType<typeof setInterval> | undefined;
     private updateTimeout: ReturnType<typeof setTimeout> | undefined;
     private lastRxData: string | undefined;
@@ -366,7 +366,7 @@ export default class Actual extends Generic<RxData, ActualState> {
 
             // read channel
             const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-            if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+            if (!parentObject?.common?.icon) {
                 const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                 if (grandParentObject?.common?.icon) {
                     object.common.icon = grandParentObject.common.icon;
@@ -408,7 +408,7 @@ export default class Actual extends Generic<RxData, ActualState> {
             ids.push(this.state.rxData['oid-secondary']);
         }
 
-        const _objects = ids.length ? await this.props.context.socket.getObjectsById(ids) : {};
+        const _objects = ids.length ? ((await this.props.context.socket.getObjectsById(ids)) ?? {}) : {};
 
         // try to find icons for all OIDs
         if (this.state.rxData['oid-main'] && this.state.rxData['oid-main'] !== 'nothing_selected') {

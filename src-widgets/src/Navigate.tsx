@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/gui-components';
 import type {
     RxRenderWidgetProps,
     RxWidgetInfo,
@@ -149,9 +149,7 @@ export default class Navigate extends Generic<NavigateRxData, NavigateState> {
                             component: (field, data, setData, props): React.JSX.Element => (
                                 <EditNavigationDialog
                                     data={data as NavigateRxData}
-                                    setData={(data: any): void => {
-                                        setData(data);
-                                    }}
+                                    setData={(data: WidgetData): void => setData(data)}
                                     Editor={(props as any).Editor}
                                     views={props.context.views}
                                     selectedWidgets={props.selectedWidgets}

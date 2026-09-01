@@ -73,7 +73,7 @@ import {
 import TbSquareLetterW from './Components/TbSquareLetterW';
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
-import { Icon, type LegacyConnection, Utils } from '@iobroker/adapter-react-v5';
+import { Icon, type Connection, Utils } from '@iobroker/gui-components';
 import type {
     AnyWidgetId,
     GroupWidget,
@@ -160,7 +160,7 @@ async function loadStates(
     field: RxWidgetInfoAttributesField,
     data: WidgetData,
     changeData: (newData: WidgetData) => void,
-    socket: LegacyConnection,
+    socket: Connection,
     index?: number,
 ): Promise<void> {
     if (data[field.name!]) {
@@ -186,7 +186,7 @@ async function loadStates(
                             data[RGB_ROLES[role] + index] = state._id;
                         }
                         if (RGB_ROLES[role] === 'color_temperature') {
-                            const common = state.common as ioBroker.StateCommon;
+                            const common = state.common;
                             if (!data[`ct_min${index}`] && common.min) {
                                 data[`ct_min${index}`] = common.min;
                             }
@@ -208,7 +208,7 @@ const vacuumLoadStates = async (
     field: RxWidgetInfoAttributesField,
     data: WidgetData,
     changeData: (newData: WidgetData) => void,
-    socket: LegacyConnection,
+    socket: Connection,
     index?: number,
 ): Promise<void> => {
     if (data[field.name!]) {
@@ -224,6 +224,9 @@ const vacuumLoadStates = async (
             if (device.type === 'channel' || device.type === 'folder') {
                 parts.pop();
                 device = await socket.getObject(parts.join('.'));
+            }
+            if (!device) {
+                return;
             }
             if (device.type !== 'device') {
                 parts = object._id.split('.');
@@ -600,16 +603,7 @@ interface SwitchesRxData extends BlindsBaseRxData {
     [key: `pause${number}`]: string;
     [key: `visibility-oid${number}`]: string;
     [key: `visibility-cond${number}`]:
-        | '=='
-        | '!='
-        | '<='
-        | '>='
-        | '<'
-        | '>'
-        | 'consist'
-        | 'not consist'
-        | 'exist'
-        | 'not exist';
+        '==' | '!=' | '<=' | '>=' | '<' | '>' | 'consist' | 'not consist' | 'exist' | 'not exist';
     [key: `visibility-val${number}`]: string;
     [key: `visibility-no-hide${number}`]: boolean | 'true';
     [key: `${RGB_NAMES_TYPE}${number}`]: string;
@@ -647,8 +641,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     private timeouts: Record<number, Record<string, ReturnType<typeof setTimeout> | null>> = {};
     private history: (string | null)[] = [];
     // this.refs name does not work (I don't know why)
-    private _refs: (React.RefObject<any> | null)[] = [];
-    private widgetRef: Record<number, React.RefObject<any>> = {};
+    private _refs: (React.RefObject<HTMLDivElement | null> | null)[] = [];
+    private widgetRef: Record<number, React.RefObject<HTMLDivElement | null>> = {};
     private lastRxData = '';
     private doNotWantIncludeWidgets: boolean;
     private updateDialogChartInterval: ReturnType<typeof setInterval> | null = null;
@@ -1668,7 +1662,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
                     // read channel
                     const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+                    if (!parentObject?.common?.icon) {
                         const grandParentObject = await this.props.context.socket.getObject(
                             idArray.slice(0, -2).join('.'),
                         );
@@ -2141,11 +2135,11 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                         {
                                             controlValue: {
                                                 id: trueObj._id,
-                                                value: value as number,
+                                                value: value,
                                                 changed: !!this.state.controlValue?.changed,
                                             },
                                         },
-                                        () => this.props.context.setValue(trueObj._id, value as number),
+                                        () => this.props.context.setValue(trueObj._id, value),
                                     )
                                 }
                             />
@@ -2544,7 +2538,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             {
                                 controlValue: {
                                     id: trueObj._id,
-                                    value: newValue as number,
+                                    value: newValue,
                                     changed: !!this.state.controlValue?.changed,
                                 },
                             },
@@ -2566,9 +2560,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                         },
                                         parseInt(timeout as string, 10),
                                         newValue,
-                                    ) as any;
+                                    );
                                 } else {
-                                    this.props.context.setValue(trueObj._id, newValue as number);
+                                    this.props.context.setValue(trueObj._id, newValue);
                                 }
                             },
                         );
@@ -2623,7 +2617,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             {
                                 controlValue: {
                                     id: trueObj._id,
-                                    value: newValue as number,
+                                    value: newValue,
                                     changed: !!this.state.controlValue?.changed,
                                 },
                             },
@@ -2645,9 +2639,9 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                         },
                                         parseInt(timeout as string, 10),
                                         newValue,
-                                    ) as any;
+                                    );
                                 } else {
-                                    this.props.context.setValue(trueObj._id, newValue as number);
+                                    this.props.context.setValue(trueObj._id, newValue);
                                 }
                             },
                         );
@@ -3121,7 +3115,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
 
         if (historyInstance) {
-            this._refs[index] = this._refs[index] || React.createRef();
+            this._refs[index] ||= React.createRef();
 
             // try to read history for last hour
             this.history[index] = historyInstance;
@@ -3808,10 +3802,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
     thermostatObjectIDs(index: number, ids: string[]): void {
         const _ids: ('oid' | 'actual' | 'boost' | 'party')[] = ['oid', 'actual', 'boost', 'party'] as (
-            | 'oid'
-            | 'actual'
-            | 'boost'
-            | 'party'
+            'oid' | 'actual' | 'boost' | 'party'
         )[];
         _ids.forEach(id => {
             const _id: `${'oid' | 'actual' | 'boost' | 'party'}${number}` = `${id}${index}`;
@@ -4476,7 +4467,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 ? this.state.controlValue.value
                                 : this.getPropertyValue(`brightness${index}`) || 0
                         }
-                        onChange={(e, value) => this.rgbSetId(index, 'brightness', value as number, true)}
+                        onChange={(e, value) => this.rgbSetId(index, 'brightness', value, true)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
@@ -4615,7 +4606,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             ? this.state.controlValue.value
                             : this.rgbGetWhite(index) || 0
                     }
-                    onChange={(e, value) => this.rgbSetWhite(index, value as number)}
+                    onChange={(e, value) => this.rgbSetWhite(index, value)}
                     onChangeCommitted={() => this.finishChanging()}
                 />
             </div>
@@ -4654,7 +4645,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                 ? this.state.controlValue.value
                                 : this.state.values[`${oid}.val`] || 0
                         }
-                        onChange={(e, value) => this.rgbSetId(index, 'color_temperature', value as number, true)}
+                        onChange={(e, value) => this.rgbSetId(index, 'color_temperature', value, true)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
@@ -4908,11 +4899,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
             'sensors-left',
             'cleaning-count',
         ].filter(sensor => this.vacuumGetObj(index, sensor as SecondaryNames)) as (
-            | 'filter-left'
-            | 'side-brush-left'
-            | 'main-brush-left'
-            | 'sensors-left'
-            | 'cleaning-count'
+            'filter-left' | 'side-brush-left' | 'main-brush-left' | 'sensors-left' | 'cleaning-count'
         )[];
 
         return sensors.length ? (

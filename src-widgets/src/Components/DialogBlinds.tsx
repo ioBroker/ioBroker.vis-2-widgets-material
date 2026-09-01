@@ -27,7 +27,7 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { I18n } from '@iobroker/adapter-react-v5';
+import { I18n } from '@iobroker/gui-components';
 
 const styles: Record<string, CSSProperties> = {
     dialogTitle: {
@@ -100,7 +100,7 @@ export default class DialogBlinds extends Component<DialogBlindsProps, DialogBli
         timer: null,
         timeUp: 0,
     };
-    private readonly refSlider: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly refSlider: React.RefObject<HTMLDivElement | null> = React.createRef();
     private readonly type: number;
     private top: number | undefined = undefined;
     private height: number | undefined = undefined;

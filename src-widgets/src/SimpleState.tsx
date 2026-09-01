@@ -11,7 +11,7 @@ import {
 
 import { CircularSliderWithChildren } from 'react-circular-slider-svg';
 
-import { Icon, type IobTheme } from '@iobroker/adapter-react-v5';
+import { Icon, type IobTheme } from '@iobroker/gui-components';
 import type {
     RxRenderWidgetProps,
     RxWidgetInfo,
@@ -148,7 +148,7 @@ interface SimpleStateState extends VisRxWidgetState {
 }
 
 export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateState> {
-    private readonly refDiv: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly refDiv: React.RefObject<HTMLDivElement | null> = React.createRef();
     private updateTimeout: ReturnType<typeof setTimeout> | null = null;
     private updateTimer1: ReturnType<typeof setTimeout> | null = null;
     private lastRxData: string | null = null;
@@ -198,19 +198,23 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                             label: 'oid',
                             onChange: async (field, data, changeData, socket) => {
                                 if (data.oid) {
-                                    const object = await socket.getObject(data.oid);
+                                    const object = (await socket.getObject(data.oid)) as
+                                        ioBroker.StateObject | null | undefined;
                                     if (object?.common?.states) {
+                                        let states: Record<string, string>;
                                         if (Array.isArray(object.common.states)) {
                                             // convert to {'state1': 'state1', 'state2': 'state2', ...}
-                                            const states: Record<string, string> = {};
+                                            states = {};
                                             object.common.states.forEach(state => (states[state] = state));
-                                            object.common.states = states;
+                                        } else {
+                                            states = object.common.states as Record<string, string>;
                                         }
-                                        data.values_count = Object.keys(object.common.states).length;
+                                        object.common.states = states;
+                                        data.values_count = Object.keys(states).length;
                                         data.withStates = true;
                                         data.withNumber = false;
-                                        Object.keys(object.common.states).forEach(
-                                            (state, index) => (data[`value${index + 1}`] = object.common.states[state]),
+                                        Object.keys(states).forEach(
+                                            (state, index) => (data[`value${index + 1}`] = states[state]),
                                         );
                                         changeData(data);
                                     } else if (object?.common) {
@@ -407,7 +411,7 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
 
             // read channel
             const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-            if (!parentObject?.common?.icon && (object.type === 'state' || object.type === 'channel')) {
+            if (!parentObject?.common?.icon) {
                 const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
                 if (grandParentObject?.common?.icon) {
                     object.common.icon = grandParentObject.common.icon;
@@ -685,7 +689,7 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                             this.setState(
                                                 {
                                                     controlValue: {
-                                                        value: value as number,
+                                                        value: value,
                                                         changed: !!this.state.controlValue?.changed,
                                                     },
                                                 },
@@ -705,12 +709,9 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                                             },
                                                             parseInt(this.state.rxData.timeout as string, 10) || 0,
                                                             value,
-                                                        ) as any;
-                                                    } else {
-                                                        this.props.context.setValue(
-                                                            this.state.rxData.oid,
-                                                            value as number,
                                                         );
+                                                    } else {
+                                                        this.props.context.setValue(this.state.rxData.oid, value);
                                                     }
                                                 },
                                             );

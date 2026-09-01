@@ -15,7 +15,7 @@ import {
     TextField,
 } from '@mui/material';
 import { Add, Close, ExpandMore, Lightbulb, QuestionMark } from '@mui/icons-material';
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/gui-components';
 
 import Generic from './Generic';
 import { getDeviceWidget, getDeviceWidgetOnePage } from './deviceWidget';
@@ -159,7 +159,7 @@ class WizardDialog extends React.Component<WizardDialogProps, WizardDialogState>
                 if (projectView) {
                     viewId = projectView;
                 } else if (project[viewId]) {
-                    project[viewId].settings!.wizardId = room._id;
+                    project[viewId].settings.wizardId = room._id;
                 } else {
                     // create a new view
                     project[viewId] = {
@@ -175,10 +175,10 @@ class WizardDialog extends React.Component<WizardDialogProps, WizardDialogState>
                         activeWidgets: [],
                     };
                     if (room.common.icon?.startsWith('data:image')) {
-                        project[viewId].settings!.navigationIcon = room.common.icon;
+                        project[viewId].settings.navigationIcon = room.common.icon;
                     }
                     if (room.common.color) {
-                        project[viewId].settings!.navigationBackground = room.common.color;
+                        project[viewId].settings.navigationBackground = room.common.color;
                     }
 
                     // add new view to opened views

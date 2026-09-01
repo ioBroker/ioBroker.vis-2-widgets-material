@@ -28,7 +28,7 @@ interface ViewInWidgetState extends VisRxWidgetState {
 }
 
 class ViewInWidget extends Generic<ViewInWidgetRxData, ViewInWidgetState> {
-    private readonly refContainer: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly refContainer: React.RefObject<HTMLDivElement | null> = React.createRef();
     constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {

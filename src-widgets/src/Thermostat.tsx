@@ -22,7 +22,7 @@ import {
     Close,
 } from '@mui/icons-material';
 
-import { Icon } from '@iobroker/adapter-react-v5';
+import { Icon } from '@iobroker/gui-components';
 import type {
     RxRenderWidgetProps,
     RxWidgetInfo,
@@ -292,9 +292,8 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
                             label: 'mode_oid',
                             onChange: async (field, data, changeData, socket) => {
                                 if (data[field.name!]) {
-                                    const object: ioBroker.StateObject | null | undefined = await socket.getObject(
-                                        data[field.name!],
-                                    );
+                                    const object = (await socket.getObject(data[field.name!])) as
+                                        ioBroker.StateObject | null | undefined;
                                     const modes = object ? getModes(object) : null;
                                     if (modes) {
                                         let changed = false;

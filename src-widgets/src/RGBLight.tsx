@@ -19,7 +19,7 @@ import { Button, Dialog, DialogContent, DialogTitle, IconButton, Slider, Switch,
 import { Brightness6, Close, ColorLens, Thermostat, WbAuto } from '@mui/icons-material';
 import TbSquareLetterW from './Components/TbSquareLetterW';
 
-import { Icon, type LegacyConnection } from '@iobroker/adapter-react-v5';
+import { Icon, type Connection } from '@iobroker/gui-components';
 
 import Generic from './Generic';
 import './sketch.css';
@@ -189,7 +189,7 @@ const loadStates = async (
     field: RxWidgetInfoAttributesField,
     data: WidgetData,
     changeData: (newData: WidgetData) => void,
-    socket: LegacyConnection,
+    socket: Connection,
 ): Promise<void> => {
     if (data[field.name!]) {
         const object = await socket.getObject(data[field.name!]);
@@ -209,7 +209,7 @@ const loadStates = async (
                     ) {
                         data[RGB_ROLES[role]] = state._id;
                         if (RGB_ROLES[role] === 'color_temperature') {
-                            const common = state.common as ioBroker.StateCommon;
+                            const common = state.common;
                             if (!data.ct_min && common.min) {
                                 data.ct_min = common.min;
                             }
@@ -281,7 +281,7 @@ interface RGBLightState extends VisRxWidgetState {
 }
 
 export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
-    private readonly contentRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private readonly contentRef: React.RefObject<HTMLDivElement | null> = React.createRef();
     private timeouts: Record<string, ReturnType<typeof setTimeout> | null> = {};
     private _pressTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -866,7 +866,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                                 ? this.state.controlValue.value
                                 : this.getPropertyValue('brightness') || 0
                         }
-                        onChange={(e, value) => this.rgbSetId('brightness', value as number)}
+                        onChange={(e, value) => this.rgbSetId('brightness', value)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>
@@ -988,7 +988,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                             ? (this.state.controlValue.value as number)
                             : this.rgbGetWhite() || 0
                     }
-                    onChange={(e, value) => this.rgbSetWhite(value as number)}
+                    onChange={(e, value) => this.rgbSetWhite(value)}
                     onChangeCommitted={() => this.finishChanging()}
                 />
             </div>
@@ -1024,7 +1024,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                                 ? this.state.controlValue.value
                                 : this.getPropertyValue('color_temperature') || 0
                         }
-                        onChange={(e, value) => this.rgbSetId('color_temperature', value as number)}
+                        onChange={(e, value) => this.rgbSetId('color_temperature', value)}
                         onChangeCommitted={() => this.finishChanging()}
                     />
                 </div>

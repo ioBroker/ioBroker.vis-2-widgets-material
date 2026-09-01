@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Lottie, { type LottieRefCurrentProps } from 'lottie-react';
+import { Lottie, LottieDirection, type LottieHandle } from 'lottie-react';
 import animationDoor from './animationDoor.json';
 
 interface DoorAnimationProps {
@@ -9,21 +9,19 @@ interface DoorAnimationProps {
 
 const DoorAnimation = (props: DoorAnimationProps): React.ReactNode => {
     const [open, setOpen] = useState(false);
-    const ref = useRef<LottieRefCurrentProps>(null);
+    const ref = useRef<LottieHandle>(null);
 
     useEffect(() => {
         setOpen(props.open);
         if (ref.current) {
             if (props.open) {
-                ref.current.setDirection(1);
-                ref.current.goToAndStop(0, true);
-                ref.current.playSegments([0, 24], true);
-                // ref.current.play();
+                ref.current.setDirection(LottieDirection.forward);
+                ref.current.seek(0);
+                ref.current.playSegments([0, 24]);
             } else {
-                ref.current.setDirection(-1);
-                ref.current.goToAndStop(24, true);
-                ref.current.playSegments([24, 0], true);
-                // ref.current.play();
+                ref.current.setDirection(LottieDirection.reverse);
+                ref.current.seek(24);
+                ref.current.playSegments([24, 0]);
             }
         }
         // ref.current?.stop();
@@ -31,12 +29,11 @@ const DoorAnimation = (props: DoorAnimationProps): React.ReactNode => {
 
     return (
         <Lottie
-            animationData={animationDoor}
+            src={animationDoor}
             onClick={() => setOpen(!open)}
             lottieRef={ref}
-            autoPlay={false}
+            autoplay={false}
             loop={false}
-            // start={200}
             style={{ height: props.size || 120 }}
         />
     );

@@ -27,7 +27,7 @@ import {
 } from 'echarts/components';
 import { SVGRenderer } from 'echarts/renderers';
 
-import { type ThemeType, Utils, withWidth, type IobTheme, type LegacyConnection } from '@iobroker/adapter-react-v5';
+import { type ThemeType, Utils, withWidth, type IobTheme, type Connection } from '@iobroker/gui-components';
 import type { EChartsOption, LineSeriesOption } from 'echarts';
 import type { YAXisOption } from 'echarts/types/dist/shared';
 import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
@@ -120,7 +120,7 @@ const GRID_PADDING_LEFT = 80;
 const GRID_PADDING_RIGHT = 25;
 
 interface ObjectChartProps {
-    socket: LegacyConnection;
+    socket: Connection;
     objects: Record<string, ioBroker.Object>;
     customsInstances: string[];
     obj: ioBroker.Object;
@@ -178,13 +178,13 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
     private start: number;
     private end: number;
     private echartsReact: ReactEchartsCore | null = null;
-    private rangeRef: React.RefObject<HTMLElement> = createRef();
+    private rangeRef: React.RefObject<HTMLElement | null> = createRef();
     private maxYLenTimeout: ReturnType<typeof setTimeout> | null = null;
     private maxYLenTimeout2: ReturnType<typeof setTimeout> | null = null;
     private timerResize: ReturnType<typeof setTimeout> | null = null;
     private mouseDown: boolean = false;
     private chart: ChartData = {};
-    private readonly divRef: React.RefObject<HTMLDivElement> = createRef();
+    private readonly divRef: React.RefObject<HTMLDivElement | null> = createRef();
     private readonly unit: string;
     private readonly unit2: string;
     private minY!: Record<string, number | null>;
