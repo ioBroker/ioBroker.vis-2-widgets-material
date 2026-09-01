@@ -11,7 +11,7 @@
         "@originjs/vite-plugin-federation": "^1.4.1",
         "@react-spectrum/color": "^3.2.1",
         "@types/color": "^4.2.0",
-        "@types/leaflet": "^1.9.21",
+        "@types/leaflet": "^1.9.22",
         "@types/react-beautiful-dnd": "^13.1.8",
         "@uiw/react-color": "^2.8.0",
         "@vitejs/plugin-react": "^5.0.4",
