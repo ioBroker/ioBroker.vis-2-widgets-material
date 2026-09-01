@@ -41,7 +41,7 @@
         "vite": "7.1.12",
         "vite-plugin-commonjs": "^0.10.4",
         "vite-plugin-top-level-await": "^1.6.0",
-        "vite-tsconfig-paths": "^5.1.4"
+        "vite-tsconfig-paths": "^6.1.1"
     },
     "scripts": {
         "start": "vite --port 4173",
