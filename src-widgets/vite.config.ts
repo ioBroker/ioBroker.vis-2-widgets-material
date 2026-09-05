@@ -69,15 +69,7 @@ const config = {
     resolve: {
         tsconfigPaths: true,
         // Same set as the shared modules above: the fallback copies inside the widget bundle must be unique too
-        dedupe: [
-            'react',
-            'react-dom',
-            '@emotion/react',
-            '@mui/material',
-            '@mui/system',
-            '@mui/icons-material',
-            '@iobroker/gui-components',
-        ],
+        dedupe: ['react', 'react-dom', '@emotion/react', '@mui/material', '@mui/system', '@mui/icons-material'],
     },
     build: {
         target: 'chrome81',
