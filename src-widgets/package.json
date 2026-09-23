@@ -6,7 +6,7 @@
     "dependencies": {
         "@hello-pangea/dnd": "^18.0.1",
         "@iobroker/types-vis-2": "~2.20.1",
-        "@module-federation/vite": "^1.21.3",
+        "@module-federation/vite": "^1.22.1",
         "@uiw/react-color": "^2.10.3",
         "@vitejs/plugin-react": "^6.1.1",
         "color": "^5.0.3",
