@@ -22,6 +22,7 @@ import TbSquareLetterW from './Components/TbSquareLetterW';
 import { Icon, type Connection } from '@iobroker/gui-components';
 
 import Generic from './Generic';
+import { asNumber } from './Components/stateValue';
 import './sketch.css';
 import type {
     RxRenderWidgetProps,
@@ -862,9 +863,13 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         max={this.rgbGetIdMax('brightness') || 100}
                         valueLabelDisplay="auto"
                         value={
-                            this.state.controlValue?.id === 'brightness'
-                                ? this.state.controlValue.value
-                                : this.getPropertyValue('brightness') || 0
+                            asNumber(
+                                this.state.controlValue?.id === 'brightness'
+                                    ? this.state.controlValue.value
+                                    : this.getPropertyValue('brightness'),
+                            ) ??
+                            this.rgbGetIdMin('brightness') ??
+                            0
                         }
                         onChange={(e, value) => this.rgbSetId('brightness', value)}
                         onChangeCommitted={() => this.finishChanging()}
@@ -984,9 +989,11 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                     max={max}
                     valueLabelDisplay="auto"
                     value={
-                        this.state.controlValue?.id === this.rgbGetWhiteId()
-                            ? (this.state.controlValue.value as number)
-                            : this.rgbGetWhite() || 0
+                        asNumber(
+                            this.state.controlValue?.id === this.rgbGetWhiteId()
+                                ? this.state.controlValue.value
+                                : this.rgbGetWhite(),
+                        ) ?? min
                     }
                     onChange={(e, value) => this.rgbSetWhite(value)}
                     onChangeCommitted={() => this.finishChanging()}
@@ -1020,9 +1027,13 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         min={this.rgbGetIdMin('color_temperature') || 2700}
                         max={this.rgbGetIdMax('color_temperature') || 6000}
                         value={
-                            this.state.controlValue?.id === 'color_temperature'
-                                ? this.state.controlValue.value
-                                : this.getPropertyValue('color_temperature') || 0
+                            asNumber(
+                                this.state.controlValue?.id === 'color_temperature'
+                                    ? this.state.controlValue.value
+                                    : this.getPropertyValue('color_temperature'),
+                            ) ??
+                            this.rgbGetIdMin('color_temperature') ??
+                            2700
                         }
                         onChange={(e, value) => this.rgbSetId('color_temperature', value)}
                         onChangeCommitted={() => this.finishChanging()}

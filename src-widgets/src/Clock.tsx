@@ -46,6 +46,8 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
     private readonly refContainer: React.RefObject<HTMLDivElement | null> = React.createRef();
     private rotations?: [number, number, number];
     private timeInterval?: ReturnType<typeof setTimeout>;
+    /** How many times in a row measuring the box wrote a size that differed from the one before */
+    private chasingSize = 0;
 
     constructor(props: VisRxWidgetProps) {
         super(props);
@@ -199,7 +201,12 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
         this.recalculateWidth();
     }
 
-    recalculateWidth(): void {
+    /**
+     * Measure the box and remember its size, so the clock can be drawn to it.
+     *
+     * @returns whether the size was a new one, so the widget renders again
+     */
+    recalculateWidth(): boolean {
         if (this.refContainer.current) {
             let size = this.refContainer.current.clientWidth;
             if (this.state.rxData.type !== 'digital' && this.state.rxData.type !== 'digital2') {
@@ -244,8 +251,12 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
                     fontSizeSvg,
                     textWidthSvg,
                 });
+
+                return true;
             }
         }
+
+        return false;
     }
 
     componentWillUnmount(): void {
@@ -258,7 +269,20 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
 
     componentDidUpdate(prevProps: VisRxWidgetProps, prevState: typeof this.state): void {
         super.componentDidUpdate(prevProps, prevState);
-        this.recalculateWidth();
+
+        // A tick of the clock, and what the widget is told to be, are reasons to measure afresh
+        if (prevState.rxData !== this.state.rxData || prevState.time !== this.state.time) {
+            this.chasingSize = 0;
+        }
+
+        // Measuring writes the size into the state, which brings us straight back here. A size that is real
+        // settles in a pass or two - the second measurement finds the same box and writes nothing, and the
+        // count falls back to zero. A layout in which the clock is what gives its box the height it is
+        // measured by never settles, and there React gives up with "Maximum update depth exceeded"; so after
+        // the third pass in a row the box is left as it is until the next tick measures again.
+        if (this.chasingSize < 3) {
+            this.chasingSize = this.recalculateWidth() ? this.chasingSize + 1 : 0;
+        }
     }
 
     // Code was taken from here and modified as it didn't work: https://github.com/uiwjs/react-clock/blob/master/src/index.tsx
@@ -625,7 +649,10 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
         };
 
         style.width = 'calc(100% - 4px)';
-        style.height = 'calc(100% - 8px)';
+        // The clock is drawn as big as this box, so this box must not become smaller than what it is given. In a
+        // cell whose height follows its content a height of `100% - 8px` is measured against the content, which
+        // is the clock: every pass came out 8px shorter than the one before, and the two chased each other.
+        style.height = '100%';
         style.margin = 'auto';
 
         const content = (

@@ -176,6 +176,8 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
     private lastRxData = '';
     private customStyle: React.CSSProperties = {};
     private updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    /** How many times in a row measuring the box wrote a size that differed from the one before */
+    private chasingSize = 0;
 
     constructor(props: VisRxWidgetProps) {
         super(props);
@@ -671,6 +673,19 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
     componentDidUpdate(prevProps: VisRxWidgetProps, prevState: typeof this.state): void {
         super.componentDidUpdate(prevProps, prevState);
 
+        // What the widget is told to be is a reason to measure afresh
+        if (prevState.rxData !== this.state.rxData) {
+            this.chasingSize = 0;
+        }
+
+        // Measuring writes the size into the state, which brings us straight back here. In a box whose height
+        // follows its content the dial is itself what gives that box its height, so every pass comes out
+        // smaller by the room the frame, the title and the mode buttons take - unchecked it runs below the
+        // 80px at which the dial is dropped altogether. After the third pass in a row the box is left as it is.
+        if (this.chasingSize >= 3) {
+            return;
+        }
+
         if (this.refService?.current) {
             let w = this.refService.current.clientWidth;
             let h = this.refService.current.clientHeight;
@@ -708,7 +723,10 @@ export default class Thermostat extends Generic<ThermostatRxData, ThermostatStat
             }
 
             if (size !== this.state.size) {
+                this.chasingSize++;
                 this.setState({ size });
+            } else {
+                this.chasingSize = 0;
             }
         }
     }

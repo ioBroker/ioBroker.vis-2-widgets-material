@@ -21,6 +21,7 @@ import type {
 } from '@iobroker/types-vis-2';
 
 import Generic from './Generic';
+import { asNumber } from './Components/stateValue';
 
 const styles: Record<string, any> = {
     intermediate: {
@@ -670,9 +671,13 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
                                     <Slider
                                         size="small"
                                         value={
-                                            this.state.controlValue
-                                                ? this.state.controlValue.value
-                                                : this.state.values[`${this.state.object._id}.val`]
+                                            asNumber(
+                                                this.state.controlValue
+                                                    ? this.state.controlValue.value
+                                                    : this.state.values[`${this.state.object._id}.val`],
+                                            ) ??
+                                            this.state.object.common.min ??
+                                            0
                                         }
                                         valueLabelFormat={value => {
                                             if (this.props.context.systemConfig?.common?.isFloatComma) {
@@ -728,16 +733,19 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
     }
 
     renderCircular(): React.ReactNode {
-        const value = this.state.values[`${this.state.object._id}.val`];
+        const raw = this.state.values[`${this.state.object._id}.val`];
         const object = this.state.object;
-        if (value === undefined || value === null) {
+        if (raw === undefined || raw === null) {
             return null;
         }
+        // a dial can only show a number; what is none is written out as it is
+        const value = asNumber(raw);
         if (
+            value === null ||
             (object.common.min !== undefined && value < object.common.min) ||
             (object.common.max !== undefined && value > object.common.max)
         ) {
-            return value + (this.state.rxData.unit || this.state.object.common?.unit || '');
+            return raw + (this.state.rxData.unit || this.state.object.common?.unit || '');
         }
 
         let size = this.state.rxData.circleSize;
