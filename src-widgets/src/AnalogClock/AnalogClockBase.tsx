@@ -35,6 +35,9 @@ const styles: Record<string, CSSProperties> = {
     analogClockBase: {
         borderRadius: '50%',
         borderStyle: 'solid',
+        // the ring is drawn on the given size, not around it - otherwise the clock is wider than the box it
+        // was measured for, and what hangs over the edge is cut off on one side only
+        boxSizing: 'border-box',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',

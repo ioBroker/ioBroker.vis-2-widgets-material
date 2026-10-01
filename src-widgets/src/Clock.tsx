@@ -11,6 +11,16 @@ const styles: Record<string, CSSProperties> = {
         animationFillMode: 'both',
         backgroundColor: '#fff',
         borderRadius: '50%',
+        /*
+         * The face is as wide as the box was measured to be, and the box is not always still that wide when it
+         * is drawn - it is centred in a flex box, which squeezes what does not fit, and a circle squeezed in
+         * one direction only is an egg. So the height is not given at all: the aspect ratio ties it to the
+         * width, and the face stays round at whatever width it ends up with. The two maxima keep it inside its
+         * box instead of over the edge, which a measurement that is one resize behind would put it.
+         */
+        aspectRatio: '1',
+        maxWidth: '100%',
+        maxHeight: '100%',
     },
     uClockHand: {
         transition: 'transform 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -270,8 +280,12 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
     componentDidUpdate(prevProps: VisRxWidgetProps, prevState: typeof this.state): void {
         super.componentDidUpdate(prevProps, prevState);
 
-        // A tick of the clock, and what the widget is told to be, are reasons to measure afresh
-        if (prevState.rxData !== this.state.rxData || prevState.time !== this.state.time) {
+        /*
+         * What the widget is told to be is a reason to measure afresh. A tick is not: the time moved,
+         * the box did not - and resetting the brake once a second is what let the clock grow for ever
+         * in a cell that takes its height from its content.
+         */
+        if (prevState.rxData !== this.state.rxData) {
             this.chasingSize = 0;
         }
 
@@ -339,7 +353,6 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
                 color={data.ticksColor || (this.props.context.themeType === 'dark' ? '#dedede' : '#212121')}
                 fill="currentColor"
                 width={this.state.width}
-                height={this.state.width}
                 style={{
                     ...styles.uClock,
                     backgroundColor:
@@ -440,16 +453,8 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
         const data = this.state.rxData || {};
         return (
             <AnalogClock
-                style={{
-                    marginTop:
-                        this.refContainer.current!.clientHeight > this.refContainer.current!.clientWidth
-                            ? (this.refContainer.current!.clientHeight - this.refContainer.current!.clientWidth) / 2
-                            : undefined,
-                    marginLeft:
-                        this.refContainer.current!.clientHeight < this.refContainer.current!.clientWidth
-                            ? (this.refContainer.current!.clientWidth - this.refContainer.current!.clientHeight) / 2
-                            : undefined,
-                }}
+                // centring is what the box does; a margin that centres it a second time pushes it out of the card
+                style={{}}
                 size={this.state.width}
                 ticksColor={data.ticksColor}
                 backgroundColor={data.backgroundColor}
@@ -640,7 +645,16 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
 
         const style: CSSProperties = {
             textAlign: 'center',
-            lineHeight: this.state.height ? `${this.state.height}px` : undefined,
+            /*
+             * The measured height used to come back here as the line height of the very box it was
+             * measured from. In a cell whose height follows its content that is a loop: the line
+             * height makes the box taller, the taller box is measured, and the clock grew by a step
+             * every second - once per tick, because a tick resets the brake below. Centring the
+             * content is what the line height was for, and a flex box does that without measuring.
+             */
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             fontFamily: this.state.rxStyle!['font-family'] as CSSProperties['fontFamily'],
             textShadow: this.state.rxStyle!['text-shadow'] as CSSProperties['textShadow'],
             fontStyle: this.state.rxStyle!['font-style'] as CSSProperties['fontStyle'],
@@ -657,6 +671,7 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
 
         const content = (
             <div
+                className="vis-2-widgets-material-clock"
                 style={style}
                 ref={this.refContainer}
             >
@@ -669,7 +684,13 @@ export default class Clock extends Generic<ClockRxData, ClockState> {
     to {
         opacity: 1;
     }
-}               
+}
+/* A clock is drawn to a size it was measured at, and a flex box shrinks what does not fit - in one
+   direction only, which turns a round face into an egg. The box here centres its clock; making it fit
+   is the business of the clock. */
+.vis-2-widgets-material-clock > * {
+    flex-shrink: 0;
+}
                 `}
                 </style>
                 {clock}
