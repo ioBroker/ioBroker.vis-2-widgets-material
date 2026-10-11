@@ -26,7 +26,7 @@
         "@iobroker/eslint-config": "^2.3.4",
         "@iobroker/testing": "^6.2.2",
         "@iobroker/vis-2-widgets-testing": "^2.0.0",
-        "@types/node": "^26.6.2"
+        "@types/node": "^26.6.4"
     },
     "files": [
         "admin/",
