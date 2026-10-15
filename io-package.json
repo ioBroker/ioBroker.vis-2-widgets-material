@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "1.6.7",
+    "version": "2.0.0",
     "news": {
+      "2.0.0": {
+        "en": "Migrated to React 19 and vis-2@2.20.x",
+        "de": "Auf React 19 und vis-2 @2 .20.x umgestellt",
+        "ru": "Перешел на React 19 и vis-2 @2 .20.x",
+        "pt": "Migrou para React 19 e vis-2 @2 .20.x",
+        "nl": "Gemigreerd naar React 19 en vis-2 @2 .20.x",
+        "fr": "Migré vers React 19 et vis-2 @2 .20.x",
+        "it": "Migrato a React 19 e vis-2 @2 .20.x",
+        "es": "Migró a React 19 y vis-2 @2 .20.x",
+        "pl": "Migracja do React 19 i vis-2 @2 .20.x",
+        "uk": "Перенесено до React 19 та vis-2 @2 .20.x",
+        "zh-cn": "迁移到 React 19 和 vis-2 @2 .20.x"
+      },
       "1.6.7": {
         "en": "Corrected error with button and alarm widget",
         "de": "Fehler behoben mit Knopf und Alarm Widget",
@@ -80,19 +93,6 @@
         "pl": "Dodano wsparcie dla starszych urządzeń Android",
         "uk": "Додано підтримку для старих пристроїв Android",
         "zh-cn": "对较老的Android设备添加支持"
-      },
-      "1.5.0": {
-        "en": "Corrected thermostat slider\nRewritten with TypeScript and vite\nCorrected blinds control\nAdded disabled mode additionally to hidden mode in 'switches and buttons' widget\nAdded `_ts=Date.now()` to camera URL to disable the browser cache\nSimple state has a new option - step\nAdded new navigation widget: jump to view, url or list of views",
-        "de": "Korrigierter Thermostatschieber\nNeu geschrieben mit TypeScript und vite\nKontrolle der Blinds\nZusätzlich zum versteckten Modus in 'Schalter und Tasten' Widget hinzugefügt\n`_ts=Date.now()` zur Kamera-URL hinzugefügt, um den Browser-Cache zu deaktivieren\nEinfacher Zustand hat eine neue Option - Schritt\nHinzugefügt neue Navigation Widget: springen zu sehen, url oder Liste der Ansichten",
-        "ru": "Исправленный ползунок термостата\nПереписано с TypeScript и Vite\nИсправленный контроль слепых\nДобавлен отключенный режим дополнительно к скрытому режиму в виджете «переключатели и кнопки»\nДобавлено '_ts=Date.now()' в URL камеры, чтобы отключить кэш браузера\nПростое состояние имеет новый вариант - шаг\nДобавлен новый виджет навигации: скачок для просмотра, URL или список просмотров",
-        "pt": "Slider de termostato correto\nReescrito com TypeScript e vite\nControle de blinds corrigidos\nAdicionado modo desativado adicionalmente ao modo oculto em 'switches e botões' widget\nAdicionado `_ts=Date.now()` para câmera URL para desativar o cache do navegador\nEstado simples tem uma nova opção - passo\nAdicionado novo widget de navegação: saltar para ver, url ou lista de visualizações",
-        "nl": "Gecorrigeerde thermostaat schuifregelaar\nHerschreven met TypeScript en Vite\nGecorrigeerde blindscontrole\nExtra uitgeschakelde modus toegevoegd aan verborgen modus in widget 'schakelt en knoppen'\nAan camera-URL toegevoegd om de browsercache uit te schakelen\nEenvoudige staat heeft een nieuwe optie - stap\nNieuw navigatie-widget toegevoegd: springen naar weergave, url of lijst met weergaven",
-        "fr": "Slider thermostat corrigé\nRéécrit avec TypeScript et rite\nContrôle des stores corrigés\nAjout du mode désactivé au mode caché dans le widget 'switches and buttons'\nAjouté `_ts=Date.now()` à l'URL de la caméra pour désactiver le cache du navigateur\nL'état simple a une nouvelle option - étape\nAjout d'un nouveau widget de navigation : sauter pour afficher, url ou liste de vues",
-        "it": "Cursore del termostato corretto\nRescritto con TypeScript e vite\nControllo delle tende corretto\nAggiunta modalità disabilitata anche per la modalità nascosta in 'interruttori e pulsanti' widget\nAggiunto `_ts=Date.now()` alla fotocamera URL per disabilitare la cache del browser\nSemplice stato ha una nuova opzione - passo\nAggiunto nuovo widget di navigazione: saltare per visualizzare, url o elenco di visualizzazioni",
-        "es": "Control deslizante termostato corregido\nReescrito con TipoScript y vite\nControl de persianas corregido\nAñadido modo deshabilitado adicionalmente al modo oculto en el widget 'switches and buttons'\nAñadido `_ts=Date.now()` a la URL de la cámara para deshabilitar el caché del navegador\nEstado simple tiene una nueva opción - paso\nAñadido nuevo widget de navegación: saltar a la vista, url o lista de vistas",
-        "pl": "Poprawiony suwak termostatu\nPrzepisane z TypeScript i vite\nPoprawione sterowanie roletami\nDodano tryb wyłączony dodatkowo do trybu ukrytego w widgecie 'przełączniki i przyciski'\nDodano '_ ts = Date.now ()' do URL kamery, aby wyłączyć bufora przeglądarki\nProsty stan ma nową opcję - krok\nDodano nowy widget nawigacyjny: skok do widoku, url lub listę widoków",
-        "uk": "Правильний термостат слайдер\nНаписання з TypeScript і vite\nПравильне управління жалюзі\nДодано режим вимкнення додатково до прихованого режиму в віджеті \"switches і гудзики\"\nДодано `_ts=Date.now()` на URL-адресу камери для вимкнення кешу браузера\nПростий стан має новий варіант - крок\nДодано новий віджет навігації: стрибати для перегляду, URL або списку переглядів",
-        "zh-cn": "修正的自动调温器滑动器\n用类型脚本和 vite 重写\n校正百叶窗控制\n在“ 切换器和按钮” 部件中将禁用模式添加到隐藏模式\n添加 QQts=Date.now()' 到相机 URL 以禁用浏览器缓存\n简单状态有新选项 - step\n添加新导航部件: 跳转到视图、 url 或视图列表"
       }
     },
     "titleLang": {

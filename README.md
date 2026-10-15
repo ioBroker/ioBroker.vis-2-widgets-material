@@ -148,7 +148,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.0 (2026-10-15)
 
 -   (@GermanBluefox) Migrated to React 19 and vis-2@2.20.x
 
@@ -166,16 +166,6 @@ The only difference is that Xiaomi supports the room cleaning.
 
 ### 1.5.3 (2025-08-27)
 -   (@GermanBluefox) Added support for older Android devices
-
-### 1.5.0 (2025-05-19)
-
--   (bluefox) Corrected thermostat slider
--   (bluefox) Rewritten with TypeScript and vite
--   (bluefox) Corrected blinds control
--   (bluefox) Added disabled mode additionally to hidden mode in the 'switches and buttons' widget
--   (bluefox) Added `_ts=Date.now()` to camera URL to disable the browser cache
--   (bluefox) Simple state has a new option - step
--   (bluefox) Added new navigation widget: jump to view, url or list of views
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

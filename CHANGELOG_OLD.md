@@ -1,4 +1,14 @@
 # Older changes
+## 1.5.0 (2025-05-19)
+
+-   (bluefox) Corrected thermostat slider
+-   (bluefox) Rewritten with TypeScript and vite
+-   (bluefox) Corrected blinds control
+-   (bluefox) Added disabled mode additionally to hidden mode in the 'switches and buttons' widget
+-   (bluefox) Added `_ts=Date.now()` to camera URL to disable the browser cache
+-   (bluefox) Simple state has a new option - step
+-   (bluefox) Added new navigation widget: jump to view, url or list of views
+
 ## 1.4.10 (2024-08-09)
 
 -   (Steiger04) Corrected recursive icon search on a channel, device, instance and adapter.
