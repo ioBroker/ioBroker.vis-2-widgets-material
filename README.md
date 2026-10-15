@@ -148,6 +148,10 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Migrated to React 19 and vis-2@2.20.x
+
 ### 1.6.7 (2026-05-17)
 
 -   (@GermanBluefox) Corrected error with button and alarm widget
