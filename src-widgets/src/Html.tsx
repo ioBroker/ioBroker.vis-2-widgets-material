@@ -428,7 +428,7 @@ export default class Html extends Generic<HtmlRxData, HtmlState> {
                     >
                         {this.widgetRef.current
                             ? this.getWidgetInWidget(this.props.view, wid, {
-                                  refParent: this.widgetRef as React.RefObject<HTMLDivElement>,
+                                  refParent: this.widgetRef,
                               })
                             : null}
                     </div>
