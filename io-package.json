@@ -178,7 +178,7 @@
     },
     "dependencies": [
       {
-        "vis-2": ">=2.12.8"
+        "vis-2": ">=2.20.0"
       }
     ],
     "restartAdapters": [
