@@ -28,9 +28,11 @@ import {
 import { SVGRenderer } from 'echarts/renderers';
 
 import { type ThemeType, Utils, withWidth, type IobTheme, type Connection } from '@iobroker/gui-components';
-import type { EChartsOption, LineSeriesOption } from 'echarts';
+import type { EChartsOption, LineSeriesOption, XAXisComponentOption } from 'echarts';
 import type { YAXisOption } from 'echarts/types/dist/shared';
-import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
+
+// echarts does not export TimeAxisBaseOption, and the "exports" of its package close the path to its sources
+type TimeAxisBaseOption = Extract<XAXisComponentOption, { type?: 'time' }>;
 
 echarts.use([
     TimelineComponent,

@@ -148,6 +148,10 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Corrected the TypeScript configuration for TypeScript 7 and the widget test
+
 ### 2.0.0 (2026-10-15)
 
 -   (@GermanBluefox) Migrated to React 19 and vis-2@2.20.x

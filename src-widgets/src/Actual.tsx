@@ -16,14 +16,16 @@ import {
     LegendComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import type { EChartsOption, LineSeriesOption } from 'echarts';
-import type { TimeAxisBaseOption } from 'echarts/types/src/coord/axisCommonTypes';
+import type { EChartsOption, LineSeriesOption, XAXisComponentOption } from 'echarts';
 
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from '@iobroker/types-vis-2';
 import { Icon } from '@iobroker/gui-components';
 
 import ObjectChart from './Components/ObjectChart';
 import Generic from './Generic';
+
+// echarts does not export TimeAxisBaseOption, and the "exports" of its package close the path to its sources
+type TimeAxisBaseOption = Extract<XAXisComponentOption, { type?: 'time' }>;
 
 echarts.use([
     TimelineComponent,
@@ -705,7 +707,6 @@ export default class Actual extends Generic<RxData, ActualState> {
             },
             legend: undefined,
             calculable: true,
-            // @ts-expect-error wrong typing
             xAxis,
             yAxis: {
                 show: false,

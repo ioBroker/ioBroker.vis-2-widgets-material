@@ -18,7 +18,7 @@ describe('vis-2-widgets-material', () => {
         this.timeout(60000);
         const widgets = await helper.palette.getListOfWidgets(null, adapterName);
         for (let w = 0; w < widgets.length; w++) {
-            const wid = await helper.palette.addWidget(null, widgets[w], true);
+            const wid = await helper.palette.addWidget(null, widgets[w]);
             await helper.screenshot(null, `10_${widgets[w]}`);
             await helper.view.deleteWidget(null, wid);
         }
