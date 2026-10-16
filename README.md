@@ -148,6 +148,10 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Added `tslib` and `esbuild` to the widget packages, because the build on GitHub could not resolve them
+
 ### 2.0.1 (2026-10-16)
 
 -   (@GermanBluefox) Corrected the TypeScript configuration for TypeScript 7 and the widget test
