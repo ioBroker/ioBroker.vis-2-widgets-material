@@ -148,7 +148,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.2 (2026-10-16)
 
 -   (@GermanBluefox) Added `tslib` and `esbuild` to the widget packages, because the build on GitHub could not resolve them
 
@@ -167,10 +167,6 @@ The only difference is that Xiaomi supports the room cleaning.
 ### 1.6.1 (2026-03-14)
 
 -   (@GermanBluefox) Corrected error with select value widget
-
-### 1.6.0 (2025-09-03)
-
--   (@GermanBluefox) Corrected "Actual" widget
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 
