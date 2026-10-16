@@ -1,4 +1,7 @@
 # Older changes
+## 1.5.3 (2025-08-27)
+-   (@GermanBluefox) Added support for older Android devices
+
 ## 1.5.0 (2025-05-19)
 
 -   (bluefox) Corrected thermostat slider

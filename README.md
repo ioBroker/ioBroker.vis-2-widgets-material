@@ -148,7 +148,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.1 (2026-10-16)
 
 -   (@GermanBluefox) Corrected the TypeScript configuration for TypeScript 7 and the widget test
 
@@ -167,9 +167,6 @@ The only difference is that Xiaomi supports the room cleaning.
 ### 1.6.0 (2025-09-03)
 
 -   (@GermanBluefox) Corrected "Actual" widget
-
-### 1.5.3 (2025-08-27)
--   (@GermanBluefox) Added support for older Android devices
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

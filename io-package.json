@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "news": {
+      "2.0.1": {
+        "en": "Corrected the TypeScript configuration for TypeScript 7 and the widget test",
+        "de": "TypeScript-Konfiguration für TypeScript 7 und Widget-Test korrigiert",
+        "ru": "Исправлена конфигурация TypeScript для TypeScript 7 и тест виджетов",
+        "pt": "Corrigida a configuração do TypeScript 7 e o teste do widget",
+        "nl": "De TypeScript-configuratie voor TypeScript 7 en de widgettest gecorrigeerd",
+        "fr": "La configuration de TypeScript pour TypeScript 7 et le test du widget ont été corrigés",
+        "it": "Corretta la configurazione di TypeScript 7 e il test del widget",
+        "es": "Se corrigió la configuración de TypeScript de TypeScript 7 y la prueba del widget",
+        "pl": "Poprawiono konfigurację TypeScript dla TypeScript 7 i test widżetu",
+        "uk": "Виправлено конфігурацію TypeScript для TypeScript 7 та тест віджетів",
+        "zh-cn": "更正了 TypeScript 7 和小部件测试的 TypeScript 配置"
+      },
       "2.0.0": {
         "en": "Migrated to React 19 and vis-2@2.20.x",
         "de": "Auf React 19 und vis-2 @2 .20.x umgestellt",
@@ -80,19 +93,6 @@
         "pl": "Poprawiony widżet \"Actual\"",
         "uk": "Виправлено \"Actual\" віджет",
         "zh-cn": "更正“ 实际” 部件"
-      },
-      "1.5.3": {
-        "en": "Added support for older Android devices",
-        "de": "Unterstützung für ältere Android-Geräte hinzugefügt",
-        "ru": "Добавлена поддержка старых Android-устройств",
-        "pt": "Adicionado suporte para dispositivos Android mais antigos",
-        "nl": "Toegevoegd ondersteuning voor oudere Android-apparaten",
-        "fr": "Ajout du support pour les anciens appareils Android",
-        "it": "Aggiunto il supporto per i dispositivi Android più vecchi",
-        "es": "Añadido soporte para dispositivos Android más antiguos",
-        "pl": "Dodano wsparcie dla starszych urządzeń Android",
-        "uk": "Додано підтримку для старих пристроїв Android",
-        "zh-cn": "对较老的Android设备添加支持"
       }
     },
     "titleLang": {
