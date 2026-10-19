@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle, IconButton, Tooltip } from '@mui/ma
 
 import { Close as IconClose, DeviceThermostat as ThermostatIcon, Opacity as HumidityIcon } from '@mui/icons-material';
 
-import ReactEchartsCore from 'echarts-for-react/lib/core';
+import ReactEchartsCore from 'echarts-for-react/esm/core';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
 import {
@@ -882,6 +882,8 @@ export default class Actual extends Generic<RxData, ActualState> {
                         this.state.rxData.widgetTitle
                             ? 'calc(100% - 32px)'
                             : '100%',
+                    position: 'relative',
+                    overflow: 'hidden',
                 }}
                 ref={this.refContainer}
             >
@@ -992,8 +994,14 @@ export default class Actual extends Generic<RxData, ActualState> {
                         notMerge
                         lazyUpdate
                         theme={this.props.context.themeType === 'dark' ? 'dark' : ''}
+                        // The chart is absolute, so its height does not count to the content of the container.
+                        // Else in the grid layout, where the rows grow with the content, the container would grow with
+                        // the chart, and componentDidUpdate would measure a new height on every render.
                         style={{
                             ...styles.chart,
+                            position: 'absolute',
+                            left: 0,
+                            bottom: 0,
                             height: this.state.containerHeight - 26,
                             width: '100%',
                         }}
