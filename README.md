@@ -148,7 +148,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.4 (2026-10-19)
 
 -   (@GermanBluefox) RGB light: the auto-detection does not overwrite the selected state anymore and takes the first matching state (#381)
 -   (@GermanBluefox) Switches: brightness and white sliders use the maximum of the object, color temperature limits can be below 500 (#475)
@@ -179,10 +179,6 @@ The only difference is that Xiaomi supports the room cleaning.
 ### 2.0.0 (2026-10-15)
 
 -   (@GermanBluefox) Migrated to React 19 and vis-2@2.20.x
-
-### 1.6.7 (2026-05-17)
-
--   (@GermanBluefox) Corrected error with button and alarm widget
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

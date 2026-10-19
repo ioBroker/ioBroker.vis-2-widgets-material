@@ -1,4 +1,8 @@
 # Older changes
+## 1.6.7 (2026-05-17)
+
+-   (@GermanBluefox) Corrected error with button and alarm widget
+
 ## 1.6.1 (2026-03-14)
 
 -   (@GermanBluefox) Corrected error with select value widget
