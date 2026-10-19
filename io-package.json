@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "vis-2-widgets-material",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "news": {
+      "2.0.3": {
+        "en": "Fixed the crash of the charts (React error #130) in \"Actual\", \"Switches\" and the chart dialog (#694)\nFixed the endless re-rendering (React error #185) of the chart in \"Actual\" in the grid layout",
+        "de": "Chart-Absturz (React-Fehler #130) in „Actual“, „Switches“ und Chart-Dialog (#694) behoben\nDas endlose Rendern (React-Fehler #185) des Diagramms in „Actual“ im Raster behoben",
+        "ru": "Исправлен сбой графиков (ошибка React #130) в «Актуальном», «Переключателях» и диалоговом окне диаграммы (#694)\nИсправлен бесконечный повторный рендеринг (ошибка React #185) диаграммы в «Актуальном» в макете сетки",
+        "pt": "Corrigida a falha dos gráficos (erro React #130) em “Real”, “Switches” e no diálogo (#694)\nCorrigida a renderização infinita (erro React #185) do gráfico em “Real” no layout da grade",
+        "nl": "De crash van de grafieken (React-fout #130) in „Actual”, „Switches” en de diagramdialoog (#694) is opgelost\nDe eindeloze herweergave (React-fout #185) van de grafiek in „Actual” in de rasterindeling opgelost",
+        "fr": "Correction du crash des graphiques (erreur React #130) dans « Actual », « Switches » et dans la boîte de dialogue (#694)\nCorrection du nouveau rendu (erreur React #185) du graphique en « Actual » dans la grille",
+        "it": "Risolto il crash dei grafici (errore React #130) in «Actual», «Switch» e nel grafico (#694)\nRisolto il rendering infinito (errore React #185) del grafico in «Actual»",
+        "es": "Se ha corregido el fallo de los gráficos (error de reacción #130) en «Actual», «Switches» y el cuadro de diálogo (#694)\nSe ha corregido el renderizado sin fin (error de reacción #185) del gráfico en «Actual» en el diseño de cuadrícula",
+        "pl": "Naprawiono awarię wykresów (błąd React #130) w „Rzeczywistym”, „Przełącznikach” i oknie dialogowym wykresu (#694)\nNaprawiono niekończące się ponowne renderowanie (błąd React #185) wykresu w „Rzeczywistym” w układzie siatki",
+        "uk": "Виправлено збій діаграм (помилка React #130) у «Актуальному», «Перемикачах» та діалоговому вікні діаграми (#694)\nВиправлено нескінченну повторну рендеринг (помилка React #185) діаграми в «Актуальному» в макеті сітки",
+        "zh-cn": "修复了 “实际”、“开关” 和图表对话框 (#694) 中图表崩溃的问题 (React 错误 #130)\n修复了网格布局中 “实际” 图表的无休止地重新渲染（React 错误 #185）"
+      },
       "2.0.2": {
         "en": "Added `tslib` and `esbuild` to the widget packages, because the build on GitHub could not resolve them",
         "de": "Den Widget-Paketen `tslib` und `esbuild` hinzugefügt, weil der Build auf GitHub sie nicht lösen konnte",
@@ -80,19 +93,6 @@
         "pl": "Poprawiony błąd z widżetem przycisku i alarmu",
         "uk": "Виправлена помилка з кнопками та тривожним віджетом",
         "zh-cn": "用按钮和提醒部件校正错误"
-      },
-      "1.6.1": {
-        "en": "Corrected error with select value widget",
-        "de": "Korrigierter Fehler mit ausgewähltem Wert Widget",
-        "ru": "Исправленная ошибка с выбранным виджетом",
-        "pt": "Erro corrigido com widget de valor selecionado",
-        "nl": "Fout gecorrigeerd met geselecteerde waarde-widget",
-        "fr": "Erreur corrigée avec le widget select value",
-        "it": "Errore corretto con widget di valore selezionato",
-        "es": "Error corregido con widget de valor selecto",
-        "pl": "Skorygowany błąd z wybranym widget wartości",
-        "uk": "Виправлена помилка з виберіть віджет значення",
-        "zh-cn": "用选定的值部件校正错误"
       }
     },
     "titleLang": {

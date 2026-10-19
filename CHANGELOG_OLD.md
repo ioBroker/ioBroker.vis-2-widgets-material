@@ -1,4 +1,8 @@
 # Older changes
+## 1.6.1 (2026-03-14)
+
+-   (@GermanBluefox) Corrected error with select value widget
+
 ## 1.6.0 (2025-09-03)
 
 -   (@GermanBluefox) Corrected "Actual" widget

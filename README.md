@@ -148,7 +148,7 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.3 (2026-10-19)
 
 -   (@GermanBluefox) Fixed the crash of the charts (React error #130) in "Actual", "Switches" and the chart dialog (#694)
 -   (@GermanBluefox) Fixed the endless re-rendering (React error #185) of the chart in "Actual" in the grid layout
@@ -168,10 +168,6 @@ The only difference is that Xiaomi supports the room cleaning.
 ### 1.6.7 (2026-05-17)
 
 -   (@GermanBluefox) Corrected error with button and alarm widget
-
-### 1.6.1 (2026-03-14)
-
--   (@GermanBluefox) Corrected error with select value widget
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

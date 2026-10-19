@@ -1,7 +1,7 @@
 {
     "name": "iobroker.vis-2-widgets-material",
     "private": true,
-    "version": "2.0.2",
+    "version": "2.0.3",
     "type": "module",
     "dependencies": {
         "@hello-pangea/dnd": "^18.0.1",
