@@ -148,6 +148,21 @@ The only difference is that Xiaomi supports the room cleaning.
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) RGB light: the auto-detection does not overwrite the selected state anymore and takes the first matching state (#381)
+-   (@GermanBluefox) Switches: brightness and white sliders use the maximum of the object, color temperature limits can be below 500 (#475)
+-   (@GermanBluefox) Switches: the "switch" state is visible again for RGB and thermostat (#449)
+-   (@GermanBluefox) Switches: boolean states with `read: false` or role `button` are detected as button, buttons work with touch and send only `true` (#614, #609)
+-   (@GermanBluefox) Switches: `common.states` in the format "0:off;1:on" and numeric states are supported in the select (#607)
+-   (@GermanBluefox) Charts read aggregated (min/max) values for periods over 30 minutes instead of raw data (#412)
+-   (@GermanBluefox) Switches, Map and theme switcher unsubscribe correctly on unmount (#530)
+-   (@GermanBluefox) Lock: added options to invert the lock state and the door sensor (#633)
+-   (@GermanBluefox) Camera: the image is updated even if the cache refresh fails (#340)
+-   (@GermanBluefox) Player: fixed the display conditions of "repeat" and "next"
+-   (@GermanBluefox) Blinds: clear labels for the sash type, touch support for the slider (#627, #292)
+-   (@GermanBluefox) Corrected German translations (#552)
+
 ### 2.0.3 (2026-10-19)
 
 -   (@GermanBluefox) Fixed the crash of the charts (React error #130) in "Actual", "Switches" and the chart dialog (#694)

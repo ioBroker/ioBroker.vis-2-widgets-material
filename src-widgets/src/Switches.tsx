@@ -171,21 +171,18 @@ async function loadStates(
             const states = await socket.getObjectViewSystem('state', `${id.join('.')}.`, `${id.join('.')}.\u9999`);
             if (states) {
                 let changed = false;
+                // the first found state for every role wins (e.g. "colortemp" before "colortempstartup")
+                const assigned: string[] = [];
                 Object.values(states).forEach(state => {
                     const role = state.common?.role;
-                    if (
-                        role &&
-                        RGB_ROLES[role] &&
-                        (!data[role] || data[role] === 'nothing_selected') &&
-                        field.name !== role
-                    ) {
+                    const attr = role ? RGB_ROLES[role] : undefined;
+                    const attrName = attr === 'rgb' ? `oid${index}` : `${attr}${index}`;
+                    // never overwrite the field that the user just changed
+                    if (attr && attrName !== field.name && !assigned.includes(attrName)) {
+                        assigned.push(attrName);
                         changed = true;
-                        if (RGB_ROLES[role] === 'rgb') {
-                            data[`oid${index}`] = state._id;
-                        } else {
-                            data[RGB_ROLES[role] + index] = state._id;
-                        }
-                        if (RGB_ROLES[role] === 'color_temperature') {
+                        data[attrName] = state._id;
+                        if (attr === 'color_temperature') {
                             const common = state.common;
                             if (!data[`ct_min${index}`] && common.min) {
                                 data[`ct_min${index}`] = common.min;
@@ -649,6 +646,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     private updateChartInterval: ReturnType<typeof setInterval> | null = null;
     private customStyle: React.CSSProperties | undefined;
     private updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    private pressedButtons: Record<number, boolean> = {};
 
     constructor(props: VisRxWidgetProps) {
         super(props);
@@ -836,20 +834,21 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                                                     data[`rgbType${index}`] = 'rgb';
                                                 }
 
+                                                // the first found state for every role wins
+                                                const assigned: string[] = [];
                                                 Object.values(states).forEach(state => {
                                                     const role = state.common?.role;
+                                                    const attr = role ? RGB_ROLES[role] : undefined;
+                                                    const attrName = attr === 'rgb' ? `oid${index}` : `${attr}${index}`;
+                                                    // never overwrite the field that the user just changed
                                                     if (
-                                                        role &&
-                                                        RGB_ROLES[role] &&
-                                                        (!data[role] || data[role] === 'nothing_selected') &&
-                                                        field.name !== role
+                                                        attr &&
+                                                        attrName !== field.name &&
+                                                        !assigned.includes(attrName)
                                                     ) {
+                                                        assigned.push(attrName);
                                                         changed = true;
-                                                        if (RGB_ROLES[role] === 'rgb') {
-                                                            data[`oid${index}`] = state._id;
-                                                        } else {
-                                                            data[RGB_ROLES[role] + index] = state._id;
-                                                        }
+                                                        data[attrName] = state._id;
                                                     }
                                                 });
                                             } else if (object.common.role.includes('lock')) {
@@ -1159,7 +1158,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                             type: 'id',
                             label: 'switch',
                             onChange: loadStates,
-                            hidden: '!!data["widget" + index] || (data["type" + index] !== "rgb" || data["type" + index] !== "thermostat")',
+                            hidden: '!!data["widget" + index] || (data["type" + index] !== "rgb" && data["type" + index] !== "thermostat")',
                         },
                         {
                             name: 'brightness',
@@ -1230,7 +1229,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         {
                             name: 'ct_min',
                             type: 'number',
-                            min: 500,
+                            min: 100,
                             max: 10000,
                             label: 'color_temperature_min',
                             hidden: (data, index) =>
@@ -1242,7 +1241,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                         {
                             name: 'ct_max',
                             type: 'number',
-                            min: 500,
+                            min: 100,
                             max: 10000,
                             label: 'color_temperature_max',
                             hidden: (data, index) =>
@@ -1620,6 +1619,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     // not writable => info
                     if (object.common.write === false) {
                         widgetType = 'info';
+                    } else if (
+                        object.common.type === 'boolean' &&
+                        (object.common.read === false || object.common.role?.startsWith('button'))
+                    ) {
+                        // boolean not readable or with role "button" => button
+                        widgetType = 'button';
                     } else if (object.common.states && (object.common.write as any) !== false) {
                         // with states => select
                         widgetType = 'select';
@@ -1629,9 +1634,6 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     } else if (object.common.type === 'boolean' && (object.common.write as any) !== false) {
                         // boolean writable => switch
                         widgetType = 'switch';
-                    } else if (object.common.type === 'boolean' && object.common.read === false) {
-                        // boolean not readable => button
-                        widgetType = 'button';
                     } else {
                         widgetType = 'input';
                     }
@@ -1645,6 +1647,18 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     // convert to {'state1': 'state1', 'state2': 'state2', ...}
                     const states: Record<string, string> = {};
                     object.common.states.forEach(state => (states[state] = state));
+                    object.common.states = states;
+                } else if (typeof object.common.states === 'string') {
+                    // convert old format "0:off;1:on" to {'0': 'off', '1': 'on'}
+                    const states: Record<string, string> = {};
+                    object.common.states.split(';').forEach(item => {
+                        const pos = item.indexOf(':');
+                        if (pos !== -1) {
+                            states[item.substring(0, pos).trim()] = item.substring(pos + 1).trim();
+                        } else if (item.trim()) {
+                            states[item.trim()] = item.trim();
+                        }
+                    });
                     object.common.states = states;
                 }
 
@@ -1772,6 +1786,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         }
 
         this.rgbDestroy();
+        super.componentWillUnmount();
     }
 
     async onRxDataChanged(): Promise<void> {
@@ -1963,7 +1978,44 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
     };
 
     buttonPressed(index: number, pressed: boolean): void {
-        this.props.context.setValue(this.state.rxData[`oid${index}`], pressed);
+        if (!!this.pressedButtons[index] === pressed) {
+            return;
+        }
+        this.pressedButtons[index] = pressed;
+        const obj = this.state.objects[index];
+        const common = obj && typeof obj !== 'string' ? obj.common : undefined;
+        // pure buttons (not readable or with role "button") accept only "true"
+        if (common?.read === false || common?.role?.startsWith('button')) {
+            if (pressed) {
+                this.props.context.setValue(this.state.rxData[`oid${index}`], true);
+            }
+        } else {
+            this.props.context.setValue(this.state.rxData[`oid${index}`], pressed);
+        }
+    }
+
+    getButtonHandlers(index: number): Partial<React.ComponentProps<typeof Button>> {
+        return {
+            onKeyDown: e => {
+                if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
+                    this.buttonPressed(index, true);
+                }
+            },
+            onKeyUp: e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    this.buttonPressed(index, false);
+                }
+            },
+            onBlur: () => this.buttonPressed(index, false),
+            onPointerDown: e => {
+                // receive "pointerup" even if the pointer leaves the button
+                e.currentTarget.setPointerCapture?.(e.pointerId);
+                this.buttonPressed(index, true);
+            },
+            onPointerUp: () => this.buttonPressed(index, false),
+            onPointerCancel: () => this.buttonPressed(index, false),
+            onContextMenu: e => e.preventDefault(),
+        };
     }
 
     setOnOff(index: number, isOn: boolean): void {
@@ -2026,12 +2078,12 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     buttons = Object.keys(trueObj.common.states).map((state, i) => (
                         <Button
                             style={{
-                                ...(curValue !== state ? styles.buttonInactive : undefined),
+                                ...(String(curValue) !== state ? styles.buttonInactive : undefined),
                                 ...this.customStyle,
                             }}
                             variant="contained"
                             key={`${state}_${i}`}
-                            color={curValue === state ? 'primary' : 'grey'}
+                            color={String(curValue) === state ? 'primary' : 'grey'}
                             onClick={() => this.controlSpecificState(index, state)}
                         >
                             {(trueObj.common.states as Record<string, string>)[state]}
@@ -2488,10 +2540,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
             return (
                 <Button
-                    onKeyDown={() => this.buttonPressed(index, true)}
-                    onKeyUp={() => this.buttonPressed(index, false)}
-                    onMouseDown={() => this.buttonPressed(index, true)}
-                    onMouseUp={() => this.buttonPressed(index, false)}
+                    {...this.getButtonHandlers(index)}
                     style={this.customStyle}
                 >
                     {text ||
@@ -2792,6 +2841,10 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         if (trueObj.widgetType === 'select') {
             let states;
             if (trueObj.common.states) {
+                // keys of states are always strings, so compare the value as string
+                if (value !== undefined && value !== null) {
+                    value = String(value);
+                }
                 states = Object.keys(trueObj.common.states).map(state => ({
                     label: (trueObj.common.states as Record<string, string>)[state],
                     value: state,
@@ -2826,13 +2879,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     <Select
                         variant="standard"
                         value={value !== undefined ? value : ''}
-                        onChange={event => {
-                            const values = JSON.parse(JSON.stringify(this.state.values));
-                            const oid = `${trueObj._id}.val`;
-                            values[oid] = event.target.value;
-                            this.setState({ values });
-                            this.props.context.setValue(this.state.rxData[`oid${index}`], values[oid]);
-                        }}
+                        onChange={event => this.controlSpecificState(index, event.target.value)}
                     >
                         {states.map(state => (
                             <MenuItem
@@ -3433,10 +3480,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
             return (
                 <Button
-                    onKeyDown={() => this.buttonPressed(index, true)}
-                    onKeyUp={() => this.buttonPressed(index, false)}
-                    onMouseDown={() => this.buttonPressed(index, true)}
-                    onMouseUp={() => this.buttonPressed(index, false)}
+                    {...this.getButtonHandlers(index)}
                     style={{
                         ...styles.buttonDiv,
                         width: buttonWidth || undefined,
@@ -4129,7 +4173,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 ) || 0
             );
         }
-        return this.state.secondaryObjects[index][id]?.common?.min || 0;
+        return this.state.secondaryObjects[index][id]?.common?.max || 0;
     };
 
     rgbSetId = (index: number, id: SecondaryNames, value: number | string | boolean, slider?: boolean): void => {

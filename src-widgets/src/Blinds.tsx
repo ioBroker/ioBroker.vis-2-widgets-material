@@ -202,10 +202,10 @@ export default class Blinds extends BlindsBase<BlindsRxData, BlindsBaseState> {
                             label: 'sash_type',
                             options: [
                                 { value: '', label: 'sash_none' },
-                                { value: 'left', label: 'left' },
-                                { value: 'right', label: 'right' },
-                                { value: 'top', label: 'top' },
-                                { value: 'bottom', label: 'bottom' },
+                                { value: 'left', label: 'sash_left' },
+                                { value: 'right', label: 'sash_right' },
+                                { value: 'top', label: 'sash_top' },
+                                { value: 'bottom', label: 'sash_bottom' },
                             ],
                         },
                         {

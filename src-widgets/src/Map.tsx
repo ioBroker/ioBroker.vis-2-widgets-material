@@ -484,6 +484,7 @@ export default class Map extends Generic<MapRxData, MapState> {
             clearTimeout(this.fillDataTimer);
             this.fillDataTimer = null;
         }
+        super.componentWillUnmount();
     }
 
     async onRxDataChanged(/* prevRxData */): Promise<void> {

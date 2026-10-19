@@ -210,6 +210,15 @@ export default class Camera extends Generic<CameraRxData, CameraState> {
         return noImageSvg;
     }
 
+    /** Refresh the browser cache for the URL. The image must be updated even if it fails (e.g., CORS or mixed content) */
+    static async reloadCache(url: string): Promise<void> {
+        try {
+            await fetch(url, { cache: 'reload', mode: 'no-cors' });
+        } catch {
+            // ignore
+        }
+    }
+
     propertiesUpdate(): void {
         if (this.imageInterval) {
             clearInterval(this.imageInterval);
@@ -218,7 +227,7 @@ export default class Camera extends Generic<CameraRxData, CameraState> {
         this.imageInterval = setInterval(
             async () => {
                 const url = this.takeUrl();
-                await fetch(url, { cache: 'reload', mode: 'no-cors' });
+                await Camera.reloadCache(url);
                 if (this.imageRef.current) {
                     this.imageRef.current.src = url;
                 }
@@ -236,7 +245,7 @@ export default class Camera extends Generic<CameraRxData, CameraState> {
             this.fullImageInterval = setInterval(
                 async () => {
                     const url = this.takeUrl(true);
-                    await fetch(url, { cache: 'reload', mode: 'no-cors' });
+                    await Camera.reloadCache(url);
                     if (this.fullImageRef.current) {
                         this.fullImageRef.current.src = url;
                     }

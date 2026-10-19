@@ -504,7 +504,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                         {(this.state.rxData.shuffle && this.state.rxData.shuffle !== 'nothing_selected') ||
                         (this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected') ? (
                             <div style={styles.mode}>
-                                {this.state.rxData.repeat && this.state.rxData.volume !== 'nothing_selected' ? (
+                                {this.state.rxData.repeat && this.state.rxData.repeat !== 'nothing_selected' ? (
                                     <IconButton
                                         color={this.getPropertyValue('repeat') ? 'primary' : undefined}
                                         onClick={() => {
@@ -562,7 +562,7 @@ class Player extends Generic<PlayerRxData, PlayerState> {
                                     <PlayArrowRounded fontSize="large" />
                                 )}
                             </IconButton>
-                            {this.state.rxData.next && this.state.rxData.volume !== 'nothing_selected' ? (
+                            {this.state.rxData.next && this.state.rxData.next !== 'nothing_selected' ? (
                                 <IconButton onClick={() => this.props.context.setValue(this.state.rxData.next, true)}>
                                     <SkipNextRounded fontSize="large" />
                                 </IconButton>

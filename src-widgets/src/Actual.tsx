@@ -490,7 +490,7 @@ export default class Actual extends Generic<RxData, ActualState> {
             await this.readHistory(objects.secondary._id, secondaryHistoryInstance);
             this.mainTimer ||= setInterval(
                 () => this.readHistory(this.state.objects.secondary!._id, secondaryHistoryInstance),
-                parseInt(this.state.rxData.updateInterval, 10) * 60 || 60000,
+                parseInt(this.state.rxData.updateInterval, 10) * 1000 || 60000,
             ); // every minute by default
         } else if (this.state.chartData[this.state.rxData['oid-secondary']]) {
             // delete chart data

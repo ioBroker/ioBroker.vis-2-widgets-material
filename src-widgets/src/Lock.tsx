@@ -51,6 +51,8 @@ interface LockRxData {
     'doorOpen-oid': string;
     'lockWorking-oid': string;
     'doorSensor-oid': string;
+    lockInverted: boolean | 'true';
+    doorSensorInverted: boolean | 'true';
     pincode: string;
     'pincode-oid': string;
     doNotConfirm: boolean | 'true';
@@ -146,9 +148,23 @@ export default class Lock extends Generic<LockRxData, LockState> {
                             hidden: (data: WidgetData) => !data['lock-oid'],
                         },
                         {
+                            name: 'lockInverted',
+                            type: 'checkbox',
+                            label: 'lockInverted',
+                            tooltip: 'lockInverted_tooltip',
+                            hidden: (data: WidgetData) => !data['lock-oid'],
+                        },
+                        {
                             name: 'doorSensor-oid',
                             type: 'id',
                             label: 'doorSensor-oid',
+                        },
+                        {
+                            name: 'doorSensorInverted',
+                            type: 'checkbox',
+                            label: 'doorSensorInverted',
+                            tooltip: 'doorSensorInverted_tooltip',
+                            hidden: (data: WidgetData) => !data['doorSensor-oid'],
                         },
                         {
                             name: 'pincode',
@@ -252,13 +268,17 @@ export default class Lock extends Generic<LockRxData, LockState> {
                         if (this.state.dialogPin === 'doorOpen-oid') {
                             this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
                         } else {
-                            this.props.context.setValue(this.state.rxData['lock-oid'], true);
+                            this.props.context.setValue(this.state.rxData['lock-oid'], !this.isLockInverted());
                         }
                     }
                     this.setState({ dialogPin: false });
                 }}
             />
         );
+    }
+
+    isLockInverted(): boolean {
+        return this.state.rxData.lockInverted === true || this.state.rxData.lockInverted === 'true';
     }
 
     lockGetPinCode(): string {
@@ -284,7 +304,7 @@ export default class Lock extends Generic<LockRxData, LockState> {
                             if (this.state.confirmDialog === 'doorOpen-oid') {
                                 this.props.context.setValue(this.state.rxData['doorOpen-oid'], true);
                             } else {
-                                this.props.context.setValue(this.state.rxData['lock-oid'], true);
+                                this.props.context.setValue(this.state.rxData['lock-oid'], !this.isLockInverted());
                             }
                         }}
                         startIcon={
@@ -325,13 +345,15 @@ export default class Lock extends Generic<LockRxData, LockState> {
 
     renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element[] | React.JSX.Element | null {
         super.renderWidgetBody(props);
-        const doorOpened = this.state.rxData['doorSensor-oid'] && this.getPropertyValue('doorSensor-oid');
-        const lockOpened = this.getPropertyValue('lock-oid');
+        const doorSensorInverted =
+            this.state.rxData.doorSensorInverted === true || this.state.rxData.doorSensorInverted === 'true';
+        const doorOpened =
+            !!this.state.rxData['doorSensor-oid'] &&
+            (doorSensorInverted ? !this.getPropertyValue('doorSensor-oid') : !!this.getPropertyValue('doorSensor-oid'));
+        const lockOpened = this.isLockInverted()
+            ? !this.getPropertyValue('lock-oid')
+            : !!this.getPropertyValue('lock-oid');
         const working = this.state.rxData['lockWorking-oid'] && this.getPropertyValue('lockWorking-oid');
-
-        console.log(
-            `Lock opened: ${lockOpened}, oid: ${this.state.rxData['lock-oid']}, value: ${this.state.values[`${this.state.rxData['lock-oid']}.val`]}`,
-        );
 
         const content = (
             <div>

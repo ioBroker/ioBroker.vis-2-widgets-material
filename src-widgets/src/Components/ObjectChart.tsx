@@ -327,14 +327,12 @@ class ObjectChart extends Component<ObjectChartProps, ObjectChartState> {
             returnNewestEntries: true,
         };
 
+        const obj = id === this.props.obj2?._id ? this.props.obj2 : this.props.obj;
+
         // if more than 30 minutes => aggregate
         if (
-            !id &&
             end - start > 60000 * 30 &&
-            !(
-                this.props.obj.common.type === 'boolean' ||
-                (this.props.obj.common.type === 'number' && this.props.obj.common.states)
-            )
+            !(obj.common.type === 'boolean' || (obj.common.type === 'number' && obj.common.states))
         ) {
             options.aggregate = 'minmax';
             // options.step = 60000;

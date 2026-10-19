@@ -200,16 +200,16 @@ const loadStates = async (
             // get all siblings of the object
             const states = await socket.getObjectViewSystem('state', `${id.join('.')}.`, `${id.join('.')}.\u9999`);
             if (states) {
+                // the first found state for every role wins (e.g. "colortemp" before "colortempstartup")
+                const assigned: string[] = [];
                 Object.values(states).forEach(state => {
                     const role = state.common?.role;
-                    if (
-                        role &&
-                        RGB_ROLES[role] &&
-                        (!data[role] || data[role] === 'nothing_selected') //&&
-                        //  field.name !== role
-                    ) {
-                        data[RGB_ROLES[role]] = state._id;
-                        if (RGB_ROLES[role] === 'color_temperature') {
+                    const attr = role ? RGB_ROLES[role] : undefined;
+                    // never overwrite the field that the user just changed
+                    if (attr && attr !== field.name && !assigned.includes(attr)) {
+                        assigned.push(attr);
+                        data[attr] = state._id;
+                        if (attr === 'color_temperature') {
                             const common = state.common;
                             if (!data.ct_min && common.min) {
                                 data.ct_min = common.min;
@@ -398,7 +398,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         {
                             name: 'ct_min',
                             type: 'number',
-                            min: 500,
+                            min: 100,
                             max: 10000,
                             label: 'color_temperature_min',
                             hidden: (data: WidgetData) => data.rgbType !== 'ct' || !data.color_temperature,
@@ -406,7 +406,7 @@ export default class RGBLight extends Generic<RGBLightRxData, RGBLightState> {
                         {
                             name: 'ct_max',
                             type: 'number',
-                            min: 500,
+                            min: 100,
                             max: 10000,
                             label: 'color_temperature_max',
                             hidden: (data: WidgetData) => data.rgbType !== 'ct' || !data.color_temperature,

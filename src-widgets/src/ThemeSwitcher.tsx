@@ -112,6 +112,7 @@ export default class ThemeSwitcher extends Generic<ThemeSwitcherRxData, ThemeSwi
         if (this.state.rxData.themeType === 'system') {
             window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this.onThemeChanged);
         }
+        super.componentWillUnmount();
     }
 
     getWidgetInfo(): RxWidgetInfo {
