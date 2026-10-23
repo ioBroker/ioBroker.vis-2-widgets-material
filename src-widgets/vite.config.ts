@@ -37,6 +37,7 @@ const config = {
                 './Lock': './src/Lock',
                 './Vacuum': './src/Vacuum',
                 './Navigate': './src/Navigate',
+                './Tv': './src/Tv',
                 './translations': './src/translations.js',
             },
             remotes: {},

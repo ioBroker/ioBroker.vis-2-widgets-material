@@ -1,6 +1,7 @@
 import Generic from './Generic';
 import type { SingleWidget, WidgetStyle, DetectorDevice, View, SingleWidgetId } from '@iobroker/types-vis-2';
 import { Types } from '@iobroker/type-detector';
+import { TV_FIELDS } from './Tv';
 
 export type WidgetType =
     | 'auto'
@@ -359,6 +360,25 @@ export function getDeviceWidget(device: DetectorDevice, standardIcons?: boolean)
                 result.data[role] = _state._id;
             }
         });
+        return result;
+    }
+
+    if (device.deviceType === Types.tv) {
+        style.height = 160;
+        const result: SingleWidget = {
+            tpl: 'tplMaterial2Tv',
+            style,
+            widgetSet: 'vis-2-widgets-material',
+            data: {
+                name: Generic.getText(device.common.name),
+                widgetTitle: Generic.getText(device.common.name),
+                wizardId: device._id,
+                displayMode: 'tile',
+            },
+        };
+        for (const [name, field] of Object.entries(TV_FIELDS)) {
+            result.data[field] = device.states.find(state => state.name === name)?._id || '';
+        }
         return result;
     }
 
