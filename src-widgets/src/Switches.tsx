@@ -1812,7 +1812,7 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
         return !!values[`${trueObj._id}.val`];
     }
 
-    getStateIcon(index: number): React.JSX.Element | undefined {
+    getStateIcon(index: number, size = 40): React.JSX.Element | undefined {
         const obj = this.state.objects[index];
         let iconStr: string | undefined;
         let icon: React.JSX.Element | undefined;
@@ -1835,8 +1835,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                     src={iconStr}
                     style={{
                         ...styles.iconCustom,
-                        width: 40,
-                        height: 40,
+                        width: size,
+                        height: size,
                         color,
                     }}
                 />
@@ -5320,7 +5320,10 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
                 .find(index => this.isOn(index) !== allSwitchValue);
         }
 
-        const icons: (React.JSX.Element | undefined)[] = items.map(index => this.getStateIcon(index));
+        // In lines mode, custom icons have the same size as the default MUI icons (24px)
+        const icons: (React.JSX.Element | undefined)[] = items.map(index =>
+            this.getStateIcon(index, this.state.rxData.type === 'lines' ? 24 : 40),
+        );
         const anyIcon = !!icons.find(icon => icon);
 
         const content = (
