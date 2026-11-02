@@ -363,31 +363,7 @@ export default class Actual extends Generic<RxData, ActualState> {
     }
 
     async getIcon(id: string, object: ioBroker.Object): Promise<void> {
-        if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-            const idArray = id.split('.');
-
-            // read channel
-            const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-            if (!parentObject?.common?.icon) {
-                const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
-                if (grandParentObject?.common?.icon) {
-                    object.common.icon = grandParentObject.common.icon;
-                    if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                        object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                    }
-                }
-            } else {
-                object.common.icon = parentObject.common.icon;
-                if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                    object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                }
-            }
-        }
-        if (object.common.icon && object.common.icon.startsWith('/')) {
-            const parts = id.split('.');
-            // add instance name
-            object.common.icon = `../adapter/${parts[0]}${object.common.icon}`;
-        }
+        object.common.icon = await this.findStateIcon(id, object);
     }
 
     async propertiesUpdate(): Promise<void> {

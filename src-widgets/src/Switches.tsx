@@ -1666,27 +1666,8 @@ class Switches extends BlindsBase<SwitchesRxData, SwitchesState> {
 
                 if (this.state.rxData[`noIcon${index}`] === true || this.state.rxData[`noIcon${index}`] === 'true') {
                     object.common.icon = undefined;
-                } else if (
-                    !this.state.rxData[`icon${index}`] &&
-                    !this.state.rxData[`iconSmall${index}`] &&
-                    !object.common.icon &&
-                    (object.type === 'state' || object.type === 'channel')
-                ) {
-                    const idArray = this.state.rxData[`oid${index}`].split('.');
-
-                    // read channel
-                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon) {
-                        const grandParentObject = await this.props.context.socket.getObject(
-                            idArray.slice(0, -2).join('.'),
-                        );
-                        if (grandParentObject?.common?.icon) {
-                            object.common.icon =
-                                Generic.getObjectIcon(grandParentObject, grandParentObject._id) || undefined;
-                        }
-                    } else {
-                        object.common.icon = Generic.getObjectIcon(parentObject, parentObject._id) || undefined;
-                    }
+                } else if (!this.state.rxData[`icon${index}`] && !this.state.rxData[`iconSmall${index}`]) {
+                    object.common.icon = await this.findStateIcon(this.state.rxData[`oid${index}`], object);
                 }
 
                 if (widgetType === 'blinds') {

@@ -2,6 +2,17 @@ import Generic from './Generic';
 import type { SingleWidget, WidgetStyle, DetectorDevice, View, SingleWidgetId } from '@iobroker/types-vis-2';
 import { Types } from '@iobroker/type-detector';
 import { TV_FIELDS } from './Tv';
+import { getObjectIcon } from './Components/objectIcon';
+
+/**
+ * The icon of a device as it goes into a widget: its `common.icon` is relative to the adapter that wrote it,
+ * and a widget looks for it from the page of vis-2.
+ *
+ * @param device - the device the widget is made for
+ */
+function deviceIcon(device: DetectorDevice): string | undefined {
+    return getObjectIcon(device, device._id, '..') || undefined;
+}
 
 export type WidgetType =
     | 'auto'
@@ -145,9 +156,9 @@ function simpleState(
         if (settings) {
             delete settings.iconSmall;
             delete settings.iconEnabledSmall;
-            settings.icon = device.common.icon;
+            settings.icon = deviceIcon(device);
         } else {
-            settings = { icon: device.common.icon };
+            settings = { icon: deviceIcon(device) };
         }
     }
     if (settings?.standardIcons) {
@@ -464,9 +475,9 @@ export const getDeviceWidgetOnePage = (
         if (!settings.icon && device.common.icon) {
             if (settings) {
                 delete settings.iconSmall;
-                settings.icon = device.common.icon;
+                settings.icon = deviceIcon(device);
             } else {
-                settings = { icon: device.common.icon };
+                settings = { icon: deviceIcon(device) };
             }
         }
         const _set = device.states.find(state => state.common.role === role);

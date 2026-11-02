@@ -435,31 +435,8 @@ export default class Map extends Generic<MapRxData, MapState> {
                 }
                 object.common ||= {} as ioBroker.StateCommon;
 
-                if (
-                    !this.state.rxData[`icon${index}`] &&
-                    !object.common.icon &&
-                    (object.type === 'state' || object.type === 'channel')
-                ) {
-                    const idArray = this.state.rxData[`position${index}`].split('.');
-
-                    // read channel
-                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon) {
-                        const grandParentObject = await this.props.context.socket.getObject(
-                            idArray.slice(0, -2).join('.'),
-                        );
-                        if (grandParentObject?.common?.icon) {
-                            object.common.icon = grandParentObject.common.icon;
-                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                            }
-                        }
-                    } else {
-                        object.common.icon = parentObject.common.icon;
-                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                        }
-                    }
+                if (!this.state.rxData[`icon${index}`]) {
+                    object.common.icon = await this.findStateIcon(this.state.rxData[`position${index}`], object);
                 }
                 objects[index] = { common: object.common as ioBroker.StateCommon, _id: object._id };
             }

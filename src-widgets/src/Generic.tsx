@@ -1,6 +1,8 @@
 import type { VisRxWidgetState } from '@iobroker/types-vis-2';
 import type VisRxWidget from '@iobroker/types-vis-2/visRxWidget';
 
+import { getObjectIcon, type ObjectWithIcon } from './Components/objectIcon';
+
 export const HISTORY_ADAPTER_NAMES = ['history', 'sql', 'influxdb'];
 
 export default class Generic<
@@ -38,44 +40,37 @@ export default class Generic<
     }
 
     static getObjectIcon(obj: ioBroker.Object, id: string, imagePrefix?: string): string | null {
-        imagePrefix ||= '../..'; // http://localhost:8081';
-        let src = '';
-        const common = obj?.common;
+        return getObjectIcon(obj, id, imagePrefix || undefined);
+    }
 
-        if (common) {
-            const cIcon = common.icon;
-            if (cIcon) {
-                if (!cIcon.startsWith('data:image/')) {
-                    if (cIcon.includes('.')) {
-                        let instance;
-                        if (obj.type === 'instance' || obj.type === 'adapter') {
-                            src = `${imagePrefix}/adapter/${common.name as string}/${cIcon}`;
-                        } else if (id && id.startsWith('system.adapter.')) {
-                            instance = id.split('.', 3);
-                            if (cIcon[0] === '/') {
-                                instance[2] += cIcon;
-                            } else {
-                                instance[2] += `/${cIcon}`;
-                            }
-                            src = `${imagePrefix}/adapter/${instance[2]}`;
-                        } else {
-                            instance = id.split('.', 2);
-                            if (cIcon[0] === '/') {
-                                instance[0] += cIcon;
-                            } else {
-                                instance[0] += `/${cIcon}`;
-                            }
-                            src = `${imagePrefix}/adapter/${instance[0]}`;
-                        }
-                    } else {
-                        return null;
-                    }
-                } else {
-                    src = cIcon;
-                }
-            }
+    /**
+     * The icon of a state for the widget: its own, or else the one of its channel, or else the one of its device -
+     * as an address the browser can load from the page.
+     *
+     * The icon of a device usually sits on the device and not on its states, and its path is relative to the adapter
+     * that wrote it. Every widget that showed such an icon used to take it over as it was, and the browser looked for
+     * it next to the page.
+     *
+     * @param id - the id of the state
+     * @param object - the object of the state
+     */
+    async findStateIcon(id: string, object: ObjectWithIcon | null | undefined): Promise<string | undefined> {
+        if (object?.common?.icon) {
+            return getObjectIcon(object, id, '..') || undefined;
+        }
+        if (object?.type !== 'state' && object?.type !== 'channel') {
+            return undefined;
         }
 
-        return src || null;
+        const idArray = id.split('.');
+        const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
+        if (parentObject?.common?.icon) {
+            return getObjectIcon(parentObject, parentObject._id, '..') || undefined;
+        }
+        const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
+        if (grandParentObject?.common?.icon) {
+            return getObjectIcon(grandParentObject, grandParentObject._id, '..') || undefined;
+        }
+        return undefined;
     }
 }

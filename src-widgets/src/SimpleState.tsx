@@ -407,26 +407,7 @@ export default class SimpleState extends Generic<SimpleStateRxData, SimpleStateS
             object.common.states = states;
         }
 
-        if (!object.common.icon && (object.type === 'state' || object.type === 'channel')) {
-            const idArray = this.state.rxData.oid.split('.');
-
-            // read channel
-            const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-            if (!parentObject?.common?.icon) {
-                const grandParentObject = await this.props.context.socket.getObject(idArray.slice(0, -2).join('.'));
-                if (grandParentObject?.common?.icon) {
-                    object.common.icon = grandParentObject.common.icon;
-                    if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                        object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                    }
-                }
-            } else {
-                object.common.icon = parentObject.common.icon;
-                if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                    object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                }
-            }
-        }
+        object.common.icon = await this.findStateIcon(this.state.rxData.oid, object);
 
         if (object.common.name && typeof object.common.name === 'object') {
             object.common.name = object.common.name[Generic.getLanguage()] || object.common.name.en;

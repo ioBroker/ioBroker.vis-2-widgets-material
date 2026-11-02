@@ -187,32 +187,8 @@ class Static extends Generic<StaticRxData, StaticState> {
                 }
                 object.common = object.common || {};
                 const isChart = !!(defaultHistory && object.common.custom?.[defaultHistory]);
-                if (
-                    !this.state.rxData[`icon${i}`] &&
-                    !this.state.rxData[`iconSmall${i}`] &&
-                    !object.common.icon &&
-                    (object.type === 'state' || object.type === 'channel')
-                ) {
-                    const idArray = this.state.rxData[`oid${i}`].split('.');
-
-                    // read channel
-                    const parentObject = await this.props.context.socket.getObject(idArray.slice(0, -1).join('.'));
-                    if (!parentObject?.common?.icon) {
-                        const grandParentObject = await this.props.context.socket.getObject(
-                            idArray.slice(0, -2).join('.'),
-                        );
-                        if (grandParentObject?.common?.icon) {
-                            object.common.icon = grandParentObject.common.icon;
-                            if (grandParentObject.type === 'instance' || grandParentObject.type === 'adapter') {
-                                object.common.icon = `../${grandParentObject.common.name}.admin/${object.common.icon}`;
-                            }
-                        }
-                    } else {
-                        object.common.icon = parentObject.common.icon;
-                        if (parentObject.type === 'instance' || parentObject.type === 'adapter') {
-                            object.common.icon = `../${parentObject.common.name}.admin/${object.common.icon}`;
-                        }
-                    }
+                if (!this.state.rxData[`icon${i}`] && !this.state.rxData[`iconSmall${i}`]) {
+                    object.common.icon = await this.findStateIcon(this.state.rxData[`oid${i}`], object);
                 }
                 objects[i] = { common: object.common, _id: object._id, isChart };
             }
