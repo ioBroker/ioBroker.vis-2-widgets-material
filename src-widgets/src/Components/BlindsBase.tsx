@@ -102,6 +102,8 @@ export interface BlindsBaseRxData {
     [key: `slideHandle_oid${number}`]: string;
     [key: `slideType${number}`]: '' | 'left' | 'right' | 'top' | 'bottom';
     [key: `slideRatio${number}`]: number;
+    [key: `oid${number}`]: string;
+    [key: `oid_stop${number}`]: string;
     oid: string;
     oid_stop: string;
     invert: boolean | 'true';
@@ -164,7 +166,7 @@ class BlindsBase<
         customOid: boolean;
         hasControl: boolean;
     } {
-        const stopOid = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
+        let stopOid: string = index ? this.state.rxData[`slideStop_oid${index}`] : this.state.rxData.oid_stop;
         let positionOid: string =
             index && !this.state.rxData.oid ? this.state.rxData[`slidePos_oid${index}`] : this.state.rxData.oid;
         let invert: boolean =
@@ -178,6 +180,17 @@ class BlindsBase<
                 this.state.rxData[`slidePos_oid${index}`] !== 'nothing_selected'
                     ? this.state.rxData[`slidePos_oid${index}`]
                     : '';
+            // Switches widget: the position is stored in oidX of the button
+            if (
+                !positionOid &&
+                this.state.rxData[`oid${indexOfButton}`] &&
+                this.state.rxData[`oid${indexOfButton}`] !== 'nothing_selected'
+            ) {
+                positionOid = this.state.rxData[`oid${indexOfButton}`];
+                if (this.state.rxData[`oid_stop${indexOfButton}`] !== undefined) {
+                    stopOid = this.state.rxData[`oid_stop${indexOfButton}`];
+                }
+            }
             invert =
                 this.state.rxData[`slideInvert${indexOfButton}`] === true ||
                 this.state.rxData[`slideInvert${indexOfButton}`] === 'true';
@@ -305,7 +318,7 @@ class BlindsBase<
             invert,
             stopOid,
             positionOid,
-            customOid: positionOid !== this.state.rxData.oid,
+            customOid: indexOfButton !== undefined ? !!positionOid : positionOid !== this.state.rxData.oid,
             hasControl: positionOid !== 'nothing_selected' && !!positionOid,
         };
     }
